@@ -1,0 +1,11 @@
+dist/
+node_modules/
+.next/
+.turbo/
+coverage/
+pnpm-lock.yaml
+.pnpm-store/
+# shadcn/Magic UI registry output — vendored, formatted upstream.
+# Kept in sync with the `overrides` block in biome.json.
+components/ui/
+components/magicui/
