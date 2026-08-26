@@ -17,14 +17,39 @@ live v1 site and stays untouched until this branch passes the preview gate.
 
 ## Current phase
 
-Phase 1 complete — awaiting review of this architecture before Phase 2.
+Phase 2 complete — the architecture is validated and the prototype passed
+every kill criterion. `/proto` (noindex, throwaway) holds the reference
+implementation.
+
+### Prototype verdict (measured, production build)
+
+| Kill criterion | Target | Result |
+| --- | --- | --- |
+| Desktop scrub | ≥55 fps | **16.6 ms median (vsync floor), 1.9% jank** |
+| 4× CPU throttle | ≥40 fps | **16.7 ms median, 2.6% jank** |
+| Lifecycle | no leaks | triggers 1→1→0 across 6 mount/unmount cycles, heap flat at 12.1 MB, no context-limit warnings |
+| Fallback | same content, no canvas | reduced-motion mounts zero canvas, zero pins; SVG mark + full headline + CTAs |
+
+The decisive comparison: at 4× throttle the WebGL world holds the frame-rate
+floor with 2.6% jank while the **current live DOM site** drops 60% of frames.
+The film architecture (scroll → GSAP timeline → plain numbers → camera, React
+nowhere in the frame path) is the right foundation — proceed.
+
+What the prototype established, to reuse verbatim in Phase 3:
+- `lib/ribbon-mesh.ts` — the swept, twisted, chevron-cut ribbon built from
+  `lib/ribbon-geometry.json` (emitted by the brand generator; one geometry)
+- `components/proto/film.ts` — the shared film object + camera states
+- the master-timeline pattern in `proto-experience.tsx` (pin + scrub + DOM
+  tweens and camera tweens on one clock)
+- the tier gate (`webglAvailable` + reduced motion → DOM experience)
+- R3F mount/unmount hygiene (geometry/texture/PMREM disposal)
 
 ## Next phase
 
-**Phase 2 — technical prototype.** The hardest interaction first: the ribbon
-mesh built from the shared generator parameters + camera rig + one master
-scrubbed timeline + DOM synchronisation, on a throwaway route. Kill criteria
-below must pass before any full build.
+**Phase 3 — desktop entry + transformation.** Build the real Scene A→D on the
+homepage (spatial-v2): persistent world, hero reveal, portal, the
+transformation environment, DOM synchronisation, nav integration — using the
+proto architecture. `/proto` is deleted at the end of Phase 3.
 
 ---
 

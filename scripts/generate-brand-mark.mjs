@@ -226,8 +226,46 @@ function svg({ mono }) {
   ].join("\n")
 }
 
+// ---- 3D sweep data --------------------------------------------------------
+//
+// The same geometry, sampled for the spatial ribbon: positions along the
+// spine, unit tangents/normals, and a twist angle θ(t). The 2D mark's fold
+// logic (front → back → front) is the flat projection of one full 360° twist:
+// θ runs 0 → π through TWIST_IN and π → 2π through TWIST_OUT. The 3D build
+// consumes this JSON verbatim, so the logo and the cinematic object are one
+// definition.
+
+function theta(t) {
+  const ramp = ([a, b]) =>
+    t <= a ? 0 : t >= b ? 1 : smooth((t - a) / (b - a))
+  return Math.PI * ramp(TWIST_IN) + Math.PI * ramp(TWIST_OUT)
+}
+
+function sweepData(samples = 240) {
+  const frames = []
+  for (let i = 0; i <= samples; i++) {
+    const t = i / samples
+    const [x, y] = point(t)
+    const [nx, ny] = normal(t)
+    frames.push({
+      p: [+x.toFixed(3), +y.toFixed(3)],
+      n: [+nx.toFixed(4), +ny.toFixed(4)],
+      theta: +theta(t).toFixed(4),
+    })
+  }
+  return {
+    halfWidth: HALF_WIDTH,
+    cuts: [CUT_A, CUT_B],
+    bounds: bounds(),
+    frames,
+  }
+}
+
 import { writeFileSync } from "node:fs"
 
 writeFileSync("public/brand/codera-mark.svg", `${svg({ mono: false })}\n`)
 writeFileSync("public/brand/codera-mark-mono.svg", `${svg({ mono: true })}\n`)
-console.log("wrote public/brand/codera-mark.svg and codera-mark-mono.svg")
+writeFileSync("lib/ribbon-geometry.json", `${JSON.stringify(sweepData())}\n`)
+console.log(
+  "wrote public/brand/codera-mark.svg, codera-mark-mono.svg and lib/ribbon-geometry.json"
+)
