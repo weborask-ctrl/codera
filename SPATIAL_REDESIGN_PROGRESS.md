@@ -17,7 +17,7 @@ live v1 site and stays untouched until this branch passes the preview gate.
 
 ## Current phase
 
-Phase 8 complete — the film is whole. A (surface) → B (reveal) → C (portal)
+Phases 9–10 complete — awaiting the preview gate — the film is whole. A (surface) → B (reveal) → C (portal)
 → D (transformation) → E1–E3 (work) → F (the mark splits into its three
 strands for the offer) → G (the strands close back into the completed C,
 wordmark lands). One pin, one timeline, 28.2 units over 860%.
@@ -174,10 +174,28 @@ What the prototype established, to reuse verbatim in Phase 3:
 - Budgets at 6× CPU, 390 px: LCP 1 164 ms (< 2.5 s), CLS 0, scroll jank
   10.3%. Desktop world: vsync-floor medians at 1× and 4×.
 
+### Phase 9 — motion polish (no new signature effects)
+
+- Forma’s surface reveals only once the camera commits to the move — no
+  ghosting into the settled Vitalis frame.
+- The active offer strand is unmistakably lit (emissive ×1.1).
+- The completed C breathes again in the resolution (idle 0.35).
+
+### Phase 10 — QA
+
+- **74 passed / 1 skipped across Chromium, Firefox and WebKit** (the skip is
+  the WebKit keyboard walk, OS-limited as documented).
+- Eight-width sweep 320→1920: zero overflow, zero page errors, footer
+  reachable everywhere (the lone 1024 “failure” was a harness race —
+  scrolling before the master pin existed — reverified clean).
+- Keyboard, reduced motion, no-JS, contrast: covered by the suite.
+
 ## Next phase
 
-**Phase 9 — motion polish** (Forma reveal delay, camera easing pass, glow
-strength, wordmark spacing), then **10 — full QA** and the preview gate.
+**Preview gate**: push spatial-v2 → Vercel preview → verify desktop world,
+mobile experience, runtime errors and loading in the real environment →
+then the production release checklist (final validation, dead code, merge,
+verify https://www.codera.sk).
 
 ---
 

@@ -115,7 +115,7 @@ function Ribbon() {
         material: { emissiveIntensity: number }
       }).material
       const glow = i === 0 ? film.glow0 : i === 1 ? film.glow1 : film.glow2
-      material.emissiveIntensity = glow * 0.55
+      material.emissiveIntensity = glow * 1.1
     }
   })
 

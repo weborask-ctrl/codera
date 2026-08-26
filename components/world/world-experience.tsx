@@ -248,7 +248,8 @@ function WorldStage() {
           .to("[data-work='vitalis']", { opacity: 0, y: -30, duration: 0.8 }, 14.6)
           .to(film.cam, { ...E3.cam, duration: 2.4 }, 14.8)
           .to(film.target, { ...E3.target, duration: 2.4 }, 14.8)
-          .to(film, { envTone: 2, planeForma: 1, planeVitalis: 0, duration: 2.2 }, 15.0)
+          .to(film, { envTone: 2, planeVitalis: 0, duration: 2.2 }, 15.0)
+          .to(film, { planeForma: 1, duration: 1.6 }, 15.6)
           .fromTo(
             '[data-work="forma"]',
             { opacity: 0, y: 40 },
@@ -297,6 +298,7 @@ function WorldStage() {
           .to(film.target, { ...G.target, duration: 2.2 }, 25.2)
           .to(film, { glow2: 0, key: G.key, duration: 1 }, 25.2)
           .to(film, { strand: 0, duration: 1.4, ease: "power2.inOut" }, 26.0)
+          .to(film, { idle: 0.35, duration: 1.2 }, 26.6)
           .call(setState("g"), undefined, 27.0)
           .fromTo(
             "[data-resolution]",
