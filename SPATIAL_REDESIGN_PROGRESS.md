@@ -17,7 +17,7 @@ live v1 site and stays untouched until this branch passes the preview gate.
 
 ## Current phase
 
-Phase 6 complete — the film is whole. A (surface) → B (reveal) → C (portal)
+Phase 7 complete — the film is whole. A (surface) → B (reveal) → C (portal)
 → D (transformation) → E1–E3 (work) → F (the mark splits into its three
 strands for the offer) → G (the strands close back into the completed C,
 wordmark lands). One pin, one timeline, 28.2 units over 860%.
@@ -146,11 +146,22 @@ What the prototype established, to reuse verbatim in Phase 3:
   reduced motion. 25/25 green, including a new mobile test (no pins, no
   canvas, deck swipe flips the chapter, slider keyboard-operable).
 
+### Phase 7 — tablet, decided by pointer and verified
+
+- **768 (portrait, touch) → mobile-plus**: the swipe deck shows two cards,
+  metadata clean, 0 pins / 0 canvas / 0 overflow / no errors.
+- **1024 (landscape, touch) → the world**: entirely scroll-driven; hover is
+  enhancement only (pointer sway and magnetic CTAs disable themselves on
+  coarse pointers). Verified clean at 1024×768 with the pin advancing.
+- No code was needed — the 1024 tier boundary and the coarse-pointer guards
+  already implement the intended behaviour. Polish note for Phase 9: delay
+  the Forma plane reveal ~0.5u so its edge cannot ghost into the settled
+  Vitalis frame on short viewports.
+
 ## Next phase
 
-**Phase 7 — tablet** (768/1024 audit, pointer-based decision), then
-**8 — performance** (bundle, assets, spike hunt), **9 — motion polish**,
-**10 — full QA** and the preview gate.
+**Phase 8 — performance** (bundle split verification, deck texture variants,
+spike hunt), then **9 — motion polish**, **10 — full QA**, preview gate.
 
 ---
 
