@@ -11,8 +11,13 @@ import { cn } from "@/lib/utils"
  */
 
 type SectionProps = React.ComponentPropsWithoutRef<"section"> & {
-  /** `ink` is the single deep chapter; it also flips descendant tokens dark. */
-  tone?: "default" | "surface" | "ink"
+  /**
+   * `paper` is a light chapter. It re-points every colour token underneath it
+   * rather than adding light-mode classes to each component inside, so the
+   * same markup renders correctly on either ground — and the navigation bar
+   * detects it by the attribute alone and inverts itself while it passes.
+   */
+  tone?: "default" | "surface" | "paper"
   size?: "default" | "sm"
 }
 
@@ -24,10 +29,11 @@ export function Section({
 }: SectionProps) {
   return (
     <section
+      data-chapter={tone === "paper" ? "paper" : undefined}
       className={cn(
         size === "sm" ? "section-pad-sm" : "section-pad",
         tone === "surface" && "bg-surface",
-        tone === "ink" && "dark bg-ink text-foreground",
+        tone === "paper" && "bg-background text-foreground",
         className
       )}
       {...props}

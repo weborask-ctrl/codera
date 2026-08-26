@@ -1,14 +1,9 @@
 import { Contact } from "@/components/site/contact"
-import { Hero } from "@/components/site/hero"
-import { Offer } from "@/components/site/offer"
-import { ProcessTimeline } from "@/components/site/process-timeline"
 import { Projects } from "@/components/site/projects"
-import { Quality } from "@/components/site/quality"
+import { SceneHero } from "@/components/site/scene-hero"
 import { Services } from "@/components/site/services"
 import { SiteFooter } from "@/components/site/site-footer"
-import { SiteHeader } from "@/components/site/site-header"
-import { Team } from "@/components/site/team"
-import { Transformation } from "@/components/site/transformation"
+import { SiteNav } from "@/components/site/site-nav"
 import { commercial, people, siteConfig } from "@/lib/site-config"
 
 /**
@@ -91,16 +86,11 @@ const faqData = {
 export default function Page() {
   return (
     <>
-      <SiteHeader />
+      <SiteNav />
       <main id="hlavny-obsah">
-        <Hero />
-        <Offer />
+        <SceneHero />
         <Projects />
         <Services />
-        <Transformation />
-        <ProcessTimeline />
-        <Team />
-        <Quality />
         <Contact />
       </main>
       <SiteFooter />

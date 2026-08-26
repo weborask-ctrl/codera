@@ -3,7 +3,7 @@ import type { Metadata } from "next"
 import { ButtonLink } from "@/components/site/button-link"
 import { Container } from "@/components/site/primitives"
 import { SiteFooter } from "@/components/site/site-footer"
-import { SiteHeader } from "@/components/site/site-header"
+import { SiteNav } from "@/components/site/site-nav"
 
 export const metadata: Metadata = {
   title: "Stránka sa nenašla",
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function NotFound() {
   return (
     <>
-      <SiteHeader />
+      <SiteNav />
       <main id="hlavny-obsah">
         <Container>
           <div className="flex min-h-[60svh] max-w-[36rem] flex-col justify-center py-24">

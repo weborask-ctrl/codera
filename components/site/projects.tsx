@@ -1,4 +1,4 @@
-import { IndexMark } from "@/components/site/codera-motif"
+import { IndexMark } from "@/components/site/arc"
 import { BrowserFrame } from "@/components/site/device-frames"
 import { FormaPreview } from "@/components/site/previews/forma"
 import { KonstruktPreview } from "@/components/site/previews/konstrukt"
@@ -86,7 +86,7 @@ const PROJECTS: Project[] = [
 
 export function Projects() {
   return (
-    <Section id="projekty" aria-labelledby="projects-heading">
+    <Section id="praca" aria-labelledby="projects-heading">
       <Container>
         <Reveal>
           <SectionHeader

@@ -1,22 +1,32 @@
 import type { Metadata, Viewport } from "next"
-import { Geist_Mono, Inter } from "next/font/google"
+import { Archivo, Geist_Mono } from "next/font/google"
 
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
 import { siteConfig } from "@/lib/site-config"
 import { cn } from "@/lib/utils"
 
-/* `latin-ext` is required, not optional: without it every Slovak diacritic
-   (č, ď, ľ, ĺ, ň, ô, ŕ, š, ť, ž) falls back to a different face mid-word. */
-const inter = Inter({
+/**
+ * Two faces, and the second one only ever appears at 11px.
+ *
+ * Archivo is a variable grotesque with a real **width** axis, which is why it
+ * is here rather than a second static display face: the offer scene expands
+ * and compresses its headline as motion, and doing that by scaling type would
+ * distort the letterforms. One variable file covers the whole range.
+ *
+ * `latin-ext` is required, not optional. Without it every Slovak diacritic
+ * (č, ď, ľ, ĺ, ň, ô, ŕ, š, ť, ž) silently falls back to a different face
+ * mid-word, which is unmissable at display sizes.
+ */
+const archivo = Archivo({
   subsets: ["latin", "latin-ext"],
-  variable: "--font-sans",
+  axes: ["wdth"],
+  variable: "--font-archivo",
   display: "swap",
 })
 
-const fontMono = Geist_Mono({
+const geistMono = Geist_Mono({
   subsets: ["latin", "latin-ext"],
-  variable: "--font-mono",
+  variable: "--font-geist-mono",
   display: "swap",
 })
 
@@ -64,12 +74,16 @@ export const metadata: Metadata = {
   formatDetection: { telephone: false },
 }
 
+/**
+ * One ground colour, declared once.
+ *
+ * There is no light/dark theme to switch between: the page's dark/light rhythm
+ * is authored per scene, so the browser chrome should match the ground the
+ * page actually opens on rather than the visitor's system preference.
+ */
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#181b1f" },
-  ],
-  colorScheme: "light dark",
+  themeColor: "#0a0b0c",
+  colorScheme: "dark",
 }
 
 export default function RootLayout({
@@ -80,17 +94,12 @@ export default function RootLayout({
   return (
     <html
       lang="sk"
-      suppressHydrationWarning
-      className={cn(
-        "antialiased",
-        fontMono.variable,
-        "font-sans",
-        inter.variable
-      )}
+      className={cn("antialiased", archivo.variable, geistMono.variable)}
     >
       <head>
-        {/* Scroll entrances are progressive enhancement: with scripting off,
-            the content must simply be there. */}
+        {/* Every entrance on this page is progressive enhancement. With
+            scripting off the content must simply be there — not faded to
+            zero opacity waiting for an observer that will never run. */}
         <noscript>
           <style>
             {".reveal{opacity:1;transform:none;filter:none}.reveal-wipe>*{clip-path:none;transform:none}"}
@@ -98,15 +107,13 @@ export default function RootLayout({
         </noscript>
       </head>
       <body>
-        <ThemeProvider>
-          <a
-            href="#hlavny-obsah"
-            className="sr-only rounded-full bg-brand px-4 py-2 text-small font-medium text-brand-foreground focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100]"
-          >
-            Preskočiť na hlavný obsah
-          </a>
-          {children}
-        </ThemeProvider>
+        <a
+          href="#hlavny-obsah"
+          className="sr-only rounded-full bg-brand px-4 py-2 text-small font-medium text-brand-foreground focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100]"
+        >
+          Preskočiť na hlavný obsah
+        </a>
+        {children}
       </body>
     </html>
   )

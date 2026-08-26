@@ -32,7 +32,7 @@ export const siteConfig = {
  */
 export const commercial = {
   priceFrom: "699 €",
-  priceFromLabel: "Weby od 699 €",
+  priceFromLabel: "Webové projekty od 699 €",
   firstProposalHours: 72,
   responseHours: 24,
   typicalDeliveryDays: 14,
@@ -69,22 +69,40 @@ export type NavItem = {
   readonly href: string
 }
 
+/**
+ * Three links, because the page is three destinations plus a hero.
+ *
+ * The old five-item nav described a page built from nine stacked sections.
+ * This one describes the four scenes: the work, what we sell, and how to
+ * start. Anything that used to have its own nav entry now lives inside one of
+ * those, which is the point — a menu is a table of contents, and a table of
+ * contents with five entries for a page you can read in four scrolls is
+ * telling the visitor the page is longer than it is.
+ */
 export const navItems: readonly NavItem[] = [
+  { label: "Práca", href: "#praca" },
   { label: "Služby", href: "#sluzby" },
-  { label: "Projekty", href: "#projekty" },
-  { label: "Proces", href: "#proces" },
-  { label: "O nás", href: "#o-nas" },
   { label: "Kontakt", href: "#kontakt" },
 ]
 
 /**
- * One CTA concept for the whole page: "Nezáväzná konzultácia".
+ * One CTA concept for the whole page: "Začať projekt".
+ *
  * It points at the enquiry form rather than opening a mail client, so the
- * primary path is always the low-friction one.
+ * primary path is always the low-friction one. The label is an instruction,
+ * not a description of a meeting — "nezáväzná konzultácia" was accurate and
+ * completely inert, and the reassurance it was carrying now sits next to the
+ * form where it actually reduces friction.
  */
 export const primaryCta = {
-  label: "Nezáväzná konzultácia",
+  label: "Začať projekt",
   href: "#kontakt",
+} as const
+
+/** The one secondary action allowed alongside it. */
+export const secondaryCta = {
+  label: "Pozrieť prácu",
+  href: "#praca",
 } as const
 
 export const mailtoHref = `mailto:${siteConfig.email}`

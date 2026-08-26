@@ -80,23 +80,32 @@ One orchestration layer. **GSAP + ScrollTrigger**, and nothing else.
 ## React Bits
 
 Registry naming is `{Name}-{TS|JS}-{TW|CSS}`; this project takes `-TS-TW`.
-Installed set (chosen for role, not for count):
+Installed into `components/react-bits/`, all substantially rewritten:
 
-| Component | Role |
-| --- | --- |
-| `MaskedHeading` | Masked reveal for the four scene statements only |
-| `Magnet` | Primary CTAs — small, premium travel |
-| `GlareHover` | Specular response on the project stage |
-| `GradualBlur` | Edge falloff on pinned stages |
-| `StaggeredMenu` | Immersive navigation |
-| `CountUp` | Commercial numbers near the decision |
-| `ScrollReveal` | The single scrubbed word-level statement |
+| Component | Role | What changed |
+| --- | --- | --- |
+| `Magnet` | Primary CTAs | Rewritten off React state — it rendered React on *every mousemove*. Now ref + rAF, damped, and the listener is skipped entirely when disabled |
+| `GlareHover` | Specular sweep on work surfaces | Rewritten as CSS-only: its mouse handlers sat on a static div (a11y failure) and never reached keyboard users. Now `:hover`/`:focus-within`; the glare rides the metal ramp instead of white |
+| `ScrollReveal` | The one scrubbed statement | **Fixed a page-breaking bug**: its cleanup ran `ScrollTrigger.getAll().forEach(kill)`, so unmounting it would unpin every other scene on the page. Now scoped to its own `gsap.context`. Added a reduced-motion path; dropped the rotation |
+| `CountUp` | Commercial numbers | Wired in Phase 5 |
 
-Deliberately **not** installed: `Ribbons` (ogl cursor-trail — reads as a demo
-toy, and the arc language is authored SVG instead), `ScrollStack` (pulls
-Lenis), `SpecularButton` / `Threads` / `Lightfall` (ogl per instance),
-`MetallicPaint` (its liquid-metal pass is heavier and less controllable than
-an authored SVG specular sweep on the real mark).
+**Evaluated and rejected**, with reasons — the bar is "does it improve the
+experience", not "is it installed":
+
+- `StaggeredMenu` — its choreography is adopted in `site-nav.tsx` (pre-layers,
+  item rise-with-rotate, index fade). The component is not: its panel keeps its
+  links in the tab order while closed, has no Escape handling and no focus
+  containment, and reaching this site's accessibility floor from there meant
+  rewriting it rather than configuring it.
+- `GradualBlur` — 296 lines and 13 `any`s for an effect that is ~25 lines of
+  stacked `backdrop-filter`. Technique adopted, component dropped.
+- `MaskedHeading` — fills headline type with a photograph and sizes itself from
+  container width. Fights both the type scale and the colour rule. The
+  masked-reveal role is served by the `.reveal-wipe` clip primitive.
+- `Ribbons` (ogl cursor-trail — reads as a demo toy, and the arc language is
+  authored SVG instead), `ScrollStack` (pulls Lenis), `SpecularButton` /
+  `Threads` / `Lightfall` (a WebGL context each), `MetallicPaint` (heavier and
+  less controllable than an authored SVG specular on the real mark).
 
 ---
 
@@ -105,6 +114,12 @@ an authored SVG specular sweep on the real mark).
 - **Phase 1 — audit + architecture.** Repository, dependencies, component
   architecture, `components.json`, React Bits registry, concept content and
   Playwright suite all inspected. Architecture above decided.
+- **Phase 2 — design system + Scene 01.** Dark-first token layer; Archivo
+  variable display type (width axis, `latin-ext`); the arc component family;
+  navigation (desktop bar + immersive menu); Scene 01 built and verified at
+  390 / 1440 / 1920. `next-themes` removed — there is no user theme any more.
+  90 unreferenced library components deleted and 10 dependencies dropped.
+  Build, typecheck, biome, eslint and 18 Playwright tests all green.
 
 ## Current state
 
@@ -119,16 +134,21 @@ Production site is intact and untouched. Existing strengths being kept:
 - Accessibility floor in `app/globals.css` (focus ring, reduced motion,
   reduced transparency, contrast) — carried over.
 
-Dead weight identified for removal: **90 of 93 files in `components/ui` and
-`components/magicui` are unreferenced** (only `ui/button` is used by site
-code). Removing them drops `cobe`, `canvas-confetti`, `react-tweet`, `shiki`,
-`@shikijs/transformers`, `rough-notation`, `@radix-ui/react-accordion` and
-`@radix-ui/react-icons`.
+Still standing from the old page, and due for replacement:
+`projects.tsx` (Phase 4), `services.tsx` (Phase 3/5), `contact.tsx` +
+`site-footer.tsx` (Phase 5). They render correctly on the new ground because
+they were already token-based — but they are the old card-and-list design, not
+the scene architecture.
+
+Deleted in Phase 2: 90 unreferenced library components, the theme provider and
+its hidden `d` hotkey, and the old header/hero/offer/process/team/quality/
+transformation sections. Dependencies went from 23 to 13.
 
 ## Next phase
 
-**Phase 2 — design system + hero.** Palette to dark-first graphite, display
-typeface, navigation, Scene 01 composition, arc interaction, first transition.
+**Phase 3 — scroll choreography + transformation.** The continuous Scene 01 →
+Scene 02 handoff (the arc opening into the next environment), the
+average-site → Codera transformation, and the scrubbed statement.
 
 ## Known issues
 

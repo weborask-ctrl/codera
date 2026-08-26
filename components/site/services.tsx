@@ -1,5 +1,5 @@
+import { IndexMark } from "@/components/site/arc"
 import { ButtonLink } from "@/components/site/button-link"
-import { IndexMark } from "@/components/site/codera-motif"
 import { Container, Section, SectionHeader } from "@/components/site/primitives"
 import { Reveal } from "@/components/site/reveal"
 import { commercial, primaryCta } from "@/lib/site-config"

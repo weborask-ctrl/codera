@@ -1,4 +1,4 @@
-import { Logo } from "@/components/site/logo"
+import { Logo } from "@/components/site/arc"
 import { Container } from "@/components/site/primitives"
 import { legal, mailtoHref, siteConfig, telHref } from "@/lib/site-config"
 

@@ -3,26 +3,56 @@ import { expect, type Page, test } from "@playwright/test"
 /**
  * Waits until React has hydrated.
  *
- * The hero reveals mark themselves the moment the client effects run, so the
- * first `data-revealed` element is a reliable hydration signal. Without this
- * gate the interaction tests race the dev server's on-demand compilation and
- * click a button that has no handler attached yet.
+ * The scroll entrances mark themselves the moment the client effects run, so
+ * the first `data-revealed` element is a reliable hydration signal. Without
+ * this gate the interaction tests race the server's on-demand compilation and
+ * click a control that has no handler attached yet.
  */
 async function waitForHydration(page: Page) {
   await page.waitForFunction(
-    () => document.querySelector('.reveal[data-revealed="true"]') !== null,
+    () =>
+      document.querySelector('.reveal[data-revealed="true"]') !== null ||
+      document.querySelector("[data-motion='on']") !== null,
     undefined,
     { timeout: 20_000 }
   )
 }
 
 /**
+ * Perceived lightness of a computed colour, normalised to 0–1.
+ *
+ * `getComputedStyle` does not hand back a consistent format for a colour
+ * authored in `oklch`: Chromium resolves it to `lab()`, other engines may
+ * return `oklch()` or `color()`, and only the legacy sRGB path gives `rgb()`.
+ * Reading "the first three numbers" and treating them as 0–255 quietly reports
+ * a near-black page as blinding white, so each form is scaled on its own
+ * terms.
+ */
+function lightness(value: string): number {
+  const numbers = value.match(/-?[\d.]+/g)?.map(Number) ?? []
+  if (numbers.length === 0) {
+    return 1
+  }
+  if (value.startsWith("rgb")) {
+    return Math.max(numbers[0], numbers[1], numbers[2]) / 255
+  }
+  // CIE Lab lightness runs 0–100; oklab/oklch lightness runs 0–1.
+  if (value.startsWith("lab")) {
+    return numbers[0] / 100
+  }
+  if (value.startsWith("oklab") || value.startsWith("oklch")) {
+    return numbers[0]
+  }
+  return 1
+}
+
+/**
  * Homepage suite.
  *
  * Asserts on structure, runtime health and accessibility contracts rather than
- * on marketing copy, so the tests survive wording changes but still fail if the
- * page breaks. Several claims made in the "technická kvalita" section are
- * verified here on purpose — they should not outlive the behaviour.
+ * on marketing copy, so the tests survive wording changes but still fail if
+ * the page breaks. The claims this site makes about its own technical quality
+ * are verified here on purpose — they should not outlive the behaviour.
  */
 test.describe("Codera homepage", () => {
   test("loads without console or runtime errors", async ({ page }) => {
@@ -63,12 +93,22 @@ test.describe("Codera homepage", () => {
     ).toEqual([])
   })
 
-  test("renders the themed Slovak document shell", async ({ page }) => {
+  test("serves a Slovak document on the graphite ground", async ({ page }) => {
     await page.goto("/")
 
     await expect(page.locator("html")).toHaveAttribute("lang", "sk")
-    // next-themes resolves a concrete theme onto <html> before hydration.
-    await expect(page.locator("html")).toHaveClass(/(^|\s)(light|dark)(\s|$)/)
+
+    // There is no user-toggled theme: the page's dark/light rhythm is authored
+    // per scene. The ground must therefore be dark on first paint, with no
+    // class swap and no flash to wait for.
+    const ground = await page.evaluate(
+      () => getComputedStyle(document.body).backgroundColor
+    )
+
+    expect(
+      lightness(ground),
+      `body ground should be near-black, got ${ground}`
+    ).toBeLessThan(0.25)
   })
 
   test("offers a working skip link", async ({ page, browserName }) => {
@@ -93,7 +133,7 @@ test.describe("Codera homepage", () => {
     await expect(page.locator("#hlavny-obsah")).toHaveCount(1)
   })
 
-  test("exposes a single H1 and every landmark section", async ({ page }) => {
+  test("exposes a single H1 and every scene landmark", async ({ page }) => {
     await page.goto("/")
 
     await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1)
@@ -115,18 +155,29 @@ test.describe("Codera homepage", () => {
       previous = level
     }
 
-    for (const id of [
-      "sluzby",
-      "projekty",
-      "premena",
-      "proces",
-      "o-nas",
-      "kvalita",
-      "kontakt",
-    ]) {
+    // Every destination the navigation offers has to exist.
+    for (const id of ["top", "praca", "sluzby", "kontakt"]) {
       await expect(
         page.locator(`#${id}`),
-        `section #${id} should exist`
+        `scene #${id} should exist`
+      ).toHaveCount(1)
+    }
+  })
+
+  test("every navigation link resolves to a real target", async ({ page }) => {
+    await page.goto("/")
+
+    const hrefs = await page
+      .locator('header nav a[href^="#"]')
+      .evaluateAll((nodes) =>
+        nodes.map((node) => (node as HTMLAnchorElement).getAttribute("href"))
+      )
+
+    expect(hrefs.length).toBeGreaterThan(0)
+    for (const href of hrefs) {
+      await expect(
+        page.locator(href as string),
+        `nav points at ${href}, which does not exist`
       ).toHaveCount(1)
     }
   })
@@ -161,20 +212,13 @@ test.describe("Codera homepage", () => {
     expect(service.aggregateRating, "no ratings exist yet").toBeUndefined()
   })
 
-  test("states price, delivery and response time above the fold region", async ({
+  test("never claims a company registration it does not have", async ({
     page,
   }) => {
     await page.goto("/")
 
-    // The commercial facts must be on the page, not buried in the footer.
-    const offer = page.locator("#cennik")
-    await expect(offer).toContainText("699")
-    await expect(offer).toContainText("72")
-    await expect(offer).toContainText("14")
-
-    // Codera has no registered entity, so the site must never claim one.
-    // Checked on the footer and contact section rather than the whole body:
-    // the before/after preview deliberately depicts a fictional 2011-era
+    // Checked on the footer and the contact scene rather than the whole body:
+    // the before/after comparison deliberately depicts a fictional 2011-era
     // company that does carry an "s.r.o." suffix, and that is not a claim
     // about Codera.
     for (const scope of ["footer", "#kontakt"]) {
@@ -195,6 +239,34 @@ test.describe("Codera homepage", () => {
     expect(await sitemap.text()).toContain("<urlset")
   })
 
+  test("the hero headline is present and unclipped", async ({ page }) => {
+    await page.goto("/")
+    await waitForHydration(page)
+    // The entrance clips each line group and slides it up. If the timeline
+    // ever fails to run, the text is in the DOM but sitting outside its own
+    // clip — visible to a DOM assertion and invisible to a human.
+    await page.waitForTimeout(2600)
+
+    const heading = page.getByRole("heading", { level: 1 })
+    await expect(heading).toBeVisible()
+    await expect(heading).toContainText("Vaša firma je lepšia")
+
+    const offsets = await page.$$eval("[data-hero-line]", (nodes) =>
+      nodes.map((node) => {
+        const line = node.getBoundingClientRect()
+        const clip = (node.parentElement as HTMLElement).getBoundingClientRect()
+        return line.top - clip.top
+      })
+    )
+    expect(offsets.length).toBeGreaterThan(0)
+    for (const offset of offsets) {
+      expect(
+        Math.abs(offset),
+        "a headline line finished outside its own clip"
+      ).toBeLessThan(4)
+    }
+  })
+
   test("scroll entrances actually reveal their content", async ({ page }) => {
     await page.goto("/")
     await waitForHydration(page)
@@ -213,11 +285,6 @@ test.describe("Codera homepage", () => {
       { timeout: 10_000 }
     )
 
-    const clipPaths = await page.$$eval(".reveal-wipe > *", (nodes) =>
-      nodes.map((node) => getComputedStyle(node).clipPath)
-    )
-    expect(clipPaths.length).toBeGreaterThan(0)
-
     // Anything sitting well inside the viewport must end up visible. The
     // bottom band is excluded on purpose: the observer deliberately waits
     // until an element clears the last 10% of the viewport before revealing.
@@ -226,7 +293,8 @@ test.describe("Codera homepage", () => {
         () =>
           [...document.querySelectorAll(".reveal")].every((node) => {
             const rect = node.getBoundingClientRect()
-            const settled = rect.top < window.innerHeight * 0.85 && rect.bottom > 0
+            const settled =
+              rect.top < window.innerHeight * 0.85 && rect.bottom > 0
             return !settled || getComputedStyle(node).opacity !== "0"
           }),
         undefined,
@@ -251,89 +319,21 @@ test.describe("Codera homepage", () => {
       })
   })
 
-  test("the before/after comparison is keyboard operable", async ({ page }) => {
-    await page.goto("/")
-    await waitForHydration(page)
-
-    const slider = page.getByRole("slider", {
-      name: "Porovnanie starého a nového webu",
-    })
-    await slider.scrollIntoViewIfNeeded()
-    await expect(slider).toBeVisible()
-
-    const initial = await slider.inputValue()
-    await slider.focus()
-    await page.keyboard.press("ArrowRight")
-    await page.keyboard.press("ArrowRight")
-
-    expect(Number(await slider.inputValue())).toBeGreaterThan(Number(initial))
-  })
-
   test("every primary CTA uses one label and leads to the form", async ({
     page,
   }) => {
     await page.goto("/")
 
-    const ctas = page.getByRole("link", { name: "Nezáväzná konzultácia" })
+    const ctas = page.getByRole("link", { name: "Začať projekt" })
     const count = await ctas.count()
-    expect(count, "CTA should appear in nav, hero and services").toBeGreaterThan(
-      2
-    )
+    expect(
+      count,
+      "the CTA should appear in the nav, the hero and the offer"
+    ).toBeGreaterThan(2)
 
     // One CTA concept, one destination: the enquiry form.
     for (let index = 0; index < count; index += 1) {
       await expect(ctas.nth(index)).toHaveAttribute("href", "#kontakt")
-    }
-  })
-
-  test("the process timeline behaves as an accessible tab set", async ({
-    page,
-  }) => {
-    await page.setViewportSize({ width: 1280, height: 800 })
-    await page.goto("/")
-    await waitForHydration(page)
-
-    const tablist = page.getByRole("tablist", { name: "Kroky spolupráce" })
-    await tablist.scrollIntoViewIfNeeded()
-    await expect(tablist).toBeVisible()
-
-    const tabs = page.getByRole("tab")
-    await expect(tabs).toHaveCount(6)
-
-    // Picking a step reveals that step's panel.
-    const design = tabs.nth(2)
-    await design.click()
-    await expect(design).toHaveAttribute("aria-selected", "true")
-    await expect(page.getByRole("tabpanel")).toContainText("Dizajn")
-
-    // Arrow keys move between steps without leaving the widget.
-    await page.keyboard.press("ArrowRight")
-    await expect(tabs.nth(3)).toHaveAttribute("aria-selected", "true")
-    await expect(tabs.nth(3)).toBeFocused()
-    await page.keyboard.press("Home")
-    await expect(tabs.nth(0)).toHaveAttribute("aria-selected", "true")
-  })
-
-  test("the process steps are all readable on a phone", async ({ page }) => {
-    await page.setViewportSize({ width: 375, height: 812 })
-    await page.goto("/")
-    await waitForHydration(page)
-
-    // No tab set on mobile — every step is expanded in a vertical list.
-    await expect(page.getByRole("tablist")).toBeHidden()
-
-    const process = page.locator("#proces")
-    for (const title of [
-      "Analýza",
-      "Smer",
-      "Dizajn",
-      "Vývoj",
-      "Kontrola",
-      "Spustenie",
-    ]) {
-      await expect(
-        process.getByRole("heading", { name: title })
-      ).toBeVisible()
     }
   })
 
@@ -349,7 +349,9 @@ test.describe("Codera homepage", () => {
     const name = page.getByLabel("Meno")
     const contact = page.getByLabel("E-mail alebo telefón")
     const message = page.getByLabel("Čo potrebujete?")
-    const submit = page.getByRole("button", { name: "Nezáväzne prebrať projekt" })
+    const submit = page.getByRole("button", {
+      name: "Nezáväzne prebrať projekt",
+    })
 
     // Empty submit must not navigate; it must explain what is missing.
     await submit.click()
@@ -388,30 +390,35 @@ test.describe("Codera homepage", () => {
   test("concept work stays labelled as concept work", async ({ page }) => {
     await page.goto("/")
 
-    await expect(page.locator("#projekty")).toContainText(
+    await expect(page.locator("#praca")).toContainText(
       "nejde o realizácie pre klientov",
       { ignoreCase: true }
     )
     await expect(page.locator("footer")).toContainText("ukážkové koncepty")
   })
 
-  test("mobile navigation opens, traps focus and closes", async ({ page }) => {
-    await page.setViewportSize({ width: 375, height: 812 })
+  test("the immersive menu opens, closes and stays out of the tab order", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
     await page.goto("/")
     await waitForHydration(page)
 
+    const panel = page.locator("#codera-menu")
     const trigger = page.getByRole("button", { name: "Otvoriť menu" })
     await expect(trigger).toBeVisible()
+
+    // While closed the panel is inert: its links must not be reachable at all.
+    await expect(panel).toHaveAttribute("inert", "")
+
     await trigger.click()
+    await expect(panel).not.toHaveAttribute("inert", "")
+    await expect(panel.getByRole("link", { name: "Práca" })).toBeVisible()
 
-    const dialog = page.getByRole("dialog")
-    await expect(dialog).toBeVisible()
-    await expect(
-      dialog.getByRole("link", { name: "Projekty" })
-    ).toBeVisible()
-
+    // Escape closes it and focus returns to the control that opened it.
     await page.keyboard.press("Escape")
-    await expect(dialog).toBeHidden()
+    await expect(panel).toHaveAttribute("inert", "")
+    await expect(page.getByRole("button", { name: "Otvoriť menu" })).toBeFocused()
   })
 
   test("layout does not scroll horizontally at 320px", async ({ page }) => {
@@ -432,12 +439,24 @@ test.describe("Codera homepage", () => {
   test("honours prefers-reduced-motion", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" })
     await page.goto("/")
+    await page.waitForTimeout(600)
 
+    // CSS entrances resolve to their end state...
     const opacity = await page.$eval(
       ".reveal",
       (node) => getComputedStyle(node).opacity
     )
     expect(opacity).toBe("1")
+
+    // ...and no scene registers a scroll-linked timeline at all, so nothing
+    // can pin, scrub or trap the scroll.
+    await expect(page.locator("[data-motion='on']")).toHaveCount(0)
+
+    // The hero must still read correctly with every timeline skipped.
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible()
+    await expect(
+      page.getByRole("link", { name: "Začať projekt" }).first()
+    ).toBeVisible()
   })
 
   test("returns a styled 404 for unknown routes", async ({ page }) => {
