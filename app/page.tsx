@@ -1,8 +1,8 @@
-import { Contact } from "@/components/site/contact"
+import { SceneClose } from "@/components/site/scene-close"
 import { SceneHero } from "@/components/site/scene-hero"
+import { SceneOffer } from "@/components/site/scene-offer"
 import { SceneTransformation } from "@/components/site/scene-transformation"
 import { SceneWork } from "@/components/site/scene-work"
-import { Services } from "@/components/site/services"
 import { SiteFooter } from "@/components/site/site-footer"
 import { SiteNav } from "@/components/site/site-nav"
 import { commercial, people, siteConfig } from "@/lib/site-config"
@@ -92,8 +92,8 @@ export default function Page() {
         <SceneHero />
         <SceneTransformation />
         <SceneWork />
-        <Services />
-        <Contact />
+        <SceneOffer />
+        <SceneClose />
       </main>
       <SiteFooter />
       {/* JSON-LD must reach the document as raw text; both payloads are local

@@ -3,16 +3,14 @@ import { expect, type Page, test } from "@playwright/test"
 /**
  * Waits until React has hydrated.
  *
- * The scroll entrances mark themselves the moment the client effects run, so
- * the first `data-revealed` element is a reliable hydration signal. Without
- * this gate the interaction tests race the server's on-demand compilation and
- * click a control that has no handler attached yet.
+ * Each scene stamps `data-motion="on"` on its own root from the effect that
+ * builds its timelines, so the first one to appear is a reliable hydration
+ * signal. Without this gate the interaction tests race the server's on-demand
+ * compilation and drive a control that has no handler attached yet.
  */
 async function waitForHydration(page: Page) {
   await page.waitForFunction(
-    () =>
-      document.querySelector('.reveal[data-revealed="true"]') !== null ||
-      document.querySelector("[data-motion='on']") !== null,
+    () => document.querySelector("[data-motion='on']") !== null,
     undefined,
     { timeout: 20_000 }
   )
@@ -267,56 +265,41 @@ test.describe("Codera homepage", () => {
     }
   })
 
-  test("scroll entrances actually reveal their content", async ({ page }) => {
+  test("every scene is readable with JavaScript disabled", async ({
+    browser,
+  }) => {
+    // The motion system is progressive enhancement: the DOM's resting state
+    // is the finished state, and scenes only ever animate *towards* it. So
+    // with scripting off nothing pins, nothing is clipped to nothing, and
+    // every scene's content is simply present.
+    const context = await browser.newContext({ javaScriptEnabled: false })
+    const page = await context.newPage()
     await page.goto("/")
-    await waitForHydration(page)
 
-    await page.locator("#contact-heading").scrollIntoViewIfNeeded()
+    for (const id of ["top", "premena", "praca", "sluzby", "kontakt"]) {
+      await expect(
+        page.locator(`#${id}`),
+        `scene #${id} should render without scripting`
+      ).toBeVisible()
+    }
 
-    // The closing headline uses a clip-path wipe. If the reveal ever stops
-    // firing, the text is present in the DOM but invisible — assert on the
-    // resolved clip instead of on visibility, which would not catch it.
-    await page.waitForFunction(
-      () =>
-        [...document.querySelectorAll(".reveal-wipe > *")].every(
-          (node) => !getComputedStyle(node).clipPath.includes("110%")
-        ),
-      undefined,
-      { timeout: 10_000 }
-    )
+    // All three projects, not just the one the stage would open on.
+    for (const name of ["Konštrukt", "Vitalis", "Forma"]) {
+      await expect(
+        page.getByRole("heading", { name, exact: true })
+      ).toBeVisible()
+    }
 
-    // Anything sitting well inside the viewport must end up visible. The
-    // bottom band is excluded on purpose: the observer deliberately waits
-    // until an element clears the last 10% of the viewport before revealing.
-    await page
-      .waitForFunction(
-        () =>
-          [...document.querySelectorAll(".reveal")].every((node) => {
-            const rect = node.getBoundingClientRect()
-            const settled =
-              rect.top < window.innerHeight * 0.85 && rect.bottom > 0
-            return !settled || getComputedStyle(node).opacity !== "0"
-          }),
-        undefined,
-        { timeout: 8_000 }
-      )
-      .catch(async () => {
-        const stuck = await page.$$eval(".reveal", (nodes) =>
-          nodes
-            .filter((node) => {
-              const rect = node.getBoundingClientRect()
-              return (
-                rect.top < window.innerHeight * 0.85 &&
-                rect.bottom > 0 &&
-                getComputedStyle(node).opacity === "0"
-              )
-            })
-            .map((node) => node.textContent?.slice(0, 60))
-        )
-        throw new Error(
-          `reveals stayed invisible on screen: ${JSON.stringify(stuck)}`
-        )
-      })
+    // All three service words, none of them outlined into invisibility.
+    const words = page.locator("#sluzby .offer-word")
+    await expect(words).toHaveCount(3)
+    for (let index = 0; index < 3; index += 1) {
+      await expect(words.nth(index)).toBeVisible()
+    }
+
+    await expect(page.locator("#dopyt form")).toBeVisible()
+
+    await context.close()
   })
 
   test("the transformation is keyboard operable and moves the split", async ({
@@ -429,6 +412,68 @@ test.describe("Codera homepage", () => {
     ).toBeLessThan(0.45)
   })
 
+  test("the offer scene lights one service word at a time", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await page.goto("/")
+    await waitForHydration(page)
+
+    const scene = page.locator("#sluzby")
+    const sceneTop = await page.$eval(
+      "#sluzby",
+      (node) => node.getBoundingClientRect().top + window.scrollY
+    )
+
+    const seen: string[] = []
+    for (const offset of [40, 750, 1400]) {
+      await page.evaluate((y) => window.scrollTo(0, y), sceneTop + offset)
+      await page.waitForTimeout(900)
+      const current = await scene.getAttribute("data-active")
+      if (current && seen.at(-1) !== current) {
+        seen.push(current)
+      }
+    }
+
+    expect(seen).toEqual(["strategia", "dizajn", "vyvoj"])
+
+    // Exactly one row may be lit; the rest are outlined.
+    const lit = await page.locator('#sluzby [data-service-row][data-active="true"]')
+    await expect(lit).toHaveCount(1)
+
+    // The width axis is what distinguishes them — not a font-size change.
+    const widths = await page.$$eval("#sluzby .offer-word", (nodes) =>
+      nodes.map((node) =>
+        getComputedStyle(node).getPropertyValue("--wdth").trim()
+      )
+    )
+    expect(new Set(widths).size, "the active word should differ in width").toBe(
+      2
+    )
+  })
+
+  test("the commercial figures are correct without JavaScript", async ({
+    browser,
+  }) => {
+    // The price counts up when it scrolls into view. If that animation is the
+    // only thing that ever writes the number, the page ships "od  €" to
+    // anything that does not run it — which is a factual error about price,
+    // not a missing flourish.
+    const context = await browser.newContext({ javaScriptEnabled: false })
+    const page = await context.newPage()
+    await page.goto("/")
+
+    const facts = (await page.locator("#kontakt dl").innerText()).replace(
+      /\s+/g,
+      " "
+    )
+    expect(facts).toContain("od 699 €")
+    expect(facts).toContain("do 72 h")
+    expect(facts).toContain("do 24 h")
+
+    await context.close()
+  })
+
   test("every primary CTA uses one label and leads to the form", async ({
     page,
   }) => {
@@ -441,9 +486,9 @@ test.describe("Codera homepage", () => {
       "the CTA should appear in the nav, the hero and the offer"
     ).toBeGreaterThan(2)
 
-    // One CTA concept, one destination: the enquiry form.
+    // One CTA concept, one destination: the enquiry form itself.
     for (let index = 0; index < count; index += 1) {
-      await expect(ctas.nth(index)).toHaveAttribute("href", "#kontakt")
+      await expect(ctas.nth(index)).toHaveAttribute("href", "#dopyt")
     }
   })
 
@@ -551,22 +596,30 @@ test.describe("Codera homepage", () => {
     await page.goto("/")
     await page.waitForTimeout(600)
 
-    // CSS entrances resolve to their end state...
-    const opacity = await page.$eval(
-      ".reveal",
-      (node) => getComputedStyle(node).opacity
-    )
-    expect(opacity).toBe("1")
-
-    // ...and no scene registers a scroll-linked timeline at all, so nothing
-    // can pin, scrub or trap the scroll.
+    // No scene registers a scroll-linked timeline at all — so nothing can
+    // pin, scrub, or trap the scroll. This is the strong version of the
+    // guarantee: not "the animations are fast", but "they do not exist".
     await expect(page.locator("[data-motion='on']")).toHaveCount(0)
+    await expect(page.locator(".pin-spacer")).toHaveCount(0)
 
-    // The hero must still read correctly with every timeline skipped.
+    // And every scene still reads, because the resting DOM is the finished
+    // state rather than a starting position waiting to be animated.
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible()
     await expect(
       page.getByRole("link", { name: "Začať projekt" }).first()
     ).toBeVisible()
+
+    for (const name of ["Konštrukt", "Vitalis", "Forma"]) {
+      await expect(
+        page.getByRole("heading", { name, exact: true })
+      ).toBeVisible()
+    }
+
+    // The comparison rests mid-way and stays operable.
+    const split = await page.$eval("#premena [data-stage]", (node) =>
+      Number(getComputedStyle(node).getPropertyValue("--split"))
+    )
+    expect(split).toBe(50)
   })
 
   test("returns a styled 404 for unknown routes", async ({ page }) => {

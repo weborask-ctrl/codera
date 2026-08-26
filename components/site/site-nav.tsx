@@ -281,8 +281,8 @@ export function SiteNav() {
                       a hover state is cut from the logo. */}
                   <ArcTick
                     className="absolute inset-x-0 bottom-0 h-1.5 w-full origin-center scale-x-0 text-brand opacity-0 transition-[transform,opacity] duration-400 ease-[var(--ease-out-quint)] group-hover/link:scale-x-100 group-hover/link:opacity-100"
-                    startAngle={-24}
-                    sweep={48}
+                    stretch
+                    sweep={40}
                     weight={1.6}
                   />
                 </a>

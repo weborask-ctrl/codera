@@ -337,6 +337,37 @@
     --surface-2: oklch(0.885 0.014 82);
   }
 
+  /* ---- The offer scene's kinetic type ----------------------------- *
+   * The active service word is filled; the others drop to outline. The
+   * default is *filled*, so with scripting off or under reduced motion
+   * all three read normally — the selected state is something the scene
+   * adds, never something the markup depends on.
+   *
+   * `--wdth` is the variable font's width axis. GSAP tweens the number
+   * and `font-variation-settings` reads it, so the interpolation happens
+   * on the axis itself rather than by scaling glyphs.
+   * ---------------------------------------------------------------- */
+  .offer-word {
+    --wdth: 100;
+    /* Sized for this scene rather than from the shared scale: the three
+       words *are* the composition, so they run near the full measure. */
+    font-size: clamp(2.75rem, 10.5vw, 9rem);
+    line-height: 0.95;
+    font-variation-settings: "wdth" var(--wdth);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    color: var(--foreground);
+    transition:
+      color 0.6s var(--ease-soft),
+      -webkit-text-stroke-color 0.6s var(--ease-soft);
+  }
+
+  [data-active="false"] > * > .offer-word,
+  [data-active="false"] .offer-word {
+    color: transparent;
+    -webkit-text-stroke: 1.25px var(--border-strong);
+  }
+
   /* ---- The pinned project stage ----------------------------------- *
    * With motion on, the panels are stacked in one box and uncovered one
    * at a time. With scripting off, with reduced motion, and during SSR
@@ -382,47 +413,6 @@
 }
 
 @layer utilities {
-  /* ---- Scroll entrance ------------------------------------------- *
-   * Opacity and transform only, so nothing reflows and nothing shifts.
-   * The animation lives in CSS, which means the reduced-motion block at
-   * the bottom of this file already covers it.
-   * ---------------------------------------------------------------- */
-  .reveal {
-    opacity: 0;
-    transform: translate3d(0, 1.15rem, 0);
-    filter: blur(5px);
-    transition:
-      opacity 0.85s var(--ease-out-quint),
-      transform 0.85s var(--ease-out-quint),
-      filter 0.85s var(--ease-out-quint);
-    transition-delay: var(--reveal-delay, 0ms);
-  }
-
-  .reveal[data-revealed="true"] {
-    opacity: 1;
-    transform: none;
-    filter: none;
-  }
-
-  /* Line wipe. The clip lives on the CHILD, never on the observed
-     element: something clipped to nothing reports as not-intersecting,
-     so an observer watching it would never fire and the line would stay
-     hidden for good. */
-  .reveal-wipe > * {
-    display: block;
-    clip-path: inset(-0.18em 0 110% 0);
-    transform: translate3d(0, 0.2em, 0);
-    transition:
-      clip-path 0.95s var(--ease-out-quint),
-      transform 0.95s var(--ease-out-quint);
-    transition-delay: var(--reveal-delay, 0ms);
-  }
-
-  .reveal-wipe[data-revealed="true"] > * {
-    clip-path: inset(-0.18em 0 -0.22em 0);
-    transform: none;
-  }
-
   /* ---- Type treatments ------------------------------------------- */
 
   /* Outlined display type. Used for the inactive words in the offer
@@ -512,16 +502,6 @@
     scroll-behavior: auto !important;
   }
 
-  .reveal {
-    opacity: 1;
-    transform: none;
-    filter: none;
-  }
-
-  .reveal-wipe > * {
-    clip-path: none;
-    transform: none;
-  }
 
   .float-slow {
     animation: none;

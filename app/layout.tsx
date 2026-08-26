@@ -96,16 +96,6 @@ export default function RootLayout({
       lang="sk"
       className={cn("antialiased", archivo.variable, geistMono.variable)}
     >
-      <head>
-        {/* Every entrance on this page is progressive enhancement. With
-            scripting off the content must simply be there — not faded to
-            zero opacity waiting for an observer that will never run. */}
-        <noscript>
-          <style>
-            {".reveal{opacity:1;transform:none;filter:none}.reveal-wipe>*{clip-path:none;transform:none}"}
-          </style>
-        </noscript>
-      </head>
       <body>
         <a
           href="#hlavny-obsah"

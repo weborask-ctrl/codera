@@ -251,7 +251,7 @@ export function SceneHero() {
                 index === 0 ? "flex" : "hidden sm:flex"
               )}
             >
-              <ArcTick className="h-2 shrink-0 text-brand" startAngle={-20} sweep={40} />
+              <ArcTick className="h-2 shrink-0 text-brand" sweep={40} />
               {item}
             </li>
           ))}

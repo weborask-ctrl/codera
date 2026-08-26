@@ -127,26 +127,43 @@ export function Logo({
  */
 export function ArcTick({
   className,
-  startAngle = -30,
   sweep = 60,
   weight = 2.4,
+  stretch = false,
 }: {
   className?: string
-  /** Degrees on the mark's circle. */
-  startAngle?: number
+  /**
+   * How many degrees of the mark's circle to cut, centred on its **top**.
+   *
+   * Centring is not a detail: a segment centred on 0° sits at the rightmost
+   * point of the circle and comes out *vertical*, which is not what anything
+   * using this wants. Anchoring to the top means a small sweep is a shallow,
+   * near-horizontal rule and a large one curves — which is the whole range of
+   * uses on the page, from a hover underline to a marker.
+   */
   sweep?: number
   weight?: number
+  /**
+   * Let the segment fill its box instead of keeping its aspect ratio.
+   *
+   * SVG defaults to `xMidYMid meet`, which letterboxes: given a box that is
+   * wide and a few pixels tall, the arc shrinks to a dot in the middle rather
+   * than becoming the wide, shallow rule that was asked for. Set this wherever
+   * the tick is used as a rule under something.
+   */
+  stretch?: boolean
 }) {
-  const [x1, y1] = arcPoint(startAngle)
-  const [x2, y2] = arcPoint(startAngle + sweep)
+  const [x1, y1] = arcPoint(-90 - sweep / 2)
+  const [x2, y2] = arcPoint(-90 + sweep / 2)
   const large = Math.abs(sweep) > 180 ? 1 : 0
   const direction = sweep > 0 ? 1 : 0
 
   return (
     <svg
       viewBox="0 0 24 24"
-      className={cn("h-2.5 w-auto overflow-visible", className)}
+      className={cn("h-2.5 overflow-visible", stretch ? "w-full" : "w-auto", className)}
       fill="none"
+      preserveAspectRatio={stretch ? "none" : undefined}
       aria-hidden="true"
       focusable="false"
     >
@@ -155,6 +172,10 @@ export function ArcTick({
         stroke="currentColor"
         strokeWidth={weight}
         strokeLinecap="round"
+        /* Under `preserveAspectRatio: none` the stroke is scaled with the box
+           and would end up as thick as the element is tall. Anchoring it to
+           the width keeps a rule looking like a rule. */
+        vectorEffect={stretch ? "non-scaling-stroke" : undefined}
       />
     </svg>
   )

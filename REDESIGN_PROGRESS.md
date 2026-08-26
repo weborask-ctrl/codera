@@ -127,6 +127,10 @@ experience", not "is it installed":
 - **Phase 4 — Scene 02B, selected work.** One pinned stage, three states.
   The ground morphs with the project (graphite → paper → warm paper) and the
   navigation bar inverts with it. 21 tests green.
+- **Phase 5 — Scene 03 + Scene 04.** The offer as three kinetic words driven
+  by the variable width axis, the compact process, the why statement, the
+  commercial band and the conversion. The last three old sections are gone.
+  23 tests green.
 
 ## Current state
 
@@ -141,10 +145,9 @@ Production site is intact and untouched. Existing strengths being kept:
 - Accessibility floor in `app/globals.css` (focus ring, reduced motion,
   reduced transparency, contrast) — carried over.
 
-Still standing from the old page, and due for replacement in Phase 5:
-`services.tsx`, `contact.tsx` and `site-footer.tsx`. They render correctly on
-the new ground because they were already token-based — but they are the old
-card-and-list design, not the scene architecture.
+Nothing is left of the old page. Every section is a scene, and the last of
+the old components (, , , ) are deleted —
+the GSAP scene system replaced the CSS entrance primitive entirely.
 
 Page length is currently ~10.5 viewports of scroll. Pinned scenes consume
 scroll without adding perceived page length (the visitor sees four scenes),
@@ -156,9 +159,9 @@ transformation sections. Dependencies went from 23 to 13.
 
 ## Next phase
 
-**Phase 5 — Offer + conversion.** Scene 03 (Stratégia / Dizajn / Vývoj as one
-composition, compact process, the commercial band) and Scene 04 (the arc
-closing, final CTA, contact). Replaces the last three old sections.
+**Phase 6 — Polish + QA.** Timing and easing pass, mobile QA at 375/390/768,
+Firefox and WebKit runs, keyboard and accessibility sweep, Lighthouse-style
+performance check, and a final look at the pin distances.
 
 ## Known issues
 

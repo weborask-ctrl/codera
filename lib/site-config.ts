@@ -96,7 +96,13 @@ export const navItems: readonly NavItem[] = [
  */
 export const primaryCta = {
   label: "Začať projekt",
-  href: "#kontakt",
+  /**
+   * The form itself, not the section that contains it. The conversion scene
+   * opens with the reason to believe and the price, which is the right order
+   * for someone still deciding — but a visitor who has already decided and
+   * pressed the CTA should land on the fields, not read the argument again.
+   */
+  href: "#dopyt",
 } as const
 
 /** The one secondary action allowed alongside it. */

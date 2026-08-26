@@ -2,103 +2,64 @@ import { Logo } from "@/components/site/arc"
 import { Container } from "@/components/site/primitives"
 import { legal, mailtoHref, siteConfig, telHref } from "@/lib/site-config"
 
-const COLUMNS = [
-  {
-    heading: "Služby",
-    links: [
-      { label: "Firemné webstránky", href: "#sluzby" },
-      { label: "Landing pages", href: "#sluzby" },
-      { label: "Redizajn webu", href: "#sluzby" },
-      { label: "Správa a rozvoj", href: "#sluzby" },
-    ],
-  },
-  {
-    heading: "Štúdio",
-    links: [
-      { label: "Projekty", href: "#projekty" },
-      { label: "Proces", href: "#proces" },
-      { label: "O nás", href: "#o-nas" },
-      { label: "Technická kvalita", href: "#kvalita" },
-    ],
-  },
-]
-
+/**
+ * The footer, deliberately small.
+ *
+ * The conversion scene directly above it already carries the contact details,
+ * the price and the form. A four-column sitemap under that would be repeating
+ * the page back at someone who has just finished reading it — and on a site
+ * with three destinations there is nothing to map.
+ *
+ * What is left is the part that has to be here: who this is, what is honestly
+ * true about the entity behind it, and the fact that the work shown is
+ * concept work.
+ */
 export function SiteFooter() {
   const year = new Date().getFullYear()
 
   return (
-    <footer className="border-t border-hairline bg-background">
+    <footer className="border-t border-hairline">
       <Container>
-        <div className="grid gap-12 py-14 sm:grid-cols-2 lg:grid-cols-[minmax(0,20rem)_repeat(3,minmax(0,1fr))] lg:gap-10 lg:py-20">
+        <div className="flex flex-col gap-8 py-10 sm:flex-row sm:items-start sm:justify-between sm:gap-12">
           <div>
-            <Logo className="text-foreground" />
-            <p className="mt-4 max-w-[18rem] text-small text-muted-foreground">
-              Malý tím developerov a dizajnérov. Firemné webstránky a redizajny
-              s dôrazom na dizajn, rýchlosť a technickú kvalitu.
+            <Logo />
+            <p className="mt-4 max-w-[22rem] text-small text-muted-foreground">
+              Digitálne štúdio. Navrhujeme a vyvíjame weby pre firmy, ktorým
+              prezentácia už nezodpovedá ich úrovni.
             </p>
           </div>
 
-          {COLUMNS.map((column) => (
-            <nav key={column.heading} aria-label={column.heading}>
-              <h2 className="text-caption font-medium tracking-[0.06em] text-muted-foreground uppercase">
-                {column.heading}
-              </h2>
-              <ul className="mt-4 flex flex-col gap-3">
-                {column.links.map((link) => (
-                  <li key={link.label}>
-                    <a
-                      href={link.href}
-                      className="rounded-sm text-small text-foreground transition-colors hover:text-brand"
-                    >
-                      {link.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          ))}
-
-          <div>
-            <h2 className="text-caption font-medium tracking-[0.06em] text-muted-foreground uppercase">
-              Kontakt
-            </h2>
-            <ul className="mt-4 flex flex-col gap-3 text-small">
-              <li>
-                <a
-                  href={mailtoHref}
-                  className="rounded-sm text-foreground transition-colors hover:text-brand"
-                >
-                  {siteConfig.email}
-                </a>
-              </li>
-              <li>
-                <a
-                  href={telHref}
-                  className="rounded-sm text-foreground transition-colors hover:text-brand"
-                >
-                  {siteConfig.phone}
-                </a>
-              </li>
-              <li className="text-muted-foreground">{siteConfig.market}</li>
-            </ul>
-          </div>
+          <ul className="flex flex-col gap-2 text-small sm:items-end">
+            <li>
+              <a
+                href={mailtoHref}
+                className="rounded-sm transition-colors hover:text-brand"
+              >
+                {siteConfig.email}
+              </a>
+            </li>
+            <li>
+              <a
+                href={telHref}
+                className="rounded-sm transition-colors hover:text-brand"
+              >
+                {siteConfig.phone}
+              </a>
+            </li>
+            <li className="text-muted-foreground">{siteConfig.market}</li>
+          </ul>
         </div>
 
-        <div className="border-t border-hairline py-8">
+        <div className="flex flex-col gap-3 border-t border-hairline py-7">
           {/* TODO(codera): once a trade licence or company exists, add the
               registration details here. Until then there is nothing truthful
               to publish, so nothing is claimed. */}
-          <p className="max-w-[52rem] text-caption text-muted-foreground">
-            {legal.note}
+          <p className="max-w-[54rem] text-caption text-muted-foreground">
+            {legal.note} Projekty Konštrukt, Vitalis a Forma sú ukážkové
+            koncepty vytvorené štúdiom Codera — nejde o realizácie pre klientov
+            a uvedené spoločnosti neexistujú.
           </p>
-
-          <p className="mt-4 max-w-[52rem] text-caption text-muted-foreground">
-            Projekty Konštrukt, Vitalis a Forma sú ukážkové koncepty vytvorené
-            štúdiom Codera. Nejde o realizácie pre klientov a uvedené
-            spoločnosti neexistujú.
-          </p>
-
-          <p className="mt-6 text-caption text-muted-foreground">
+          <p className="label text-faint">
             © {year} {siteConfig.name}
           </p>
         </div>
