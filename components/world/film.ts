@@ -115,17 +115,21 @@ function subscribe(onChange: () => void) {
   }
 }
 
-function snapshot(): "world" | "dom" {
+function snapshot(): "world" | "dom" | "mobile" {
   const wide = window.matchMedia("(min-width: 1024px)").matches
-  return !prefersReducedMotion() && wide && webglAvailable() ? "world" : "dom"
+  if (!wide) {
+    return "mobile"
+  }
+  return !prefersReducedMotion() && webglAvailable() ? "world" : "dom"
 }
 
 /**
- * `null` on the server and during hydration (the DOM fallback renders — it is
- * also the LCP and the SEO content), then the real tier on the first client
- * render after hydration. Mobile is deliberately `dom` until Phase 6 authors
- * its own cinematic strategy: the world is a desktop composition.
+ * `null` on the server and during hydration (the v1 DOM experience renders —
+ * it is also the LCP and the SEO content), then the real tier on the first
+ * client render: `world` for capable wide viewports, `dom` (the v1 scenes)
+ * for wide viewports with reduced motion or no WebGL, and `mobile` — the
+ * touch-native experience authored in Phase 6 — below 1024px.
  */
-export function useCapabilityTier(): "world" | "dom" | null {
+export function useCapabilityTier(): "world" | "dom" | "mobile" | null {
   return useSyncExternalStore(subscribe, snapshot, () => null)
 }

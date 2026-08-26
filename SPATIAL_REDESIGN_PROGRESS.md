@@ -17,7 +17,7 @@ live v1 site and stays untouched until this branch passes the preview gate.
 
 ## Current phase
 
-Phase 5 complete — the film is whole. A (surface) → B (reveal) → C (portal)
+Phase 6 complete — the film is whole. A (surface) → B (reveal) → C (portal)
 → D (transformation) → E1–E3 (work) → F (the mark splits into its three
 strands for the offer) → G (the strands close back into the completed C,
 wordmark lands). One pin, one timeline, 28.2 units over 860%.
@@ -123,13 +123,34 @@ What the prototype established, to reuse verbatim in Phase 3:
   tests; the world walk now covers a→g including the graphite return and
   the strand split/merge.
 
+### Phase 6 delivered — mobile re-authored
+
+- **Four touch-native scenes** (`components/mobile/`): hero with the SVG
+  mark and a masked, motion-safe light sweep (zero JS); the comparison
+  unpinned and cropped into the hero regions so both sites are legible at
+  390 px; the work as a native scroll-snap swipe deck of baked textures,
+  the ground tone following the active card; the offer as a stack with
+  scroll-into-view emphasis. **No pins, no canvas, no scrubbed timelines
+  anywhere on mobile.** ~6 viewports total (was 13).
+- **Mobile-first SSR.** The server renders the mobile experience: a
+  post-hydration swap re-records phone LCP (measured: 3.2 s at 6×), and
+  phones are the majority and the slowest. Desktops carry the swap instead
+  — capable ones to the world, reduced-motion/no-WebGL ones to the v1
+  scenes. `data-experience` marks what is mounted.
+- **Measured** (390 px, DPR 3): scroll jank **1.7% at 4× / 10.3% at 6×**
+  (audit baseline: 60% / 56%); LCP **1 152 / 1 876 ms** at 4×/6× (budget
+  2.5 s); CLS 0. Mobile nav is now solid (audit item: no mobile
+  backdrop-filter).
+- The two tests guarding the animated v1 branch were retired — that branch
+  now serves only wide-no-WebGL, and its static content is asserted under
+  reduced motion. 25/25 green, including a new mobile test (no pins, no
+  canvas, deck swipe flips the chapter, slider keyboard-operable).
+
 ## Next phase
 
-**Phase 6 — mobile re-author** per the mobile storyboard: dedicated hero
-(SVG mark + light sweep, tier-A optional light 3D), unpinned comparison,
-swipe-deck work, static offer stack — replacing the v1 fallback below
-1024 px with a touch-native experience. Then Phase 7 tablet, 8 performance,
-9 polish, 10 QA, and the preview gate.
+**Phase 7 — tablet** (768/1024 audit, pointer-based decision), then
+**8 — performance** (bundle, assets, spike hunt), **9 — motion polish**,
+**10 — full QA** and the preview gate.
 
 ---
 

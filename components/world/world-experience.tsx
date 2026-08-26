@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic"
 import { useEffect, useRef } from "react"
-
+import { MobileExperience } from "@/components/mobile/mobile-experience"
 import { ButtonLink } from "@/components/site/button-link"
 import { Magnetic } from "@/components/site/magnetic"
 import { SceneHero } from "@/components/site/scene-hero"
@@ -491,9 +491,16 @@ function WorldStage() {
 export function WorldExperience() {
   const tier = useCapabilityTier()
 
-  /* Server + hydration render the DOM experience; a capable client swaps in
-     the world on its first post-hydration render. */
-  if (tier !== "world") {
+  /* The MOBILE experience is the server render. Phones are the majority and
+     the slowest devices, and a post-hydration swap re-records their LCP —
+     measured at 6× CPU it pushed LCP from ~1.5 s to 3.2 s. Desktops hydrate
+     in a fraction of that, so they carry the swap instead: to the world on
+     capable machines, to the v1 scenes under reduced motion or no WebGL. */
+  if (tier === null || tier === "mobile") {
+    return <MobileExperience />
+  }
+
+  if (tier === "dom") {
     return (
       <>
         <SceneHero />

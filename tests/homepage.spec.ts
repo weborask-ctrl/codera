@@ -305,11 +305,15 @@ test.describe("Codera homepage", () => {
       ).toBeVisible()
     }
 
-    // All three service words, none of them outlined into invisibility.
-    const words = page.locator("#sluzby .offer-word")
-    await expect(words).toHaveCount(3)
-    for (let index = 0; index < 3; index += 1) {
-      await expect(words.nth(index)).toBeVisible()
+    // The v1 offer words too — this static path is all that remains of the
+    // animated v1 branch, so its content must be complete.
+    for (const word of ["Stratégia", "Dizajn", "Vývoj"]) {
+      await expect(page.locator("#sluzby")).toContainText(word)
+    }
+
+    // All three service words, in whichever tier the server rendered.
+    for (const word of ["Stratégia", "Dizajn", "Vývoj"]) {
+      await expect(page.locator("#sluzby")).toContainText(word)
     }
 
     await expect(page.locator("#dopyt form")).toBeVisible()
@@ -322,9 +326,16 @@ test.describe("Codera homepage", () => {
   }) => {
     // Reduced motion routes to the DOM tier, where the transformation is the
     // accessible range-input comparison. (On capable desktops it is the
-    // spatial morph — covered by the world test below.)
+    // spatial morph — covered by the world test below.) The server renders
+    // the mobile experience, so wait for the tier swap to settle before
+    // grabbing the control — the SSR slider detaches when v1 mounts.
     await page.emulateMedia({ reducedMotion: "reduce" })
     await page.goto("/")
+    await page.waitForFunction(
+      () => document.querySelector('[data-experience="mobile"]') === null,
+      undefined,
+      { timeout: 15_000 }
+    )
 
     const slider = page.getByRole("slider", {
       name: "Porovnanie starého a nového webu",
@@ -429,91 +440,6 @@ test.describe("Codera homepage", () => {
     expect(Math.abs(stageTop), "the stage should still be pinned").toBeLessThan(3)
 
     expect(errors, `runtime errors: ${errors.join(" | ")}`).toEqual([])
-  })
-
-  test("the work stage advances through all three projects", async ({
-    page,
-  }) => {
-    // Under 1024px the world never mounts; this covers the DOM tier's v1
-    // pinned stage, which is what phones and weak devices actually get.
-    await page.setViewportSize({ width: 1000, height: 800 })
-    await page.goto("/")
-    await waitForHydration(page)
-
-    const stage = page.locator("#praca")
-    const sceneTop = await page.$eval(
-      "#praca",
-      (node) => node.getBoundingClientRect().top + window.scrollY
-    )
-
-    const seen: string[] = []
-    for (const offset of [40, 900, 1700]) {
-      await page.evaluate((y) => window.scrollTo(0, y), sceneTop + offset)
-      await page.waitForTimeout(900)
-      const current = await stage.getAttribute("data-project")
-      if (current && seen.at(-1) !== current) {
-        seen.push(current)
-      }
-    }
-
-    expect(seen, "each project should take the stage in turn").toEqual([
-      "konstrukt",
-      "vitalis",
-      "forma",
-    ])
-
-    // The ground follows the work: the two paper projects put the whole scene
-    // — and the navigation bar over it — onto the light palette.
-    await expect(stage).toHaveAttribute("data-chapter", "paper")
-    const navGround = await page.evaluate(
-      () => getComputedStyle(document.querySelector("header") as Element).color
-    )
-    expect(
-      lightness(navGround),
-      `nav text should invert to dark over a paper chapter, got ${navGround}`
-    ).toBeLessThan(0.45)
-  })
-
-  test("the offer scene lights one service word at a time", async ({
-    page,
-  }) => {
-    // The v1 offer is the DOM tier's presentation now — the world's strand
-    // offer is covered by the world test.
-    await page.setViewportSize({ width: 1000, height: 800 })
-    await page.goto("/")
-    await waitForHydration(page)
-
-    const scene = page.locator("#sluzby")
-    const sceneTop = await page.$eval(
-      "#sluzby",
-      (node) => node.getBoundingClientRect().top + window.scrollY
-    )
-
-    const seen: string[] = []
-    for (const offset of [40, 750, 1400]) {
-      await page.evaluate((y) => window.scrollTo(0, y), sceneTop + offset)
-      await page.waitForTimeout(900)
-      const current = await scene.getAttribute("data-active")
-      if (current && seen.at(-1) !== current) {
-        seen.push(current)
-      }
-    }
-
-    expect(seen).toEqual(["strategia", "dizajn", "vyvoj"])
-
-    // Exactly one row may be lit; the rest are outlined.
-    const lit = await page.locator('#sluzby [data-service-row][data-active="true"]')
-    await expect(lit).toHaveCount(1)
-
-    // The width axis is what distinguishes them — not a font-size change.
-    const widths = await page.$$eval("#sluzby .offer-word", (nodes) =>
-      nodes.map((node) =>
-        getComputedStyle(node).getPropertyValue("--wdth").trim()
-      )
-    )
-    expect(new Set(widths).size, "the active word should differ in width").toBe(
-      2
-    )
   })
 
   test("the commercial figures are correct without JavaScript", async ({
@@ -638,6 +564,41 @@ test.describe("Codera homepage", () => {
     await page.keyboard.press("Escape")
     await expect(panel).toHaveAttribute("inert", "")
     await expect(page.getByRole("button", { name: "Otvoriť menu" })).toBeFocused()
+  })
+
+  test("the mobile experience is touch-native: no pins, no canvas", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto("/")
+    await waitForHydration(page)
+
+    // The mobile storyboard's hard promises: nothing pins, nothing renders
+    // WebGL, and every scene is ordinary flow.
+    await expect(page.locator(".pin-spacer")).toHaveCount(0)
+    await expect(page.locator("canvas")).toHaveCount(0)
+
+    for (const id of ["top", "premena", "praca", "sluzby", "kontakt"]) {
+      await expect(page.locator(`#${id}`)).toBeVisible()
+    }
+
+    // The work deck swipes natively and the ground follows the active card.
+    const deck = page.locator("#praca ul")
+    await deck.scrollIntoViewIfNeeded()
+    await deck.evaluate((el) => {
+      el.scrollLeft = el.scrollWidth
+    })
+    await page.waitForTimeout(900)
+    await expect(page.locator("#praca")).toHaveAttribute("data-chapter", "paper")
+
+    // The comparison stays keyboard-operable without any pin.
+    const slider = page.getByRole("slider", {
+      name: "Porovnanie starého a nového webu",
+    })
+    await slider.scrollIntoViewIfNeeded()
+    await slider.focus()
+    await page.keyboard.press("End")
+    expect(await slider.inputValue()).toBe("100")
   })
 
   test("layout does not scroll horizontally at 320px", async ({ page }) => {
@@ -769,8 +730,8 @@ test.describe("Codera homepage", () => {
   })
 
   test("text clears WCAG AA contrast on both grounds", async ({ page }) => {
-    // DOM tier: the selectors below live in the v1 markup, and the world's
-    // paper states get their contrast pass in visual QA (Phase 10).
+    // Mobile tier — the widest-reaching markup; the world's paper states get
+    // their contrast pass in visual QA (Phase 10).
     await page.setViewportSize({ width: 1000, height: 800 })
     await page.goto("/")
     await waitForHydration(page)
@@ -849,7 +810,7 @@ test.describe("Codera homepage", () => {
     })
     await page.waitForTimeout(900)
 
-    const onPaper = await check("#praca [data-project-panel] p", 4.5)
+    const onPaper = await check("#praca [data-deck-card] .text-h3", 4.5)
     expect(
       onPaper.ratio,
       `paper-chapter body contrast was ${onPaper.ratio.toFixed(2)}:1`

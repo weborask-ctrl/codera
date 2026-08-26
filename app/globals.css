@@ -425,6 +425,29 @@
 }
 
 @layer utilities {
+  /* The mobile hero mark: metal ramp + one masked light sweep. The sweep is
+     compositor-only (background-position) and motion-safe gated. */
+  .mobile-mark {
+    background:
+      linear-gradient(115deg, transparent 42%, oklch(1 0 0 / 0.55) 50%, transparent 58%) no-repeat,
+      linear-gradient(160deg, var(--metal-high) 0%, var(--metal-mid) 45%, var(--metal-low) 70%, var(--metal-mid) 100%);
+    background-size: 280% 100%, 100% 100%;
+    background-position: 120% 0, 0 0;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .mobile-mark {
+      animation: mobile-mark-sweep 7s var(--ease-soft) infinite;
+    }
+  }
+
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
   /* ---- Type treatments ------------------------------------------- */
 
   /* Outlined display type. Used for the inactive words in the offer
@@ -486,6 +509,17 @@
   }
 }
 
+@keyframes mobile-mark-sweep {
+  0%,
+  55% {
+    background-position: 120% 0, 0 0;
+  }
+  85%,
+  100% {
+    background-position: -60% 0, 0 0;
+  }
+}
+
 @keyframes codera-float {
   from {
     transform: translate3d(0, 0, 0);
@@ -517,6 +551,15 @@
 
   .float-slow {
     animation: none;
+  }
+}
+
+@media (max-width: 1023px) {
+  /* The audit put mobile backdrop-filter on the removal list: a solid bar
+     costs nothing and reads identically over the mobile scenes. */
+  .material-chrome {
+    backdrop-filter: none;
+    background-color: var(--background);
   }
 }
 
