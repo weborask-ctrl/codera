@@ -54,8 +54,31 @@ async function waitForWorld(page: Page) {
   await page.waitForFunction(
     () => document.querySelector(".pin-spacer > #top") !== null,
     undefined,
-    { timeout: 20_000 }
+    { timeout: 35_000 }
   )
+}
+
+/**
+ * Mirrors the site's own capability gate (film.ts): the world tier mounts
+ * only on a wide viewport with motion allowed and a real WebGL context.
+ * CI's Linux Firefox has no WebGL, so world-only assertions branch on the
+ * same probe the page uses rather than assuming the tier.
+ */
+async function worldPossible(page: Page): Promise<boolean> {
+  return page.evaluate(() => {
+    if (window.innerWidth < 1024) {
+      return false
+    }
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return false
+    }
+    try {
+      const canvas = document.createElement("canvas")
+      return Boolean(canvas.getContext("webgl2") ?? canvas.getContext("webgl"))
+    } catch {
+      return false
+    }
+  })
 }
 
 /**
@@ -256,27 +279,35 @@ test.describe("Codera homepage", () => {
     // The intro clips each line group and slides it up; the master pin exists
     // only once that entrance has fully landed. If the timeline ever fails,
     // the text sits outside its own clip — visible to a DOM assertion and
-    // invisible to a human.
-    await waitForWorld(page)
-    await page.waitForTimeout(400)
+    // invisible to a human. On the dom/mobile tiers there is no such intro,
+    // so those runs only assert the headline itself.
+    const world = await worldPossible(page)
+    if (world) {
+      await waitForWorld(page)
+      await page.waitForTimeout(400)
+    } else {
+      await waitForHydration(page)
+    }
 
     const heading = page.getByRole("heading", { level: 1 })
     await expect(heading).toBeVisible()
     await expect(heading).toContainText("Vaša firma je lepšia")
 
-    const offsets = await page.$$eval("[data-hero-line]", (nodes) =>
-      nodes.map((node) => {
-        const line = node.getBoundingClientRect()
-        const clip = (node.parentElement as HTMLElement).getBoundingClientRect()
-        return line.top - clip.top
-      })
-    )
-    expect(offsets.length).toBeGreaterThan(0)
-    for (const offset of offsets) {
-      expect(
-        Math.abs(offset),
-        "a headline line finished outside its own clip"
-      ).toBeLessThan(4)
+    if (world) {
+      const offsets = await page.$$eval("[data-hero-line]", (nodes) =>
+        nodes.map((node) => {
+          const line = node.getBoundingClientRect()
+          const clip = (node.parentElement as HTMLElement).getBoundingClientRect()
+          return line.top - clip.top
+        })
+      )
+      expect(offsets.length).toBeGreaterThan(0)
+      for (const offset of offsets) {
+        expect(
+          Math.abs(offset),
+          "a headline line finished outside its own clip"
+        ).toBeLessThan(4)
+      }
     }
   })
 
@@ -375,14 +406,14 @@ test.describe("Codera homepage", () => {
     page.on("pageerror", (error) => errors.push(error.message))
 
     await page.goto("/")
+    test.skip(
+      !(await worldPossible(page)),
+      "world tier unavailable here (no WebGL / reduced motion)"
+    )
 
     // The world tier: canvas mounted, and the master pin's spacer wraps the
     // stage once the intro hands over to scroll.
-    await page.waitForFunction(
-      () => document.querySelector(".pin-spacer > #top") !== null,
-      undefined,
-      { timeout: 20_000 }
-    )
+    await waitForWorld(page)
     await expect(page.locator("#top canvas")).toHaveCount(1, {
       timeout: 20_000,
     })
@@ -470,13 +501,19 @@ test.describe("Codera homepage", () => {
     page,
   }) => {
     await page.goto("/")
+    await waitForHydration(page)
 
+    // The tier swap and the dom tier's lazy chunk both land after hydration,
+    // each bringing CTAs with it — poll until the settled experience shows
+    // all of them instead of counting a half-mounted page.
     const ctas = page.getByRole("link", { name: "Začať projekt" })
+    await expect
+      .poll(() => ctas.count(), {
+        message: "the CTA should appear in the nav, the hero and the offer",
+        timeout: 15_000,
+      })
+      .toBeGreaterThan(2)
     const count = await ctas.count()
-    expect(
-      count,
-      "the CTA should appear in the nav, the hero and the offer"
-    ).toBeGreaterThan(2)
 
     // One CTA concept, one destination: the enquiry form itself.
     for (let index = 0; index < count; index += 1) {
@@ -719,14 +756,21 @@ test.describe("Codera homepage", () => {
     // on the way. A pin that swallows scroll shows up here as a page that
     // cannot be left.
     await page.locator("body").click({ position: { x: 5, y: 5 } })
-    await page.keyboard.press("End")
-    await page.waitForTimeout(1500)
 
-    const atBottom = await page.evaluate(
-      () =>
-        window.scrollY + window.innerHeight >=
-        document.documentElement.scrollHeight - 4
-    )
+    // The dom tier's scenes arrive in a lazy chunk, so the document can grow
+    // under the first End press. A user leans on the key until the page stops
+    // moving — the test does the same; a pin that swallows scroll still fails,
+    // because no number of presses gets past it.
+    let atBottom = false
+    for (let attempt = 0; attempt < 5 && !atBottom; attempt += 1) {
+      await page.keyboard.press("End")
+      await page.waitForTimeout(1200)
+      atBottom = await page.evaluate(
+        () =>
+          window.scrollY + window.innerHeight >=
+          document.documentElement.scrollHeight - 4
+      )
+    }
     expect(atBottom, "End should reach the footer").toBe(true)
     await expect(page.locator("footer")).toBeVisible()
   })

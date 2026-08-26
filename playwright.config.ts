@@ -29,7 +29,18 @@ export default defineConfig({
 
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
-    { name: "firefox", use: { ...devices["Desktop Firefox"] } },
+    {
+      name: "firefox",
+      use: {
+        ...devices["Desktop Firefox"],
+        /* CODERA_NO_WEBGL=1 reproduces CI's Linux Firefox, which cannot
+           create a WebGL context: the site falls back to the dom tier, and
+           the suite has to pass there too. */
+        launchOptions: process.env.CODERA_NO_WEBGL
+          ? { firefoxUserPrefs: { "webgl.disabled": true } }
+          : {},
+      },
+    },
     { name: "webkit", use: { ...devices["Desktop Safari"] } },
   ],
 
