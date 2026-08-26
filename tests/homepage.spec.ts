@@ -622,6 +622,173 @@ test.describe("Codera homepage", () => {
     expect(split).toBe(50)
   })
 
+  test("keyboard users reach every control and always see focus", async ({
+    page,
+    browserName,
+  }) => {
+    // WebKit does not put links in the tab order unless the OS "Tab highlights
+    // each item" preference is on, so the walk would stop at the first link.
+    test.skip(
+      browserName === "webkit",
+      "WebKit does not tab to links by default"
+    )
+
+    await page.goto("/")
+    await waitForHydration(page)
+
+    const seen: string[] = []
+    let invisibleFocus: string | null = null
+
+    for (let step = 0; step < 40; step += 1) {
+      await page.keyboard.press("Tab")
+
+      const info = await page.evaluate(() => {
+        const node = document.activeElement as HTMLElement | null
+        if (!node || node === document.body) {
+          return null
+        }
+        const style = getComputedStyle(node)
+        const outline =
+          style.outlineStyle !== "none" &&
+          Number.parseFloat(style.outlineWidth) > 0
+        return {
+          tag: node.tagName.toLowerCase(),
+          label: (node.textContent ?? "").trim().slice(0, 30),
+          outline,
+          hidden: node.offsetParent === null && style.position !== "fixed",
+        }
+      })
+
+      if (!info) {
+        break
+      }
+
+      // Nothing off-screen or inside a closed overlay may take focus.
+      expect(
+        info.hidden,
+        `focus landed on a hidden element: ${info.tag} "${info.label}"`
+      ).toBe(false)
+
+      if (!info.outline && !invisibleFocus) {
+        invisibleFocus = `${info.tag} "${info.label}"`
+      }
+      seen.push(`${info.tag}:${info.label}`)
+    }
+
+    expect(
+      invisibleFocus,
+      `an element took focus with no visible ring: ${invisibleFocus}`
+    ).toBeNull()
+
+    // The skip link, the nav, the CTAs and the form all have to be in there.
+    expect(seen.length).toBeGreaterThan(10)
+  })
+
+  test("pinned scenes never trap the scroll", async ({ page }) => {
+    await page.goto("/")
+    await waitForHydration(page)
+
+    // End must reach the bottom of the document even though three scenes pin
+    // on the way. A pin that swallows scroll shows up here as a page that
+    // cannot be left.
+    await page.locator("body").click({ position: { x: 5, y: 5 } })
+    await page.keyboard.press("End")
+    await page.waitForTimeout(1500)
+
+    const atBottom = await page.evaluate(
+      () =>
+        window.scrollY + window.innerHeight >=
+        document.documentElement.scrollHeight - 4
+    )
+    expect(atBottom, "End should reach the footer").toBe(true)
+    await expect(page.locator("footer")).toBeVisible()
+  })
+
+  test("text clears WCAG AA contrast on both grounds", async ({ page }) => {
+    await page.goto("/")
+    await waitForHydration(page)
+
+    const check = async (selector: string, minimum: number) =>
+      page.evaluate(
+        ([sel, min]) => {
+          // Resolve any CSS Color 4 syntax to sRGB by round-tripping it
+          // through a canvas — `getComputedStyle` hands back `lab()` in
+          // Chromium and `oklch()` elsewhere, and neither parses as rgb().
+          const toRgb = (color: string) => {
+            const canvas = document.createElement("canvas")
+            canvas.width = 1
+            canvas.height = 1
+            const ctx = canvas.getContext("2d") as CanvasRenderingContext2D
+            ctx.fillStyle = "#000"
+            ctx.fillStyle = color
+            ctx.fillRect(0, 0, 1, 1)
+            const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data
+            return [r, g, b] as const
+          }
+
+          const luminance = (rgb: readonly number[]) => {
+            const [r, g, b] = rgb.map((v) => {
+              const s = v / 255
+              return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4
+            })
+            return 0.2126 * r + 0.7152 * g + 0.0722 * b
+          }
+
+          const node = document.querySelector(sel as string)
+          if (!node) {
+            return { ok: false, ratio: 0, reason: "missing" }
+          }
+
+          const style = getComputedStyle(node)
+          let ground = node as Element | null
+          let background = "rgba(0, 0, 0, 0)"
+          while (ground) {
+            const value = getComputedStyle(ground).backgroundColor
+            if (value && !value.endsWith(", 0)")) {
+              background = value
+              break
+            }
+            ground = ground.parentElement
+          }
+
+          const a = luminance(toRgb(style.color))
+          const b = luminance(toRgb(background))
+          const ratio = (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05)
+          return { ok: ratio >= (min as number), ratio, reason: "" }
+        },
+        [selector, minimum] as const
+      )
+
+    // Body copy on the graphite ground.
+    const lead = await check("#top [data-hero-lead]", 4.5)
+    expect(
+      lead.ratio,
+      `hero lead contrast was ${lead.ratio.toFixed(2)}:1`
+    ).toBeGreaterThanOrEqual(4.5)
+
+    // Large display type only needs 3:1, but the headline should clear AA for
+    // body text anyway — it is the first thing anyone reads.
+    const heading = await check("#hero-heading", 4.5)
+    expect(
+      heading.ratio,
+      `hero headline contrast was ${heading.ratio.toFixed(2)}:1`
+    ).toBeGreaterThanOrEqual(4.5)
+
+    // And on the paper chapter, where the tokens are re-pointed.
+    await page.locator("#praca").scrollIntoViewIfNeeded()
+    await page.evaluate(() => {
+      const stage = document.querySelector("#praca") as HTMLElement
+      stage.dataset.chapter = "paper"
+    })
+    await page.waitForTimeout(900)
+
+    const onPaper = await check("#praca [data-project-panel] p", 4.5)
+    expect(
+      onPaper.ratio,
+      `paper-chapter body contrast was ${onPaper.ratio.toFixed(2)}:1`
+    ).toBeGreaterThanOrEqual(4.5)
+  })
+
   test("returns a styled 404 for unknown routes", async ({ page }) => {
     const response = await page.goto("/tato-stranka-neexistuje")
 

@@ -15,7 +15,12 @@ import { cn } from "@/lib/utils"
  * than a class on each component.
  */
 const buttonVariants = cva(
-  "group/button inline-flex shrink-0 items-center justify-center rounded-full border border-transparent bg-clip-padding font-medium whitespace-nowrap transition-[background-color,border-color,color,transform] duration-300 ease-[var(--ease-out-quint)] outline-none select-none active:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  /* No `outline-none` here. The scaffolded version carried one and replaced
+     the outline with a ring; this design system has exactly one focus
+     indicator, declared on `:focus-visible` in `globals.css`. Suppressing the
+     outline in a utility (which outranks the base layer) left every CTA on the
+     page focusable with no visible ring at all. */
+  "group/button inline-flex shrink-0 items-center justify-center rounded-full border border-transparent bg-clip-padding font-medium whitespace-nowrap transition-[background-color,border-color,color,transform] duration-300 ease-[var(--ease-out-quint)] select-none active:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {

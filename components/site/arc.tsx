@@ -158,9 +158,24 @@ export function ArcTick({
   const large = Math.abs(sweep) > 180 ? 1 : 0
   const direction = sweep > 0 ? 1 : 0
 
+  /**
+   * When stretching, crop the viewBox to the segment itself.
+   *
+   * `preserveAspectRatio: none` maps the *viewBox* onto the element, not the
+   * path — so a shallow segment inside the full 24-unit square stretches to
+   * about a sixth of the width and leaves the rest empty. Cropping to the
+   * segment's own bounds is what makes a rule actually span what it is under.
+   * The top of the arc is always at y = centre − radius, since the segment is
+   * centred on the top of the circle.
+   */
+  const top = ARC_CENTRE - ARC_RADIUS
+  const viewBox = stretch
+    ? `${x1} ${top} ${(x2 - x1).toFixed(3)} ${Math.max(y1 - top, 0.01).toFixed(3)}`
+    : "0 0 24 24"
+
   return (
     <svg
-      viewBox="0 0 24 24"
+      viewBox={viewBox}
       className={cn("h-2.5 overflow-visible", stretch ? "w-full" : "w-auto", className)}
       fill="none"
       preserveAspectRatio={stretch ? "none" : undefined}

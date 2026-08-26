@@ -220,6 +220,11 @@ export function SceneTransformation() {
               <label htmlFor={inputId} className="sr-only">
                 Porovnanie starého a nového webu
               </label>
+              {/* The outline is deliberately *not* suppressed. The control
+                  fills the stage, so the global focus ring traces the frame —
+                  exactly the right indication for a slider that owns the whole
+                  comparison. The handle scaling underneath is a second cue,
+                  not the only one. */}
               <input
                 ref={inputRef}
                 id={inputId}
@@ -229,7 +234,7 @@ export function SceneTransformation() {
                 step={1}
                 defaultValue={50}
                 aria-valuetext="Zobrazené 50 % pôvodného webu"
-                className="h-full w-full cursor-col-resize appearance-none bg-transparent focus:outline-none [&::-moz-range-thumb]:h-14 [&::-moz-range-thumb]:w-14 [&::-moz-range-thumb]:cursor-col-resize [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-transparent [&::-webkit-slider-thumb]:h-14 [&::-webkit-slider-thumb]:w-14 [&::-webkit-slider-thumb]:cursor-col-resize [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:bg-transparent"
+                className="h-full w-full cursor-col-resize appearance-none bg-transparent [&::-moz-range-thumb]:h-14 [&::-moz-range-thumb]:w-14 [&::-moz-range-thumb]:cursor-col-resize [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-transparent [&::-webkit-slider-thumb]:h-14 [&::-webkit-slider-thumb]:w-14 [&::-webkit-slider-thumb]:cursor-col-resize [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:bg-transparent"
               />
             </div>
           </div>

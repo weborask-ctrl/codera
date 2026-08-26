@@ -1,9 +1,9 @@
 "use client"
 
-import CountUp from "@/components/react-bits/CountUp"
 import ScrollReveal from "@/components/react-bits/ScrollReveal"
 import { ARC_PATH } from "@/components/site/arc"
 import { ButtonLink } from "@/components/site/button-link"
+import { CountUp } from "@/components/site/count-up"
 import { EnquiryForm } from "@/components/site/enquiry-form"
 import { Magnetic } from "@/components/site/magnetic"
 import { useScene } from "@/hooks/use-scene"

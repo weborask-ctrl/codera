@@ -4,13 +4,16 @@ The Codera studio website. Slovak content, English code and documentation.
 
 It doubles as our portfolio piece, so the standards it is built to are the
 standards it advertises: server-rendered, minimal client JavaScript, WCAG 2.2
-AA contrast, keyboard operable, reduced-motion aware, and tested in Chromium,
-Gecko and WebKit.
+AA contrast, keyboard operable, reduced-motion aware, readable with scripting
+off, and tested in Chromium, Gecko and WebKit.
 
 ## Stack
 
-Next.js (App Router) · React · TypeScript · Tailwind CSS v4 · shadcn/ui on the
-Luma preset · Base UI · Magic UI · Biome · Playwright.
+Next.js (App Router) · React · TypeScript · Tailwind CSS v4 · Base UI ·
+GSAP + ScrollTrigger · React Bits (vendored and rewritten) · Biome · Playwright.
+
+Nine runtime dependencies. Anything that was not used got removed rather than
+left installed.
 
 ## Commands
 
@@ -39,37 +42,83 @@ retrigger compilation and truncate in-flight RSC streams.
 ## Structure
 
 ```
-app/                    route segments, metadata, sitemap, robots, OG image
-components/site/        every section of the homepage, plus shared primitives
-components/site/previews/  the concept mini-sites rendered inside device frames
-components/ui/          shadcn + Magic UI components (Biome does not lint these)
-lib/site-config.ts      nav, contact and legal values — including placeholders
-tests/                  Playwright suite
+app/                       route segments, metadata, sitemap, robots, OG image
+components/site/           one file per scene, plus the mark and shared bits
+components/site/previews/  the concept mini-sites, as live markup
+components/react-bits/     vendored React Bits primitives (all rewritten)
+components/ui/button.tsx   the one primitive kept from the scaffold
+hooks/use-scene.ts         scene registration, scoped cleanup, reduced motion
+lib/motion.ts              the single GSAP + ScrollTrigger registration
+lib/site-config.ts         nav, contact and legal values — incl. placeholders
+tests/                     Playwright suite
 ```
+
+## The page
+
+Four scenes, five sections, one continuous environment:
+
+| Section    | Scene                                                        |
+| ---------- | ------------------------------------------------------------ |
+| `#top`     | Identity — the mark opens and frames a live concept          |
+| `#premena` | Transformation — a dated site becomes a Codera one           |
+| `#praca`   | Work — one pinned stage, three projects, the ground morphs   |
+| `#sluzby`  | Offer — three words, one lit at a time on the width axis     |
+| `#kontakt` | Conversion — why, price, the closing mark, the form          |
+
+### The mark is the motion language
+
+`components/site/arc.tsx` owns the geometry once: an open C, centre (12,12),
+radius 9, with a 90° gap. Everything else derives from it — the nav hover
+underline, the index ticks, the rule under the active service word, the handle
+that drags the before/after comparison, and the mark that closes at the end of
+the page. `app/icon.svg` and the OG image use the same path.
+
+The gap is the idea. An unfinished circle, closed as you reach the end.
 
 ### Design system
 
-Tokens live in `app/globals.css`:
+Tokens live in `app/globals.css`.
 
-- **Colour** — light-first neutrals with one blue accent (`--brand`). Every
-  foreground/background pairing clears WCAG AA; `--ink` is the single deep
-  chapter surface and stays constant in both themes.
-- **Type** — fluid `clamp()` display sizes, fixed 17px/1.55 body at every
-  viewport. Tracking tightens as size grows.
-- **Spacing** — one container (`.container-page`) and one vertical rhythm
-  (`.section-pad`), so no section re-invents its gutters.
-- **Motion** — `.reveal` scroll entrances driven by a single shared
-  IntersectionObserver, plus one clip-path wipe on the closing headline.
-  Everything is disabled under `prefers-reduced-motion`.
+- **Colour.** Dark-first: `:root` is the graphite ground. Light chapters are a
+  scoped `[data-chapter="paper"]` token override, not a user theme — the
+  rhythm belongs to the scene. The chapter also sets `color`, because CSS
+  `color` inherits as a *computed* value and re-pointing `--foreground` alone
+  would only reach elements that set a colour of their own.
+  Codera's chrome is monochrome; saturated colour belongs to the *work*.
+- **Type.** Archivo, variable on weight and **width**. The width axis is not
+  decoration: the offer scene expands and compresses its words on it, which is
+  something no static face can do without distorting letterforms. Geist Mono
+  appears at exactly one size, for micro-labels.
+- **Motion.** One engine. GSAP and ScrollTrigger, registered once in
+  `lib/motion.ts`. No smooth-scroll library — the choreography reads the real
+  scroll position and never takes it over.
+- **Spacing.** One container (`.container-page`), one rhythm (`.section-pad`).
+
+### Reduced motion is a layout, not a fallback
+
+`useScene` never registers a timeline when `prefers-reduced-motion` is set — no
+pinning, no scrubbing, nothing to fail. The scenes have to be readable in that
+state, so the DOM's resting state *is* the finished state and motion only ever
+animates towards what is already there. The same property makes the page work
+with scripting off, and both are covered by tests.
+
+### React Bits
+
+Four primitives are vendored in `components/react-bits/`, and all four were
+rewritten rather than configured. The reasons are recorded per file and in
+`REDESIGN_PROGRESS.md` — the short version is that `Magnet` re-rendered React
+on every mousemove, `ScrollReveal`'s cleanup killed every ScrollTrigger on the
+page, `GlareHover` put mouse handlers on a static div, and `CountUp` shipped an
+empty span to anything that did not run its effect.
 
 ### Concept projects
 
 The three showcase projects (Konštrukt, Vitalis, Forma) are **concepts, not
 client work**, and are labelled as such on the page and in the footer. They are
-real rendered markup inside device frames rather than screenshots, so they stay
-sharp at any density and cost no image bytes. Each preview sizes itself in
-`cqw` against its frame's CSS container, which is why one component renders
-correctly at 1100px in the hero and at 340px in a project card.
+real rendered markup rather than screenshots, so they stay sharp at any density
+and cost no image bytes. Each preview sizes itself in `cqw` against its CSS
+container, which is why one component renders correctly full-bleed on the work
+stage and at 160px inside the hero's phone frame.
 
 ## The enquiry form has no backend
 
@@ -84,29 +133,16 @@ backend would need — nothing else in the component has to change.
 
 ## Before launch
 
-Outstanding business information, all marked `TODO(codera)` in
-`lib/site-config.ts` and `components/site/site-footer.tsx`:
+Outstanding business information, marked `TODO(codera)` in `lib/site-config.ts`
+and `components/site/site-footer.tsx`:
 
-- the production domain (`siteConfig.url` is currently a placeholder,
+- the production domain (`siteConfig.url` is a placeholder,
   `www.codera.example` — deliberately not a guess at the real `.sk`/`.com`/`.eu`
-  domain)
+  domain). Every canonical, sitemap and OG URL derives from it.
 - company registration details, once a trade licence or company exists. The
-  footer deliberately publishes none today: `legal.hasRegisteredEntity` is
-  `false` and there is no IČO, DIČ, VAT status or registered office anywhere on
-  the site, because inventing them would be a legal problem rather than a
-  cosmetic gap.
-
-### Mark
-
-`components/site/logo.tsx` (the wordmark), `app/icon.svg` (the favicon) and
-`components/site/codera-motif.tsx` (the small recurring `Chevron`/`IndexMark`
-motif and the process timeline's track) share one idea: an open geometric
-ring — a "C", built from an SVG arc rather than a font glyph — for the logo,
-and a forward-pointing chevron for everything that repeats. Neither borrows
-its shape from the studio's earlier name, whose mark was a literal stylised
-"W".
+  footer publishes none today: `legal.hasRegisteredEntity` is `false` and there
+  is no IČO, DIČ, VAT status or registered office anywhere on the site, because
+  inventing them would be a legal problem rather than a cosmetic gap.
 
 Real client work, testimonials and measured results are likewise absent by
-design. `components/site/projects.tsx` types each entry with a `kind` of
-`concept` or `case-study`, so a real case study can join the array and render
-alongside the concepts without touching the layout.
+design — there are none yet, and the site says so.
