@@ -17,7 +17,9 @@ live v1 site and stays untouched until this branch passes the preview gate.
 
 ## Current phase
 
-Phases 9–10 complete — awaiting the preview gate — the film is whole. A (surface) → B (reveal) → C (portal)
+**Released.** The preview gate passed (desktop world mounted, pinned and
+advanced through its states with zero errors; mobile touch-native with zero
+pins/canvas/overflow), and spatial-v2 was merged to master. — the film is whole. A (surface) → B (reveal) → C (portal)
 → D (transformation) → E1–E3 (work) → F (the mark splits into its three
 strands for the offer) → G (the strands close back into the completed C,
 wordmark lands). One pin, one timeline, 28.2 units over 860%.
@@ -192,10 +194,13 @@ What the prototype established, to reuse verbatim in Phase 3:
 
 ## Next phase
 
-**Preview gate**: push spatial-v2 → Vercel preview → verify desktop world,
-mobile experience, runtime errors and loading in the real environment →
-then the production release checklist (final validation, dead code, merge,
-verify https://www.codera.sk).
+None — the spatial redesign is live. Remaining known items:
+
+- The deck `<img>` lint warning is a documented decision (static
+  same-origin asset, explicit srcset/sizes, lazy, below the fold).
+- Real-device Safari/iOS verification was not possible from this machine —
+  worth a manual pass on a physical iPhone.
+- The footer registration TODO carries over until the legal entity exists.
 
 ---
 
