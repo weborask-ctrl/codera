@@ -92,11 +92,11 @@ What the prototype established, to reuse verbatim in Phase 3:
   metadata column on clean air left).
 - **The atmosphere carries the ground rhythm**: fog + background lerp
   graphite → paper → warm paper as one colour, so depth reads as air. The
-  stage is a ; the chapter flip lands between metadata
+  stage is a data-tone-zone; the chapter flip lands between metadata
   blocks, and the fixed nav inverts through the existing v1 mechanism — one
   system, not two.
 - **DOM per project**: index, sector, name, one commercial proof line,
-  disciplines,  badge. The  anchor is a marker at the work
+  disciplines, Koncept badge. The #praca anchor is a marker at the work
   chapter’s scroll offset inside the pin.
 - **Tiers**: the DOM tier now carries the full v1 sequence (hero,
   comparison, pinned work stage) — that is what phones get until Phase 6.
