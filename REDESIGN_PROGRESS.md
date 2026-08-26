@@ -201,8 +201,9 @@ it through the package's `exports` map was fragile under Turbopack).
 
 ## Known issues
 
-- `siteConfig.url` is still the RFC 2606 placeholder `codera.example`. Every
-  canonical, sitemap and OG URL derives from it. Must be set before launch.
+- ~~`siteConfig.url` placeholder~~ — resolved. The site is live on
+  `https://www.codera.sk`; the canonical uses the `www` form because that is
+  the host Vercel actually serves.
 - Fonts are 209 KB — Archivo's width axis roughly doubles the file. It is
   bought deliberately (Scene 03 is built on that axis) but it is the single
   largest asset on the page.

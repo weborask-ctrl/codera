@@ -133,12 +133,13 @@ backend would need — nothing else in the component has to change.
 
 ## Before launch
 
-Outstanding business information, marked `TODO(codera)` in `lib/site-config.ts`
-and `components/site/site-footer.tsx`:
+The site is live at **https://www.codera.sk**. Vercel holds `www` as the
+primary host and 308s the apex onto it, which is why `siteConfig.url` is the
+`www` form — a canonical must never name a URL that only redirects.
 
-- the production domain (`siteConfig.url` is a placeholder,
-  `www.codera.example` — deliberately not a guess at the real `.sk`/`.com`/`.eu`
-  domain). Every canonical, sitemap and OG URL derives from it.
+Outstanding business information, marked `TODO(codera)` in
+`components/site/site-footer.tsx`:
+
 - company registration details, once a trade licence or company exists. The
   footer publishes none today: `legal.hasRegisteredEntity` is `false` and there
   is no IČO, DIČ, VAT status or registered office anywhere on the site, because

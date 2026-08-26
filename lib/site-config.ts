@@ -10,11 +10,15 @@
 export const siteConfig = {
   name: "Codera",
   /**
-   * TODO(codera): placeholder domain (RFC 2606 reserved TLD) — deliberately
-   * not a guess at the real .sk/.com/.eu domain. Replace before launch; every
-   * absolute URL (canonical, sitemap, OG) is derived from this one value.
+   * The canonical origin. Every absolute URL on the site — canonical tags, the
+   * sitemap, Open Graph — derives from this one value.
+   *
+   * `www`, not the apex, because that is what actually serves: Vercel holds
+   * `www.codera.sk` as the primary and 308s `codera.sk` onto it. A canonical
+   * pointing at the apex would name a URL that only ever redirects, which is
+   * the one thing a canonical must not do.
    */
-  url: "https://www.codera.example",
+  url: "https://www.codera.sk",
   locale: "sk_SK",
   title: "Codera — tvorba firemných webstránok a redizajn webu",
   description:
