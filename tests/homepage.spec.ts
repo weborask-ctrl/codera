@@ -386,14 +386,29 @@ test.describe("Codera homepage", () => {
       return spacer.getBoundingClientRect().height - window.innerHeight
     })
 
-    await page.evaluate((y) => window.scrollTo(0, y), Math.round(pinEnd * 0.4))
+    await page.evaluate((y) => window.scrollTo(0, y), Math.round(pinEnd * 0.16))
     await page.waitForTimeout(900)
     await expect(page.locator("#top")).toHaveAttribute("data-world-state", "c")
 
-    await page.evaluate((y) => window.scrollTo(0, y), Math.round(pinEnd * 0.85))
+    await page.evaluate((y) => window.scrollTo(0, y), Math.round(pinEnd * 0.45))
     await page.waitForTimeout(900)
     await expect(page.locator("#top")).toHaveAttribute("data-world-state", "d")
     await expect(page.locator("#premena")).toBeVisible()
+
+    // The work chapter: three states, and the world turns to paper — which
+    // must also flip the stage's chapter so the nav inverts with it.
+    await page.evaluate((y) => window.scrollTo(0, y), Math.round(pinEnd * 0.62))
+    await page.waitForTimeout(900)
+    await expect(page.locator("#top")).toHaveAttribute("data-world-state", "e1")
+
+    await page.evaluate((y) => window.scrollTo(0, y), Math.round(pinEnd * 0.78))
+    await page.waitForTimeout(900)
+    await expect(page.locator("#top")).toHaveAttribute("data-world-state", "e2")
+    await expect(page.locator("#top")).toHaveAttribute("data-chapter", "paper")
+
+    await page.evaluate((y) => window.scrollTo(0, y), Math.round(pinEnd * 0.97))
+    await page.waitForTimeout(900)
+    await expect(page.locator("#top")).toHaveAttribute("data-world-state", "e3")
 
     // The world must stay pinned for its whole runway — the sections below
     // must never pin on top of it (the stale-start regression).
@@ -408,9 +423,11 @@ test.describe("Codera homepage", () => {
   test("the work stage advances through all three projects", async ({
     page,
   }) => {
-    await page.setViewportSize({ width: 1280, height: 800 })
+    // Under 1024px the world never mounts; this covers the DOM tier's v1
+    // pinned stage, which is what phones and weak devices actually get.
+    await page.setViewportSize({ width: 1000, height: 800 })
     await page.goto("/")
-    await waitForWorld(page)
+    await waitForHydration(page)
 
     const stage = page.locator("#praca")
     const sceneTop = await page.$eval(
@@ -739,8 +756,11 @@ test.describe("Codera homepage", () => {
   })
 
   test("text clears WCAG AA contrast on both grounds", async ({ page }) => {
+    // DOM tier: the selectors below live in the v1 markup, and the world's
+    // paper states get their contrast pass in visual QA (Phase 10).
+    await page.setViewportSize({ width: 1000, height: 800 })
     await page.goto("/")
-    await waitForWorld(page)
+    await waitForHydration(page)
 
     const check = async (selector: string, minimum: number) =>
       page.evaluate(

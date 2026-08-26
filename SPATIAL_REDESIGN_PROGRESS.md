@@ -17,8 +17,9 @@ live v1 site and stays untouched until this branch passes the preview gate.
 
 ## Current phase
 
-Phase 3 complete — the spatial world runs on the real homepage. `/proto` is
-deleted; `components/world/` is the production implementation.
+Phase 4 complete — the work chapter lives inside the world. The journey is
+now A → B → portal → transformation → E1 Konštrukt → E2 Vitalis (paper) →
+E3 Forma (warm paper), one pin, one timeline.
 
 ### Prototype verdict (measured, production build)
 
@@ -82,13 +83,34 @@ What the prototype established, to reuse verbatim in Phase 3:
   hook-tracked value. Route it through `state.scene.getObjectByName()` in
   the frame callback — same pattern for mesh rotation, uniforms, lights.
 
+### Phase 4 delivered
+
+- **Three project states in the world.** The morphed transformation surface
+  IS Konštrukt’s presentation (no cut); Vitalis and Forma hang deeper along
+  the arc as angled planes, revealed on approach, faded on departure. Camera
+  states E1–E3 computed from angular framing (plane ≈ frame-right 33–100%,
+  metadata column on clean air left).
+- **The atmosphere carries the ground rhythm**: fog + background lerp
+  graphite → paper → warm paper as one colour, so depth reads as air. The
+  stage is a ; the chapter flip lands between metadata
+  blocks, and the fixed nav inverts through the existing v1 mechanism — one
+  system, not two.
+- **DOM per project**: index, sector, name, one commercial proof line,
+  disciplines,  badge. The  anchor is a marker at the work
+  chapter’s scroll offset inside the pin.
+- **Tiers**: the DOM tier now carries the full v1 sequence (hero,
+  comparison, pinned work stage) — that is what phones get until Phase 6.
+- Pin: 560% (~6.6 viewports of scroll for scenes 01–03). Full-journey scrub:
+  **16.7/16.8 ms median at 1×/4×, 4.5/6.3% jank**. 26/26 tests, including
+  the world walk e1→e2→e3 with the paper-chapter flip.
+
 ## Next phase
 
-**Phase 4 — the desktop work world.** Projects as spatial planes past the
-transformation surface (which IS Konštrukt’s surface — continuity is already
-in place), camera states E1–E3, per-project lighting (graphite → paper →
-warm), the work → offer handoff. Replaces the v1 SceneWork on the world
-tier; v1 stays as the DOM-tier presentation.
+**Phase 5 — offer + resolution.** The world returns toward the ribbon: the
+strand composition for STRATÉGIA / DIZAJN / VÝVOJ, the quiet price, the
+reassembled C, final CTA and the conversion block. Replaces v1 SceneOffer on
+the world tier; the ribbon’s return closes the continuity loop (it has been
+behind the camera through the work chapter — deliberate, noted).
 
 ---
 

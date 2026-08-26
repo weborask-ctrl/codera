@@ -22,6 +22,11 @@ export const film = {
   morph: 0,
   /** Plane visibility: 0 until the portal flight reveals it. */
   planeReveal: 0,
+  /** Vitalis and Forma surfaces, revealed as the camera travels to them. */
+  planeVitalis: 0,
+  planeForma: 0,
+  /** Environment tone: 0 graphite, 1 Vitalis paper, 2 Forma warm paper. */
+  envTone: 0,
   /** Pointer sway (−1..1), written by the pointer field on fine pointers. */
   swayX: 0,
   swayY: 0,
@@ -48,7 +53,19 @@ export const CAMERA_STATES = {
   C: { cam: { x: 4.45, y: 0.15, z: 4.6 }, target: { x: 5.4, y: 0.05, z: -9 }, key: 0.9 },
   /** D — Transformation: settled on the plane beyond the opening. */
   D: { cam: { x: 7.2, y: 0.1, z: -1.6 }, target: { x: 7.2, y: 0, z: -10 }, key: 1.0 },
+  /** E1 — Konštrukt presented: off-axis, plane frame-right, metadata air left. */
+  E1: { cam: { x: 3.4, y: 0.35, z: 1.6 }, target: { x: 4.9, y: 0, z: -10.6 }, key: 1.0 },
+  /** E2 — Vitalis: lateral track left and deeper; the world turns to paper. */
+  E2: { cam: { x: -1.6, y: 0.95, z: -3.4 }, target: { x: -0.1, y: 0.7, z: -16.2 }, key: 0.8 },
+  /** E3 — Forma: further along the arc; warm paper. */
+  E3: { cam: { x: -7.6, y: 1.65, z: -9.0 }, target: { x: -6.3, y: 1.35, z: -21.6 }, key: 0.8 },
 } as const
+
+/** The two deeper project surfaces, angled toward the camera path. */
+export const PLANES = {
+  vitalis: { position: [1.6, 0.7, -15.5] as const, rotationY: 0.24, width: 8.8, height: 5.5 },
+  forma: { position: [-4.2, 1.4, -21] as const, rotationY: 0.38, width: 8.8, height: 5.5 },
+}
 
 /** Where the transformation plane lives, shared by the world and the states. */
 export const PLANE = {

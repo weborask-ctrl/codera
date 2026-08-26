@@ -5,6 +5,7 @@ import { Suspense, useEffect, useMemo } from "react"
 import {
   ACESFilmicToneMapping,
   CanvasTexture,
+  Color,
   DoubleSide,
   Fog,
   PMREMGenerator,
@@ -16,7 +17,7 @@ import {
 } from "three"
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js"
 
-import { film, PLANE } from "@/components/world/film"
+import { film, PLANE, PLANES } from "@/components/world/film"
 import { createRibbonGeometry } from "@/lib/ribbon-mesh"
 
 /**
@@ -198,6 +199,61 @@ function TransformPlane() {
 }
 
 /**
+ * A project surface: one baked texture, revealed as the camera approaches.
+ * Unlit, transparent, opacity driven per-frame through the scene lookup.
+ */
+function ProjectPlane({
+  name,
+  url,
+  position,
+  rotationY,
+  width,
+  height,
+  filmKey,
+}: {
+  name: string
+  url: string
+  position: readonly [number, number, number]
+  rotationY: number
+  width: number
+  height: number
+  filmKey: "planeVitalis" | "planeForma"
+}) {
+  const gl = useThree((state) => state.gl)
+
+  const texture = useMemo(() => {
+    const loaded = new TextureLoader().load(url)
+    loaded.colorSpace = SRGBColorSpace
+    loaded.anisotropy = Math.min(4, gl.capabilities.getMaxAnisotropy())
+    return loaded
+  }, [gl, url])
+
+  useEffect(() => {
+    return () => texture.dispose()
+  }, [texture])
+
+  useFrame((state) => {
+    const mesh = state.scene.getObjectByName(name)
+    const material = (mesh as { material?: { opacity: number } } | null)
+      ?.material
+    if (material) {
+      material.opacity = film[filmKey]
+    }
+  })
+
+  return (
+    <mesh
+      name={name}
+      position={[position[0], position[1], position[2]]}
+      rotation={[0, rotationY, 0]}
+    >
+      <planeGeometry args={[width, height]} />
+      <meshBasicMaterial map={texture} transparent opacity={0} />
+    </mesh>
+  )
+}
+
+/**
  * Generated studio environment + fog, attached declaratively so R3F owns the
  * scene assignment and detaches both on unmount.
  */
@@ -224,9 +280,22 @@ function Atmosphere() {
   )
 }
 
+/**
+ * Environment tones: the world takes on the character of the project it is
+ * showing — the dark → light → dark rhythm from v1, now carried by the
+ * atmosphere itself. Fog and background always agree, so depth reads as air
+ * rather than as a gradient.
+ */
+const TONES = [
+  new Color("#0d0d0f"), // graphite — Konštrukt
+  new Color("#e8e6e0"), // paper — Vitalis
+  new Color("#e9e2d6"), // warm paper — Forma
+]
+
 function Rig() {
   const camera = useThree((state) => state.camera)
   const target = useMemo(() => new Vector3(), [])
+  const tone = useMemo(() => new Color(), [])
 
   useFrame((state) => {
     camera.position.set(
@@ -240,6 +309,22 @@ function Rig() {
     const key = state.scene.getObjectByName("key-light")
     if (key && "intensity" in key) {
       ;(key as unknown as { intensity: number }).intensity = film.key * 2.4
+    }
+
+    /* Piecewise lerp through the three tones, written straight onto the
+       scene's background and fog so they can never disagree. */
+    const t = Math.max(0, Math.min(2, film.envTone))
+    if (t <= 1) {
+      tone.lerpColors(TONES[0], TONES[1], t)
+    } else {
+      tone.lerpColors(TONES[1], TONES[2], t - 1)
+    }
+    const scene = state.scene
+    if (scene.background instanceof Color) {
+      scene.background.copy(tone)
+    }
+    if (scene.fog) {
+      scene.fog.color.copy(tone)
     }
   })
 
@@ -265,6 +350,18 @@ export default function RibbonWorld() {
       <Ribbon />
       <Suspense fallback={null}>
         <TransformPlane />
+        <ProjectPlane
+          name="plane-vitalis"
+          url="/work/vitalis.jpg"
+          filmKey="planeVitalis"
+          {...PLANES.vitalis}
+        />
+        <ProjectPlane
+          name="plane-forma"
+          url="/work/forma.jpg"
+          filmKey="planeForma"
+          {...PLANES.forma}
+        />
       </Suspense>
       <Rig />
     </Canvas>

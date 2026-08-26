@@ -7,6 +7,7 @@ import { ButtonLink } from "@/components/site/button-link"
 import { Magnetic } from "@/components/site/magnetic"
 import { SceneHero } from "@/components/site/scene-hero"
 import { SceneTransformation } from "@/components/site/scene-transformation"
+import { SceneWork } from "@/components/site/scene-work"
 import { CAMERA_STATES, film, useCapabilityTier } from "@/components/world/film"
 import { usePointerField } from "@/hooks/use-scene"
 import { EASE, gsap, ScrollTrigger } from "@/lib/motion"
@@ -36,6 +37,34 @@ const RibbonWorld = dynamic(() => import("@/components/world/ribbon-world"), {
 
 const HEADLINE = ["Vaša firma je lepšia,", "než ukazuje váš web."]
 
+/** One line per project, about the commercial decision — never the palette. */
+const WORK = [
+  {
+    id: "konstrukt",
+    index: "01",
+    name: "Konštrukt",
+    sector: "Stavebníctvo",
+    proof: "Prebiehajúca stavba hneď v úvode — investor vidí referenciu skôr než cenník.",
+    disciplines: "Brand direction · UX · Vývoj",
+  },
+  {
+    id: "vitalis",
+    index: "02",
+    name: "Vitalis",
+    sector: "Súkromná klinika",
+    proof: "Voľné termíny hneď v úvode — hlavná obava pacienta zmizne skôr, než stihne odísť.",
+    disciplines: "Dizajn · UX · Vývoj",
+  },
+  {
+    id: "forma",
+    index: "03",
+    name: "Forma",
+    sector: "Interiérové štúdio",
+    proof: "Sadzba časopisu namiesto katalógu — štúdio sa číta ako autor, nie dodávateľ.",
+    disciplines: "Art direction · Dizajn · Vývoj",
+  },
+]
+
 function WorldStage() {
   const stageRef = useRef<HTMLDivElement>(null)
   const pointerRef = usePointerField<HTMLDivElement>(1)
@@ -63,10 +92,21 @@ function WorldStage() {
     }
 
     const context = gsap.context(() => {
-      const { A, B, C, D } = CAMERA_STATES
+      const { A, B, C, D, E1, E2, E3 } = CAMERA_STATES
 
       const setState = (name: string) => () => {
         stage.dataset.worldState = name
+      }
+
+      /* The stage is a tone zone: flipping its chapter re-points every token
+         underneath it AND inverts the fixed navigation — the same mechanism
+         the v1 paper sections use, so it is one system, not two. */
+      const toneZone = (chapter: "paper" | null) => () => {
+        if (chapter) {
+          stage.dataset.chapter = chapter
+        } else {
+          delete stage.dataset.chapter
+        }
       }
 
       /* ---- The intro: A → B, autoplayed ---- */
@@ -113,7 +153,7 @@ function WorldStage() {
           scrollTrigger: {
             trigger: stage,
             start: "top top",
-            end: "+=320%",
+            end: "+=560%",
             pin: true,
             scrub: 0.5,
             anticipatePin: 1,
@@ -158,7 +198,51 @@ function WorldStage() {
             { opacity: 1, duration: 0.8 },
             7.4
           )
-          /* A beat on the finished concept before the world hands back. */
+          /* A beat on the finished concept. */
+          .to({}, { duration: 0.8 })
+
+          /* ---- E1: the transformed surface becomes project 01 ---- *
+             The premena framing hands off to the work presentation on the
+             SAME plane — no cut, the continuity the storyboard demands. */
+          .to("[data-premena-block]", { opacity: 0, y: -30, duration: 0.8 }, 9.2)
+          .to(film.cam, { ...E1.cam, duration: 1.4 }, 9.2)
+          .to(film.target, { ...E1.target, duration: 1.4 }, 9.2)
+          .fromTo(
+            '[data-work="konstrukt"]',
+            { opacity: 0, y: 40 },
+            { opacity: 1, y: 0, duration: 1, ease: EASE.quint },
+            9.8
+          )
+          .call(setState("e1"), undefined, 10.2)
+
+          /* ---- E1 → E2: lateral track; the world turns to paper ---- */
+          .to("[data-work='konstrukt']", { opacity: 0, y: -30, duration: 0.8 }, 11.4)
+          .to(film.cam, { ...E2.cam, duration: 2.4 }, 11.6)
+          .to(film.target, { ...E2.target, duration: 2.4 }, 11.6)
+          .to(film, { envTone: 1, planeVitalis: 1, planeReveal: 0, key: E2.key, duration: 2.2 }, 11.8)
+          .call(toneZone("paper"), undefined, 12.7)
+          .fromTo(
+            '[data-work="vitalis"]',
+            { opacity: 0, y: 40 },
+            { opacity: 1, y: 0, duration: 1, ease: EASE.quint },
+            13.2
+          )
+          .call(setState("e2"), undefined, 13.4)
+
+          /* ---- E2 → E3: further along the arc; warm paper ---- */
+          .to("[data-work='vitalis']", { opacity: 0, y: -30, duration: 0.8 }, 14.6)
+          .to(film.cam, { ...E3.cam, duration: 2.4 }, 14.8)
+          .to(film.target, { ...E3.target, duration: 2.4 }, 14.8)
+          .to(film, { envTone: 2, planeForma: 1, planeVitalis: 0, duration: 2.2 }, 15.0)
+          .fromTo(
+            '[data-work="forma"]',
+            { opacity: 0, y: 40 },
+            { opacity: 1, y: 0, duration: 1, ease: EASE.quint },
+            16.4
+          )
+          .call(setState("e3"), undefined, 16.6)
+
+          /* A beat on the last project before the world hands back. */
           .to({}, { duration: 1 })
 
         /* The master is created seconds after the sections below built their
@@ -193,11 +277,15 @@ function WorldStage() {
   }, [])
 
   return (
-    <div ref={pointerRef}>
+    <div ref={pointerRef} className="relative">
+      {/* Anchor for the nav's Práca link: the work chapter lives inside the
+          pinned stage, so the target is a marker at its scroll offset. */}
+      <div id="praca" aria-hidden="true" className="absolute top-[300svh] h-px w-px" />
       <div
         ref={stageRef}
         id="top"
         data-world-state="a"
+        data-tone-zone=""
         className="relative min-h-[100svh] overflow-hidden bg-[#0d0d0f]"
       >
         <div className="absolute inset-0">
@@ -238,6 +326,34 @@ function WorldStage() {
             </div>
           </div>
 
+          {/* Work metadata: one block per project, cross-faded by the film.
+              Little text on purpose — the surfaces carry the argument. */}
+          {WORK.map((project) => (
+            <div
+              key={project.id}
+              data-work={project.id}
+              className="container-page absolute inset-0 flex flex-col justify-center opacity-0"
+            >
+              <div className="max-w-[24rem]">
+                <p className="label text-brand">
+                  {project.index} — {project.sector}
+                </p>
+                <p className="mt-4 text-h1 tracking-[-0.035em] text-foreground">
+                  {project.name}
+                </p>
+                <p className="mt-5 text-small text-pretty text-muted-foreground">
+                  {project.proof}
+                </p>
+                <p className="label mt-6 flex items-center gap-3 text-faint">
+                  {project.disciplines}
+                  <span className="rounded-full border border-border-strong/50 px-2.5 py-1">
+                    Koncept
+                  </span>
+                </p>
+              </div>
+            </div>
+          ))}
+
           {/* Premena: enters as the camera settles on the dated site. */}
           <div
             data-premena-block
@@ -275,6 +391,7 @@ export function WorldExperience() {
       <>
         <SceneHero />
         <SceneTransformation />
+        <SceneWork />
       </>
     )
   }

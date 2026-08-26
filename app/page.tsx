@@ -1,6 +1,5 @@
 import { SceneClose } from "@/components/site/scene-close"
 import { SceneOffer } from "@/components/site/scene-offer"
-import { SceneWork } from "@/components/site/scene-work"
 import { SiteFooter } from "@/components/site/site-footer"
 import { SiteNav } from "@/components/site/site-nav"
 import { WorldExperience } from "@/components/world/world-experience"
@@ -89,7 +88,6 @@ export default function Page() {
       <SiteNav />
       <main id="hlavny-obsah">
         <WorldExperience />
-        <SceneWork />
         <SceneOffer />
         <SceneClose />
       </main>
