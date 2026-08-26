@@ -302,6 +302,19 @@
 }
 
 @layer components {
+  /* ---- The world's offer rows -------------------------------------- *
+   * The stage stamps data-service with the lit strand's index; rows that
+   * are not the active one recede. Opacity only — cheap, compositor-safe.
+   * ---------------------------------------------------------------- */
+  [data-service="0"] [data-offer-row="1"],
+  [data-service="0"] [data-offer-row="2"],
+  [data-service="1"] [data-offer-row="0"],
+  [data-service="1"] [data-offer-row="2"],
+  [data-service="2"] [data-offer-row="0"],
+  [data-service="2"] [data-offer-row="1"] {
+    opacity: 0.32;
+  }
+
   /* ---- Chapter morph ---------------------------------------------- *
    * A scene whose ground changes while it is on screen. Custom
    * properties are not animatable, but the *used* values that read them

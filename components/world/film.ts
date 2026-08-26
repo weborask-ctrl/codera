@@ -27,6 +27,12 @@ export const film = {
   planeForma: 0,
   /** Environment tone: 0 graphite, 1 Vitalis paper, 2 Forma warm paper. */
   envTone: 0,
+  /** Offer: 0 = the ribbon whole, 1 = split into its three strands. */
+  strand: 0,
+  /** Per-strand highlight (STRATÉGIA / DIZAJN / VÝVOJ). */
+  glow0: 0,
+  glow1: 0,
+  glow2: 0,
   /** Pointer sway (−1..1), written by the pointer field on fine pointers. */
   swayX: 0,
   swayY: 0,
@@ -59,6 +65,10 @@ export const CAMERA_STATES = {
   E2: { cam: { x: -1.6, y: 0.95, z: -3.4 }, target: { x: -0.1, y: 0.7, z: -16.2 }, key: 0.8 },
   /** E3 — Forma: further along the arc; warm paper. */
   E3: { cam: { x: -7.6, y: 1.65, z: -9.0 }, target: { x: -6.3, y: 1.35, z: -21.6 }, key: 0.8 },
+  /** F — Offer: profile view — the three strands read as parallel bands. */
+  F: { cam: { x: 14, y: 0.7, z: 2.6 }, target: { x: 0, y: -0.2, z: -1.8 }, key: 1.0 },
+  /** G — Resolution: frontal; the strands re-merge into the completed C. */
+  G: { cam: { x: 0.2, y: 0.35, z: 17.5 }, target: { x: 0, y: 0.35, z: 0 }, key: 1.1 },
 } as const
 
 /** The two deeper project surfaces, angled toward the camera path. */

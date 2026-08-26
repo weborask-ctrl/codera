@@ -6,6 +6,7 @@ import { useEffect, useRef } from "react"
 import { ButtonLink } from "@/components/site/button-link"
 import { Magnetic } from "@/components/site/magnetic"
 import { SceneHero } from "@/components/site/scene-hero"
+import { SceneOffer } from "@/components/site/scene-offer"
 import { SceneTransformation } from "@/components/site/scene-transformation"
 import { SceneWork } from "@/components/site/scene-work"
 import { CAMERA_STATES, film, useCapabilityTier } from "@/components/world/film"
@@ -65,6 +66,13 @@ const WORK = [
   },
 ]
 
+/** The offer, as the brand's own anatomy: three strands, three words. */
+const OFFER = [
+  { word: "Stratégia", line: "Najprv pochopíme firmu, zákazníka a to, čo má web dosiahnuť." },
+  { word: "Dizajn", line: "Vizuálny systém, ktorý firmu odlíši a dodá jej dôveryhodnosť." },
+  { word: "Vývoj", line: "Rýchla, responzívna realizácia pripravená na produkciu." },
+]
+
 function WorldStage() {
   const stageRef = useRef<HTMLDivElement>(null)
   const pointerRef = usePointerField<HTMLDivElement>(1)
@@ -92,10 +100,15 @@ function WorldStage() {
     }
 
     const context = gsap.context(() => {
-      const { A, B, C, D, E1, E2, E3 } = CAMERA_STATES
+      const { A, B, C, D, E1, E2, E3, F, G } = CAMERA_STATES
 
       const setState = (name: string) => () => {
         stage.dataset.worldState = name
+      }
+
+      /* Marks the active service row for CSS. */
+      const activeService = (index: number) => () => {
+        stage.dataset.service = String(index)
       }
 
       /* The stage is a tone zone: flipping its chapter re-points every token
@@ -153,7 +166,7 @@ function WorldStage() {
           scrollTrigger: {
             trigger: stage,
             start: "top top",
-            end: "+=560%",
+            end: "+=860%",
             pin: true,
             scrub: 0.5,
             anticipatePin: 1,
@@ -242,7 +255,55 @@ function WorldStage() {
           )
           .call(setState("e3"), undefined, 16.6)
 
-          /* A beat on the last project before the world hands back. */
+          /* A beat on the last project. */
+          .to({}, { duration: 0.8 })
+
+          /* ---- F: back to the ribbon; the offer ---- *
+             The world returns to graphite and the mark splits into its three
+             strands — the offer presented as the brand's own anatomy. */
+          .to("[data-work='forma']", { opacity: 0, y: -30, duration: 0.8 }, 17.8)
+          .to(film.cam, { ...F.cam, duration: 2.2 }, 18.0)
+          .to(film.target, { ...F.target, duration: 2.2 }, 18.0)
+          .to(film, { envTone: 0, planeForma: 0, key: F.key, duration: 2.0 }, 18.1)
+          .call(toneZone(null), undefined, 19.0)
+          .to(film, { strand: 1, duration: 1.6, ease: "power2.inOut" }, 19.6)
+          .fromTo(
+            "[data-offer-block]",
+            { opacity: 0, y: 44 },
+            { opacity: 1, y: 0, duration: 1, ease: EASE.quint },
+            20.2
+          )
+          .call(setState("f"), undefined, 20.4)
+
+          /* The three strands take the light in turn. */
+          .to(film, { glow0: 1, duration: 0.5 }, 20.6)
+          .call(activeService(0), undefined, 20.6)
+          .to(film, { glow0: 0, glow1: 1, duration: 0.5 }, 22.0)
+          .call(activeService(1), undefined, 22.0)
+          .to(film, { glow1: 0, glow2: 1, duration: 0.5 }, 23.4)
+          .call(activeService(2), undefined, 23.4)
+          .fromTo(
+            "[data-offer-price]",
+            { opacity: 0, y: 16 },
+            { opacity: 1, y: 0, duration: 0.7, ease: EASE.expo },
+            23.8
+          )
+
+          /* ---- G: resolution — the strands close back into the C ---- */
+          .to("[data-offer-block]", { opacity: 0, y: -30, duration: 0.8 }, 25.0)
+          .to(film.cam, { ...G.cam, duration: 2.2 }, 25.2)
+          .to(film.target, { ...G.target, duration: 2.2 }, 25.2)
+          .to(film, { glow2: 0, key: G.key, duration: 1 }, 25.2)
+          .to(film, { strand: 0, duration: 1.4, ease: "power2.inOut" }, 26.0)
+          .call(setState("g"), undefined, 27.0)
+          .fromTo(
+            "[data-resolution]",
+            { opacity: 0, y: 26 },
+            { opacity: 1, y: 0, duration: 0.9, ease: EASE.quint },
+            27.2
+          )
+
+          /* The completed mark holds; the page hands over to the epilogue. */
           .to({}, { duration: 1 })
 
         /* The master is created seconds after the sections below built their
@@ -281,6 +342,7 @@ function WorldStage() {
       {/* Anchor for the nav's Práca link: the work chapter lives inside the
           pinned stage, so the target is a marker at its scroll offset. */}
       <div id="praca" aria-hidden="true" className="absolute top-[300svh] h-px w-px" />
+      <div id="sluzby" aria-hidden="true" className="absolute top-[640svh] h-px w-px" />
       <div
         ref={stageRef}
         id="top"
@@ -354,6 +416,51 @@ function WorldStage() {
             </div>
           ))}
 
+          {/* Offer: the three strands, named. The active row follows the lit
+              strand via the stage's data-service attribute. */}
+          <div
+            data-offer-block
+            className="container-page absolute inset-0 flex flex-col justify-center opacity-0"
+          >
+            <div className="max-w-[26rem]">
+              <p className="label text-brand">04 — Ponuka</p>
+              <ul className="mt-6 flex flex-col gap-6">
+                {OFFER.map((service, index) => (
+                  <li
+                    key={service.word}
+                    data-offer-row={index}
+                    className="transition-opacity duration-500"
+                  >
+                    <p className="text-h2 tracking-[-0.032em] text-foreground">
+                      {service.word}
+                    </p>
+                    <p
+                      data-offer-line
+                      className="mt-1.5 max-w-[24rem] text-small text-pretty text-muted-foreground"
+                    >
+                      {service.line}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+              <p data-offer-price className="label mt-8 text-faint opacity-0">
+                Webové projekty od 699 € — presnú cenu poviete po konzultácii.
+              </p>
+            </div>
+          </div>
+
+          {/* Resolution: the completed mark carries the frame; the wordmark
+              stays sharp DOM type, as the brand direction requires. */}
+          <div
+            data-resolution
+            className="absolute inset-0 flex flex-col items-center justify-end pb-[clamp(1.25rem,3.5vh,2.5rem)] text-center opacity-0"
+          >
+            <p className="label text-faint">Digitálne štúdio</p>
+            <p className="mt-3 text-[clamp(2rem,4.5vw,3.4rem)] font-semibold tracking-[0.26em] text-foreground">
+              CODERA
+            </p>
+          </div>
+
           {/* Premena: enters as the camera settles on the dated site. */}
           <div
             data-premena-block
@@ -392,6 +499,7 @@ export function WorldExperience() {
         <SceneHero />
         <SceneTransformation />
         <SceneWork />
+        <SceneOffer />
       </>
     )
   }

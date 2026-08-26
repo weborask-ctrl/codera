@@ -17,9 +17,10 @@ live v1 site and stays untouched until this branch passes the preview gate.
 
 ## Current phase
 
-Phase 4 complete — the work chapter lives inside the world. The journey is
-now A → B → portal → transformation → E1 Konštrukt → E2 Vitalis (paper) →
-E3 Forma (warm paper), one pin, one timeline.
+Phase 5 complete — the film is whole. A (surface) → B (reveal) → C (portal)
+→ D (transformation) → E1–E3 (work) → F (the mark splits into its three
+strands for the offer) → G (the strands close back into the completed C,
+wordmark lands). One pin, one timeline, 28.2 units over 860%.
 
 ### Prototype verdict (measured, production build)
 
@@ -104,13 +105,31 @@ What the prototype established, to reuse verbatim in Phase 3:
   **16.7/16.8 ms median at 1×/4×, 4.5/6.3% jank**. 26/26 tests, including
   the world walk e1→e2→e3 with the paper-chapter flip.
 
+### Phase 5 delivered
+
+- **The offer is the brand’s own anatomy.** The ribbon geometry generator
+  now cuts the band lengthwise, so the three strands ARE the mark split in
+  three — STRATÉGIA / DIZAJN / VÝVOJ dock to them in DOM, each lit in turn
+  (strand emissive + row dimming via the stage’s data-service). The quiet
+  price lands at the end of the state. Camera F is a profile view: the
+  z-fanned strands read as three parallel bands.
+- **The resolution is the concept closing.** The strands re-merge, the
+  camera returns frontal, and the completed C holds the frame with the DOM
+  wordmark — the gap the site opened, closed. The conversion (SceneClose:
+  reasons, facts, form, footer) follows in normal flow on both tiers.
+- **Tiers**: v1 SceneOffer moved into the DOM tier; the world tier’s
+  #praca/#sluzby anchors are markers at their chapters’ scroll offsets.
+- Whole-film scrub: **16.7 ms median at 1× and 4×, 3.2/5.6% jank**. 26/26
+  tests; the world walk now covers a→g including the graphite return and
+  the strand split/merge.
+
 ## Next phase
 
-**Phase 5 — offer + resolution.** The world returns toward the ribbon: the
-strand composition for STRATÉGIA / DIZAJN / VÝVOJ, the quiet price, the
-reassembled C, final CTA and the conversion block. Replaces v1 SceneOffer on
-the world tier; the ribbon’s return closes the continuity loop (it has been
-behind the camera through the work chapter — deliberate, noted).
+**Phase 6 — mobile re-author** per the mobile storyboard: dedicated hero
+(SVG mark + light sweep, tier-A optional light 3D), unpinned comparison,
+swipe-deck work, static offer stack — replacing the v1 fallback below
+1024 px with a touch-native experience. Then Phase 7 tablet, 8 performance,
+9 polish, 10 QA, and the preview gate.
 
 ---
 

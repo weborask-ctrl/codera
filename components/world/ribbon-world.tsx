@@ -52,37 +52,94 @@ function makeRoughnessTexture() {
   return texture
 }
 
+/** One material recipe for the mark and its strands. */
+function metalProps(roughnessMap: CanvasTexture) {
+  return {
+    color: "#2c2c2e",
+    metalness: 0.85,
+    roughness: 0.34,
+    roughnessMap,
+    clearcoat: 0.25,
+    clearcoatRoughness: 0.5,
+    envMapIntensity: 0.75,
+  } as const
+}
+
+/** Depth fan of the three strands at full separation. */
+const STRAND_OFFSETS = [-1.7, 0, 1.7]
+
 function Ribbon() {
   const geometry = useMemo(() => createRibbonGeometry(), [])
+  const strandGeometries = useMemo(
+    () => [
+      createRibbonGeometry({ uMin: -1, uMax: -1 / 3 }),
+      createRibbonGeometry({ uMin: -1 / 3, uMax: 1 / 3 }),
+      createRibbonGeometry({ uMin: 1 / 3, uMax: 1 }),
+    ],
+    []
+  )
   const roughnessMap = useMemo(() => makeRoughnessTexture(), [])
 
   useEffect(() => {
     return () => {
       geometry.dispose()
+      for (const strand of strandGeometries) {
+        strand.dispose()
+      }
       roughnessMap.dispose()
     }
-  }, [geometry, roughnessMap])
+  }, [geometry, strandGeometries, roughnessMap])
 
   useFrame((state) => {
-    const mesh = state.scene.getObjectByName("codera-ribbon")
-    if (mesh) {
-      mesh.rotation.y = Math.sin(state.clock.elapsedTime * 0.12) * 0.08 * film.idle
-      mesh.rotation.x = Math.cos(state.clock.elapsedTime * 0.09) * 0.04 * film.idle
+    const split = film.strand > 0.001
+
+    /* The whole mark and its three strands are the same geometry cut
+       lengthwise, so swapping visibility at the moment of separation is
+       seamless — and the swap happens while the camera is far away. */
+    const whole = state.scene.getObjectByName("codera-ribbon")
+    if (whole) {
+      whole.visible = !split
+      whole.rotation.y = Math.sin(state.clock.elapsedTime * 0.12) * 0.08 * film.idle
+      whole.rotation.x = Math.cos(state.clock.elapsedTime * 0.09) * 0.04 * film.idle
+    }
+
+    for (let i = 0; i < 3; i++) {
+      const strand = state.scene.getObjectByName(`codera-strand-${i}`)
+      if (!strand) {
+        continue
+      }
+      strand.visible = split
+      strand.position.z = STRAND_OFFSETS[i] * film.strand
+      strand.position.y = (i - 1) * 0.22 * film.strand
+      const material = (strand as unknown as {
+        material: { emissiveIntensity: number }
+      }).material
+      const glow = i === 0 ? film.glow0 : i === 1 ? film.glow1 : film.glow2
+      material.emissiveIntensity = glow * 0.55
     }
   })
 
   return (
-    <mesh name="codera-ribbon" geometry={geometry}>
-      <meshPhysicalMaterial
-        color="#2c2c2e"
-        metalness={0.85}
-        roughness={0.34}
-        roughnessMap={roughnessMap}
-        clearcoat={0.25}
-        clearcoatRoughness={0.5}
-        envMapIntensity={0.75}
-      />
-    </mesh>
+    <>
+      <mesh name="codera-ribbon" geometry={geometry}>
+        <meshPhysicalMaterial {...metalProps(roughnessMap)} />
+      </mesh>
+      {strandGeometries.map((strand, index) => (
+        <mesh
+          // biome-ignore lint/suspicious/noArrayIndexKey: the strands are positional by definition.
+          key={index}
+          name={`codera-strand-${index}`}
+          geometry={strand}
+          visible={false}
+        >
+          <meshPhysicalMaterial
+            {...metalProps(roughnessMap)}
+            emissive="#c8b898"
+            emissiveIntensity={0}
+          />
+        </mesh>
+      ))}
+    </>
   )
 }
 

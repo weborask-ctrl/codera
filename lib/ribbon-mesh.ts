@@ -61,18 +61,31 @@ const HT = HW * 0.16 // half-thickness: slender, still catches edges
 const CH = HT * 0.55 // chamfer
 
 /** Chamfered-rectangle outline in local (u = width, v = thickness) coords. */
-const OUTLINE: Array<[number, number]> = [
-  [HW - CH, HT],
-  [HW, HT - CH],
-  [HW, -HT + CH],
-  [HW - CH, -HT],
-  [-HW + CH, -HT],
-  [-HW, -HT + CH],
-  [-HW, HT - CH],
-  [-HW + CH, HT],
-]
+function makeOutline(uMin: number, uMax: number): Array<[number, number]> {
+  const lo = uMin * HW
+  const hi = uMax * HW
+  const ch = Math.min(CH, (hi - lo) * 0.18)
+  return [
+    [hi - ch, HT],
+    [hi, HT - ch],
+    [hi, -HT + ch],
+    [hi - ch, -HT],
+    [lo + ch, -HT],
+    [lo, -HT + ch],
+    [lo, HT - ch],
+    [lo + ch, HT],
+  ]
+}
 
-export function createRibbonGeometry(): BufferGeometry {
+/**
+ * Options: `uMin`/`uMax` (−1..1) cut the band lengthwise — the offer scene
+ * splits the ribbon into three strands, and each strand is just this same
+ * sweep over a third of the width. Together at rest they reassemble the mark.
+ */
+export function createRibbonGeometry(
+  { uMin = -1, uMax = 1 }: { uMin?: number; uMax?: number } = {}
+): BufferGeometry {
+  const OUTLINE = makeOutline(uMin, uMax)
   const rings: Vector3[][] = []
   const ringBasis: Array<{ U: Vector3; V: Vector3; T: Vector3 }> = []
 

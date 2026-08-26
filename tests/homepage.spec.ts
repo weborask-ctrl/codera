@@ -386,29 +386,40 @@ test.describe("Codera homepage", () => {
       return spacer.getBoundingClientRect().height - window.innerHeight
     })
 
-    await page.evaluate((y) => window.scrollTo(0, y), Math.round(pinEnd * 0.16))
+    await page.evaluate((y) => window.scrollTo(0, y), Math.round(pinEnd * 0.11))
     await page.waitForTimeout(900)
     await expect(page.locator("#top")).toHaveAttribute("data-world-state", "c")
 
-    await page.evaluate((y) => window.scrollTo(0, y), Math.round(pinEnd * 0.45))
+    await page.evaluate((y) => window.scrollTo(0, y), Math.round(pinEnd * 0.3))
     await page.waitForTimeout(900)
     await expect(page.locator("#top")).toHaveAttribute("data-world-state", "d")
     await expect(page.locator("#premena")).toBeVisible()
 
     // The work chapter: three states, and the world turns to paper — which
     // must also flip the stage's chapter so the nav inverts with it.
-    await page.evaluate((y) => window.scrollTo(0, y), Math.round(pinEnd * 0.62))
+    await page.evaluate((y) => window.scrollTo(0, y), Math.round(pinEnd * 0.42))
     await page.waitForTimeout(900)
     await expect(page.locator("#top")).toHaveAttribute("data-world-state", "e1")
 
-    await page.evaluate((y) => window.scrollTo(0, y), Math.round(pinEnd * 0.78))
+    await page.evaluate((y) => window.scrollTo(0, y), Math.round(pinEnd * 0.52))
     await page.waitForTimeout(900)
     await expect(page.locator("#top")).toHaveAttribute("data-world-state", "e2")
     await expect(page.locator("#top")).toHaveAttribute("data-chapter", "paper")
 
-    await page.evaluate((y) => window.scrollTo(0, y), Math.round(pinEnd * 0.97))
+    await page.evaluate((y) => window.scrollTo(0, y), Math.round(pinEnd * 0.64))
     await page.waitForTimeout(900)
     await expect(page.locator("#top")).toHaveAttribute("data-world-state", "e3")
+
+    // The offer returns to graphite (the chapter clears) and splits the mark
+    // into its strands; the resolution closes it again.
+    await page.evaluate((y) => window.scrollTo(0, y), Math.round(pinEnd * 0.78))
+    await page.waitForTimeout(900)
+    await expect(page.locator("#top")).toHaveAttribute("data-world-state", "f")
+    await expect(page.locator("#top")).not.toHaveAttribute("data-chapter", "paper")
+
+    await page.evaluate((y) => window.scrollTo(0, y), Math.round(pinEnd * 0.985))
+    await page.waitForTimeout(900)
+    await expect(page.locator("#top")).toHaveAttribute("data-world-state", "g")
 
     // The world must stay pinned for its whole runway — the sections below
     // must never pin on top of it (the stale-start regression).
@@ -466,9 +477,11 @@ test.describe("Codera homepage", () => {
   test("the offer scene lights one service word at a time", async ({
     page,
   }) => {
-    await page.setViewportSize({ width: 1280, height: 800 })
+    // The v1 offer is the DOM tier's presentation now — the world's strand
+    // offer is covered by the world test.
+    await page.setViewportSize({ width: 1000, height: 800 })
     await page.goto("/")
-    await waitForWorld(page)
+    await waitForHydration(page)
 
     const scene = page.locator("#sluzby")
     const sceneTop = await page.$eval(
