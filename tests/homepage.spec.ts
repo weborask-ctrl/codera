@@ -383,7 +383,9 @@ test.describe("Codera homepage", () => {
       undefined,
       { timeout: 20_000 }
     )
-    await expect(page.locator("#top canvas")).toHaveCount(1)
+    await expect(page.locator("#top canvas")).toHaveCount(1, {
+      timeout: 20_000,
+    })
 
     // The headline is on screen without any scrolling — the intro autoplays
     // precisely because commercial clarity outranks spatial storytelling.

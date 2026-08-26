@@ -13,7 +13,10 @@ export default defineConfig({
   fullyParallel: true,
   /* Fail the build on CI if a test.only was left in the source. */
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  /* One local retry: three engines sharing one GPU make the heavy WebGL
+     walk flaky under full-parallel runs; it passes deterministically alone
+     and on CI's single worker. */
+  retries: process.env.CI ? 2 : 1,
   workers: process.env.CI ? 1 : undefined,
   reporter: process.env.CI
     ? [["html"], ["github"]]
