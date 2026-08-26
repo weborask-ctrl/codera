@@ -1,8 +1,8 @@
 import { ButtonLink } from "@/components/site/button-link"
+import { Chevron } from "@/components/site/codera-motif"
 import { HeroVisual } from "@/components/site/hero-visual"
 import { Container } from "@/components/site/primitives"
 import { Reveal } from "@/components/site/reveal"
-import { Vertex } from "@/components/site/w-motif"
 import { commercial, primaryCta } from "@/lib/site-config"
 
 const CREDIBILITY = [
@@ -93,7 +93,7 @@ export function Hero() {
                   key={item}
                   className="flex items-center gap-2 text-caption text-muted-foreground"
                 >
-                  <Vertex className="h-1.5 text-brand" />
+                  <Chevron className="h-1.5 text-brand" />
                   {item}
                 </li>
               ))}

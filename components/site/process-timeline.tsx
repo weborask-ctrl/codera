@@ -1,30 +1,29 @@
 "use client"
 
 import { useCallback, useEffect, useId, useRef, useState } from "react"
-
+import { buildTrackPath, Chevron } from "@/components/site/codera-motif"
 import { Container, Section, SectionHeader } from "@/components/site/primitives"
 import { Reveal } from "@/components/site/reveal"
-import { buildTrackPath, Vertex } from "@/components/site/w-motif"
 import { processSteps } from "@/lib/process-steps"
 import { cn } from "@/lib/utils"
 
 const TRACK_WIDTH = 1000
 const TRACK_BASELINE = 26
-const TRACK_DIP = 11
+const TRACK_TICK_SIZE = 7
 const TRACK_PATH = buildTrackPath(
   processSteps.length,
   TRACK_WIDTH,
   TRACK_BASELINE,
-  TRACK_DIP
+  TRACK_TICK_SIZE
 )
 
 /**
  * The process timeline — the page's second signature moment.
  *
- * Desktop is a horizontal track whose connecting line dips into the signature
- * vertex between each node. Scrolling fills the track and moves the active
- * step; the step's detail appears in a panel below, so the section stays
- * compact while every step is one click away.
+ * Desktop is a horizontal track: a straight baseline with a small forward
+ * chevron ticked in at each segment's midpoint. Scrolling fills the track and
+ * moves the active step; the step's detail appears in a panel below, so the
+ * section stays compact while every step is one click away.
  *
  * Interaction is a real tab set (`tablist` / `tab` / `tabpanel`) with arrow,
  * Home and End keys. Scrolling changes which tab is selected but never moves
@@ -55,6 +54,7 @@ function Track({
         fill="none"
         stroke={stroke}
         strokeWidth="2"
+        strokeLinecap="round"
         strokeLinejoin="round"
         vectorEffect="non-scaling-stroke"
       />
@@ -222,7 +222,7 @@ export function ProcessTimeline() {
                             : "border-hairline bg-background text-transparent"
                         )}
                       >
-                        <Vertex className="h-1.5" />
+                        <Chevron className="h-1.5" />
                       </span>
                       <span className="flex flex-col gap-0.5">
                         <span className="tnum text-caption text-muted-foreground">
@@ -316,7 +316,7 @@ export function ProcessTimeline() {
                   aria-hidden="true"
                   className="absolute top-0 left-0 flex size-6 items-center justify-center rounded-full border border-brand bg-brand text-brand-foreground"
                 >
-                  <Vertex className="h-1.5" />
+                  <Chevron className="h-1.5" />
                 </span>
 
                 <Reveal delay={index * 40}>

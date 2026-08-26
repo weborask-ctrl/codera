@@ -1,6 +1,6 @@
+import { Chevron } from "@/components/site/codera-motif"
 import { Container, Section, SectionHeader } from "@/components/site/primitives"
 import { Reveal } from "@/components/site/reveal"
-import { Vertex } from "@/components/site/w-motif"
 
 /**
  * Technical quality, told as business benefit first.
@@ -62,7 +62,7 @@ export function Quality() {
             <li key={benefit.title}>
               <Reveal delay={(index % 3) * 60}>
                 <div className="flex items-center gap-2.5">
-                  <Vertex className="h-1.5 shrink-0 text-brand" />
+                  <Chevron className="h-1.5 shrink-0 text-brand" />
                   <h3 className="text-[1.0625rem] font-semibold tracking-[-0.014em]">
                     {benefit.title}
                   </h3>

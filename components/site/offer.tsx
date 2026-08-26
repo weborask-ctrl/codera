@@ -1,6 +1,6 @@
+import { Chevron } from "@/components/site/codera-motif"
 import { Container, Section } from "@/components/site/primitives"
 import { Reveal } from "@/components/site/reveal"
-import { Vertex } from "@/components/site/w-motif"
 import { commercial } from "@/lib/site-config"
 
 /**
@@ -57,7 +57,7 @@ export function Offer() {
             >
               <Reveal delay={index * 50}>
                 <dt className="flex items-center gap-2 text-caption text-muted-foreground">
-                  <Vertex className="h-1.5 text-brand" />
+                  <Chevron className="h-1.5 text-brand" />
                   {fact.label}
                 </dt>
                 <dd>

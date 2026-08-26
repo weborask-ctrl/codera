@@ -95,12 +95,16 @@ Outstanding business information, all marked `TODO(codera)` in
   `false` and there is no IČO, DIČ, VAT status or registered office anywhere on
   the site, because inventing them would be a legal problem rather than a
   cosmetic gap.
-- the logo/mark (`components/site/logo.tsx`, `app/icon.svg`,
-  `components/site/w-motif.tsx`) is inherited from the previous "Webora"
-  brand and is literally a stylised "W" — it no longer spells the first
-  letter of "Codera". Geometry was deliberately left unchanged during the
-  rename (this was a brand migration, not a redesign); revisit it as its own
-  design decision.
+
+### Mark
+
+`components/site/logo.tsx` (the wordmark), `app/icon.svg` (the favicon) and
+`components/site/codera-motif.tsx` (the small recurring `Chevron`/`IndexMark`
+motif and the process timeline's track) share one idea: an open geometric
+ring — a "C", built from an SVG arc rather than a font glyph — for the logo,
+and a forward-pointing chevron for everything that repeats. Neither borrows
+its shape from the studio's earlier name, whose mark was a literal stylised
+"W".
 
 Real client work, testimonials and measured results are likewise absent by
 design. `components/site/projects.tsx` types each entry with a `kind` of

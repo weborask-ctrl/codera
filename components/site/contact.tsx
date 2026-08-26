@@ -1,7 +1,7 @@
+import { Chevron } from "@/components/site/codera-motif"
 import { EnquiryForm } from "@/components/site/enquiry-form"
 import { Container, Section } from "@/components/site/primitives"
 import { Reveal } from "@/components/site/reveal"
-import { Vertex } from "@/components/site/w-motif"
 import {
   commercial,
   mailtoHref,
@@ -50,7 +50,7 @@ export function Contact() {
               <ul className="mt-8 flex flex-col gap-3">
                 {ASSURANCES.map((item) => (
                   <li key={item} className="flex items-start gap-2.5">
-                    <Vertex className="mt-2 h-1.5 shrink-0 text-brand" />
+                    <Chevron className="mt-2 h-1.5 shrink-0 text-brand" />
                     <span className="text-small text-muted-foreground">
                       {item}
                     </span>

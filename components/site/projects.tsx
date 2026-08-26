@@ -1,10 +1,10 @@
+import { IndexMark } from "@/components/site/codera-motif"
 import { BrowserFrame } from "@/components/site/device-frames"
 import { FormaPreview } from "@/components/site/previews/forma"
 import { KonstruktPreview } from "@/components/site/previews/konstrukt"
 import { VitalisPreview } from "@/components/site/previews/vitalis"
 import { Container, Section, SectionHeader } from "@/components/site/primitives"
 import { Reveal } from "@/components/site/reveal"
-import { IndexMark } from "@/components/site/w-motif"
 
 /**
  * Selected work.

@@ -1,15 +1,17 @@
 import { cn } from "@/lib/utils"
 
 /**
- * Codera logotype: a monochrome stroke drawn as one continuous path, plus the
- * wordmark. Monochrome on purpose — it inherits `currentColor`, so the same
- * component works on white, on the ink chapter and inside the footer without
- * a second colour variant.
+ * Codera logotype: an open ring — a geometric "C", not a typographic one —
+ * plus the wordmark. Monochrome on purpose — it inherits `currentColor`, so
+ * the same component works on white, on the ink chapter and inside the
+ * footer without a second colour variant.
  *
- * Inherited from "Webora": the path is literally a "W" shape and no longer
- * matches the initial letter of "Codera". Kept as-is (this migration renames
- * branding, it does not redesign the mark) — flagged for a deliberate logo
- * decision separately.
+ * The ring is a single stroked arc built from an SVG arc command (large-arc,
+ * counter-sweep) rather than a font glyph, which is what keeps it reading as
+ * a mark rather than as a letter someone forgot to close. It replaces the
+ * studio's original mark (tied to an earlier name), which was a literal
+ * stylised "W" — a different silhouette entirely, not a relabelling of the
+ * old one.
  */
 export function Logo({
   className,
@@ -21,18 +23,17 @@ export function Logo({
   return (
     <span className={cn("inline-flex items-center gap-2.5", className)}>
       <svg
-        viewBox="0 0 22 18"
-        className="h-[1.05em] w-auto"
+        viewBox="0 0 24 24"
+        className="h-[1.15em] w-auto"
         fill="none"
         aria-hidden="true"
         focusable="false"
       >
         <path
-          d="M2 2.6 6.2 15.4 11 6.9 15.8 15.4 20 2.6"
+          d="M18.36 5.64 A9 9 0 1 0 18.36 18.36"
           stroke="currentColor"
-          strokeWidth="2.6"
+          strokeWidth="2.2"
           strokeLinecap="round"
-          strokeLinejoin="round"
         />
       </svg>
       {wordmark ? (
