@@ -57,19 +57,29 @@ export function useScene<T extends HTMLElement = HTMLDivElement>(
       return
     }
 
-    root.dataset.motion = "on"
-
-    const context = gsap.context((self) => {
-      setupRef.current({
-        root,
-        gsap,
-        ScrollTrigger,
-        q: self.selector as (selector: string) => Element[],
-      })
-    }, root)
+    /* Deferred by one frame, and not as an optimisation: a pinned
+       ScrollTrigger re-parents its element into a pin-spacer the moment it is
+       created. When a scene mounts only to be swapped out on the very next
+       render — the server-rendered fallback being replaced by the WebGL world
+       after hydration — a pin created synchronously here leaves React trying
+       to unmount a node whose parent ScrollTrigger changed under it, which
+       crashes with removeChild. One rAF puts the swap decision first. */
+    let context: ReturnType<typeof gsap.context> | null = null
+    const frame = requestAnimationFrame(() => {
+      root.dataset.motion = "on"
+      context = gsap.context((self) => {
+        setupRef.current({
+          root,
+          gsap,
+          ScrollTrigger,
+          q: self.selector as (selector: string) => Element[],
+        })
+      }, root)
+    })
 
     return () => {
-      context.revert()
+      cancelAnimationFrame(frame)
+      context?.revert()
       delete root.dataset.motion
     }
   }, [])
