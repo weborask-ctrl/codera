@@ -104,8 +104,10 @@ experience", not "is it installed":
   links in the tab order while closed, has no Escape handling and no focus
   containment, and reaching this site's accessibility floor from there meant
   rewriting it rather than configuring it.
-- `GradualBlur` — 296 lines and 13 `any`s for an effect that is ~25 lines of
-  stacked `backdrop-filter`. Technique adopted, component dropped.
+- `GradualBlur` — 296 lines and 13 `any`s for an edge falloff on the pinned
+  stages. Dropped on inspection, and then the need went with it: the scenes
+  ended up framing their own content, so there was no soft edge left to
+  soften. Nothing replaced it.
 - `MaskedHeading` — fills headline type with a photograph and sizes itself from
   container width. Fights both the type scale and the colour rule. The
   masked-reveal role is served by the per-line clip the scenes already use.
