@@ -65,39 +65,59 @@ export function SiteNav() {
   /**
    * The bar inverts over light chapters.
    *
-   * A zero-height band just under the bar, rather than a percentage of each
-   * chapter: chapters here are taller than the viewport, and a threshold-based
-   * observer would flip late or not at all on those.
+   * Deliberately not an IntersectionObserver. The project stage changes its
+   * own ground *while it is on screen* — an observer fires on intersection,
+   * not on an attribute changing under it, so the bar would stay graphite over
+   * a paper project. Instead the bar asks, on each scrolled frame, which tone
+   * zone its own lower edge is currently sitting on and reads that zone's
+   * *current* `data-chapter`. A handful of `getBoundingClientRect` calls in a
+   * rAF is cheap, and it cannot go stale.
    */
   useEffect(() => {
-    const chapters = document.querySelectorAll<HTMLElement>(
-      '[data-chapter="paper"]'
+    const zones = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-tone-zone]")
     )
-    if (chapters.length === 0 || typeof IntersectionObserver === "undefined") {
+    if (zones.length === 0) {
       return
     }
 
-    const overlapping = new Set<Element>()
+    let frame = 0
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            overlapping.add(entry.target)
-          } else {
-            overlapping.delete(entry.target)
-          }
+    const measure = () => {
+      frame = 0
+      /* Just below the bar: the tone that matters is the one the bar is
+         actually overlapping, not the one that happens to start next. */
+      const edge = 68
+      let paper = false
+
+      for (const zone of zones) {
+        const rect = zone.getBoundingClientRect()
+        if (rect.top <= edge && rect.bottom >= edge) {
+          paper = zone.dataset.chapter === "paper"
+          break
         }
-        setOnPaper(overlapping.size > 0)
-      },
-      { rootMargin: "-68px 0px -100% 0px", threshold: 0 }
-    )
+      }
 
-    for (const chapter of chapters) {
-      observer.observe(chapter)
+      setOnPaper(paper)
     }
 
-    return () => observer.disconnect()
+    const onScroll = () => {
+      if (!frame) {
+        frame = window.requestAnimationFrame(measure)
+      }
+    }
+
+    measure()
+    window.addEventListener("scroll", onScroll, { passive: true })
+    window.addEventListener("resize", onScroll)
+
+    return () => {
+      window.removeEventListener("scroll", onScroll)
+      window.removeEventListener("resize", onScroll)
+      if (frame) {
+        window.cancelAnimationFrame(frame)
+      }
+    }
   }, [])
 
   /* Escape closes, and the page underneath must not scroll behind the panel. */

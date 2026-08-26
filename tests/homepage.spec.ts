@@ -388,6 +388,47 @@ test.describe("Codera homepage", () => {
     ).toBeLessThan(25)
   })
 
+  test("the work stage advances through all three projects", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await page.goto("/")
+    await waitForHydration(page)
+
+    const stage = page.locator("#praca")
+    const sceneTop = await page.$eval(
+      "#praca",
+      (node) => node.getBoundingClientRect().top + window.scrollY
+    )
+
+    const seen: string[] = []
+    for (const offset of [40, 900, 1700]) {
+      await page.evaluate((y) => window.scrollTo(0, y), sceneTop + offset)
+      await page.waitForTimeout(900)
+      const current = await stage.getAttribute("data-project")
+      if (current && seen.at(-1) !== current) {
+        seen.push(current)
+      }
+    }
+
+    expect(seen, "each project should take the stage in turn").toEqual([
+      "konstrukt",
+      "vitalis",
+      "forma",
+    ])
+
+    // The ground follows the work: the two paper projects put the whole scene
+    // — and the navigation bar over it — onto the light palette.
+    await expect(stage).toHaveAttribute("data-chapter", "paper")
+    const navGround = await page.evaluate(
+      () => getComputedStyle(document.querySelector("header") as Element).color
+    )
+    expect(
+      lightness(navGround),
+      `nav text should invert to dark over a paper chapter, got ${navGround}`
+    ).toBeLessThan(0.45)
+  })
+
   test("every primary CTA uses one label and leads to the form", async ({
     page,
   }) => {

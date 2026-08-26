@@ -124,6 +124,9 @@ experience", not "is it installed":
 - **Phase 3 — scroll choreography + Scene 02A.** The Scene 01 to Scene 02
   handoff (the hero mark dissolves as the next frame opens from a slit at its
   own centre), and the scroll-driven transformation. 20 tests green.
+- **Phase 4 — Scene 02B, selected work.** One pinned stage, three states.
+  The ground morphs with the project (graphite → paper → warm paper) and the
+  navigation bar inverts with it. 21 tests green.
 
 ## Current state
 
@@ -138,11 +141,14 @@ Production site is intact and untouched. Existing strengths being kept:
 - Accessibility floor in `app/globals.css` (focus ring, reduced motion,
   reduced transparency, contrast) — carried over.
 
-Still standing from the old page, and due for replacement:
-`projects.tsx` (Phase 4), `services.tsx` (Phase 3/5), `contact.tsx` +
-`site-footer.tsx` (Phase 5). They render correctly on the new ground because
-they were already token-based — but they are the old card-and-list design, not
-the scene architecture.
+Still standing from the old page, and due for replacement in Phase 5:
+`services.tsx`, `contact.tsx` and `site-footer.tsx`. They render correctly on
+the new ground because they were already token-based — but they are the old
+card-and-list design, not the scene architecture.
+
+Page length is currently ~10.5 viewports of scroll. Pinned scenes consume
+scroll without adding perceived page length (the visitor sees four scenes),
+but Phase 6 should still check the pin distances feel right rather than long.
 
 Deleted in Phase 2: 90 unreferenced library components, the theme provider and
 its hidden `d` hotkey, and the old header/hero/offer/process/team/quality/
@@ -150,9 +156,9 @@ transformation sections. Dependencies went from 23 to 13.
 
 ## Next phase
 
-**Phase 4 — Selected work.** The pinned project stage: Konštrukt → Vitalis →
-Forma as three states of one viewport, with the ground tone morphing per
-project and the arc carrying scene progress.
+**Phase 5 — Offer + conversion.** Scene 03 (Stratégia / Dizajn / Vývoj as one
+composition, compact process, the commercial band) and Scene 04 (the arc
+closing, final CTA, contact). Replaces the last three old sections.
 
 ## Known issues
 

@@ -242,6 +242,16 @@
   --metal-low: oklch(0.8 0.004 250);
 
   color-scheme: light;
+
+  /* Re-anchor inherited text colour.
+     `color` inherits as a *computed* value: `body { color: var(--foreground) }`
+     resolves once, against the root tokens, and every descendant inherits that
+     resolved colour. Re-pointing `--foreground` further down therefore only
+     reaches elements that set a colour of their own — so on a paper chapter
+     the labels would flip to dark while every plain paragraph and heading
+     stayed light. Setting `color` here makes the chapter the new inheritance
+     root, which is the whole point of the mechanism. */
+  color: var(--foreground);
 }
 
 @layer base {
@@ -293,6 +303,57 @@
 }
 
 @layer components {
+  /* ---- Chapter morph ---------------------------------------------- *
+   * A scene whose ground changes while it is on screen. Custom
+   * properties are not animatable, but the *used* values that read them
+   * are — so re-pointing `--background` under a transition on
+   * `background-color` dissolves between grounds instead of cutting.
+   *
+   * Scoped to the elements that actually change ground, and to colour
+   * properties only: a blanket transition here would put a 700ms lag on
+   * every button hover inside the scene.
+   * ---------------------------------------------------------------- */
+  .chapter-morph,
+  .chapter-morph :is(h1, h2, h3, p, li, span, a, dt, dd, article, div) {
+    transition:
+      background-color 0.7s var(--ease-soft),
+      border-color 0.7s var(--ease-soft),
+      color 0.7s var(--ease-soft);
+  }
+
+  /* The concept previews carry their own hard-coded palettes — they are
+     other companies' websites, not ours, and must not drift with the
+     chapter around them. */
+  .chapter-morph [data-preview],
+  .chapter-morph [data-preview] * {
+    transition: none;
+  }
+
+  /* Forma's ground is warmer than Vitalis's: the two paper projects
+     should not read as the same slide with different content. */
+  [data-project="forma"] {
+    --background: oklch(0.947 0.011 82);
+    --surface: oklch(0.915 0.013 82);
+    --surface-2: oklch(0.885 0.014 82);
+  }
+
+  /* ---- The pinned project stage ----------------------------------- *
+   * With motion on, the panels are stacked in one box and uncovered one
+   * at a time. With scripting off, with reduced motion, and during SSR
+   * they are ordinary blocks in flow — every project readable, nothing
+   * pinned, nothing hidden.
+   * ---------------------------------------------------------------- */
+  [data-motion="on"] .work-panel {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    align-content: center;
+  }
+
+  .work-panel + .work-panel {
+    margin-top: clamp(3.5rem, 7vw, 6rem);
+  }
+
   .container-page {
     width: 100%;
     max-width: var(--container-page);

@@ -84,7 +84,7 @@ export function SceneTransformation() {
         scrollTrigger: {
           trigger: root,
           start: "top top",
-          end: "+=150%",
+          end: "+=130%",
           pin: true,
           /* A touch of smoothing so a trackpad flick reads as a sweep rather
              than a jump cut, without the value ever leading the scroll. */
@@ -186,13 +186,14 @@ export function SceneTransformation() {
             className="relative aspect-4/3 w-full overflow-hidden rounded-[0.75rem] border border-hairline bg-background shadow-[var(--shadow-frame)] sm:aspect-16/10"
           >
             {/* The result, underneath. */}
-            <div aria-hidden="true" className="@container absolute inset-0">
+            <div data-preview aria-hidden="true" className="@container absolute inset-0">
               <KonstruktPreview />
             </div>
 
             {/* The old site, on top, clipped back as the split falls. */}
             <div
               aria-hidden="true"
+              data-preview
               className="@container absolute inset-0"
               style={{ clipPath: "inset(0 calc((100 - var(--split)) * 1%) 0 0)" }}
             >

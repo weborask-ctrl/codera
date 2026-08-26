@@ -30,6 +30,7 @@ export function Section({
   return (
     <section
       data-chapter={tone === "paper" ? "paper" : undefined}
+      data-tone-zone=""
       className={cn(
         size === "sm" ? "section-pad-sm" : "section-pad",
         tone === "surface" && "bg-surface",
