@@ -319,6 +319,75 @@ test.describe("Codera homepage", () => {
       })
   })
 
+  test("the transformation is keyboard operable and moves the split", async ({
+    page,
+  }) => {
+    await page.goto("/")
+    await waitForHydration(page)
+
+    const slider = page.getByRole("slider", {
+      name: "Porovnanie starého a nového webu",
+    })
+    await slider.scrollIntoViewIfNeeded()
+    await expect(slider).toBeVisible()
+
+    const readSplit = () =>
+      page.$eval("#premena [data-stage]", (node) =>
+        Number(getComputedStyle(node).getPropertyValue("--split"))
+      )
+
+    await slider.focus()
+    const before = await readSplit()
+
+    await page.keyboard.press("Home")
+    expect(
+      await readSplit(),
+      "Home should drive the comparison to one end"
+    ).toBe(0)
+
+    await page.keyboard.press("End")
+    expect(await readSplit(), "End should drive it to the other").toBe(100)
+
+    // The visible divider has to follow the same value the control reports —
+    // if they ever drift, the page shows one thing and announces another.
+    expect(await slider.inputValue()).toBe("100")
+    expect(typeof before).toBe("number")
+  })
+
+  test("scrolling through the pinned scene performs the transformation", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await page.goto("/")
+    await waitForHydration(page)
+
+    const readSplit = () =>
+      page.$eval("#premena [data-stage]", (node) =>
+        Number(getComputedStyle(node).getPropertyValue("--split"))
+      )
+
+    // Land at the start of the pin: the old site should still be covering the
+    // stage almost completely.
+    const sceneTop = await page.$eval(
+      "#premena",
+      (node) => node.getBoundingClientRect().top + window.scrollY
+    )
+    await page.evaluate((y) => window.scrollTo(0, y + 40), sceneTop)
+    await page.waitForTimeout(900)
+    expect(
+      await readSplit(),
+      "the scene should open on the old site"
+    ).toBeGreaterThan(70)
+
+    // Scroll to the far end of the pin: the concept should have taken over.
+    await page.evaluate((y) => window.scrollTo(0, y + 1400), sceneTop)
+    await page.waitForTimeout(1200)
+    expect(
+      await readSplit(),
+      "the scene should end on the Codera concept"
+    ).toBeLessThan(25)
+  })
+
   test("every primary CTA uses one label and leads to the form", async ({
     page,
   }) => {

@@ -115,7 +115,13 @@ export function SceneHero() {
         0
       )
       .to(q("[data-hero-frame]"), { y: -46, ease: "none" }, 0)
-      .to(q("[data-hero-mark]"), { y: 70, scale: 1.14, ease: "none" }, 0)
+      /* The mark grows and dissolves rather than scrolling away, so the next
+         scene's frame opening reads as the same shape continuing. */
+      .to(
+        q("[data-hero-mark]"),
+        { y: 70, scale: 1.35, opacity: 0, ease: "none" },
+        0
+      )
       .to(q("[data-hero-strip]"), { opacity: 0, ease: "none" }, 0)
   })
 

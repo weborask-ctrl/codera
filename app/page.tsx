@@ -1,6 +1,7 @@
 import { Contact } from "@/components/site/contact"
 import { Projects } from "@/components/site/projects"
 import { SceneHero } from "@/components/site/scene-hero"
+import { SceneTransformation } from "@/components/site/scene-transformation"
 import { Services } from "@/components/site/services"
 import { SiteFooter } from "@/components/site/site-footer"
 import { SiteNav } from "@/components/site/site-nav"
@@ -89,6 +90,7 @@ export default function Page() {
       <SiteNav />
       <main id="hlavny-obsah">
         <SceneHero />
+        <SceneTransformation />
         <Projects />
         <Services />
         <Contact />

@@ -62,10 +62,11 @@ other, they do not end and restart.
 
 One orchestration layer. **GSAP + ScrollTrigger**, and nothing else.
 
-- `lib/motion/gsap.ts` — registers ScrollTrigger exactly once, exports `gsap`.
+- `lib/motion.ts` — registers ScrollTrigger exactly once, exports `gsap`.
 - `hooks/use-scene.ts` — wraps `gsap.context()` scoped to a ref, auto-cleans
-  timelines and triggers, and short-circuits under `prefers-reduced-motion` by
-  jumping every timeline to its end state.
+  timelines and triggers, and under `prefers-reduced-motion` never registers
+  them at all. The DOM resting state is the finished state, so motion only
+  ever animates *towards* what is already there.
 - **No smooth-scroll hijack.** Native scroll only — no Lenis. That rules out
   React Bits `ScrollStack` as a component; its *mechanics* are reimplemented
   with ScrollTrigger pinning and a completely different visual design.
@@ -120,6 +121,9 @@ experience", not "is it installed":
   390 / 1440 / 1920. `next-themes` removed — there is no user theme any more.
   90 unreferenced library components deleted and 10 dependencies dropped.
   Build, typecheck, biome, eslint and 18 Playwright tests all green.
+- **Phase 3 — scroll choreography + Scene 02A.** The Scene 01 to Scene 02
+  handoff (the hero mark dissolves as the next frame opens from a slit at its
+  own centre), and the scroll-driven transformation. 20 tests green.
 
 ## Current state
 
@@ -146,9 +150,9 @@ transformation sections. Dependencies went from 23 to 13.
 
 ## Next phase
 
-**Phase 3 — scroll choreography + transformation.** The continuous Scene 01 →
-Scene 02 handoff (the arc opening into the next environment), the
-average-site → Codera transformation, and the scrubbed statement.
+**Phase 4 — Selected work.** The pinned project stage: Konštrukt → Vitalis →
+Forma as three states of one viewport, with the ground tone morphing per
+project and the arc carrying scene progress.
 
 ## Known issues
 
