@@ -17,9 +17,8 @@ live v1 site and stays untouched until this branch passes the preview gate.
 
 ## Current phase
 
-Phase 2 complete — the architecture is validated and the prototype passed
-every kill criterion. `/proto` (noindex, throwaway) holds the reference
-implementation.
+Phase 3 complete — the spatial world runs on the real homepage. `/proto` is
+deleted; `components/world/` is the production implementation.
 
 ### Prototype verdict (measured, production build)
 
@@ -44,12 +43,52 @@ What the prototype established, to reuse verbatim in Phase 3:
 - the tier gate (`webglAvailable` + reduced motion → DOM experience)
 - R3F mount/unmount hygiene (geometry/texture/PMREM disposal)
 
+### Phase 3 delivered
+
+- **The world on the homepage** (`components/world/`): persistent canvas,
+  ribbon, transformation plane, camera rig, atmosphere — behind the tier
+  gate. The DOM tier (reduced motion, no WebGL, <1024px) renders the v1 hero
+  and comparison: complete, tested, and what the server sends (LCP + SEO).
+- **The intro is autoplayed, not scrolled** (~1.9 s, A→B): commercial
+  clarity outranks spatial storytelling, so the headline lands within
+  seconds. A scroll during the intro fast-forwards it. Scroll owns the film
+  from B: hero hold → portal flight through the chevron opening → settle on
+  the dated site → the morph wipes Konštrukt across it. Pin: 320vh.
+- **Baked work textures** (`scripts/capture-work-textures.mjs` +
+  `/textures` route): the live-markup previews screenshot themselves into
+  `public/work/*.jpg` (73–142 KB each), so the previews stay the single
+  source of truth for the 3D surfaces. Self-generated — no external imagery
+  yet; SOURCES.md starts when photography enters (Phase 4+).
+- **Homepage world scrub, measured**: 16.7 ms median at 1× AND 4× CPU
+  throttle (the vsync floor), 8–9% frames over 20 ms — against 56–60% for
+  the DOM implementation it replaces. LCP unchanged (SSR DOM hero).
+- 26/26 Playwright tests green, including a new world test (mount, pin,
+  state advance, stale-start regression guard).
+
+### Hard-won findings (do not relearn)
+
+- **`ScrollTrigger.create()` does not re-measure existing triggers, and
+  `refresh()` processes them in CREATION order.** The master pin is created
+  seconds after the sections below built theirs — without
+  `ScrollTrigger.sort()` before `refresh()`, the world’s 2 880 px of pin
+  distance is never added to later starts and those sections pin ON TOP of
+  the world.
+- **A pinned trigger re-parents its element into the pin-spacer.** If a
+  server-rendered fallback scene creates its pin and is then swapped out by
+  the post-hydration tier decision, React unmounts a node whose parent
+  changed → removeChild crash. `useScene` now defers all setup by one rAF
+  so the swap decision always lands first.
+- **react-hooks v6 immutability**: per-frame mutation must never touch a
+  hook-tracked value. Route it through `state.scene.getObjectByName()` in
+  the frame callback — same pattern for mesh rotation, uniforms, lights.
+
 ## Next phase
 
-**Phase 3 — desktop entry + transformation.** Build the real Scene A→D on the
-homepage (spatial-v2): persistent world, hero reveal, portal, the
-transformation environment, DOM synchronisation, nav integration — using the
-proto architecture. `/proto` is deleted at the end of Phase 3.
+**Phase 4 — the desktop work world.** Projects as spatial planes past the
+transformation surface (which IS Konštrukt’s surface — continuity is already
+in place), camera states E1–E3, per-project lighting (graphite → paper →
+warm), the work → offer handoff. Replaces the v1 SceneWork on the world
+tier; v1 stays as the DOM-tier presentation.
 
 ---
 

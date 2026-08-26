@@ -1,0 +1,272 @@
+"use client"
+
+import { Canvas, useFrame, useThree } from "@react-three/fiber"
+import { Suspense, useEffect, useMemo } from "react"
+import {
+  ACESFilmicToneMapping,
+  CanvasTexture,
+  DoubleSide,
+  Fog,
+  PMREMGenerator,
+  RepeatWrapping,
+  ShaderMaterial,
+  SRGBColorSpace,
+  TextureLoader,
+  Vector3,
+} from "three"
+import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js"
+
+import { film, PLANE } from "@/components/world/film"
+import { createRibbonGeometry } from "@/lib/ribbon-mesh"
+
+/**
+ * The persistent world — Phase 3 scope: the ribbon, the transformation plane,
+ * one lighting rig, and a camera posed every frame from the shared film.
+ *
+ * Deliberate absences: no postprocessing, no per-frame React state, no drei
+ * scroll helpers (GSAP owns the timeline), no downloaded environment — the
+ * reflections come from RoomEnvironment rendered to a PMREM at mount.
+ */
+
+/** Brushed-metal roughness variation: streaks along U, generated once. */
+function makeRoughnessTexture() {
+  const size = 256
+  const canvas = document.createElement("canvas")
+  canvas.width = size
+  canvas.height = size
+  const ctx = canvas.getContext("2d") as CanvasRenderingContext2D
+  ctx.fillStyle = "#585858"
+  ctx.fillRect(0, 0, size, size)
+  for (let i = 0; i < 900; i++) {
+    const y = Math.random() * size
+    const w = 30 + Math.random() * 200
+    const x = Math.random() * size - w / 2
+    const tone = 70 + Math.floor(Math.random() * 60)
+    ctx.fillStyle = `rgba(${tone},${tone},${tone},0.16)`
+    ctx.fillRect(x, y, w, 1)
+  }
+  const texture = new CanvasTexture(canvas)
+  texture.wrapS = RepeatWrapping
+  texture.wrapT = RepeatWrapping
+  return texture
+}
+
+function Ribbon() {
+  const geometry = useMemo(() => createRibbonGeometry(), [])
+  const roughnessMap = useMemo(() => makeRoughnessTexture(), [])
+
+  useEffect(() => {
+    return () => {
+      geometry.dispose()
+      roughnessMap.dispose()
+    }
+  }, [geometry, roughnessMap])
+
+  useFrame((state) => {
+    const mesh = state.scene.getObjectByName("codera-ribbon")
+    if (mesh) {
+      mesh.rotation.y = Math.sin(state.clock.elapsedTime * 0.12) * 0.08 * film.idle
+      mesh.rotation.x = Math.cos(state.clock.elapsedTime * 0.09) * 0.04 * film.idle
+    }
+  })
+
+  return (
+    <mesh name="codera-ribbon" geometry={geometry}>
+      <meshPhysicalMaterial
+        color="#2c2c2e"
+        metalness={0.85}
+        roughness={0.34}
+        roughnessMap={roughnessMap}
+        clearcoat={0.25}
+        clearcoatRoughness={0.5}
+        envMapIntensity={0.75}
+      />
+    </mesh>
+  )
+}
+
+/**
+ * The transformation surface: the 2011 site and the Codera concept as two
+ * baked textures on one subdivided plane. `film.morph` drives both the
+ * geometry (the dated site hangs slack; it pulls flat as it transforms) and
+ * a sweep that wipes the new site across, echoing the v1 comparison.
+ *
+ * Unlit shader on purpose — a website is a light source, not a lit object,
+ * and an unlit plane is by far the cheapest thing in the scene.
+ */
+const PLANE_VERTEX = /* glsl */ `
+  uniform float uMorph;
+  varying vec2 vUv;
+
+  void main() {
+    vUv = uv;
+    vec3 p = position;
+    // Slack cloth: three soft interference dents, flattening with morph.
+    float slack = 1.0 - uMorph;
+    p.z += slack * 0.55 * (
+      sin(uv.x * 6.8 + 1.2) * sin(uv.y * 5.1 + 0.4) * 0.6 +
+      sin(uv.x * 12.4 + 3.1) * sin(uv.y * 9.7 + 2.2) * 0.25 +
+      sin(uv.x * 3.1) * 0.3
+    );
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
+  }
+`
+
+const PLANE_FRAGMENT = /* glsl */ `
+  uniform sampler2D uTexA;
+  uniform sampler2D uTexB;
+  uniform float uMorph;
+  uniform float uReveal;
+  varying vec2 vUv;
+
+  void main() {
+    vec4 a = texture2D(uTexA, vUv);
+    // The dated site sits dim and slightly drained until the wipe reaches it.
+    float grey = dot(a.rgb, vec3(0.299, 0.587, 0.114));
+    a.rgb = mix(a.rgb, vec3(grey), 0.35) * 0.8;
+
+    vec4 b = texture2D(uTexB, vUv);
+
+    // The wipe travels with the morph, soft-edged, left to right — the same
+    // gesture as the v1 comparison handle.
+    float edge = smoothstep(vUv.x - 0.09, vUv.x + 0.09, uMorph * 1.18 - 0.09);
+    vec4 c = mix(a, b, edge);
+    gl_FragColor = vec4(c.rgb, c.a * uReveal);
+  }
+`
+
+function TransformPlane() {
+  const gl = useThree((state) => state.gl)
+
+  const { material, textures } = useMemo(() => {
+    const loader = new TextureLoader()
+    const load = (url: string) => {
+      const texture = loader.load(url)
+      texture.colorSpace = SRGBColorSpace
+      texture.anisotropy = Math.min(4, gl.capabilities.getMaxAnisotropy())
+      return texture
+    }
+    const texA = load("/work/legacy.jpg")
+    const texB = load("/work/konstrukt.jpg")
+    return {
+      textures: [texA, texB],
+      material: new ShaderMaterial({
+        uniforms: {
+          uTexA: { value: texA },
+          uTexB: { value: texB },
+          uMorph: { value: 0 },
+          uReveal: { value: 0 },
+        },
+        vertexShader: PLANE_VERTEX,
+        fragmentShader: PLANE_FRAGMENT,
+        side: DoubleSide,
+        transparent: true,
+      }),
+    }
+  }, [gl])
+
+  useEffect(() => {
+    return () => {
+      material.dispose()
+      for (const texture of textures) {
+        texture.dispose()
+      }
+    }
+  }, [material, textures])
+
+  /* Uniforms are written through the frame state's scene lookup — the same
+     route the ribbon's idle motion takes — so the per-frame mutation never
+     touches a hook-tracked value. */
+  useFrame((state) => {
+    const mesh = state.scene.getObjectByName("transform-plane")
+    const shader = (mesh as { material?: ShaderMaterial } | null)?.material
+    if (shader?.uniforms) {
+      shader.uniforms.uMorph.value = film.morph
+      shader.uniforms.uReveal.value = film.planeReveal
+    }
+  })
+
+  return (
+    <mesh
+      name="transform-plane"
+      position={[PLANE.position[0], PLANE.position[1], PLANE.position[2]]}
+      material={material}
+    >
+      <planeGeometry args={[PLANE.width, PLANE.height, 48, 30]} />
+    </mesh>
+  )
+}
+
+/**
+ * Generated studio environment + fog, attached declaratively so R3F owns the
+ * scene assignment and detaches both on unmount.
+ */
+function Atmosphere() {
+  const gl = useThree((state) => state.gl)
+
+  const envTexture = useMemo(() => {
+    const pmrem = new PMREMGenerator(gl)
+    const env = pmrem.fromScene(new RoomEnvironment(), 0.04)
+    pmrem.dispose()
+    return env.texture
+  }, [gl])
+  const fog = useMemo(() => new Fog("#0d0d0f", 18, 46), [])
+
+  useEffect(() => {
+    return () => envTexture.dispose()
+  }, [envTexture])
+
+  return (
+    <>
+      <primitive object={envTexture} attach="environment" />
+      <primitive object={fog} attach="fog" />
+    </>
+  )
+}
+
+function Rig() {
+  const camera = useThree((state) => state.camera)
+  const target = useMemo(() => new Vector3(), [])
+
+  useFrame((state) => {
+    camera.position.set(
+      film.cam.x + film.swayX * 0.25,
+      film.cam.y - film.swayY * 0.18,
+      film.cam.z
+    )
+    target.set(film.target.x, film.target.y, film.target.z)
+    camera.lookAt(target)
+
+    const key = state.scene.getObjectByName("key-light")
+    if (key && "intensity" in key) {
+      ;(key as unknown as { intensity: number }).intensity = film.key * 2.4
+    }
+  })
+
+  return null
+}
+
+export default function RibbonWorld() {
+  return (
+    <Canvas
+      dpr={[1, 1.75]}
+      camera={{ fov: 35, near: 0.1, far: 70, position: [1.7, 4.75, 2.1] }}
+      gl={{
+        antialias: true,
+        powerPreference: "high-performance",
+        toneMapping: ACESFilmicToneMapping,
+      }}
+      style={{ position: "absolute", inset: 0 }}
+    >
+      <color attach="background" args={["#0d0d0f"]} />
+      <directionalLight name="key-light" position={[6, 8, 7]} intensity={1.4} />
+      <directionalLight position={[-7, -2, 5]} intensity={0.35} color="#cfd4dd" />
+      <Atmosphere />
+      <Ribbon />
+      <Suspense fallback={null}>
+        <TransformPlane />
+      </Suspense>
+      <Rig />
+    </Canvas>
+  )
+}

@@ -45,6 +45,20 @@ function lightness(value: string): number {
 }
 
 /**
+ * Waits until the spatial world has handed over to scroll: its master pin
+ * exists only after the intro completes and every trigger start has been
+ * re-measured. On DOM-tier runs this never appears — callers that support
+ * both tiers should catch the timeout.
+ */
+async function waitForWorld(page: Page) {
+  await page.waitForFunction(
+    () => document.querySelector(".pin-spacer > #top") !== null,
+    undefined,
+    { timeout: 20_000 }
+  )
+}
+
+/**
  * Homepage suite.
  *
  * Asserts on structure, runtime health and accessibility contracts rather than
@@ -239,11 +253,12 @@ test.describe("Codera homepage", () => {
 
   test("the hero headline is present and unclipped", async ({ page }) => {
     await page.goto("/")
-    await waitForHydration(page)
-    // The entrance clips each line group and slides it up. If the timeline
-    // ever fails to run, the text is in the DOM but sitting outside its own
-    // clip — visible to a DOM assertion and invisible to a human.
-    await page.waitForTimeout(2600)
+    // The intro clips each line group and slides it up; the master pin exists
+    // only once that entrance has fully landed. If the timeline ever fails,
+    // the text sits outside its own clip — visible to a DOM assertion and
+    // invisible to a human.
+    await waitForWorld(page)
+    await page.waitForTimeout(400)
 
     const heading = page.getByRole("heading", { level: 1 })
     await expect(heading).toBeVisible()
@@ -305,8 +320,11 @@ test.describe("Codera homepage", () => {
   test("the transformation is keyboard operable and moves the split", async ({
     page,
   }) => {
+    // Reduced motion routes to the DOM tier, where the transformation is the
+    // accessible range-input comparison. (On capable desktops it is the
+    // spatial morph — covered by the world test below.)
+    await page.emulateMedia({ reducedMotion: "reduce" })
     await page.goto("/")
-    await waitForHydration(page)
 
     const slider = page.getByRole("slider", {
       name: "Porovnanie starého a nového webu",
@@ -337,38 +355,54 @@ test.describe("Codera homepage", () => {
     expect(typeof before).toBe("number")
   })
 
-  test("scrolling through the pinned scene performs the transformation", async ({
+  test("the spatial world mounts, pins and advances through its states", async ({
     page,
   }) => {
     await page.setViewportSize({ width: 1280, height: 800 })
+
+    const errors: string[] = []
+    page.on("pageerror", (error) => errors.push(error.message))
+
     await page.goto("/")
-    await waitForHydration(page)
 
-    const readSplit = () =>
-      page.$eval("#premena [data-stage]", (node) =>
-        Number(getComputedStyle(node).getPropertyValue("--split"))
-      )
-
-    // Land at the start of the pin: the old site should still be covering the
-    // stage almost completely.
-    const sceneTop = await page.$eval(
-      "#premena",
-      (node) => node.getBoundingClientRect().top + window.scrollY
+    // The world tier: canvas mounted, and the master pin's spacer wraps the
+    // stage once the intro hands over to scroll.
+    await page.waitForFunction(
+      () => document.querySelector(".pin-spacer > #top") !== null,
+      undefined,
+      { timeout: 20_000 }
     )
-    await page.evaluate((y) => window.scrollTo(0, y + 40), sceneTop)
-    await page.waitForTimeout(900)
-    expect(
-      await readSplit(),
-      "the scene should open on the old site"
-    ).toBeGreaterThan(70)
+    await expect(page.locator("#top canvas")).toHaveCount(1)
 
-    // Scroll to the far end of the pin: the concept should have taken over.
-    await page.evaluate((y) => window.scrollTo(0, y + 1400), sceneTop)
-    await page.waitForTimeout(1200)
-    expect(
-      await readSplit(),
-      "the scene should end on the Codera concept"
-    ).toBeLessThan(25)
+    // The headline is on screen without any scrolling — the intro autoplays
+    // precisely because commercial clarity outranks spatial storytelling.
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible()
+    await expect(page.locator("#top")).toHaveAttribute("data-world-state", "b")
+
+    // Scroll advances the film: portal, then transformation.
+    const pinEnd = await page.evaluate(() => {
+      const spacer = document.querySelector(".pin-spacer > #top")
+        ?.parentElement as HTMLElement
+      return spacer.getBoundingClientRect().height - window.innerHeight
+    })
+
+    await page.evaluate((y) => window.scrollTo(0, y), Math.round(pinEnd * 0.4))
+    await page.waitForTimeout(900)
+    await expect(page.locator("#top")).toHaveAttribute("data-world-state", "c")
+
+    await page.evaluate((y) => window.scrollTo(0, y), Math.round(pinEnd * 0.85))
+    await page.waitForTimeout(900)
+    await expect(page.locator("#top")).toHaveAttribute("data-world-state", "d")
+    await expect(page.locator("#premena")).toBeVisible()
+
+    // The world must stay pinned for its whole runway — the sections below
+    // must never pin on top of it (the stale-start regression).
+    const stageTop = await page.$eval("#top", (node) =>
+      Math.round(node.getBoundingClientRect().top)
+    )
+    expect(Math.abs(stageTop), "the stage should still be pinned").toBeLessThan(3)
+
+    expect(errors, `runtime errors: ${errors.join(" | ")}`).toEqual([])
   })
 
   test("the work stage advances through all three projects", async ({
@@ -376,7 +410,7 @@ test.describe("Codera homepage", () => {
   }) => {
     await page.setViewportSize({ width: 1280, height: 800 })
     await page.goto("/")
-    await waitForHydration(page)
+    await waitForWorld(page)
 
     const stage = page.locator("#praca")
     const sceneTop = await page.$eval(
@@ -417,7 +451,7 @@ test.describe("Codera homepage", () => {
   }) => {
     await page.setViewportSize({ width: 1280, height: 800 })
     await page.goto("/")
-    await waitForHydration(page)
+    await waitForWorld(page)
 
     const scene = page.locator("#sluzby")
     const sceneTop = await page.$eval(
@@ -706,7 +740,7 @@ test.describe("Codera homepage", () => {
 
   test("text clears WCAG AA contrast on both grounds", async ({ page }) => {
     await page.goto("/")
-    await waitForHydration(page)
+    await waitForWorld(page)
 
     const check = async (selector: string, minimum: number) =>
       page.evaluate(
