@@ -21,7 +21,7 @@ const TRACK_PATH = buildTrackPath(
 /**
  * The process timeline — the page's second signature moment.
  *
- * Desktop is a horizontal track whose connecting line dips into the Webora
+ * Desktop is a horizontal track whose connecting line dips into the signature
  * vertex between each node. Scrolling fills the track and moves the active
  * step; the step's detail appears in a panel below, so the section stays
  * compact while every step is one click away.
@@ -277,7 +277,7 @@ export function ProcessTimeline() {
                       Čo robíme
                     </dt>
                     <dd className="mt-3 text-small text-pretty">
-                      {step.webora}
+                      {step.codera}
                     </dd>
                   </div>
                   <div className="bg-background py-4 md:px-6 md:py-0">
@@ -334,7 +334,7 @@ export function ProcessTimeline() {
                         Čo robíme
                       </dt>
                       <dd className="mt-1 text-small text-muted-foreground">
-                        {item.webora}
+                        {item.codera}
                       </dd>
                     </div>
                     <div>

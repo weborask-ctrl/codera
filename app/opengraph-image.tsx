@@ -43,7 +43,7 @@ export default function OpengraphImage() {
             letterSpacing: "-0.03em",
           }}
         >
-          Webora
+          Codera
         </span>
       </div>
 
@@ -76,7 +76,11 @@ export default function OpengraphImage() {
         <div
           style={{ width: 96, height: 6, background: "#2a5cda", borderRadius: 3 }}
         />
-        <span style={{ fontSize: 24, color: "#61656c" }}>webora.sk</span>
+        {/* Shows the verified contact e-mail rather than a domain: no real
+            Codera domain has been chosen yet, and this migration must not
+            invent one (see siteConfig.url's TODO). Swap back to a bare
+            domain once one is confirmed. */}
+        <span style={{ fontSize: 24, color: "#61656c" }}>{siteConfig.email}</span>
       </div>
     </div>,
     size

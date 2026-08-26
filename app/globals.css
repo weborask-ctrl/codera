@@ -6,7 +6,7 @@
 
 @theme inline {
   /* ---------------------------------------------------------------- *
-   * Webora design system                                             *
+   * Codera design system                                             *
    * Neutral, light-first surfaces + a single blue accent.            *
    * Every foreground/background pairing below clears WCAG 2.2 AA.    *
    * ---------------------------------------------------------------- */
@@ -489,7 +489,7 @@
 
   /* Ambient float — the page keeps breathing when scrolling stops. */
   .float-slow {
-    animation: webora-float 7s var(--ease-soft) infinite alternate;
+    animation: codera-float 7s var(--ease-soft) infinite alternate;
   }
 
   .hairline-grid > * {
@@ -497,7 +497,7 @@
   }
 }
 
-@keyframes webora-float {
+@keyframes codera-float {
   from {
     transform: translate3d(0, 0, 0);
   }

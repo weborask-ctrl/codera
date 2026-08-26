@@ -43,7 +43,7 @@ export function Team() {
               eyebrow="O nás"
               headingId="team-heading"
               title="Dvaja ľudia, ktorí web navrhnú aj postavia."
-              lead="Webora je malý tím developerov a dizajnérov. Tá veľkosť je zámer — jednému projektu vieme venovať pozornosť, ktorú by väčšia agentúra rozdelila medzi desať."
+              lead="Codera je malý tím developerov a dizajnérov. Tá veľkosť je zámer — jednému projektu vieme venovať pozornosť, ktorú by väčšia agentúra rozdelila medzi desať."
             />
           </Reveal>
 
@@ -58,7 +58,7 @@ export function Team() {
                   <li key={person.name} className="border-t border-white/15 pt-6">
                     <p className="text-h4">{person.name}</p>
                     <p className="mt-1.5 text-caption text-muted-foreground">
-                      Webora
+                      Codera
                     </p>
                   </li>
                 ))}

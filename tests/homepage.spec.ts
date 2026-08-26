@@ -24,7 +24,7 @@ async function waitForHydration(page: Page) {
  * page breaks. Several claims made in the "technická kvalita" section are
  * verified here on purpose — they should not outlive the behaviour.
  */
-test.describe("Webora homepage", () => {
+test.describe("Codera homepage", () => {
   test("loads without console or runtime errors", async ({ page }) => {
     const consoleErrors: string[] = []
     const pageErrors: string[] = []
@@ -134,7 +134,7 @@ test.describe("Webora homepage", () => {
   test("ships SEO metadata and structured data", async ({ page }) => {
     await page.goto("/")
 
-    await expect(page).toHaveTitle(/Webora/)
+    await expect(page).toHaveTitle(/Codera/)
     await expect(page.locator('meta[name="description"]')).toHaveAttribute(
       "content",
       /.{80,}/
@@ -152,7 +152,7 @@ test.describe("Webora homepage", () => {
     expect(types).toContain("ProfessionalService")
     expect(types).toContain("FAQPage")
 
-    // Webora has no fixed public address, so a LocalBusiness entry would be a
+    // Codera has no fixed public address, so a LocalBusiness entry would be a
     // fabrication. Nor is there anything to rate yet.
     const service = parsed.find(
       (entry) => entry["@type"] === "ProfessionalService"
@@ -172,11 +172,11 @@ test.describe("Webora homepage", () => {
     await expect(offer).toContainText("72")
     await expect(offer).toContainText("14")
 
-    // Webora has no registered entity, so the site must never claim one.
+    // Codera has no registered entity, so the site must never claim one.
     // Checked on the footer and contact section rather than the whole body:
     // the before/after preview deliberately depicts a fictional 2011-era
     // company that does carry an "s.r.o." suffix, and that is not a claim
-    // about Webora.
+    // about Codera.
     for (const scope of ["footer", "#kontakt"]) {
       const text = (await page.locator(scope).textContent()) ?? ""
       expect(text, `${scope} must not claim a company registration`).not.toMatch(
@@ -378,8 +378,8 @@ test.describe("Webora homepage", () => {
     await page.goto("/")
 
     await expect(
-      page.getByRole("link", { name: "webora.sk@gmail.com" }).first()
-    ).toHaveAttribute("href", "mailto:webora.sk@gmail.com")
+      page.getByRole("link", { name: "coderaslovakia@gmail.com" }).first()
+    ).toHaveAttribute("href", "mailto:coderaslovakia@gmail.com")
     await expect(
       page.getByRole("link", { name: "+421 949 753 556" }).first()
     ).toHaveAttribute("href", "tel:+421949753556")

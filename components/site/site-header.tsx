@@ -89,7 +89,7 @@ export function SiteHeader() {
           className="rounded-sm text-foreground transition-opacity hover:opacity-70"
         >
           <Logo />
-          <span className="sr-only">Webora — domov</span>
+          <span className="sr-only">Codera — domov</span>
         </a>
 
         <nav aria-label="Hlavná navigácia" className="hidden lg:block">

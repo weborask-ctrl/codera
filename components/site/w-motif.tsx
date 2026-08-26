@@ -1,17 +1,22 @@
 import { cn } from "@/lib/utils"
 
 /**
- * The Webora motif.
+ * The Codera motif.
  *
- * The wordmark's W is a single stroke that descends, rises, descends and
- * rises again — a path with vertices. That vertex is the one shape reused
- * across the site: as the node marker on the process timeline, as the dip in
- * the timeline's connecting track, and as the small mark that numbers a
- * project. Nothing else borrows it, so it stays a signature rather than
- * decoration.
+ * Inherited from the previous "Webora" wordmark, whose W was a single stroke
+ * that descends, rises, descends and rises again — a path with vertices. That
+ * vertex is the one shape reused across the site: as the node marker on the
+ * process timeline, as the dip in the timeline's connecting track, and as the
+ * small mark that numbers a project. Nothing else borrows it, so it stays a
+ * signature rather than decoration.
+ *
+ * NOTE: the geometry is still literally a "W" shape — it no longer spells the
+ * first letter of "Codera". It still reads fine as an abstract zigzag/vertex
+ * mark, but the letter-identity rationale is gone; worth a deliberate design
+ * pass rather than carrying it forward by default.
  */
 
-/** The W's valley, on its own. Used as a node marker and a list bullet. */
+/** The motif's valley, on its own. Used as a node marker and a list bullet. */
 export function Vertex({ className }: { className?: string }) {
   return (
     <svg
@@ -46,7 +51,7 @@ export function nodeCentre(index: number, count: number): number {
 /**
  * Builds the timeline's connecting track: a straight run between node centres
  * that dips into a shallow vertex halfway along each segment. Straight enough
- * to keep every label on one baseline, angled enough to read as the W.
+ * to keep every label on one baseline, angled enough to echo the brand motif.
  */
 export function buildTrackPath(
   count: number,

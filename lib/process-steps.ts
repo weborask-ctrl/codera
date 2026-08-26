@@ -10,7 +10,7 @@ export type ProcessStep = {
   readonly index: string
   readonly title: string
   readonly summary: string
-  readonly webora: string
+  readonly codera: string
   readonly client: string | null
   readonly output: string
   readonly duration: string
@@ -23,7 +23,7 @@ export const processSteps: readonly ProcessStep[] = [
     index: "01",
     title: "Analýza",
     summary: "Zistíme, čo firma predáva, komu a čo jej dnes na webe chýba.",
-    webora:
+    codera:
       "Prejdeme si vašu firmu, ponuku, konkurenciu a súčasný web. Hľadáme, kde návštevník stráca istotu a kde sa stráca dopyt.",
     client:
       "Základné informácie o firme, prístup k súčasnému webu a materiálom, predstavu o cieľoch.",
@@ -34,7 +34,7 @@ export const processSteps: readonly ProcessStep[] = [
     index: "02",
     title: "Smer",
     summary: "Ukážeme prvý reálny návrh, nie moodboard.",
-    webora:
+    codera:
       "Pripravíme prvý vizuálny a štruktúrny smer — ako bude web vyzerať a ako bude vedený návštevník.",
     client: "Krátka spätná väzba, či ideme správnym smerom.",
     output: "Prvý konkrétny návrh, ktorý sa dá posúdiť.",
@@ -45,7 +45,7 @@ export const processSteps: readonly ProcessStep[] = [
     index: "03",
     title: "Dizajn",
     summary: "Dotiahneme kľúčové stránky do finálnej podoby.",
-    webora:
+    codera:
       "Navrhneme štruktúru kľúčových stránok, hierarchiu, typografiu, UI a správanie na mobile.",
     client: "Sústredená spätná väzba v jednom kole, nie po častiach.",
     output: "Odsúhlasený dizajn, podľa ktorého sa programuje.",
@@ -55,7 +55,7 @@ export const processSteps: readonly ProcessStep[] = [
     index: "04",
     title: "Vývoj",
     summary: "Z návrhu spravíme rýchly a responzívny web.",
-    webora:
+    codera:
       "Naprogramujeme web vrátane responzívneho správania, interakcií, formulárov a SEO základu.",
     client: "Texty a obrazové podklady, ak ich ešte nemáme.",
     output: "Funkčný web pripravený na kontrolu.",
@@ -65,7 +65,7 @@ export const processSteps: readonly ProcessStep[] = [
     index: "05",
     title: "Kontrola",
     summary: "Chyby hľadáme my, nie váš zákazník.",
-    webora:
+    codera:
       "Testujeme mobil aj desktop, Chrome, Firefox a Safari, formuláre, interakcie, rýchlosť a technické chyby.",
     client: "Posledné pripomienky k obsahu.",
     output: "Web pripravený na spustenie.",
@@ -75,7 +75,7 @@ export const processSteps: readonly ProcessStep[] = [
     index: "06",
     title: "Spustenie",
     summary: "Web nasadíme a odovzdáme vám ho aj s vysvetlením.",
-    webora:
+    codera:
       "Nasadíme web, pripojíme doménu, skontrolujeme nasadenú verziu a ukážeme vám, ako s webom pracovať.",
     client: "Prístup k doméne.",
     output: "Web online a vo vašich rukách.",

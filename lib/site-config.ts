@@ -1,21 +1,25 @@
 /**
  * Single source of truth for site-wide business facts.
  *
- * Everything here is verified information supplied by Webora. Nothing in this
- * file may be invented — in particular Webora has no registered company entity
+ * Everything here is verified information supplied by Codera. Nothing in this
+ * file may be invented — in particular Codera has no registered company entity
  * yet, so there is deliberately no IČO, DIČ, VAT status or registered office.
  * See `legal` below.
  */
 
 export const siteConfig = {
-  name: "Webora",
-  /** TODO(webora): confirm the production domain before launch. */
-  url: "https://www.webora.sk",
+  name: "Codera",
+  /**
+   * TODO(codera): placeholder domain (RFC 2606 reserved TLD) — deliberately
+   * not a guess at the real .sk/.com/.eu domain. Replace before launch; every
+   * absolute URL (canonical, sitemap, OG) is derived from this one value.
+   */
+  url: "https://www.codera.example",
   locale: "sk_SK",
-  title: "Webora — tvorba firemných webstránok a redizajn webu",
+  title: "Codera — tvorba firemných webstránok a redizajn webu",
   description:
     "Navrhujeme a vyvíjame firemné webstránky, ktoré pôsobia dôveryhodne, načítajú sa rýchlo a vedú návštevníka k dopytu. Weby od 699 €, prvý návrh do 72 hodín.",
-  email: "webora.sk@gmail.com",
+  email: "coderaslovakia@gmail.com",
   phone: "+421 949 753 556",
   /** Digits only, for `tel:` links. */
   phoneHref: "+421949753556",
@@ -43,7 +47,7 @@ export const commercial = {
 /**
  * Legal identification.
  *
- * Webora currently has no trade licence or registered company, so there is
+ * Codera currently has no trade licence or registered company, so there is
  * nothing truthful to publish. Do not add IČO, DIČ, sídlo or "s.r.o." here
  * until the entity actually exists — an invented registry number on a live
  * site is a legal problem, not a cosmetic gap.
@@ -51,7 +55,7 @@ export const commercial = {
 export const legal = {
   hasRegisteredEntity: false,
   /** Shown in the footer instead of registry data. */
-  note: "Webora je štúdio dvoch ľudí. Fakturačné údaje doplníme pri prvej objednávke.",
+  note: "Codera je štúdio dvoch ľudí. Fakturačné údaje doplníme pri prvej objednávke.",
 } as const
 
 /**

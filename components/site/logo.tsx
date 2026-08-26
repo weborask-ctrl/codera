@@ -1,10 +1,15 @@
 import { cn } from "@/lib/utils"
 
 /**
- * Webora logotype: a monochrome W drawn as one continuous stroke, plus the
+ * Codera logotype: a monochrome stroke drawn as one continuous path, plus the
  * wordmark. Monochrome on purpose — it inherits `currentColor`, so the same
  * component works on white, on the ink chapter and inside the footer without
  * a second colour variant.
+ *
+ * Inherited from "Webora": the path is literally a "W" shape and no longer
+ * matches the initial letter of "Codera". Kept as-is (this migration renames
+ * branding, it does not redesign the mark) — flagged for a deliberate logo
+ * decision separately.
  */
 export function Logo({
   className,
@@ -32,7 +37,7 @@ export function Logo({
       </svg>
       {wordmark ? (
         <span className="text-[1.0625rem] font-semibold tracking-[-0.03em]">
-          Webora
+          Codera
         </span>
       ) : null}
     </span>

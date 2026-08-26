@@ -1,6 +1,6 @@
-# Webora
+# Codera
 
-The Webora studio website. Slovak content, English code and documentation.
+The Codera studio website. Slovak content, English code and documentation.
 
 It doubles as our portfolio piece, so the standards it is built to are the
 standards it advertises: server-rendered, minimal client JavaScript, WCAG 2.2
@@ -84,15 +84,23 @@ backend would need — nothing else in the component has to change.
 
 ## Before launch
 
-Outstanding business information, all marked `TODO(webora)` in
-`lib/site-config.ts`:
+Outstanding business information, all marked `TODO(codera)` in
+`lib/site-config.ts` and `components/site/site-footer.tsx`:
 
-- the production domain (`siteConfig.url` currently assumes `www.webora.sk`)
+- the production domain (`siteConfig.url` is currently a placeholder,
+  `www.codera.example` — deliberately not a guess at the real `.sk`/`.com`/`.eu`
+  domain)
 - company registration details, once a trade licence or company exists. The
   footer deliberately publishes none today: `legal.hasRegisteredEntity` is
   `false` and there is no IČO, DIČ, VAT status or registered office anywhere on
   the site, because inventing them would be a legal problem rather than a
   cosmetic gap.
+- the logo/mark (`components/site/logo.tsx`, `app/icon.svg`,
+  `components/site/w-motif.tsx`) is inherited from the previous "Webora"
+  brand and is literally a stylised "W" — it no longer spells the first
+  letter of "Codera". Geometry was deliberately left unchanged during the
+  rename (this was a brand migration, not a redesign); revisit it as its own
+  design decision.
 
 Real client work, testimonials and measured results are likewise absent by
 design. `components/site/projects.tsx` types each entry with a `kind` of

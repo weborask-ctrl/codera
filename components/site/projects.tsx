@@ -93,7 +93,7 @@ export function Projects() {
             eyebrow="Vybrané koncepty"
             headingId="projects-heading"
             title="Tri firmy, tri odlišné smery."
-            lead="Webora je nové štúdio, preto neukazujeme cudzie logá. Ukazujeme, ako uvažujeme — čo je pre daný typ firmy obchodný problém a čo s ním dizajn robí."
+            lead="Codera je nové štúdio, preto neukazujeme cudzie logá. Ukazujeme, ako uvažujeme — čo je pre daný typ firmy obchodný problém a čo s ním dizajn robí."
           />
         </Reveal>
 

@@ -3,7 +3,7 @@
  *
  * Design direction: light, calm, generous whitespace, one cool accent. The
  * palette is hard-coded because this is a *different* website being shown
- * inside ours; it must not follow Webora's own light/dark theme.
+ * inside ours; it must not follow Codera's own light/dark theme.
  */
 
 const NAV = ["Služby", "Náš tím", "Cenník", "Kontakt"]

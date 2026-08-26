@@ -85,7 +85,7 @@ export function SiteFooter() {
         </div>
 
         <div className="border-t border-hairline py-8">
-          {/* TODO(webora): once a trade licence or company exists, add the
+          {/* TODO(codera): once a trade licence or company exists, add the
               registration details here. Until then there is nothing truthful
               to publish, so nothing is claimed. */}
           <p className="max-w-[52rem] text-caption text-muted-foreground">
@@ -94,7 +94,7 @@ export function SiteFooter() {
 
           <p className="mt-4 max-w-[52rem] text-caption text-muted-foreground">
             Projekty Konštrukt, Vitalis a Forma sú ukážkové koncepty vytvorené
-            štúdiom Webora. Nejde o realizácie pre klientov a uvedené
+            štúdiom Codera. Nejde o realizácie pre klientov a uvedené
             spoločnosti neexistujú.
           </p>
 

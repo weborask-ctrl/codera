@@ -14,7 +14,7 @@ import { commercial, people, siteConfig } from "@/lib/site-config"
 /**
  * Structured data.
  *
- * `ProfessionalService`, not `LocalBusiness`: Webora has no fixed public
+ * `ProfessionalService`, not `LocalBusiness`: Codera has no fixed public
  * address, and a LocalBusiness entry without one is both wrong and useless.
  * No aggregateRating, no review, no founding date, no registration — none of
  * that is known, and inventing it to feed a rich result is not an option.

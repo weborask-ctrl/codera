@@ -128,7 +128,7 @@ export function Transformation() {
               they collided with the concept site's own navigation. */}
           <div className="mt-3 flex items-baseline justify-between gap-4 text-caption text-muted-foreground">
             <span>◀ Predtým — typický firemný web spred rokov</span>
-            <span className="text-right">Webora — súčasný koncept ▶</span>
+            <span className="text-right">Codera — súčasný koncept ▶</span>
           </div>
         </Reveal>
 

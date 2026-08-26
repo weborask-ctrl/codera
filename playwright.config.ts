@@ -5,7 +5,7 @@ const PORT = process.env.PLAYWRIGHT_PORT ?? "3100"
 const BASE_URL = process.env.PLAYWRIGHT_BASE_URL ?? `http://localhost:${PORT}`
 
 /**
- * Playwright configuration for the Webora app.
+ * Playwright configuration for the Codera app.
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
