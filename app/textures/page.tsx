@@ -27,14 +27,23 @@ const FRAMES = [
   { id: "forma", node: <FormaPreview /> },
 ]
 
-export default function TexturesPage() {
+export default async function TexturesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ w?: string }>
+}) {
+  /* ?w=720 renders the frames at deck size, so the capture script can bake
+     small variants for the mobile swipe deck without a resampling step. */
+  const { w } = await searchParams
+  const width = w === "720" ? "w-[720px]" : "w-[1440px]"
+
   return (
     <main className="flex flex-col gap-8 bg-black p-8">
       {FRAMES.map((frame) => (
         <div
           key={frame.id}
           id={`texture-${frame.id}`}
-          className="@container relative isolate aspect-16/10 w-[1440px] overflow-hidden bg-background"
+          className={`@container relative isolate aspect-16/10 ${width} overflow-hidden bg-background`}
         >
           {frame.node}
         </div>

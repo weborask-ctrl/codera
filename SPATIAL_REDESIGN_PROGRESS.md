@@ -17,7 +17,7 @@ live v1 site and stays untouched until this branch passes the preview gate.
 
 ## Current phase
 
-Phase 7 complete — the film is whole. A (surface) → B (reveal) → C (portal)
+Phase 8 complete — the film is whole. A (surface) → B (reveal) → C (portal)
 → D (transformation) → E1–E3 (work) → F (the mark splits into its three
 strands for the offer) → G (the strands close back into the completed C,
 wordmark lands). One pin, one timeline, 28.2 units over 860%.
@@ -158,10 +158,26 @@ What the prototype established, to reuse verbatim in Phase 3:
   the Forma plane reveal ~0.5u so its edge cannot ghost into the settled
   Vitalis frame on short viewports.
 
+### Phase 8 — performance findings
+
+- **three.js is correctly lazy**: the 887 KB (raw) world chunk downloads
+  only on the world tier, after hydration. Mobile never sees it.
+- **The v1 scenes are now their own lazy chunk** (`dom-fallback.tsx`) —
+  downloaded exclusively by the wide-no-WebGL/reduced-motion audience.
+- **Deck textures ship in two sizes** (720/1440, srcset) — DPR-3 phones
+  legitimately pick 1440w (990 px needed for 330 css px), DPR-2 and tablets
+  take the halves. The images are lazy and below the fold.
+- **Mobile JS floor ≈ 705 KB raw ≈ ~210 KB brotli**: framework + Next
+  runtime + GSAP (needed on every tier — SceneClose animates with it).
+  Judged acceptable; the next meaningful cut would be replacing GSAP in the
+  epilogue on mobile, which is not worth the split brain.
+- Budgets at 6× CPU, 390 px: LCP 1 164 ms (< 2.5 s), CLS 0, scroll jank
+  10.3%. Desktop world: vsync-floor medians at 1× and 4×.
+
 ## Next phase
 
-**Phase 8 — performance** (bundle split verification, deck texture variants,
-spike hunt), then **9 — motion polish**, **10 — full QA**, preview gate.
+**Phase 9 — motion polish** (Forma reveal delay, camera easing pass, glow
+strength, wordmark spacing), then **10 — full QA** and the preview gate.
 
 ---
 

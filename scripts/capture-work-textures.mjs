@@ -23,19 +23,21 @@ const page = await browser.newPage({
   viewport: { width: 1600, height: 1100 },
   deviceScaleFactor: 1,
 })
-await page.goto(`${BASE}/textures`, { waitUntil: "networkidle" })
-await page.waitForTimeout(800)
+for (const [query, suffix] of [["", ""], ["?w=720", "-sm"]]) {
+  await page.goto(`${BASE}/textures${query}`, { waitUntil: "networkidle" })
+  await page.waitForTimeout(800)
 
-for (const name of NAMES) {
-  const frame = page.locator(`#texture-${name}`)
-  await frame.scrollIntoViewIfNeeded()
-  await page.waitForTimeout(150)
-  await frame.screenshot({
-    path: `public/work/${name}.jpg`,
-    type: "jpeg",
-    quality: 86,
-  })
-  console.log(`baked public/work/${name}.jpg`)
+  for (const name of NAMES) {
+    const frame = page.locator(`#texture-${name}`)
+    await frame.scrollIntoViewIfNeeded()
+    await page.waitForTimeout(150)
+    await frame.screenshot({
+      path: `public/work/${name}${suffix}.jpg`,
+      type: "jpeg",
+      quality: 86,
+    })
+    console.log(`baked public/work/${name}${suffix}.jpg`)
+  }
 }
 
 await browser.close()

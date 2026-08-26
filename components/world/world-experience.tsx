@@ -5,10 +5,6 @@ import { useEffect, useRef } from "react"
 import { MobileExperience } from "@/components/mobile/mobile-experience"
 import { ButtonLink } from "@/components/site/button-link"
 import { Magnetic } from "@/components/site/magnetic"
-import { SceneHero } from "@/components/site/scene-hero"
-import { SceneOffer } from "@/components/site/scene-offer"
-import { SceneTransformation } from "@/components/site/scene-transformation"
-import { SceneWork } from "@/components/site/scene-work"
 import { CAMERA_STATES, film, useCapabilityTier } from "@/components/world/film"
 import { usePointerField } from "@/hooks/use-scene"
 import { EASE, gsap, ScrollTrigger } from "@/lib/motion"
@@ -33,6 +29,12 @@ import { primaryCta, secondaryCta } from "@/lib/site-config"
  */
 
 const RibbonWorld = dynamic(() => import("@/components/world/ribbon-world"), {
+  ssr: false,
+})
+
+/* The v1 scenes serve only the wide-no-WebGL/reduced-motion audience — one
+   lazy chunk, downloaded exclusively by the tier that renders it. */
+const DomFallback = dynamic(() => import("@/components/world/dom-fallback"), {
   ssr: false,
 })
 
@@ -501,14 +503,7 @@ export function WorldExperience() {
   }
 
   if (tier === "dom") {
-    return (
-      <>
-        <SceneHero />
-        <SceneTransformation />
-        <SceneWork />
-        <SceneOffer />
-      </>
-    )
+    return <DomFallback />
   }
 
   return <WorldStage />

@@ -280,6 +280,8 @@ function MobileWork() {
               {/* biome-ignore lint/performance/noImgElement: static same-origin asset with known dimensions; next/image adds nothing here. */}
               <img
                 src={project.image}
+                srcSet={`${project.image.replace(".jpg", "-sm.jpg")} 720w, ${project.image} 1440w`}
+                sizes="(min-width: 640px) 26rem, 85vw"
                 alt={project.alt}
                 width={1440}
                 height={900}
