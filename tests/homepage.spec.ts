@@ -188,13 +188,20 @@ test.describe("Codera homepage", () => {
     await ctas.first().click()
     const dialog = page.getByRole("dialog")
     await expect(dialog).toBeVisible()
-    /* the drawer must actually BE on screen, not just "open" in state */
-    const box = await dialog.boundingBox()
-    const vw = page.viewportSize()?.width ?? 1280
-    expect(box, "drawer has no box").not.toBeNull()
-    if (box) {
-      expect(box.x, "drawer rests off-screen").toBeLessThan(vw - 100)
-    }
+    /* the drawer must actually ARRIVE on screen — wait out the slide-in
+       transition (position assertions race it on slow CI hardware) */
+    await page.waitForFunction(
+      () => {
+        const d = document.querySelector("[role='dialog']")
+        if (!d) {
+          return false
+        }
+        const r = d.getBoundingClientRect()
+        return r.width > 300 && r.x < window.innerWidth - 100
+      },
+      undefined,
+      { timeout: 7_000 }
+    )
     await page.keyboard.press("Escape")
     await expect(dialog).toBeHidden()
   })
@@ -248,16 +255,26 @@ test.describe("Codera homepage", () => {
 
     const menu = page.locator("#experience-menu")
     await expect(menu).toHaveAttribute("aria-hidden", "false")
-    /* the audit's regression: links must physically land in the viewport */
+    /* the audit's regression: links must physically land in the viewport —
+       wait out the slide-in transition before asserting position */
     const link = menu.getByRole("link", { name: /Práca/ })
     await expect(link).toBeVisible()
-    const box = await link.boundingBox()
-    expect(box, "menu link has no box").not.toBeNull()
-    if (box) {
-      expect(box.x, "menu opens off-screen").toBeGreaterThanOrEqual(0)
-      expect(box.x + box.width, "menu opens off-screen").toBeLessThanOrEqual(391)
-      expect(box.height, "tap target too small").toBeGreaterThanOrEqual(44)
-    }
+    await page.waitForFunction(
+      () => {
+        const l = document.querySelector("#experience-menu a")
+        if (!l) {
+          return false
+        }
+        const r = l.getBoundingClientRect()
+        return (
+          r.x >= 0 &&
+          r.x + r.width <= window.innerWidth + 1 &&
+          r.height >= 44
+        )
+      },
+      undefined,
+      { timeout: 7_000 }
+    )
     /* scroll lock while open */
     expect(
       await page.evaluate(() => getComputedStyle(document.body).overflow)
