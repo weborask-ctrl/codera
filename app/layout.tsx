@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next"
-import { Archivo, Geist_Mono } from "next/font/google"
+import { Archivo, Fraunces, Geist_Mono } from "next/font/google"
 
 import "./globals.css"
 import { siteConfig } from "@/lib/site-config"
@@ -28,6 +28,12 @@ const geistMono = Geist_Mono({
   subsets: ["latin", "latin-ext"],
   variable: "--font-geist-mono",
   display: "swap",
+})
+
+const fraunces = Fraunces({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-fraunces",
+  axes: ["opsz"],
 })
 
 export const metadata: Metadata = {
@@ -94,8 +100,12 @@ export default function RootLayout({
   return (
     <html
       lang="sk"
-      className={cn("antialiased", archivo.variable, geistMono.variable)}
+      className={cn("antialiased", archivo.variable, geistMono.variable, fraunces.variable)}
     >
+      <head>
+        {/* the flat-mode hero C is the mobile LCP element — fetch it first */}
+        <link rel="preload" href="/brand/codera-mark.svg" as="image" fetchPriority="high" />
+      </head>
       <body>
         <a
           href="#hlavny-obsah"

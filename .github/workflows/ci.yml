@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, master, design-intelligence-v1]
+    branches: [main, master, visual-redesign-v1]
   pull_request:
     branches: [main, master]
 

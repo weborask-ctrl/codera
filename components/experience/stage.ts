@@ -131,7 +131,10 @@ export function bindStage(): () => void {
     "(prefers-reduced-motion: reduce)"
   ).matches
 
-  const onScroll = () => updateStage()
+  const onScroll = () => {
+    updateStage()
+    document.documentElement.toggleAttribute("data-scrolled", window.scrollY > 24)
+  }
   const onResize = () => {
     measureZones()
     updateStage()
@@ -161,12 +164,14 @@ export function bindStage(): () => void {
 /** Act tone script — the world lerps scene background between these. */
 export const ACT_TONES: Record<ActName, string> = {
   hero: "#141519",
-  pass: "#8f8c84",
+  pass: "#6f6156",
   premena: "#f2f0ea",
   work: "#d9d8d3",
   konstrukt: "#d9d8d3",
-  vitalis: "#f2ece2",
-  forma: "#ece5d8",
+  vitalis: "#e7efe9",
+  forma: "#201a15",
   offer: "#f4f1ea",
-  resolution: "#f4f1ea",
+  /* bookend: /05 returns to the hero's graphite so the molten glow and the
+     white closing type read the way /01 taught the viewer to read them */
+  resolution: "#141519",
 }

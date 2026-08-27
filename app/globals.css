@@ -617,7 +617,8 @@ main[data-experience="v3"] .enter[data-entered] {
   transition: color 0.45s ease;
 }
 :root[data-act="hero"] .experience-nav,
-:root[data-act="pass"] .experience-nav {
+:root[data-act="pass"] .experience-nav,
+:root[data-act="resolution"] .experience-nav {
   color: #f4f1ea;
 }
 .experience-nav .experience-cta {
@@ -626,7 +627,8 @@ main[data-experience="v3"] .enter[data-entered] {
   transition: background 0.45s ease, color 0.45s ease;
 }
 :root[data-act="hero"] .experience-nav .experience-cta,
-:root[data-act="pass"] .experience-nav .experience-cta {
+:root[data-act="pass"] .experience-nav .experience-cta,
+:root[data-act="resolution"] .experience-nav .experience-cta {
   background: #f4f1ea;
   color: #16171b;
 }
@@ -641,4 +643,84 @@ main[data-experience="v3"] .offer-row .offer-title {
 }
 main[data-experience="v3"] .offer-row[data-active] .offer-title {
   color: rgb(27 28 32);
+}
+
+/* ================================================================
+   Art Direction v2 — "Zlievareň"
+   ================================================================ */
+
+/* Molten-titanium media field (monopo's liquid gesture in our metal
+   palette). Pure CSS so it runs identically in flat mode; the world
+   adds a live shader variant behind the C. */
+.molten-field {
+  background:
+    radial-gradient(90% 70% at 78% 82%, rgba(74, 31, 22, 0.85) 0%, transparent 60%),
+    radial-gradient(70% 60% at 22% 18%, rgba(232, 201, 154, 0.5) 0%, transparent 55%),
+    radial-gradient(120% 90% at 55% 55%, rgba(176, 103, 42, 0.55) 0%, transparent 65%),
+    radial-gradient(140% 120% at 50% 40%, oklch(0.23 0.02 60) 0%, oklch(0.148 0.0035 250) 75%);
+  background-size: 160% 160%, 150% 150%, 170% 170%, 100% 100%;
+  animation: molten-drift 26s ease-in-out infinite alternate;
+}
+@keyframes molten-drift {
+  0% { background-position: 0% 100%, 0% 0%, 50% 50%, 50% 50%; }
+  100% { background-position: 100% 60%, 40% 30%, 20% 80%, 50% 50%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .molten-field { animation: none; }
+}
+
+/* Frost-glass nav after scroll (Mercury) */
+:root[data-scrolled] .experience-nav .nav-shell {
+  background: color-mix(in oklab, var(--nav-frost, #16171b) 72%, transparent);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgb(255 255 255 / 0.08);
+}
+:root[data-scrolled]:not([data-act="hero"]):not([data-act="pass"]):not([data-act="forma"]):not([data-act="resolution"])
+  .experience-nav .nav-shell {
+  --nav-frost: #f0ede6;
+  border-bottom-color: rgb(20 20 24 / 0.1);
+}
+@media (max-width: 1023px) {
+  :root[data-scrolled] .experience-nav .nav-shell {
+    backdrop-filter: none;
+    background: var(--nav-frost, #16171b);
+  }
+}
+:root[data-act="forma"] .experience-nav {
+  color: #efe6d8;
+}
+
+/* Patient motion curve (monopo) for entrances */
+main[data-experience="v3"] .enter {
+  transition:
+    opacity 0.95s cubic-bezier(0.19, 1, 0.22, 1),
+    transform 0.95s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+/* Rotating scroll badge (monopo) */
+@keyframes badge-spin { to { transform: rotate(360deg); } }
+.scroll-badge { animation: badge-spin 14s linear infinite; }
+@media (prefers-reduced-motion: reduce) { .scroll-badge { animation: none; } }
+
+/* Act hairline rules instead of empty gaps (The1) */
+.act-rule { border-top: 1px solid rgb(20 20 24 / 0.16); }
+
+/* /02 statement enters once the wipe completes (never scrubbed) */
+main[data-experience="v3"] .wipe-statement {
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity 0.95s cubic-bezier(0.19, 1, 0.22, 1),
+    transform 0.95s cubic-bezier(0.19, 1, 0.22, 1);
+}
+main[data-experience="v3"][data-wipe-done] .wipe-statement {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  main[data-experience="v3"] .wipe-statement {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
