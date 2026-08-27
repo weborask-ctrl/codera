@@ -592,21 +592,53 @@
 
 /* ---- Step 5 experience: entrance choreography (settle-once, never
    scrubbed; instant under prefers-reduced-motion) ---- */
-#experience-root .enter {
+main[data-experience="v3"] .enter {
   opacity: 0;
   transform: translateY(26px);
   transition:
     opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
     transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 }
-#experience-root .enter[data-entered] {
+main[data-experience="v3"] .enter[data-entered] {
   opacity: 1;
   transform: none;
 }
 @media (prefers-reduced-motion: reduce) {
-  #experience-root .enter {
+  main[data-experience="v3"] .enter {
     opacity: 1;
     transform: none;
     transition: none;
   }
+}
+
+/* ---- Step 5 experience: nav ink follows the act ---- */
+.experience-nav {
+  color: #16171b;
+  transition: color 0.45s ease;
+}
+:root[data-act="hero"] .experience-nav,
+:root[data-act="pass"] .experience-nav {
+  color: #f4f1ea;
+}
+.experience-nav .experience-cta {
+  background: #16171b;
+  color: #f4f1ea;
+  transition: background 0.45s ease, color 0.45s ease;
+}
+:root[data-act="hero"] .experience-nav .experience-cta,
+:root[data-act="pass"] .experience-nav .experience-cta {
+  background: #f4f1ea;
+  color: #16171b;
+}
+
+/* ---- Step 5 experience: /04 rows — active emphasis, never dimming ---- */
+main[data-experience="v3"] .offer-row {
+  opacity: 1;
+}
+main[data-experience="v3"] .offer-row .offer-title {
+  color: rgb(27 28 32 / 0.62);
+  transition: color 0.35s ease;
+}
+main[data-experience="v3"] .offer-row[data-active] .offer-title {
+  color: rgb(27 28 32);
 }

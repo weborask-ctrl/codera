@@ -4,7 +4,7 @@ const OUT = process.argv[2]
 mkdirSync(OUT, { recursive: true })
 const browser = await chromium.launch({ args: ["--use-angle=default"] })
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } })
-await page.goto("http://localhost:3000/v3", { waitUntil: "networkidle" })
+await page.goto("http://localhost:3000/", { waitUntil: "networkidle" })
 await page.addStyleTag({ content: "nextjs-portal{display:none!important} html{scroll-behavior:auto!important}" })
 await page.evaluate(() => document.fonts.ready)
 await page.waitForTimeout(2500)

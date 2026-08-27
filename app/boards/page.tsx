@@ -24,9 +24,12 @@ function useParam(name: string, fallback: string) {
   const [v, setV] = useState(fallback)
   useEffect(() => {
     const p = new URLSearchParams(window.location.search).get(name)
-    if (p) {
-      setV(p)
-    }
+    const t = setTimeout(() => {
+      if (p) {
+        setV(p)
+      }
+    }, 0)
+    return () => clearTimeout(t)
   }, [name])
   return v
 }
