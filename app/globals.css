@@ -589,3 +589,24 @@
     -webkit-text-stroke-color: var(--foreground);
   }
 }
+
+/* ---- Step 5 experience: entrance choreography (settle-once, never
+   scrubbed; instant under prefers-reduced-motion) ---- */
+#experience-root .enter {
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+#experience-root .enter[data-entered] {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  #experience-root .enter {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
