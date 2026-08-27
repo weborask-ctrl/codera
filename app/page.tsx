@@ -1,7 +1,4 @@
-import { SceneClose } from "@/components/site/scene-close"
-import { SiteFooter } from "@/components/site/site-footer"
-import { SiteNav } from "@/components/site/site-nav"
-import { WorldExperience } from "@/components/world/world-experience"
+import { Experience } from "@/components/experience"
 import { commercial, people, siteConfig } from "@/lib/site-config"
 
 /**
@@ -84,12 +81,7 @@ const faqData = {
 export default function Page() {
   return (
     <>
-      <SiteNav />
-      <main id="hlavny-obsah">
-        <WorldExperience />
-        <SceneClose />
-      </main>
-      <SiteFooter />
+      <Experience />
       {/* JSON-LD must reach the document as raw text; both payloads are local
           literals defined above, never user input. */}
       <script
