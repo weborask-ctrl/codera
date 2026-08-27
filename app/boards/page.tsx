@@ -49,6 +49,7 @@ function Board01() {
       {/* Nav strip */}
       <header className="flex items-center justify-between px-[clamp(1.25rem,4vw,3.5rem)] pt-6">
         <div className="flex items-center gap-3">
+          {/* biome-ignore lint/performance/noImgElement: static same-origin brand SVG; next/image adds nothing here. */}
           <img src="/brand/codera-mark.svg" alt="" className="h-6 w-6" />
           <span className="text-[0.8rem] font-semibold tracking-[0.34em]">CODERA</span>
         </div>
@@ -63,6 +64,7 @@ function Board01() {
       </header>
 
       {/* The C — held frame of the 3D reveal, cropped by the right edge */}
+      {/* biome-ignore lint/performance/noImgElement: static same-origin brand SVG; next/image adds nothing here. */}
       <img
         src="/brand/codera-mark.svg"
         alt=""
@@ -658,6 +660,7 @@ function Board05() {
       style={{ background: "#f4f1ea", color: "#1b1c20" }}
     >
       <div className="flex flex-1 flex-col items-center justify-center px-[clamp(1.25rem,4vw,3.5rem)] text-center">
+        {/* biome-ignore lint/performance/noImgElement: static same-origin brand SVG; next/image adds nothing here. */}
         <img src="/brand/codera-mark.svg" alt="Codera" className="mb-8 h-[16vmin] w-[16vmin]" />
         <h2
           className="font-semibold"
@@ -682,6 +685,7 @@ function Board05() {
 
       <footer className="flex flex-wrap items-baseline justify-between gap-3 border-t border-black/12 px-[clamp(1.25rem,4vw,3.5rem)] py-5 text-[0.62rem] text-black/45">
         <span className="flex items-center gap-2">
+          {/* biome-ignore lint/performance/noImgElement: static same-origin brand SVG; next/image adds nothing here. */}
           <img src="/brand/codera-mark-mono.svg" alt="" className="h-3.5 w-3.5 opacity-60" />
           <span className="tracking-[0.26em]">CODERA</span>
         </span>

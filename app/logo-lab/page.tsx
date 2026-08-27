@@ -80,7 +80,7 @@ export default function LogoLab() {
 
       const loader = new GLTFLoader()
       loader.load(
-        "/brand/codera-c-ribbon.glb?ts=" + Date.now(),
+        `/brand/codera-c-ribbon.glb?ts=${Date.now()}`,
         (gltf) => {
           if (disposed) {
             return

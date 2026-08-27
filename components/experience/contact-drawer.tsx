@@ -12,7 +12,7 @@
  *   so the proven EnquiryForm renders correctly on the paper surface
  */
 
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { EnquiryForm } from "@/components/site/enquiry-form"
 import { ENQUIRY_EVENT } from "./enquiry-bus"
 
@@ -30,10 +30,10 @@ export function ContactDrawer() {
     return () => window.removeEventListener(ENQUIRY_EVENT, onOpen)
   }, [])
 
-  const close = () => {
+  const close = useCallback(() => {
     setOpen(false)
     lastFocus.current?.focus()
-  }
+  }, [])
 
   useEffect(() => {
     if (!open) {
@@ -72,8 +72,7 @@ export function ContactDrawer() {
       document.body.style.overflow = previous
       document.removeEventListener("keydown", onKey)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open])
+  }, [open, close])
 
   return (
     <div aria-hidden={!open} {...(!open ? { inert: true } : {})}>

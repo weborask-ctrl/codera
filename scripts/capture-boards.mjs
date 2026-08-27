@@ -4,9 +4,10 @@
  *
  *   node scripts/capture-boards.mjs [outDir]
  */
-import { chromium } from "playwright"
+
 import { mkdirSync } from "node:fs"
 import { join } from "node:path"
+import { chromium } from "playwright"
 
 const OUT = process.argv[2] ?? "board-shots"
 const BASE = process.env.BOARDS_BASE ?? "http://localhost:3000"

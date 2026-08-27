@@ -14,11 +14,11 @@
  * (react-hooks v6 immutability; the pattern proven in the v2 world).
  */
 
-import { Canvas, useFrame } from "@react-three/fiber"
 import { useGLTF } from "@react-three/drei"
+import { Canvas, useFrame } from "@react-three/fiber"
 import { useEffect } from "react"
 import * as THREE from "three"
-import { ACT_TONES, stage, type ActName } from "./stage"
+import { ACT_TONES, type ActName, stage } from "./stage"
 
 const RIBBON_URL = "/brand/codera-c-ribbon.glb"
 

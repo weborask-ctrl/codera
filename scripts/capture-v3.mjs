@@ -1,5 +1,6 @@
-import { chromium } from "playwright"
 import { mkdirSync } from "node:fs"
+import { chromium } from "playwright"
+
 const OUT = process.argv[2]
 mkdirSync(OUT, { recursive: true })
 const browser = await chromium.launch({ args: ["--use-angle=default"] })

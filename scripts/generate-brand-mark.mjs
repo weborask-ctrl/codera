@@ -127,7 +127,7 @@ function clip(polygon, { p, n }) {
 function toPath(polygon) {
   if (polygon.length === 0) return ""
   const fmt = ([x, y]) => `${x.toFixed(2)} ${y.toFixed(2)}`
-  return `M ${fmt(polygon[0])} ` + polygon.slice(1).map((p) => `L ${fmt(p)}`).join(" ") + " Z"
+  return `M ${fmt(polygon[0])} ${polygon.slice(1).map((p) => `L ${fmt(p)}`).join(" ")} Z`
 }
 
 export function paths() {

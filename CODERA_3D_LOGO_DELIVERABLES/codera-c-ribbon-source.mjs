@@ -18,9 +18,9 @@
  * (hand-assembled glTF 2.0 binary — no runtime dependencies).
  */
 
-import { writeFileSync, mkdirSync } from "node:fs"
-import {
-  SPINE, HALF_WIDTH, CUT_A, CUT_B, CREASE_1, CREASE_2,
+import { mkdirSync, writeFileSync } from "node:fs"
+import {CREASE_1, CREASE_2,CUT_A, CUT_B, HALF_WIDTH, 
+  SPINE, 
 } from "./generate-brand-mark.mjs"
 
 // ---- 3D tunables -----------------------------------------------------------
@@ -139,11 +139,6 @@ function tCut(cut, w, fromStart) {
 // ---- Build the vertex grids ------------------------------------------------
 
 const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]]
-const cross = (a, b) => [
-  a[1] * b[2] - a[2] * b[1],
-  a[2] * b[0] - a[0] * b[2],
-  a[0] * b[1] - a[1] * b[0],
-]
 const norm = (v) => {
   const l = Math.hypot(v[0], v[1], v[2]) || 1
   return [v[0] / l, v[1] / l, v[2] / l]

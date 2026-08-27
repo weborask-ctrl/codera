@@ -407,6 +407,7 @@ function ActHero({ world }: { world: boolean }) {
       }
     >
       {!world ? (
+        // biome-ignore lint/performance/noImgElement: static same-origin brand SVG; next/image adds nothing here.
         <img
           src="/brand/codera-mark.svg"
           alt=""
@@ -637,6 +638,7 @@ function ActResolution({ world }: { world: boolean }) {
       style={world ? undefined : { background: ACT_TONES.resolution }}
     >
       {!world ? (
+        // biome-ignore lint/performance/noImgElement: static same-origin brand SVG; next/image adds nothing here.
         <img
           src="/brand/codera-mark.svg"
           alt=""
@@ -675,6 +677,7 @@ function ActResolution({ world }: { world: boolean }) {
       <footer className="relative z-10 border-t border-black/12 px-[clamp(1.25rem,4vw,3.5rem)] py-5 text-[0.62rem] text-black/45">
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <span className="flex items-center gap-2">
+            {/* biome-ignore lint/performance/noImgElement: static same-origin brand SVG; next/image adds nothing here. */}
             <img src="/brand/codera-mark-mono.svg" alt="" className="h-3.5 w-3.5 opacity-60" />
             <span className="tracking-[0.26em]">CODERA</span>
           </span>

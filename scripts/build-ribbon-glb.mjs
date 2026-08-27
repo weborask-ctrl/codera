@@ -18,9 +18,9 @@
  * (hand-assembled glTF 2.0 binary — no runtime dependencies).
  */
 
-import { writeFileSync, mkdirSync } from "node:fs"
-import {
-  SPINE, HALF_WIDTH, CUT_A, CUT_B, CREASE_1, CREASE_2,
+import { mkdirSync, writeFileSync } from "node:fs"
+import {CREASE_1, CREASE_2,CUT_A, CUT_B, HALF_WIDTH, 
+  SPINE, 
 } from "./generate-brand-mark.mjs"
 
 // ---- 3D tunables -----------------------------------------------------------
