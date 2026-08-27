@@ -108,8 +108,8 @@ function ActHero({ world }: { world: boolean }) {
       {/* poster-scale wordmark living BEHIND the object (North Kingdom) */}
       <p
         aria-hidden="true"
-        className="pointer-events-none absolute bottom-[31svh] left-1/2 w-full -translate-x-1/2 text-center font-semibold whitespace-nowrap text-[#f4f1ea]/[0.07] select-none"
-        style={{ fontSize: "clamp(6rem,19vw,19rem)", lineHeight: 1, letterSpacing: "0.06em", fontStretch: "112%" }}
+        className="pointer-events-none absolute bottom-[31svh] left-1/2 w-full -translate-x-1/2 text-center text-[clamp(2.9rem,15vw,19rem)] font-semibold whitespace-nowrap text-[#f4f1ea]/[0.07] select-none lg:text-[clamp(6rem,19vw,19rem)]"
+        style={{ lineHeight: 1, letterSpacing: "0.06em", fontStretch: "112%" }}
       >
         CODERA
       </p>
@@ -151,14 +151,13 @@ function ActHero({ world }: { world: boolean }) {
       </a>
 
       <div data-enter className="enter relative z-10 mt-auto mb-[8svh] px-[clamp(1.25rem,4vw,3.5rem)]">
-        <p className="mb-5 text-[0.68rem] tracking-[0.32em] text-[#e8c99a]/85" style={MONO}>
+        <p className="mb-5 text-[0.6rem] tracking-[0.2em] text-[#e8c99a]/85 lg:text-[0.68rem] lg:tracking-[0.32em]" style={MONO}>
           KREATÍVNE WEBOVÉ ŠTÚDIO — BRATISLAVA
         </p>
         <h1
           data-hero-line
-          className="max-w-[10.5em] font-semibold"
+          className="max-w-[10.5em] text-[clamp(1.6rem,8.4vw,4.4rem)] font-semibold lg:text-[clamp(2.2rem,6.6vw,6.9rem)]"
           style={{
-            fontSize: "clamp(2.2rem,6.6vw,6.9rem)",
             lineHeight: 0.96,
             letterSpacing: "-0.035em",
             /* the headline crosses the white C — a dark halo keeps it legible */
@@ -375,9 +374,8 @@ function ActResolution({ world }: { world: boolean }) {
         className="enter relative z-10 flex flex-1 flex-col items-center justify-end px-[clamp(1.25rem,4vw,3.5rem)] pt-[34svh] pb-[10svh] text-center lg:justify-center lg:pt-[46svh]"
       >
         <h2
-          className="font-semibold"
+          className="text-[clamp(1.5rem,7.4vw,4.6rem)] font-semibold lg:text-[clamp(1.9rem,4.6vw,4.6rem)]"
           style={{
-            fontSize: "clamp(1.9rem,4.6vw,4.6rem)",
             lineHeight: 0.98,
             letterSpacing: "-0.035em",
             /* the closing line crosses the bright C — same halo as the hero */

@@ -20,15 +20,21 @@ function WorldMeta({
   name,
   sector,
   ink,
+  compact = false,
 }: {
   index: string
   name: string
   sector: string
   ink: string
+  compact?: boolean
 }) {
+  /* compact deck cards sit below the page header — no pt-20 clearance,
+     and tighter tracking so the signage stays on one line */
   return (
     <div
-      className="flex items-baseline justify-between px-[clamp(1.1rem,3.2vw,3rem)] pt-20 pb-2 text-[0.6rem] tracking-[0.24em]"
+      className={`flex items-baseline justify-between px-[clamp(1.1rem,3.2vw,3rem)] pb-2 ${
+        compact ? "pt-5 text-[0.52rem] tracking-[0.12em]" : "pt-20 text-[0.6rem] tracking-[0.24em]"
+      }`}
       style={{ color: ink, ...MONO }}
     >
       <span>
@@ -66,7 +72,7 @@ export function KonstruktWorld({ compact = false }: { compact?: boolean }) {
         }}
       />
 
-      <WorldMeta index="01" name="KONŠTRUKT" sector="STAVEBNÍCTVO" ink="#191a1c" />
+      <WorldMeta index="01" name="KONŠTRUKT" sector="STAVEBNÍCTVO" ink="#191a1c" compact={compact} />
 
       {/* world chrome */}
       <div className="relative z-10 mx-[clamp(1.1rem,3.2vw,3rem)] flex items-center justify-between border-y border-black/25 py-3">
@@ -84,10 +90,21 @@ export function KonstruktWorld({ compact = false }: { compact?: boolean }) {
       </div>
 
       <div className="relative z-10 flex min-h-0 flex-1">
-        {/* type-wall collides with the mural edge (Laxenaire collision) */}
-        <div className="flex min-w-0 flex-1 flex-col justify-center pl-[clamp(1.1rem,3.2vw,3rem)]">
-          <p className="mb-3 text-[0.62rem] tracking-[0.3em] text-[#a4520f]" style={MONO}>
-            GENERÁLNY DODÁVATEĽ · PRIEMYSELNÉ STAVBY · OD PROJEKCIE PO KOLAUDÁCIU
+        {/* type-wall collides with the mural edge (Laxenaire collision);
+            in compact the mural drops to a bottom band so the type owns
+            the full card width */}
+        <div
+          className={`flex min-w-0 flex-1 flex-col justify-center pl-[clamp(1.1rem,3.2vw,3rem)] ${
+            compact ? "pr-[clamp(1.1rem,3.2vw,3rem)] pb-[34%]" : ""
+          }`}
+        >
+          <p
+            className={`mb-3 text-[0.62rem] text-[#a4520f] ${compact ? "tracking-[0.18em]" : "tracking-[0.3em]"}`}
+            style={MONO}
+          >
+            {compact
+              ? "GENERÁLNY DODÁVATEĽ · PRIEMYSELNÉ STAVBY"
+              : "GENERÁLNY DODÁVATEĽ · PRIEMYSELNÉ STAVBY · OD PROJEKCIE PO KOLAUDÁCIU"}
           </p>
           <p
             className="font-semibold uppercase"
@@ -128,8 +145,15 @@ export function KonstruktWorld({ compact = false }: { compact?: boolean }) {
           ) : null}
         </div>
 
-        {/* full-height blueprint mural: dot-matrix + axonometry + dims */}
-        <div className={`relative border-l-2 border-black/30 ${compact ? "w-[38%]" : "hidden w-[44%] md:block"}`}>
+        {/* full-height blueprint mural: dot-matrix + axonometry + dims;
+            compact = full-width bottom band instead of a side column */}
+        <div
+          className={
+            compact
+              ? "absolute inset-x-0 bottom-0 h-[32%] border-t-2 border-black/30"
+              : "relative hidden w-[44%] border-l-2 border-black/30 md:block"
+          }
+        >
           <div
             aria-hidden="true"
             className="absolute inset-0"
@@ -226,7 +250,7 @@ export function VitalisWorld({ compact = false }: { compact?: boolean }) {
         ))}
       </svg>
 
-      <WorldMeta index="02" name="VITALIS" sector="ZDRAVOTNÍCTVO" ink="#1c3833" />
+      <WorldMeta index="02" name="VITALIS" sector="ZDRAVOTNÍCTVO" ink="#1c3833" compact={compact} />
 
       <div className="relative z-10 mx-[clamp(1.1rem,3.2vw,3rem)] flex items-center justify-between py-3">
         <span className="text-[0.98rem] font-semibold tracking-[0.3em]">VITALIS</span>
@@ -382,7 +406,7 @@ export function FormaWorld({ compact = false }: { compact?: boolean }) {
         }}
       />
 
-      <WorldMeta index="03" name="FORMA" sector="INTERIÉROVÝ ATELIÉR" ink="#efe6d8" />
+      <WorldMeta index="03" name="FORMA" sector="INTERIÉROVÝ ATELIÉR" ink="#efe6d8" compact={compact} />
 
       <div className="relative z-10 mx-[clamp(1.1rem,3.2vw,3rem)] flex items-center justify-between border-b border-[#efe6d8]/15 py-3">
         <span className="text-[1.15rem] italic" style={SERIF}>
@@ -420,6 +444,34 @@ export function FormaWorld({ compact = false }: { compact?: boolean }) {
             AKO PRACUJEME →
           </p>
 
+          {compact ? (
+            /* compact: the plates become a horizontal swatch band with one
+               shared signage caption (labels inside the skinny columns
+               wrapped illegibly) */
+            <div className="mt-6">
+              <div className="grid h-[72px] grid-cols-4 gap-2">
+                {[
+                  ["M01", "linear-gradient(160deg,#a8492b 0%,#8c3820 55%,#6f2b18 100%)", "#efe6d8"],
+                  ["M02", "linear-gradient(150deg,#c9a35d 0%,#a9843f 100%)", "#201a15"],
+                  ["M03", "linear-gradient(165deg,#41503f 0%,#2c382b 100%)", "#efe6d8"],
+                  ["M04", "linear-gradient(170deg,#595044 0%,#3a332c 100%)", "#efe6d8"],
+                ].map(([m, bg, ink]) => (
+                  <div key={m} className="relative" style={{ background: bg }}>
+                    <span
+                      className="absolute bottom-1.5 left-1.5 text-[0.5rem] tracking-[0.14em]"
+                      style={{ color: `${ink}cc`, ...MONO }}
+                    >
+                      {m}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-2 text-[0.5rem] leading-relaxed tracking-[0.12em] text-[#efe6d8]/55" style={MONO}>
+                M01 PÁLENÁ HLINA · M02 MOSADZ · M03 ZELENÁ BRIDLICA · M04 DUB
+              </p>
+            </div>
+          ) : null}
+
           {!compact ? (
             <div className="mt-[5svh] max-w-[24rem]">
               {[
@@ -444,7 +496,7 @@ export function FormaWorld({ compact = false }: { compact?: boolean }) {
         </div>
 
         {/* material plates — the gallery's art (HEED signage labels) */}
-        <div className={`relative ${compact ? "w-[36%]" : "hidden w-[42%] md:block"}`}>
+        <div className={`relative ${compact ? "hidden" : "hidden w-[42%] md:block"}`}>
           <div className="absolute inset-x-6 top-2 bottom-[6svh] grid grid-cols-[1.6fr_1fr] grid-rows-[1.3fr_1fr_0.8fr] gap-3">
             <div
               className="relative row-span-2"
