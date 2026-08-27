@@ -48,7 +48,7 @@ export function ExperienceNav() {
 
   return (
     <header className="experience-nav fixed inset-x-0 top-0 z-40">
-      <div className="flex items-center justify-between px-[clamp(1.25rem,4vw,3.5rem)] py-5">
+      <div className="nav-shell flex items-center justify-between px-[clamp(1.25rem,4vw,3.5rem)] py-4 transition-colors duration-500">
         <a href="#hlavny-obsah" className="flex items-center gap-3" aria-label="Codera — domov">
           {/* biome-ignore lint/performance/noImgElement: static same-origin brand SVG; next/image adds nothing here. */}
           <img src="/brand/codera-mark-mono.svg" alt="" className="h-6 w-6" />

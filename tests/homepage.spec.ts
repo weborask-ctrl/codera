@@ -355,7 +355,7 @@ test.describe("Codera homepage", () => {
     await expect(page.locator(".pin-spacer")).toHaveCount(0)
 
     const acts: string[] = []
-    for (const f of [0, 0.16, 0.3, 0.44, 0.56, 0.68, 0.85, 1]) {
+    for (const f of [0, 0.16, 0.3, 0.44, 0.56, 0.68, 0.74, 0.8, 0.88, 1]) {
       await page.evaluate((frac) => {
         window.scrollTo({
           top: Math.round((document.body.scrollHeight - window.innerHeight) * frac),
@@ -395,15 +395,23 @@ test.describe("Codera homepage", () => {
     await page.goto("/")
     await waitForHydration(page)
     await page.locator("body").click({ position: { x: 5, y: 5 } })
+    /* fonts/entrances can still be settling layout right after hydration;
+       a late scrollHeight change would strand the first End press */
+    await page.waitForTimeout(750)
     await page.keyboard.press("End")
     await expect
       .poll(
-        () =>
-          page.evaluate(
+        async () => {
+          const done = await page.evaluate(
             () =>
               window.scrollY + window.innerHeight >=
               document.documentElement.scrollHeight - 4
-          ),
+          )
+          if (!done) {
+            await page.keyboard.press("End")
+          }
+          return done
+        },
         { timeout: 5_000 }
       )
       .toBe(true)

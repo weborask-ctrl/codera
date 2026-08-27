@@ -16,7 +16,7 @@
 
 import { useGLTF } from "@react-three/drei"
 import { Canvas, useFrame } from "@react-three/fiber"
-import { useEffect } from "react"
+import { useEffect, useMemo } from "react"
 import * as THREE from "three"
 import { ACT_TONES, type ActName, stage } from "./stage"
 
@@ -26,6 +26,7 @@ interface Pose {
   cam: [number, number, number]
   target: [number, number, number]
   ribbon: number // target ribbon opacity
+  molten: number // target molten-field intensity
 }
 
 /** Held camera poses per act; the pass act interpolates through the C. */
@@ -36,25 +37,84 @@ function desiredPose(): Pose {
   switch (act) {
     case "hero":
       /* board /01: the C sits right-of-centre, cropped by the frame edge */
-      return { cam: [0.5, 0.36, 1.95], target: [-0.36, 0.0, 0], ribbon: 1 }
+      return { cam: [0.5, 0.36, 1.95], target: [-0.36, 0.0, 0], ribbon: 1, molten: 1 }
     case "pass": {
-      /* push toward and through the C's opening; ribbon releases at the end */
+      /* dolly toward the C so it swallows the frame, then release it —
+         the camera never leaves the object's front (an empty frustum
+         reads as a dead wash, not a pass-through) */
       const t = passP
       return {
-        cam: [0.5 - 0.28 * t, 0.36 - 0.3 * t, 1.95 - 2.8 * t],
-        target: [-0.36 + 0.72 * t, 0.06 * t, -2.2 * t],
-        ribbon: t < 0.65 ? 1 : 1 - (t - 0.65) / 0.35,
+        cam: [0.5 - 0.34 * t, 0.36 - 0.3 * t, 1.95 - 1.35 * t],
+        target: [-0.36 + 0.5 * t, 0.05 * t, -1.3 * t],
+        ribbon: t < 0.85 ? 1 : 1 - (t - 0.85) / 0.15,
+        molten: 1 - t,
       }
     }
     case "resolution": {
-      /* frontal pose: the GLB's front IS the logo, by construction */
+      /* frontal pose, eye-line dropped so the C rides the upper half and
+         the closing type owns the lower third (logo-lockup composition) */
       const settle = 3.4 - 0.3 * resP
-      return { cam: [0, 0, settle], target: [0, 0, 0], ribbon: resP > 0.08 ? 1 : 0 }
+      return { cam: [0, -0.42, settle], target: [0, -0.42, 0], ribbon: resP > 0.08 ? 1 : 0, molten: 0.35 }
     }
     default:
-      return { cam: [0, 0, 3.4], target: [0, 0, 0], ribbon: 0 }
+      return { cam: [0, 0, 3.4], target: [0, 0, 0], ribbon: 0, molten: 0 }
   }
 }
+
+/* Molten-titanium field shader — the foundry glow behind the C
+   (monopo's liquid media gesture in the Codera metal palette). */
+const MOLTEN_VERT = /* glsl */ `
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`
+const MOLTEN_FRAG = /* glsl */ `
+  uniform float uTime;
+  uniform float uIntensity;
+  varying vec2 vUv;
+
+  float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+  float noise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    vec2 u = f * f * (3.0 - 2.0 * f);
+    return mix(
+      mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x),
+      mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x),
+      u.y
+    );
+  }
+  float fbm(vec2 p) {
+    float v = 0.0;
+    v += 0.55 * noise(p);
+    v += 0.28 * noise(p * 2.1 + 3.7);
+    v += 0.17 * noise(p * 4.3 - 1.9);
+    return v;
+  }
+
+  void main() {
+    vec2 p = vUv * vec2(2.4, 1.6);
+    float t = uTime * 0.045;
+    float flow = fbm(p + vec2(t, -t * 0.6) + fbm(p * 1.4 - t) * 0.9);
+
+    vec3 graphite = vec3(0.078, 0.082, 0.098);
+    vec3 oxblood  = vec3(0.29, 0.121, 0.086);
+    vec3 amber    = vec3(0.69, 0.404, 0.165);
+    vec3 champagne= vec3(0.91, 0.788, 0.604);
+
+    vec3 col = graphite;
+    col = mix(col, oxblood, smoothstep(0.32, 0.62, flow));
+    col = mix(col, amber, smoothstep(0.55, 0.8, flow) * 0.85);
+    col = mix(col, champagne, smoothstep(0.74, 0.95, flow) * 0.7);
+
+    /* vignette so the field melts into the scene tone at its edges */
+    float vig = smoothstep(0.0, 0.42, vUv.x) * smoothstep(1.0, 0.58, vUv.x)
+              * smoothstep(0.0, 0.35, vUv.y) * smoothstep(1.0, 0.6, vUv.y);
+    gl_FragColor = vec4(mix(graphite, col, vig), uIntensity);
+  }
+`
 
 /* ---- module-scope frame state (single world instance by design) ---- */
 
@@ -66,6 +126,7 @@ const toneTarget = new THREE.Color()
 let envTexture: THREE.Texture | null = null
 let envApplied = false
 let ribbonPrepared = false
+let moltenTime = 0
 
 function damp(current: number, target: number, lambda: number, dt: number) {
   return THREE.MathUtils.damp(current, target, lambda, dt)
@@ -79,6 +140,56 @@ function Ribbon() {
     <group name="codera-ribbon">
       <primitive object={gltfScene} />
     </group>
+  )
+}
+
+/** Mirrored clone below the floor line — OHZI's wet-floor gallery. */
+function RibbonReflection() {
+  const { scene: gltfScene } = useGLTF(RIBBON_URL)
+  const clone = useMemo(() => gltfScene.clone(true), [gltfScene])
+  return (
+    <group name="codera-ribbon-reflection" position={[0, -1.06, 0]} scale={[1, -1, 1]}>
+      <primitive object={clone} />
+    </group>
+  )
+}
+
+function MoltenField() {
+  return (
+    <mesh name="codera-molten" position={[-0.2, 0.1, -2.6]}>
+      <planeGeometry args={[10.5, 6.2]} />
+      <shaderMaterial
+        transparent
+        depthWrite={false}
+        vertexShader={MOLTEN_VERT}
+        fragmentShader={MOLTEN_FRAG}
+        uniforms={{ uTime: { value: 0 }, uIntensity: { value: 0 } }}
+      />
+    </mesh>
+  )
+}
+
+/** Soft contact glow where the C meets its floor. */
+function FloorGlow() {
+  return (
+    <mesh name="codera-floor-glow" rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.52, 0]}>
+      <planeGeometry args={[3.4, 1.6]} />
+      <shaderMaterial
+        transparent
+        depthWrite={false}
+        vertexShader={MOLTEN_VERT}
+        fragmentShader={/* glsl */ `
+          uniform float uIntensity;
+          varying vec2 vUv;
+          void main() {
+            float d = distance(vUv, vec2(0.5));
+            float a = smoothstep(0.5, 0.05, d) * 0.32 * uIntensity;
+            gl_FragColor = vec4(0.91, 0.79, 0.6, a);
+          }
+        `}
+        uniforms={{ uTime: { value: 0 }, uIntensity: { value: 0 } }}
+      />
+    </mesh>
   )
 }
 
@@ -179,12 +290,54 @@ function Rig() {
           if (!ribbonPrepared) {
             mat.transparent = true
             mat.envMapIntensity = 0.7
+            mat.color.setRGB(0.9, 0.86, 0.79) // warm titanium
           }
           mat.opacity = damp(mat.opacity, pose.ribbon, 10, dt)
           mesh.visible = mat.opacity > 0.02
         }
       })
       ribbonPrepared = true
+    }
+
+    /* floor reflection follows the ribbon at low opacity; its clone shares
+       materials with the gltf cache, so each mesh gets its own copy once
+       (userData marker survives world-mode remounts). */
+    const reflection = state.scene.getObjectByName("codera-ribbon-reflection")
+    if (reflection) {
+      reflection.traverse((obj) => {
+        const mesh = obj as THREE.Mesh
+        if (mesh.isMesh) {
+          if (!mesh.userData.reflectionMaterial) {
+            const own = (mesh.material as THREE.MeshStandardMaterial).clone()
+            own.transparent = true
+            own.opacity = 0
+            own.envMapIntensity = 0.35
+            own.color.setRGB(0.55, 0.53, 0.5)
+            mesh.material = own
+            mesh.userData.reflectionMaterial = true
+          }
+          const m = mesh.material as THREE.MeshStandardMaterial
+          m.opacity = damp(m.opacity, pose.ribbon * 0.15, 10, dt)
+          mesh.visible = m.opacity > 0.01
+        }
+      })
+    }
+
+    /* molten field + floor glow intensity */
+    moltenTime += dt
+    for (const name of ["codera-molten", "codera-floor-glow"]) {
+      const node = state.scene.getObjectByName(name) as THREE.Mesh | undefined
+      if (node) {
+        const mat = node.material as THREE.ShaderMaterial
+        mat.uniforms.uTime.value = moltenTime
+        mat.uniforms.uIntensity.value = damp(
+          mat.uniforms.uIntensity.value,
+          stage.reducedMotion ? pose.molten * 0.6 : pose.molten,
+          4,
+          dt
+        )
+        node.visible = mat.uniforms.uIntensity.value > 0.02
+      }
     }
   })
   return null
@@ -199,7 +352,10 @@ export function ExperienceWorld() {
         gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping }}
       >
         <Atmosphere />
+        <MoltenField />
         <Ribbon />
+        <RibbonReflection />
+        <FloorGlow />
         <Rig />
       </Canvas>
     </div>

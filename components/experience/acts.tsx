@@ -1,22 +1,21 @@
 "use client"
 
 /**
- * Step 5 experience — the DOM acts (/01–/05).
+ * Art Direction v2 — the DOM acts (/01–/05).
  *
- * Natural document flow over the fixed world canvas (world mode) or over
- * per-act solid grounds (flat mode: <lg viewports, no WebGL, or reduced
- * motion). Sticky regions do the desktop choreography — /02's fold is a
- * clip-path driven by its region's progress, /03 is a native sticky
- * stack; below lg the work act re-authors as a swipe deck and the fold
- * as a stacked before/after (Step 5 §2.6: different edit, same story).
- *
- * Text choreography: entrances settle once via IntersectionObserver;
- * copy never sits below full legibility during its hold (§2.3).
+ * Every act sits on a MATERIAL canvas (molten media, painted concrete,
+ * sage dawn, candlelit olive, warm paper band) — never on emptiness.
+ * Native scroll, zero pins; sticky regions choreograph /02 and /03.
+ * Reasoning and reference map: CODERA_ART_DIRECTION_V2.md.
  */
 
 import { useEffect, useRef } from "react"
 import { openEnquiry } from "./enquiry-bus"
-import { ACT_TONES, bindStage, stage } from "./stage"
+import { ActPremena } from "./premena"
+import { bindStage, stage } from "./stage"
+import { FormaWorld, KonstruktWorld, VitalisWorld } from "./worlds"
+
+const MONO = { fontFamily: "var(--font-geist-mono)" }
 
 /* ------------------------------------------------------------ binding --- */
 
@@ -39,8 +38,12 @@ function useStage(probe: boolean) {
       if (!root) {
         return
       }
-      const fold = Math.min(1, stage.p.premena / 0.7)
+      /* /02 wipe: completes at 62% of the region, then HOLDS readable */
+      const fold = Math.min(1, stage.p.premena / 0.62)
       root.style.setProperty("--fold", fold.toFixed(4))
+      if (fold >= 0.97 && !root.hasAttribute("data-wipe-done")) {
+        root.setAttribute("data-wipe-done", "")
+      }
       root.style.setProperty("--recede-a", Math.min(1, stage.p.vitalis * 2).toFixed(4))
       root.style.setProperty("--recede-b", Math.min(1, stage.p.forma * 2).toFixed(4))
 
@@ -70,7 +73,6 @@ function useStage(probe: boolean) {
       io.observe(el)
     }
 
-    /* /04 rows: the row nearest the viewport center is the active one */
     const rows = Array.from(document.querySelectorAll<HTMLElement>("[data-offer-row]"))
     const rowIo = new IntersectionObserver(
       (entries) => {
@@ -95,332 +97,73 @@ function useStage(probe: boolean) {
   return probeRef
 }
 
-/* ----------------------------------------------------------- surfaces --- */
-
-function BilancBefore() {
-  return (
-    <div className="flex h-full flex-col overflow-hidden bg-white text-[#333]">
-      <div className="w-full max-w-[26rem]">
-        <div className="flex items-center justify-between border-b border-[#e5e7eb] px-4 py-3">
-          <p className="text-[0.72rem] font-bold text-[#1f2937]">
-            BILANC <span className="font-normal text-[#6b7280]">účtovníctvo</span>
-          </p>
-          <div className="flex gap-3 text-[0.55rem] text-[#4b5563]">
-            <span>Služby</span>
-            <span>Cenník</span>
-            <span>O nás</span>
-            <span>Kontakt</span>
-          </div>
-        </div>
-        <div className="px-4 py-6 text-center">
-          <p className="mb-2 text-[0.92rem] font-bold text-[#111827]">
-            Účtovníctvo pre firmy a živnostníkov
-          </p>
-          <p className="mx-auto mb-4 max-w-[20rem] text-[0.58rem] leading-relaxed text-[#6b7280]">
-            Poskytujeme komplexné účtovné služby, mzdy a daňové priznania.
-            Spoľahlivo, presne a za férové ceny.
-          </p>
-          <span className="inline-block rounded-[6px] bg-[#3b82f6] px-4 py-2 text-[0.6rem] font-medium text-white">
-            Získať cenovú ponuku
-          </span>
-        </div>
-        <div className="grid grid-cols-3 gap-2 px-4 pb-5">
-          {["Podvojné účtovníctvo", "Mzdy a personalistika", "Daňové priznania"].map((s) => (
-            <div key={s} className="rounded-[6px] border border-[#e5e7eb] p-2 text-center">
-              <div className="mx-auto mb-1.5 h-4 w-4 rounded-full bg-[#dbeafe]" />
-              <p className="text-[0.5rem] leading-snug text-[#374151]">{s}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function BilancAfter() {
-  return (
-    <div className="flex h-full flex-col overflow-hidden bg-[#f5f3ee] text-[#1c1d21]">
-      <div className="flex items-center justify-between px-7 pt-6">
-        <span className="text-[0.9rem] font-semibold tracking-[0.26em]">BILANC</span>
-        <div className="hidden gap-5 text-[0.55rem] tracking-[0.2em] text-[#1c1d21]/55 md:flex">
-          <span>SLUŽBY</span>
-          <span>CENNÍK</span>
-          <span>KONTAKT</span>
-        </div>
-        <span className="rounded-full bg-[#1c1d21] px-3.5 py-1.5 text-[0.55rem] font-medium text-[#f5f3ee]">
-          Konzultácia
-        </span>
-      </div>
-      <div className="flex flex-1 flex-col justify-center px-7 md:pl-[42%]">
-        <p className="mb-3 text-[0.55rem] tracking-[0.3em] text-[#8a6a3a]">
-          ÚČTOVNÍCTVO · MZDY · DANE — OD ROKU 2009
-        </p>
-        <p
-          className="font-semibold"
-          style={{ fontSize: "clamp(1.4rem,2.6vw,2.6rem)", lineHeight: 1.02, letterSpacing: "-0.03em" }}
-        >
-          Čísla, na ktoré sa dá
-          <br />
-          postaviť rozhodnutie.
-        </p>
-        <p className="mt-3 max-w-[26em] text-[0.66rem] leading-relaxed text-[#1c1d21]/65">
-          Podvojné účtovníctvo, mzdy a daňové priznania pre malé a stredné
-          firmy — s termínmi, ktoré platia.
-        </p>
-        <div className="mt-5 flex items-center gap-4">
-          <span className="rounded-full bg-[#1c1d21] px-4 py-2 text-[0.6rem] font-medium text-[#f5f3ee]">
-            Nezáväzná konzultácia
-          </span>
-          <span className="text-[0.6rem] text-[#1c1d21]/60 underline underline-offset-4">Cenník</span>
-        </div>
-      </div>
-      <div className="border-t border-[#1c1d21]/12">
-        <div className="grid grid-cols-3 gap-px bg-[#1c1d21]/12 md:ml-[42%]">
-          {[
-            ["120+", "firiem v starostlivosti"],
-            ["17", "rokov praxe"],
-            ["48 h", "reakcia na dopyt"],
-          ].map(([n, l]) => (
-            <div key={l} className="bg-[#f5f3ee] px-4 py-3">
-              <p className="text-[0.95rem] font-semibold">{n}</p>
-              <p className="text-[0.5rem] tracking-[0.06em] text-[#1c1d21]/55">{l}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function StageKonstrukt() {
-  return (
-    <div className="flex h-full flex-col" style={{ color: "#1d1e20" }}>
-      <div className="flex items-center justify-between border-b border-black/10 px-5 py-4 md:px-7">
-        <span className="text-[1rem] font-semibold" style={{ fontStretch: "125%" }}>
-          KONŠTRUKT
-        </span>
-        <span className="border border-black/60 px-3.5 py-1.5 text-[0.58rem] tracking-[0.14em]">
-          DOPYT
-        </span>
-      </div>
-      <div className="flex flex-1">
-        <div className="flex flex-1 flex-col justify-center px-5 md:px-7">
-          <p className="mb-4 text-[0.58rem] tracking-[0.3em] text-[#a4520f]">
-            GENERÁLNY DODÁVATEĽ · PRIEMYSELNÉ STAVBY
-          </p>
-          <p
-            className="font-semibold uppercase"
-            style={{ fontSize: "clamp(1.7rem,4vw,4.2rem)", lineHeight: 0.92, fontStretch: "125%" }}
-          >
-            Postavené
-            <br />
-            presne.
-          </p>
-          <p className="mt-4 max-w-[24em] text-[0.68rem] leading-relaxed text-black/60">
-            Haly, výrobné objekty a rekonštrukcie — od projekcie po kolaudáciu,
-            s termínmi ako z výkresu.
-          </p>
-          <div className="mt-6">
-            <span className="inline-block bg-[#1d1e20] px-5 py-2.5 text-[0.62rem] tracking-[0.1em] text-[#e3e2dd]">
-              VYŽIADAŤ PONUKU
-            </span>
-          </div>
-        </div>
-        <div className="relative hidden w-[42%] border-l border-black/10 md:block">
-          <svg viewBox="0 0 400 460" className="absolute inset-0 h-full w-full" aria-hidden="true">
-            <g stroke="#1d1e20" strokeWidth="1.4" fill="none" opacity="0.75">
-              <path d="M60 320 L200 250 L340 320 L200 390 Z" />
-              <path d="M60 320 L60 210 L200 140 L340 210 L340 320" />
-              <path d="M200 250 L200 140" />
-              <path d="M60 210 L200 280 L340 210" />
-              <path d="M96 192 L96 302" strokeDasharray="4 5" />
-              <path d="M304 192 L304 302" strokeDasharray="4 5" />
-            </g>
-            <rect x="188" y="134" width="24" height="6" fill="#a4520f" />
-            <g fill="#1d1e20" opacity="0.55" fontSize="11" fontFamily="var(--font-geist-mono)">
-              <text x="60" y="425">HALA A — 4 200 m²</text>
-              <text x="60" y="443">OCEĽ / BETÓN C30/37</text>
-            </g>
-          </svg>
-        </div>
-      </div>
-      <div className="hidden grid-cols-3 gap-px border-t border-black/10 bg-black/10 text-[0.55rem] md:grid">
-        {[
-          ["01", "PRIEMYSEL — haly a výrobné objekty"],
-          ["02", "OBČIANSKE — administratíva a školstvo"],
-          ["03", "REKONŠTRUKCIE — zásahy do prevádzky"],
-        ].map(([n, l]) => (
-          <div key={n} className="flex items-baseline gap-2 bg-[#e3e2dd] px-5 py-3">
-            <span className="font-mono text-[#a4520f]">{n}</span>
-            <span className="tracking-[0.05em] text-black/60">{l}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function StageVitalis() {
-  return (
-    <div className="flex h-full flex-col" style={{ color: "#22312e" }}>
-      <div className="flex items-center justify-between px-5 py-4 md:px-7">
-        <span className="text-[0.95rem] font-semibold tracking-[0.3em]">VITALIS</span>
-        <span className="rounded-full bg-[#1d5f5a] px-4 py-1.5 text-[0.58rem] font-medium text-[#faf7f1]">
-          Objednať sa
-        </span>
-      </div>
-      <div className="flex flex-1 items-center gap-8 px-5 md:px-7">
-        <div className="max-w-[30em] flex-1">
-          <p className="mb-3 text-[0.58rem] tracking-[0.3em] text-[#1d5f5a]">
-            SÚKROMNÁ KLINIKA · BRATISLAVA
-          </p>
-          <p
-            className="font-semibold"
-            style={{ fontSize: "clamp(1.6rem,3.4vw,3.2rem)", lineHeight: 1.02, letterSpacing: "-0.028em" }}
-          >
-            Termín do 48 hodín.
-            <br />
-            Bez čakania v rade.
-          </p>
-          <p className="mt-4 max-w-[24em] text-[0.68rem] leading-relaxed text-[#22312e]/65">
-            Objednajte sa online, vyberte si čas a príďte presne na svoju
-            hodinu. Potvrdenie príde e-mailom aj SMS.
-          </p>
-          <div className="mt-6">
-            <span className="inline-block rounded-full bg-[#1d5f5a] px-5 py-2.5 text-[0.62rem] font-medium text-[#faf7f1]">
-              Objednať termín
-            </span>
-          </div>
-        </div>
-        <div className="hidden w-[36%] rounded-[10px] border border-[#22312e]/10 bg-white p-5 md:block">
-          <div className="mb-3 flex items-baseline justify-between">
-            <p className="text-[0.66rem] font-semibold">Utorok 24. 9.</p>
-            <p className="text-[0.52rem] text-[#22312e]/50">MUDr. Halásová</p>
-          </div>
-          <div className="grid grid-cols-4 gap-2">
-            {["8:30", "9:15", "11:00", "13:45"].map((t, i) => (
-              <span
-                key={t}
-                className={
-                  i === 1
-                    ? "rounded-[6px] bg-[#1d5f5a] px-2 py-2 text-center text-[0.56rem] font-medium text-white"
-                    : "rounded-[6px] border border-[#22312e]/15 px-2 py-2 text-center text-[0.56rem] text-[#22312e]/70"
-                }
-              >
-                {t}
-              </span>
-            ))}
-          </div>
-          <div className="mt-4 space-y-2 border-t border-[#22312e]/10 pt-3">
-            {[
-              ["Všeobecná ambulancia", "bez čakania na termín"],
-              ["Laboratórna diagnostika", "výsledky online do 24 h"],
-            ].map(([a, b]) => (
-              <div key={a} className="flex items-baseline justify-between">
-                <span className="text-[0.56rem] font-medium">{a}</span>
-                <span className="text-[0.5rem] text-[#22312e]/50">{b}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-      <div className="flex items-center gap-6 border-t border-[#22312e]/10 px-5 py-3 text-[0.54rem] text-[#22312e]/55 md:px-7">
-        <span>✓ zmluvné poisťovne</span>
-        <span>✓ parkovanie pre pacientov</span>
-        <span className="hidden md:inline">✓ výsledky v mobile</span>
-      </div>
-    </div>
-  )
-}
-
-function StageForma() {
-  return (
-    <div className="flex h-full flex-col" style={{ color: "#211d17" }}>
-      <div className="flex items-center justify-between px-5 py-4 md:px-7">
-        <span className="font-serif text-[1.05rem] italic">Forma</span>
-        <span className="text-[0.58rem] tracking-[0.12em] text-[#9c3b22] underline underline-offset-4">
-          Konzultácia
-        </span>
-      </div>
-      <div className="flex flex-1 px-5 pt-[4svh] md:px-7">
-        <div className="flex-1">
-          <p className="font-serif" style={{ fontSize: "clamp(1.8rem,4.2vw,4.2rem)", lineHeight: 1.0 }}>
-            Interiéry, ktoré
-            <br />
-            vydržia <em className="text-[#9c3b22]">dekádu.</em>
-          </p>
-          <p className="mt-4 max-w-[26em] text-[0.68rem] leading-relaxed text-[#211d17]/65">
-            Navrhujeme priestory pre ľudí, ktorí ich budú roky používať — nie
-            pre fotografiu do katalógu.
-          </p>
-          <p className="mt-6 text-[0.6rem] tracking-[0.14em] text-[#9c3b22]">AKO PRACUJEME →</p>
-        </div>
-        <div className="hidden w-[40%] flex-col gap-3 pl-8 md:flex">
-          <div className="mb-2 flex gap-2">
-            <div className="h-20 flex-1" style={{ background: "#9c3b22" }} />
-            <div className="h-20 w-14" style={{ background: "#3f4a3a" }} />
-            <div className="h-20 w-8" style={{ background: "#c9a35d" }} />
-          </div>
-          {[
-            ["01", "Byt na Palisádach", "2024"],
-            ["02", "Ordinácia Ružinov", "2024"],
-            ["03", "Penzión Terchová", "2023"],
-          ].map(([n, t, y]) => (
-            <div key={n} className="flex items-baseline justify-between border-t border-[#211d17]/15 pt-2">
-              <span className="flex items-baseline gap-3">
-                <span className="font-mono text-[0.55rem] text-[#9c3b22]">{n}</span>
-                <span className="text-[0.72rem]">{t}</span>
-              </span>
-              <span className="text-[0.55rem] text-[#211d17]/50">{y}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="flex items-baseline justify-between border-t border-[#211d17]/12 px-5 py-3 text-[0.55rem] text-[#211d17]/55 md:px-7">
-        <span className="tracking-[0.1em]">ATELIÉR BRATISLAVA</span>
-        <span className="hidden md:inline">Konzultácia v priestore zdarma</span>
-      </div>
-    </div>
-  )
-}
-
-const STAGES = [
-  { id: "konstrukt", meta: "01 / KONŠTRUKT — STAVEBNÍCTVO", tone: "#e3e2dd", ink: "#1d1e20", Stage: StageKonstrukt },
-  { id: "vitalis", meta: "02 / VITALIS — ZDRAVOTNÍCTVO", tone: "#faf7f1", ink: "#22312e", Stage: StageVitalis },
-  { id: "forma", meta: "03 / FORMA — INTERIÉROVÝ ATELIÉR", tone: "#f2ecdf", ink: "#211d17", Stage: StageForma },
-] as const
-
-/* ------------------------------------------------------------- acts ----- */
+/* ---------------------------------------------------------- /01 ENTRY --- */
 
 function ActHero({ world }: { world: boolean }) {
   return (
     <section
       data-zone="hero"
-      className="relative flex h-svh flex-col overflow-hidden text-[#f4f1ea]"
-      style={
-        world
-          ? undefined
-          : {
-              background:
-                "radial-gradient(120% 90% at 18% 8%, oklch(0.30 0.012 85) 0%, oklch(0.185 0.005 250) 34%, oklch(0.148 0.0035 250) 68%)",
-            }
-      }
+      className={`relative flex h-svh flex-col overflow-hidden text-[#f4f1ea] ${world ? "" : "molten-field"}`}
     >
+      {/* poster-scale wordmark living BEHIND the object (North Kingdom) */}
+      <p
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-[31svh] left-1/2 w-full -translate-x-1/2 text-center font-semibold whitespace-nowrap text-[#f4f1ea]/[0.07] select-none"
+        style={{ fontSize: "clamp(6rem,19vw,19rem)", lineHeight: 1, letterSpacing: "0.06em", fontStretch: "112%" }}
+      >
+        CODERA
+      </p>
+
       {!world ? (
-        // biome-ignore lint/performance/noImgElement: static same-origin brand SVG; next/image adds nothing here.
-        <img
-          src="/brand/codera-mark.svg"
-          alt=""
-          className="pointer-events-none absolute top-[16svh] right-[-14vmin] w-[64vmin] max-w-none opacity-95 lg:top-1/2 lg:right-[-10vmin] lg:w-[78vmin] lg:-translate-y-1/2"
-          style={{ filter: "drop-shadow(0 40px 80px rgba(0,0,0,0.55))" }}
-        />
+        <>
+          {/* flat mode: the C over the molten field with a floor glow */}
+          {/* biome-ignore lint/performance/noImgElement: static same-origin brand SVG; next/image adds nothing here. */}
+          <img
+            src="/brand/codera-mark.svg"
+            alt=""
+            fetchPriority="high"
+            className="pointer-events-none absolute top-[14svh] right-[-10vmin] w-[62vmin] max-w-none opacity-95 lg:top-[46%] lg:right-[-8vmin] lg:w-[74vmin] lg:-translate-y-1/2"
+            style={{ filter: "drop-shadow(0 46px 90px rgba(0,0,0,0.6))" }}
+          />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute top-[52svh] right-[-6vmin] h-[10vmin] w-[60vmin] rounded-[50%] opacity-50 lg:top-[78%] lg:right-[-4vmin]"
+            style={{ background: "radial-gradient(50% 50% at 50% 50%, rgba(232,201,154,0.5) 0%, transparent 70%)" }}
+          />
+        </>
       ) : null}
-      <div data-enter className="enter relative z-10 mt-auto mb-[9svh] px-[clamp(1.25rem,4vw,3.5rem)]">
-        <p className="mb-5 text-[0.72rem] tracking-[0.3em] text-white/55">KREATÍVNE WEBOVÉ ŠTÚDIO</p>
+
+      {/* rotating scroll badge (monopo) */}
+      <a
+        href="#premena"
+        aria-label="Posunúť na premenu"
+        className="absolute right-[clamp(1.25rem,4vw,3.5rem)] bottom-[7svh] hidden h-[92px] w-[92px] lg:block"
+      >
+        <svg viewBox="0 0 100 100" className="scroll-badge h-full w-full opacity-70" role="img" aria-label="Skrolujte">
+          <defs>
+            <path id="badge-circle" d="M50,50 m-38,0 a38,38 0 1,1 76,0 a38,38 0 1,1 -76,0" />
+          </defs>
+          <text fill="#f4f1ea" fontSize="10" letterSpacing="2.6" style={MONO}>
+            <textPath href="#badge-circle">SCROLL · POZRIEŤ PRÁCU ·</textPath>
+          </text>
+          <path d="M50 42 L50 58 M44 52 L50 58 L56 52" stroke="#f4f1ea" strokeWidth="1.6" fill="none" />
+        </svg>
+      </a>
+
+      <div data-enter className="enter relative z-10 mt-auto mb-[8svh] px-[clamp(1.25rem,4vw,3.5rem)]">
+        <p className="mb-5 text-[0.68rem] tracking-[0.32em] text-[#e8c99a]/85" style={MONO}>
+          KREATÍVNE WEBOVÉ ŠTÚDIO — BRATISLAVA
+        </p>
         <h1
           data-hero-line
-          className="max-w-[11em] font-semibold"
-          style={{ fontSize: "clamp(2.2rem,6.6vw,6.9rem)", lineHeight: 0.98, letterSpacing: "-0.035em" }}
+          className="max-w-[10.5em] font-semibold"
+          style={{
+            fontSize: "clamp(2.2rem,6.6vw,6.9rem)",
+            lineHeight: 0.96,
+            letterSpacing: "-0.035em",
+            /* the headline crosses the white C — a dark halo keeps it legible */
+            textShadow: "0 1px 2px rgba(12,12,16,0.5), 0 14px 44px rgba(12,12,16,0.55)",
+          }}
         >
           Vaša firma je lepšia,
           <br />
@@ -443,242 +186,229 @@ function ActHero({ world }: { world: boolean }) {
   )
 }
 
-function ActPremena({ world }: { world: boolean }) {
-  return (
-    <section
-      data-zone="premena"
-      data-zone-sticky
-      id="premena"
-      className="relative h-[180svh] max-lg:h-auto"
-      style={world ? undefined : { background: ACT_TONES.premena }}
-    >
-      <div className="flex flex-col text-[#16171b] lg:sticky lg:top-0 lg:h-svh max-lg:min-h-svh">
-        <header className="flex items-baseline justify-between px-[clamp(1.25rem,4vw,3.5rem)] pt-20 lg:pt-24">
-          <p className="text-[0.72rem] tracking-[0.3em] text-black/45">02 — PREMENA VNÍMANIA</p>
-          <p className="hidden text-[0.72rem] text-black/40 md:block">tá istá firma · ten istý obsah</p>
-        </header>
-        <div data-enter className="enter px-[clamp(1.25rem,4vw,3.5rem)] pt-[3svh] pb-[3svh]">
-          <h2
-            className="font-semibold"
-            style={{ fontSize: "clamp(1.8rem,4vw,3.8rem)", lineHeight: 0.98, letterSpacing: "-0.035em" }}
-          >
-            Rovnaká firma. Úplne iný dojem.
-          </h2>
-        </div>
+/* ----------------------------------------------------------- /03 WORK --- */
 
-        {/* lg+: one surface, before folded away by --fold. Below lg: a
-            stacked before-chip + after surface (touch edit, no scrub). */}
-        <div className="relative mx-[clamp(1.25rem,4vw,3.5rem)] mb-[6svh] flex flex-1 flex-col gap-3 lg:block">
-          <div className="relative h-[24svh] shrink-0 overflow-hidden rounded-[10px] border border-black/10 opacity-90 grayscale-[0.2] lg:hidden">
-            <BilancBefore />
-            <p className="absolute right-2 bottom-2 rounded-full bg-white/85 px-2 py-0.5 text-[0.5rem] tracking-[0.12em] text-[#555]">
-              PREDTÝM
-            </p>
-          </div>
-          <div className="relative min-h-[52svh] flex-1 overflow-hidden rounded-[10px] shadow-[0_30px_80px_rgba(20,20,25,0.18)] lg:absolute lg:inset-0 lg:min-h-0">
-            <div className="absolute inset-0">
-              <BilancAfter />
-            </div>
-            <div
-              className="absolute inset-0 hidden lg:block"
-              style={{
-                clipPath:
-                  "polygon(0 0, calc(34% * (1 - var(--fold, 0))) 0, calc(22% * (1 - var(--fold, 0))) 100%, 0 100%)",
-              }}
-            >
-              <BilancBefore />
-            </div>
-            <div
-              className="absolute inset-y-0 hidden w-full lg:block"
-              style={{
-                clipPath:
-                  "polygon(calc(34% * (1 - var(--fold, 0)) - 0.6%) 0, calc(34% * (1 - var(--fold, 0)) + 0.6%) 0, calc(22% * (1 - var(--fold, 0)) + 0.6%) 100%, calc(22% * (1 - var(--fold, 0)) - 0.6%) 100%)",
-                background: "linear-gradient(180deg,#e8e5de 0%,#b9b5ac 45%,#8f8b82 100%)",
-                opacity: "calc(1 - var(--fold, 0) * var(--fold, 0))",
-              }}
-            />
-            <p className="absolute bottom-3 left-4 hidden text-[0.55rem] tracking-[0.18em] text-[#1c1d21]/45 lg:block">
-              BILANC — fiktívny klient na ukážku premeny
-            </p>
-          </div>
-          <p className="text-[0.55rem] tracking-[0.14em] text-black/40 lg:hidden">
-            BILANC — fiktívny klient na ukážku premeny
-          </p>
-        </div>
-      </div>
-    </section>
-  )
-}
+const WORLDS = [
+  { id: "konstrukt", World: KonstruktWorld },
+  { id: "vitalis", World: VitalisWorld },
+  { id: "forma", World: FormaWorld },
+] as const
 
-function ActWork({ world }: { world: boolean }) {
+function ActWork() {
   return (
-    <section
-      data-zone="work"
-      data-zone-sticky
-      id="praca"
-      className="relative lg:h-[300svh]"
-      style={world ? undefined : { background: ACT_TONES.work }}
-    >
-      {/* lg+: native sticky stack */}
+    <section data-zone="work" data-zone-sticky id="praca" className="relative lg:h-[420svh]">
+      {/* lg+: full-bleed paint worlds covering each other. The spacers give
+          every world a HOLD — a stretch of travel where it owns the frame
+          alone — instead of being perpetually mid-slide. */}
       <div className="hidden lg:block">
-        {STAGES.map((s, i) => (
-          <div key={s.id} className="sticky top-0 h-svh" style={{ zIndex: i + 1 }}>
+        {WORLDS.map(({ id, World }, i) => (
+          <div key={id} className="contents">
+          <div className="sticky top-0 h-svh overflow-hidden" style={{ zIndex: i + 1 }}>
             <div
-              className="flex h-full flex-col px-[clamp(1.25rem,4vw,3.5rem)] pt-20 pb-[4svh]"
+              className="h-full"
               style={
                 i < 2
                   ? {
-                      transform: `translateY(calc(var(--recede-${i === 0 ? "a" : "b"}, 0) * -6svh)) scale(calc(1 - var(--recede-${i === 0 ? "a" : "b"}, 0) * 0.045))`,
-                      filter: `brightness(calc(1 - var(--recede-${i === 0 ? "a" : "b"}, 0) * 0.12))`,
+                      transform: `translateY(calc(var(--recede-${i === 0 ? "a" : "b"}, 0) * -5svh)) scale(calc(1 - var(--recede-${i === 0 ? "a" : "b"}, 0) * 0.03))`,
+                      filter: `brightness(calc(1 - var(--recede-${i === 0 ? "a" : "b"}, 0) * 0.18))`,
                     }
                   : undefined
               }
             >
-              <header className="flex items-baseline justify-between pb-3" style={{ color: s.ink }}>
-                <p className="text-[0.72rem] tracking-[0.3em] opacity-60">03 — VYBRANÁ PRÁCA · {s.meta}</p>
-                <p className="text-[0.62rem] tracking-[0.14em] opacity-50">UKÁŽKOVÝ KONCEPT</p>
-              </header>
-              <div
-                className="flex-1 overflow-hidden rounded-[10px] shadow-[0_24px_60px_rgba(25,25,28,0.14)]"
-                style={{ background: s.tone }}
-              >
-                <s.Stage />
-              </div>
+              <World />
             </div>
+          </div>
+          {/* the hold: 40svh of travel where the world above stays alone */}
+          <div aria-hidden="true" className="h-[40svh]" />
           </div>
         ))}
       </div>
 
-      {/* below lg: swipe deck — native horizontal snap, no trap */}
-      <div className="px-[clamp(1.25rem,4vw,2rem)] py-14 lg:hidden">
-        <header className="mb-4 flex items-baseline justify-between text-[#1d1e20]">
-          <p className="text-[0.7rem] tracking-[0.28em] opacity-60">03 — VYBRANÁ PRÁCA</p>
-          <p className="text-[0.6rem] tracking-[0.12em] opacity-50">POTIAHNITE ←</p>
-        </header>
-        <div
-          data-work-deck
-          className="scrollbar-none -mx-[clamp(1.25rem,4vw,2rem)] flex snap-x snap-proximity gap-4 overflow-x-auto px-[clamp(1.25rem,4vw,2rem)] pb-4"
-        >
-          {STAGES.map((s) => (
-            <article
-              key={s.id}
-              data-deck-card
-              className="w-[86vw] max-w-[30rem] shrink-0 snap-center"
-            >
-              <p className="mb-2 text-[0.6rem] tracking-[0.22em]" style={{ color: s.ink, opacity: 0.6 }}>
-                {s.meta} · UKÁŽKOVÝ KONCEPT
-              </p>
-              <div
-                className="h-[62svh] overflow-hidden rounded-[10px] shadow-[0_18px_44px_rgba(25,25,28,0.16)]"
-                style={{ background: s.tone }}
-              >
-                <s.Stage />
-              </div>
-            </article>
-          ))}
+      {/* below lg: full-width swipe deck of the same worlds */}
+      <div className="py-12 lg:hidden" style={{ background: "#1b1c1f" }}>
+        <div>
+          <header className="mb-4 flex items-baseline justify-between px-[clamp(1.1rem,4vw,2rem)] text-[#f4f1ea]">
+            <p className="text-[0.66rem] tracking-[0.28em]" style={MONO}>
+              03 — VYBRANÁ PRÁCA
+            </p>
+            <p className="text-[0.58rem] tracking-[0.12em] opacity-60" style={MONO}>
+              POTIAHNITE ←
+            </p>
+          </header>
+          <div
+            data-work-deck
+            className="scrollbar-none flex snap-x snap-proximity gap-4 overflow-x-auto px-[clamp(1.1rem,4vw,2rem)] pb-4"
+          >
+            {WORLDS.map(({ id, World }) => (
+              <article key={id} data-deck-card className="w-[88vw] max-w-[30rem] shrink-0 snap-center">
+                <div className="h-[68svh] overflow-hidden rounded-[10px] shadow-[0_20px_50px_rgba(0,0,0,0.45)]">
+                  <World compact />
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
+        {/* lg+ gets no extra strip — the worlds ARE the section; this dark
+            band exists only as the deck's stage below lg */}
+        <div className="hidden lg:block" aria-hidden="true" />
       </div>
     </section>
   )
 }
+
+/* ---------------------------------------------------------- /04 OFFER --- */
 
 function ActOffer({ world }: { world: boolean }) {
   return (
     <section
       data-zone="offer"
       id="sluzby"
-      className="relative flex min-h-svh flex-col text-[#1b1c20]"
-      style={world ? undefined : { background: ACT_TONES.offer }}
+      className="act-rule relative text-[#1b1c20]"
+      style={world ? undefined : { background: "#f0ebe0" }}
     >
-      <header className="flex items-baseline justify-between px-[clamp(1.25rem,4vw,3.5rem)] pt-16 lg:pt-24">
-        <p className="text-[0.72rem] tracking-[0.3em] text-black/45">04 — ČO PRE VÁS UROBÍME</p>
-        <p className="hidden text-[0.72rem] text-black/40 md:block">jedna stuha · tri disciplíny</p>
-      </header>
-      <div className="mx-[clamp(1.25rem,4vw,3.5rem)] mt-[4svh] mb-[6svh] flex flex-1 flex-col justify-center">
-        {[
-          ["01", "STRATÉGIA", "Najprv pochopíme vašu firmu, zákazníkov a to, čo má web reálne priniesť."],
-          ["02", "DIZAJN", "Z pochopenia vznikne vizuálny systém, ktorý firmu odlíši a pôsobí dôveryhodne."],
-          ["03", "VÝVOJ", "Rýchly, responzívny web pripravený na produkciu — bez kompromisov v detailoch."],
-        ].map(([n, t, d]) => (
-          <div
-            key={n}
-            data-enter
-            data-offer-row
-            className="enter offer-row grid grid-cols-[3rem_1fr] items-baseline gap-x-6 border-t border-black/12 py-[3.2svh] md:grid-cols-[4rem_minmax(12rem,22rem)_1fr]"
-          >
-            <span className="font-mono text-[0.7rem] text-black/40">{n}</span>
-            <span
-              className="offer-title font-semibold"
-              style={{ fontSize: "clamp(1.5rem,3vw,2.8rem)", letterSpacing: "-0.02em" }}
-            >
-              {t}
-            </span>
-            <p className="col-start-2 mt-2 max-w-[34em] text-[0.85rem] leading-relaxed text-black/70 md:col-start-3 md:mt-0">
-              {d}
+      <div className="flex flex-col gap-10 px-[clamp(1.25rem,4vw,3.5rem)] py-[9svh] lg:flex-row lg:gap-16">
+        {/* sticky act title (Navigate band structure) */}
+        <div className="lg:w-[34%]">
+          <div className="lg:sticky lg:top-28">
+            <p className="text-[0.66rem] tracking-[0.3em] text-black/45" style={MONO}>
+              04 — REMESLO
             </p>
+            <h2
+              className="mt-4 font-semibold"
+              style={{ fontSize: "clamp(1.9rem,3.4vw,3.4rem)", lineHeight: 0.98, letterSpacing: "-0.03em" }}
+            >
+              Čo pre vás
+              <br />
+              urobíme.
+            </h2>
+            <p className="mt-4 max-w-[22em] text-[0.85rem] leading-relaxed text-black/60">
+              Jedna stuha, tri disciplíny — od pochopenia firmy až po web
+              pripravený na produkciu.
+            </p>
+            {/* strand hairlines drawing toward the rows */}
+            <svg aria-hidden="true" viewBox="0 0 220 60" className="mt-6 hidden w-[220px] lg:block">
+              <path d="M0 8 H150 M0 30 H190 M0 52 H120" stroke="#1b1c20" strokeOpacity="0.35" strokeWidth="1.2" />
+              <circle cx="150" cy="8" r="2.4" fill="#a4520f" />
+              <circle cx="190" cy="30" r="2.4" fill="#1d5f5a" />
+              <circle cx="120" cy="52" r="2.4" fill="#9c3b22" />
+            </svg>
           </div>
-        ))}
-        <div className="flex flex-wrap items-baseline justify-between gap-2 border-t border-black/12 py-5">
-          <p className="text-[0.85rem] text-black/60">
-            Webové projekty od <span className="font-semibold text-black/85">699 €</span> — presnú cenu
-            poviete po konzultácii.
-          </p>
+        </div>
+
+        <div className="flex-1">
+          {[
+            ["01", "STRATÉGIA", "Najprv pochopíme vašu firmu, zákazníkov a to, čo má web reálne priniesť.", "audit · pozicionovanie · obsah"],
+            ["02", "DIZAJN", "Z pochopenia vznikne vizuálny systém, ktorý firmu odlíši a pôsobí dôveryhodne.", "art direction · UI · prototyp"],
+            ["03", "VÝVOJ", "Rýchly, responzívny web pripravený na produkciu — bez kompromisov v detailoch.", "Next.js · výkon · nasadenie"],
+          ].map(([n, t, d, tags]) => (
+            <div
+              key={n}
+              data-enter
+              data-offer-row
+              className="enter offer-row grid grid-cols-[3.4rem_1fr] items-baseline gap-x-6 border-t border-black/15 py-[3.4svh]"
+            >
+              <span
+                className="font-semibold text-black/20"
+                style={{ fontSize: "clamp(1.6rem,2.6vw,2.6rem)", fontStretch: "118%" }}
+              >
+                {n}
+              </span>
+              <div>
+                <span
+                  className="offer-title font-semibold"
+                  style={{ fontSize: "clamp(1.6rem,3vw,3rem)", letterSpacing: "-0.02em", fontStretch: "112%" }}
+                >
+                  {t}
+                </span>
+                <p className="mt-2 max-w-[32em] text-[0.85rem] leading-relaxed text-black/70">{d}</p>
+                <p className="mt-2 text-[0.56rem] tracking-[0.2em] text-black/40" style={MONO}>
+                  {tags.toUpperCase()}
+                </p>
+              </div>
+            </div>
+          ))}
+
+          {/* conversational close (The1's question + pill) */}
+          <div className="flex flex-wrap items-center justify-between gap-4 border-t border-black/15 pt-6">
+            <p className="text-[0.9rem] text-black/70">
+              Webové projekty od <span className="font-semibold text-black/90">699 €</span> — presnú
+              cenu poviete po konzultácii.
+            </p>
+            <span className="flex items-center gap-3 text-[0.8rem] text-black/70">
+              Koľko by stál ten váš?
+              <button
+                type="button"
+                onClick={() => openEnquiry()}
+                className="rounded-full bg-[#1b1c20] px-5 py-2.5 text-[0.75rem] font-medium text-[#f4f1ea]"
+              >
+                Zistiť cenu
+              </button>
+            </span>
+          </div>
         </div>
       </div>
     </section>
   )
 }
 
+/* ----------------------------------------------------- /05 RESOLUTION --- */
+
 function ActResolution({ world }: { world: boolean }) {
   return (
     <section
       data-zone="resolution"
       id="kontakt"
-      className="relative flex min-h-svh flex-col text-[#1b1c20]"
-      style={world ? undefined : { background: ACT_TONES.resolution }}
+      className={`relative flex min-h-svh flex-col overflow-hidden text-[#f4f1ea] ${world ? "" : "molten-field"}`}
     >
       {!world ? (
         // biome-ignore lint/performance/noImgElement: static same-origin brand SVG; next/image adds nothing here.
         <img
           src="/brand/codera-mark.svg"
           alt=""
-          className="pointer-events-none absolute top-1/2 left-1/2 w-[46vmin] -translate-x-1/2 -translate-y-[62%] opacity-25"
+          className="pointer-events-none absolute top-1/2 left-1/2 w-[44vmin] -translate-x-1/2 -translate-y-[64%] opacity-80"
+          style={{ filter: "drop-shadow(0 30px 70px rgba(0,0,0,0.5))" }}
         />
       ) : null}
+
       <div
         data-enter
-        className="enter relative z-10 flex flex-1 flex-col items-center justify-center px-[clamp(1.25rem,4vw,3.5rem)] pt-[26svh] pb-[8svh] text-center"
+        className="enter relative z-10 flex flex-1 flex-col items-center justify-end px-[clamp(1.25rem,4vw,3.5rem)] pt-[34svh] pb-[10svh] text-center lg:justify-center lg:pt-[46svh]"
       >
         <h2
           className="font-semibold"
-          style={{ fontSize: "clamp(1.9rem,4.6vw,4.6rem)", lineHeight: 1.0, letterSpacing: "-0.035em" }}
+          style={{
+            fontSize: "clamp(1.9rem,4.6vw,4.6rem)",
+            lineHeight: 0.98,
+            letterSpacing: "-0.035em",
+            /* the closing line crosses the bright C — same halo as the hero */
+            textShadow: "0 1px 2px rgba(12,12,16,0.5), 0 14px 44px rgba(12,12,16,0.55)",
+          }}
         >
           Váš ďalší web nemusí
           <br />
           vyzerať ako všetky ostatné.
         </h2>
-        <p className="mt-5 text-[0.95rem] text-black/55">Vytvorme taký, ktorý si ľudia zapamätajú.</p>
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-6" id="dopyt">
+        <p className="mt-5 text-[0.95rem] text-white/65">Vytvorme taký, ktorý si ľudia zapamätajú.</p>
+        <div className="mt-9 flex flex-wrap items-center justify-center gap-6" id="dopyt">
+          <span className="hidden text-[0.85rem] text-white/60 md:block">Máte projekt v hlave?</span>
           <button
             type="button"
             onClick={() => openEnquiry()}
-            className="rounded-full bg-[#1b1c20] px-7 py-3.5 text-[0.9rem] font-medium text-[#f4f1ea]"
+            className="rounded-full bg-[#f4f1ea] px-7 py-3.5 text-[0.9rem] font-medium text-[#16171b]"
           >
             Začať projekt
           </button>
-          <a
-            href="mailto:coderaslovakia@gmail.com"
-            className="text-[0.8rem] text-black/55 underline underline-offset-4"
-          >
+          <a href="mailto:coderaslovakia@gmail.com" className="text-[0.8rem] text-white/60 underline underline-offset-4">
             coderaslovakia@gmail.com
           </a>
         </div>
       </div>
-      <footer className="relative z-10 border-t border-black/12 px-[clamp(1.25rem,4vw,3.5rem)] py-5 text-[0.62rem] text-black/45">
+
+      <footer className="relative z-10 border-t border-white/15 px-[clamp(1.25rem,4vw,3.5rem)] py-5 text-[0.62rem] text-white/50">
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <span className="flex items-center gap-2">
             {/* biome-ignore lint/performance/noImgElement: static same-origin brand SVG; next/image adds nothing here. */}
-            <img src="/brand/codera-mark-mono.svg" alt="" className="h-3.5 w-3.5 opacity-60" />
+            <img src="/brand/codera-mark-mono.svg" alt="" className="h-3.5 w-3.5 opacity-70" />
             <span className="tracking-[0.26em]">CODERA</span>
           </span>
           <span>
@@ -712,8 +442,8 @@ export function ExperienceActs({ world, probe = false }: { world: boolean; probe
     >
       <ActHero world={world} />
       {world ? <div data-zone="pass" aria-hidden="true" className="h-[60svh]" /> : null}
-      <ActPremena world={world} />
-      <ActWork world={world} />
+      <ActPremena />
+      <ActWork />
       <ActOffer world={world} />
       <ActResolution world={world} />
       {probe ? (
