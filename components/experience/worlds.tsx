@@ -13,6 +13,34 @@
 const MONO = { fontFamily: "var(--font-geist-mono)" }
 const SERIF = { fontFamily: "var(--font-fraunces), Georgia, serif" }
 
+/** The1's building-scale numeral: a poster-cropped ghost index anchoring
+    each world's air. Desktop full-bleed worlds only. */
+function GhostNumeral({
+  n,
+  color,
+  className,
+}: {
+  n: string
+  color: string
+  className: string
+}) {
+  return (
+    <span
+      aria-hidden="true"
+      className={`pointer-events-none absolute font-semibold select-none ${className}`}
+      style={{
+        fontSize: "clamp(11rem,26vh,20rem)",
+        lineHeight: 0.78,
+        letterSpacing: "-0.04em",
+        fontStretch: "125%",
+        color,
+      }}
+    >
+      {n}
+    </span>
+  )
+}
+
 /* ------------------------------------------------------------ shared --- */
 
 function WorldMeta({
@@ -72,6 +100,10 @@ export function KonstruktWorld({ compact = false }: { compact?: boolean }) {
         }}
       />
 
+      {!compact ? (
+        <GhostNumeral n="01" color="rgba(25,26,28,0.05)" className="bottom-[-0.08em] left-[-0.03em]" />
+      ) : null}
+
       <WorldMeta index="01" name="KONŠTRUKT" sector="STAVEBNÍCTVO" ink="#191a1c" compact={compact} />
 
       {/* world chrome */}
@@ -113,6 +145,8 @@ export function KonstruktWorld({ compact = false }: { compact?: boolean }) {
               lineHeight: 0.82,
               letterSpacing: "-0.01em",
               fontStretch: "125%",
+              /* Lamanna: solid offset shadow, no blur — industrial poster ink */
+              textShadow: "0.045em 0.045em 0 rgba(164,82,15,0.55)",
             }}
           >
             Postavené
@@ -249,6 +283,10 @@ export function VitalisWorld({ compact = false }: { compact?: boolean }) {
           <circle key={r} cx="200" cy="200" r={r} fill="none" stroke="#1d5f5a" strokeOpacity="0.16" strokeWidth="1.2" />
         ))}
       </svg>
+
+      {!compact ? (
+        <GhostNumeral n="02" color="rgba(29,95,90,0.07)" className="top-[0.35em] left-[-0.03em]" />
+      ) : null}
 
       <WorldMeta index="02" name="VITALIS" sector="ZDRAVOTNÍCTVO" ink="#1c3833" compact={compact} />
 
@@ -406,6 +444,10 @@ export function FormaWorld({ compact = false }: { compact?: boolean }) {
         }}
       />
 
+      {!compact ? (
+        <GhostNumeral n="03" color="rgba(239,230,216,0.045)" className="bottom-[-0.08em] left-[-0.03em]" />
+      ) : null}
+
       <WorldMeta index="03" name="FORMA" sector="INTERIÉROVÝ ATELIÉR" ink="#efe6d8" compact={compact} />
 
       <div className="relative z-10 mx-[clamp(1.1rem,3.2vw,3rem)] flex items-center justify-between border-b border-[#efe6d8]/15 py-3">
@@ -473,20 +515,26 @@ export function FormaWorld({ compact = false }: { compact?: boolean }) {
           ) : null}
 
           {!compact ? (
+            /* Peggy: pill-masked swatch = "art object" framing on each entry */
             <div className="mt-[5svh] max-w-[24rem]">
               {[
-                ["01", "Byt na Palisádach", "2024"],
-                ["02", "Ordinácia Ružinov", "2024"],
-                ["03", "Penzión Terchová", "2023"],
-              ].map(([n, t, y]) => (
-                <div key={n} className="flex items-baseline justify-between border-t border-[#efe6d8]/15 py-2.5">
-                  <span className="flex items-baseline gap-3">
+                ["01", "Byt na Palisádach", "2024", "linear-gradient(120deg,#a8492b 0%,#6f2b18 100%)"],
+                ["02", "Ordinácia Ružinov", "2024", "linear-gradient(120deg,#c9a35d 0%,#a9843f 100%)"],
+                ["03", "Penzión Terchová", "2023", "linear-gradient(120deg,#41503f 0%,#2c382b 100%)"],
+              ].map(([n, t, y, swatch]) => (
+                <div key={n} className="flex items-center justify-between border-t border-[#efe6d8]/15 py-2.5">
+                  <span className="flex items-center gap-3">
                     <span className="text-[0.56rem] text-[#c96f4a]" style={MONO}>
                       {n}
                     </span>
+                    <span
+                      aria-hidden="true"
+                      className="inline-block h-[18px] w-[38px] rounded-full border border-[#efe6d8]/20"
+                      style={{ background: swatch }}
+                    />
                     <span className="text-[0.8rem]">{t}</span>
                   </span>
-                  <span className="text-[0.56rem] text-[#efe6d8]/45" style={MONO}>
+                  <span className="text-[0.56rem] text-[#efe6d8]/55" style={MONO}>
                     {y}
                   </span>
                 </div>

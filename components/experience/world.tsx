@@ -27,6 +27,8 @@ interface Pose {
   target: [number, number, number]
   ribbon: number // target ribbon opacity
   molten: number // target molten-field intensity
+  ember: number // target ember-particle presence (Auros atmosphere)
+  iridescence: number // heat-temper film on the C (OHZI: object owns the color)
 }
 
 /** Held camera poses per act; the pass act interpolates through the C. */
@@ -37,7 +39,14 @@ function desiredPose(): Pose {
   switch (act) {
     case "hero":
       /* board /01: the C sits right-of-centre, cropped by the frame edge */
-      return { cam: [0.5, 0.36, 1.95], target: [-0.36, 0.0, 0], ribbon: 1, molten: 1 }
+      return {
+        cam: [0.5, 0.36, 1.95],
+        target: [-0.36, 0.0, 0],
+        ribbon: 1,
+        molten: 1,
+        ember: 0.3,
+        iridescence: 0,
+      }
     case "pass": {
       /* dolly toward the C so it swallows the frame, then release it —
          the camera never leaves the object's front (an empty frustum
@@ -48,16 +57,28 @@ function desiredPose(): Pose {
         target: [-0.36 + 0.5 * t, 0.05 * t, -1.3 * t],
         ribbon: t < 0.85 ? 1 : 1 - (t - 0.85) / 0.15,
         molten: 1 - t,
+        /* the foundry breathes hardest mid-pass, then lets go */
+        ember: Math.max(0.25, 4 * t * (1 - t)),
+        iridescence: 0,
       }
     }
     case "resolution": {
       /* frontal pose, eye-line dropped so the C rides the upper half and
          the closing type owns the lower third (logo-lockup composition) */
       const settle = 3.4 - 0.3 * resP
-      return { cam: [0, -0.42, settle], target: [0, -0.42, 0], ribbon: resP > 0.08 ? 1 : 0, molten: 0.35 }
+      return {
+        cam: [0, -0.42, settle],
+        target: [0, -0.42, 0],
+        ribbon: resP > 0.08 ? 1 : 0,
+        molten: 0.35,
+        ember: 0.22,
+        /* the metal remembers the fire: thin-film temper colors bloom
+           as the C settles into its final frontal pose */
+        iridescence: 0.34 * resP,
+      }
     }
     default:
-      return { cam: [0, 0, 3.4], target: [0, 0, 0], ribbon: 0, molten: 0 }
+      return { cam: [0, 0, 3.4], target: [0, 0, 0], ribbon: 0, molten: 0, ember: 0, iridescence: 0 }
   }
 }
 
@@ -73,6 +94,7 @@ const MOLTEN_VERT = /* glsl */ `
 const MOLTEN_FRAG = /* glsl */ `
   uniform float uTime;
   uniform float uIntensity;
+  uniform vec2 uMouse;
   varying vec2 vUv;
 
   float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
@@ -97,7 +119,8 @@ const MOLTEN_FRAG = /* glsl */ `
   void main() {
     vec2 p = vUv * vec2(2.4, 1.6);
     float t = uTime * 0.045;
-    float flow = fbm(p + vec2(t, -t * 0.6) + fbm(p * 1.4 - t) * 0.9);
+    /* the pointer bends the flow — the liquid answers the hand (monopo) */
+    float flow = fbm(p + vec2(t, -t * 0.6) + uMouse * 0.45 + fbm(p * 1.4 - t + uMouse * 0.25) * 0.9);
 
     vec3 graphite = vec3(0.078, 0.082, 0.098);
     vec3 oxblood  = vec3(0.29, 0.121, 0.086);
@@ -108,6 +131,10 @@ const MOLTEN_FRAG = /* glsl */ `
     col = mix(col, oxblood, smoothstep(0.32, 0.62, flow));
     col = mix(col, amber, smoothstep(0.55, 0.8, flow) * 0.85);
     col = mix(col, champagne, smoothstep(0.74, 0.95, flow) * 0.7);
+
+    /* a soft warm bloom trails the pointer through the melt */
+    float md = distance(vUv, vec2(0.5) + uMouse * vec2(0.24, -0.18));
+    col += champagne * smoothstep(0.46, 0.0, md) * 0.09;
 
     /* vignette so the field melts into the scene tone at its edges */
     float vig = smoothstep(0.0, 0.42, vUv.x) * smoothstep(1.0, 0.58, vUv.x)
@@ -121,12 +148,18 @@ const MOLTEN_FRAG = /* glsl */ `
 const camPos = new THREE.Vector3(0.5, 0.36, 1.95)
 const camTarget = new THREE.Vector3(-0.36, 0, 0)
 const pointerLerp = new THREE.Vector2()
+const mouseLerp = new THREE.Vector2()
 const tone = new THREE.Color(ACT_TONES.hero)
 const toneTarget = new THREE.Color()
 let envTexture: THREE.Texture | null = null
 let envApplied = false
-let ribbonPrepared = false
 let moltenTime = 0
+
+/** Deterministic pseudo-random — keeps render pure (react-hooks v6). */
+function prand(n: number) {
+  const s = Math.sin(n * 12.9898 + 78.233) * 43758.5453
+  return s - Math.floor(s)
+}
 
 function damp(current: number, target: number, lambda: number, dt: number) {
   return THREE.MathUtils.damp(current, target, lambda, dt)
@@ -163,9 +196,47 @@ function MoltenField() {
         depthWrite={false}
         vertexShader={MOLTEN_VERT}
         fragmentShader={MOLTEN_FRAG}
-        uniforms={{ uTime: { value: 0 }, uIntensity: { value: 0 } }}
+        uniforms={{
+          uTime: { value: 0 },
+          uIntensity: { value: 0 },
+          uMouse: { value: new THREE.Vector2(0, 0) },
+        }}
       />
     </mesh>
+  )
+}
+
+/** Embers drifting off the molten field — Auros's particle atmosphere
+    in the foundry's palette. Positions mutate in Rig's frame loop. */
+const EMBER_COUNT = 130
+
+function Embers() {
+  const { positions, seeds } = useMemo(() => {
+    const pos = new Float32Array(EMBER_COUNT * 3)
+    const spd = new Float32Array(EMBER_COUNT)
+    for (let i = 0; i < EMBER_COUNT; i++) {
+      pos[i * 3] = (prand(i) - 0.5) * 5.4 - 0.2
+      pos[i * 3 + 1] = prand(i + 200) * 3.4 - 1.1
+      pos[i * 3 + 2] = -0.4 - prand(i + 400) * 1.8
+      spd[i] = 0.3 + prand(i + 600) * 0.85
+    }
+    return { positions: pos, seeds: spd }
+  }, [])
+  return (
+    <points name="codera-embers" userData={{ seeds }}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+      </bufferGeometry>
+      <pointsMaterial
+        size={0.028}
+        sizeAttenuation
+        transparent
+        opacity={0}
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+        color="#e8c39a"
+      />
+    </points>
   )
 }
 
@@ -264,6 +335,11 @@ function Rig() {
     pointerLerp.x = damp(pointerLerp.x, stage.pointerX * sway, 6, dt)
     pointerLerp.y = damp(pointerLerp.y, stage.pointerY * sway, 6, dt)
 
+    /* the molten field answers the pointer wherever it glows */
+    const mSway = stage.reducedMotion ? 0 : 1
+    mouseLerp.x = damp(mouseLerp.x, stage.pointerX * mSway, 4, dt)
+    mouseLerp.y = damp(mouseLerp.y, stage.pointerY * mSway, 4, dt)
+
     state.camera.position.set(
       camPos.x + pointerLerp.x * 0.07,
       camPos.y - pointerLerp.y * 0.05,
@@ -280,23 +356,41 @@ function Rig() {
       state.scene.background.copy(tone)
     }
 
-    /* ribbon material prep (once) + visibility */
+    /* ribbon material prep (once, per-mesh marker) + visibility. The GLB's
+       standard material is upgraded to MeshPhysicalMaterial so the C can
+       carry a thin-film heat-temper (iridescence) at the resolution —
+       OHZI's law: the object owns all the color. */
     const ribbon = state.scene.getObjectByName("codera-ribbon")
     if (ribbon) {
       ribbon.traverse((obj) => {
         const mesh = obj as THREE.Mesh
         if (mesh.isMesh) {
-          const mat = mesh.material as THREE.MeshStandardMaterial
-          if (!ribbonPrepared) {
-            mat.transparent = true
-            mat.envMapIntensity = 0.7
-            mat.color.setRGB(0.9, 0.86, 0.79) // warm titanium
+          if (!mesh.userData.temperMaterial) {
+            /* the GLB's satin-titanium is untextured PBR — rebuild it as
+               physical explicitly (a prototype copy() would wipe the
+               PHYSICAL define and wedge the shader compile) */
+            const source = mesh.material as THREE.MeshStandardMaterial
+            const phys = new THREE.MeshPhysicalMaterial({
+              color: new THREE.Color(0.9, 0.86, 0.79), // warm titanium
+              metalness: source.metalness,
+              roughness: source.roughness,
+              side: source.side,
+              transparent: true,
+              opacity: source.opacity,
+            })
+            phys.envMapIntensity = 0.7
+            phys.iridescence = 0
+            phys.iridescenceIOR = 1.28
+            phys.iridescenceThicknessRange = [120, 460]
+            mesh.material = phys
+            mesh.userData.temperMaterial = true
           }
+          const mat = mesh.material as THREE.MeshPhysicalMaterial
           mat.opacity = damp(mat.opacity, pose.ribbon, 10, dt)
+          mat.iridescence = damp(mat.iridescence, pose.iridescence, 5, dt)
           mesh.visible = mat.opacity > 0.02
         }
       })
-      ribbonPrepared = true
     }
 
     /* floor reflection follows the ribbon at low opacity; its clone shares
@@ -330,6 +424,9 @@ function Rig() {
       if (node) {
         const mat = node.material as THREE.ShaderMaterial
         mat.uniforms.uTime.value = moltenTime
+        if (mat.uniforms.uMouse) {
+          ;(mat.uniforms.uMouse.value as THREE.Vector2).copy(mouseLerp)
+        }
         mat.uniforms.uIntensity.value = damp(
           mat.uniforms.uIntensity.value,
           stage.reducedMotion ? pose.molten * 0.6 : pose.molten,
@@ -337,6 +434,28 @@ function Rig() {
           dt
         )
         node.visible = mat.uniforms.uIntensity.value > 0.02
+      }
+    }
+
+    /* embers rise off the melt; still air under reduced motion */
+    const embers = state.scene.getObjectByName("codera-embers") as THREE.Points | undefined
+    if (embers) {
+      const mat = embers.material as THREE.PointsMaterial
+      mat.opacity = damp(mat.opacity, stage.reducedMotion ? 0 : pose.ember * 0.55, 4, dt)
+      embers.visible = mat.opacity > 0.01
+      if (embers.visible) {
+        const attr = embers.geometry.getAttribute("position") as THREE.BufferAttribute
+        const seeds = embers.userData.seeds as Float32Array
+        for (let i = 0; i < attr.count; i++) {
+          let y = attr.getY(i) + dt * seeds[i] * 0.5
+          const x = attr.getX(i) + Math.sin(moltenTime * seeds[i] + i * 1.7) * dt * 0.05
+          if (y > 2.4) {
+            y = -1.15
+          }
+          attr.setY(i, y)
+          attr.setX(i, x)
+        }
+        attr.needsUpdate = true
       }
     }
   })
@@ -353,6 +472,7 @@ export function ExperienceWorld() {
       >
         <Atmosphere />
         <MoltenField />
+        <Embers />
         <Ribbon />
         <RibbonReflection />
         <FloorGlow />

@@ -101,6 +101,25 @@ export function BilancAfter() {
             "radial-gradient(75% 60% at 70% 30%, rgba(214,192,142,0.55) 0%, transparent 62%), radial-gradient(60% 70% at 85% 75%, rgba(30,61,47,0.16) 0%, transparent 60%), linear-gradient(115deg, transparent 0%, rgba(255,252,244,0.65) 55%)",
         }}
       />
+      {/* window-frame shadows raking across the room — the light has a
+          SOURCE now (Superhuman's photographic golden hour, drawn) */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(104deg, transparent 0%, transparent 55%, rgba(32,49,42,0.055) 55.5%, rgba(32,49,42,0.055) 60%, transparent 60.5%, transparent 68%, rgba(32,49,42,0.05) 68.5%, rgba(32,49,42,0.05) 74%, transparent 74.5%, transparent 84%, rgba(32,49,42,0.045) 84.5%, rgba(32,49,42,0.045) 91%, transparent 91.5%)",
+        }}
+      />
+      {/* paper grain — kills the 'flat vector' feel */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 opacity-[0.05] mix-blend-multiply"
+        style={{
+          backgroundImage:
+            "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E\")",
+        }}
+      />
 
       <div className="relative z-10 flex items-center justify-between px-[clamp(1rem,3vw,2.6rem)] pt-6">
         <span className="text-[1rem] font-semibold tracking-[0.3em]">BILANC</span>
@@ -226,6 +245,15 @@ export function ActPremena() {
           </p>
         </div>
 
+        {/* exhibition rail (ORYZO) */}
+        <p
+          aria-hidden="true"
+          className="pointer-events-none absolute top-1/2 right-4 z-30 hidden -translate-y-1/2 text-[0.54rem] tracking-[0.34em] mix-blend-difference lg:block"
+          style={{ writingMode: "vertical-rl", color: "rgba(244,241,234,0.4)", ...MONO }}
+        >
+          /02 — PREMENA
+        </p>
+
         {/* the statement enters once the wipe has completed */}
         <div className="wipe-statement pointer-events-none absolute bottom-[6svh] left-[clamp(1.25rem,4vw,3.5rem)] z-30">
           <p
@@ -236,7 +264,7 @@ export function ActPremena() {
             <br />
             Úplne iný dojem.
           </p>
-          <p className="mt-2 text-[0.6rem] tracking-[0.18em] text-[#20312a]/55" style={MONO}>
+          <p className="mt-2 text-[0.6rem] tracking-[0.18em] text-[#20312a]/70" style={MONO}>
             BILANC — FIKTÍVNY KLIENT NA UKÁŽKU PREMENY
           </p>
         </div>

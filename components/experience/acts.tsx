@@ -17,7 +17,95 @@ import { FormaWorld, KonstruktWorld, VitalisWorld } from "./worlds"
 
 const MONO = { fontFamily: "var(--font-geist-mono)" }
 
+/* Exhibition rail: ORYZO's vertical edge label — quiet act signage
+   running down the right edge on desktop. */
+function EdgeLabel({ text }: { text: string }) {
+  return (
+    <p
+      aria-hidden="true"
+      className="pointer-events-none absolute top-1/2 right-4 z-20 hidden -translate-y-1/2 text-[0.54rem] tracking-[0.34em] mix-blend-difference lg:block"
+      style={{ writingMode: "vertical-rl", color: "rgba(244,241,234,0.4)", ...MONO }}
+    >
+      {text}
+    </p>
+  )
+}
+
+/* Hyperstudio's dot-matrix map, localized: Slovakia raster-scanned into
+   dots, one compass-gold point on Bratislava. Deterministic, computed
+   once at module scope. */
+const SK_POLY: [number, number][] = [
+  [16.85, 48.38], [16.94, 48.62], [17.19, 48.87], [17.72, 48.86], [18.06, 49.05],
+  [18.39, 49.4], [18.85, 49.52], [19.45, 49.6], [19.8, 49.41], [20.3, 49.4],
+  [20.9, 49.3], [21.6, 49.45], [22.1, 49.3], [22.56, 49.08], [22.53, 48.85],
+  [22.15, 48.4], [21.7, 48.35], [21.1, 48.5], [20.5, 48.55], [20.1, 48.25],
+  [19.6, 48.23], [18.85, 48.05], [18.75, 47.87], [18.3, 47.76], [17.7, 47.76],
+  [17.25, 47.9], [17.1, 48.03], [16.98, 48.17],
+]
+
+function skInside(x: number, y: number) {
+  let c = false
+  for (let i = 0, j = SK_POLY.length - 1; i < SK_POLY.length; j = i++) {
+    const [xi, yi] = SK_POLY[i]
+    const [xj, yj] = SK_POLY[j]
+    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) {
+      c = !c
+    }
+  }
+  return c
+}
+
+const SK_DOTS: [number, number][] = (() => {
+  const dots: [number, number][] = []
+  for (let r = 0; r < 16; r++) {
+    for (let cIdx = 0; cIdx < 46; cIdx++) {
+      const lon = 16.8 + ((cIdx + 0.5) / 46) * 5.8
+      const lat = 49.65 - ((r + 0.5) / 16) * 1.95
+      if (skInside(lon, lat)) {
+        dots.push([
+          Math.round(((lon - 16.8) / 5.8) * 3200) / 10,
+          Math.round(((49.65 - lat) / 1.95) * 1100) / 10,
+        ])
+      }
+    }
+  }
+  return dots
+})()
+
+function SlovakiaDotMap() {
+  return (
+    <div data-enter className="enter relative z-10 mx-auto mb-8 w-[min(300px,72vw)]">
+      <svg viewBox="0 0 320 110" aria-hidden="true" className="w-full">
+        <g fill="#f4f1ea" opacity="0.14">
+          {SK_DOTS.map(([x, y]) => (
+            <circle key={`${x}-${y}`} cx={x} cy={y} r="1.6" />
+          ))}
+        </g>
+        {/* Bratislava */}
+        <circle cx="17.1" cy="84.6" r="2.8" fill="#e8c99a" />
+        <circle cx="17.1" cy="84.6" r="6" fill="none" stroke="#e8c99a" strokeOpacity="0.4" strokeWidth="1" />
+      </svg>
+      <p className="mt-3 text-center whitespace-nowrap text-[0.52rem] tracking-[0.18em] text-white/45" style={MONO}>
+        BRATISLAVA · 48.14° N / 17.10° E
+      </p>
+    </div>
+  )
+}
+
 /* ------------------------------------------------------------ binding --- */
+
+/* Laxenaire's scroll pill, retold as act signage in the nav. */
+const ACT_NO: Record<string, string> = {
+  hero: "01",
+  pass: "01",
+  premena: "02",
+  work: "03",
+  konstrukt: "03",
+  vitalis: "03",
+  forma: "03",
+  offer: "04",
+  resolution: "05",
+}
 
 function useStage(probe: boolean) {
   const probeRef = useRef<HTMLDivElement>(null)
@@ -25,6 +113,7 @@ function useStage(probe: boolean) {
     const unbind = bindStage()
     const root = document.querySelector<HTMLElement>("main[data-experience=v3]")
     root?.setAttribute("data-hydrated", "")
+    const actPill = document.querySelector<HTMLElement>("[data-act-pill]")
     let frame = 0
     let lastScrollTs = 0
     let worst = 0
@@ -46,6 +135,13 @@ function useStage(probe: boolean) {
       }
       root.style.setProperty("--recede-a", Math.min(1, stage.p.vitalis * 2).toFixed(4))
       root.style.setProperty("--recede-b", Math.min(1, stage.p.forma * 2).toFixed(4))
+
+      if (actPill) {
+        const label = `${ACT_NO[stage.act] ?? "01"} / 05`
+        if (actPill.textContent !== label) {
+          actPill.textContent = label
+        }
+      }
 
       if (probe && probeRef.current) {
         const now = performance.now()
@@ -132,6 +228,8 @@ function ActHero({ world }: { world: boolean }) {
           />
         </>
       ) : null}
+
+      <EdgeLabel text="/01 — ODLIATOK" />
 
       {/* rotating scroll badge (monopo) */}
       <a
@@ -265,11 +363,12 @@ function ActOffer({ world }: { world: boolean }) {
       className="act-rule relative text-[#1b1c20]"
       style={world ? undefined : { background: "#f0ebe0" }}
     >
+      <EdgeLabel text="/04 — REMESLO" />
       <div className="flex flex-col gap-10 px-[clamp(1.25rem,4vw,3.5rem)] py-[9svh] lg:flex-row lg:gap-16">
         {/* sticky act title (Navigate band structure) */}
         <div className="lg:w-[34%]">
           <div className="lg:sticky lg:top-28">
-            <p className="text-[0.66rem] tracking-[0.3em] text-black/45" style={MONO}>
+            <p className="text-[0.66rem] tracking-[0.3em] text-black/55" style={MONO}>
               04 — REMESLO
             </p>
             <h2
@@ -320,7 +419,7 @@ function ActOffer({ world }: { world: boolean }) {
                   {t}
                 </span>
                 <p className="mt-2 max-w-[32em] text-[0.85rem] leading-relaxed text-black/70">{d}</p>
-                <p className="mt-2 text-[0.56rem] tracking-[0.2em] text-black/40" style={MONO}>
+                <p className="mt-2 text-[0.56rem] tracking-[0.2em] text-black/55" style={MONO}>
                   {tags.toUpperCase()}
                 </p>
               </div>
@@ -402,7 +501,10 @@ function ActResolution({ world }: { world: boolean }) {
         </div>
       </div>
 
-      <footer className="relative z-10 border-t border-white/15 px-[clamp(1.25rem,4vw,3.5rem)] py-5 text-[0.62rem] text-white/50">
+      <EdgeLabel text="/05 — LIATIE" />
+      <SlovakiaDotMap />
+
+      <footer className="relative z-10 border-t border-white/15 px-[clamp(1.25rem,4vw,3.5rem)] py-5 text-[0.62rem] text-white/65">
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <span className="flex items-center gap-2">
             {/* biome-ignore lint/performance/noImgElement: static same-origin brand SVG; next/image adds nothing here. */}

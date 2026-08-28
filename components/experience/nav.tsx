@@ -68,6 +68,16 @@ export function ExperienceNav() {
         </nav>
 
         <div className="flex items-center gap-3">
+          {/* act signage pill (Laxenaire's scroll indicator) — text is
+              driven by the stage writer via [data-act-pill] */}
+          <span
+            data-act-pill
+            aria-hidden="true"
+            className="hidden rounded-full border border-current/25 px-3 py-1.5 text-[0.6rem] tracking-[0.22em] opacity-70 lg:block"
+            style={{ fontFamily: "var(--font-geist-mono)" }}
+          >
+            01 / 05
+          </span>
           <button
             type="button"
             onClick={() => openEnquiry()}
