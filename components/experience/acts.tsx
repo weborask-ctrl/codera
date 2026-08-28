@@ -81,12 +81,12 @@ function SlovakiaDotMap() {
             <circle key={`${x}-${y}`} cx={x} cy={y} r="1.6" />
           ))}
         </g>
-        {/* Bratislava */}
-        <circle cx="17.1" cy="84.6" r="2.8" fill="#e8c99a" />
-        <circle cx="17.1" cy="84.6" r="6" fill="none" stroke="#e8c99a" strokeOpacity="0.4" strokeWidth="1" />
+        {/* Prešov — the studio's home */}
+        <circle cx="244.6" cy="36.8" r="2.8" fill="#e8c99a" />
+        <circle cx="244.6" cy="36.8" r="6" fill="none" stroke="#e8c99a" strokeOpacity="0.4" strokeWidth="1" />
       </svg>
       <p className="mt-3 text-center whitespace-nowrap text-[0.52rem] tracking-[0.18em] text-white/45" style={MONO}>
-        BRATISLAVA · 48.14° N / 17.10° E
+        PREŠOV · 49.00° N / 21.23° E
       </p>
     </div>
   )
@@ -250,7 +250,7 @@ function ActHero({ world }: { world: boolean }) {
 
       <div data-enter className="enter relative z-10 mt-auto mb-[8svh] px-[clamp(1.25rem,4vw,3.5rem)]">
         <p className="mb-5 text-[0.6rem] tracking-[0.2em] text-[#e8c99a]/85 lg:text-[0.68rem] lg:tracking-[0.32em]" style={MONO}>
-          KREATÍVNE WEBOVÉ ŠTÚDIO — BRATISLAVA
+          KREATÍVNE WEBOVÉ ŠTÚDIO — PREŠOV
         </p>
         <h1
           data-hero-line
@@ -355,6 +355,92 @@ function ActWork() {
 
 /* ---------------------------------------------------------- /04 OFFER --- */
 
+/** Work artifacts for the craft rows — each discipline shows a small
+    specimen of its output instead of resting on type alone (The1's
+    "show the material", Mercury's quiet plates). */
+function OfferArtifact({ kind }: { kind: "strategia" | "dizajn" | "vyvoj" }) {
+  if (kind === "strategia") {
+    return (
+      <div className="w-[176px] border border-black/20 bg-white/45 p-3">
+        <svg viewBox="0 0 148 54" className="w-full" aria-hidden="true">
+          {Array.from({ length: 4 }, (_, r) =>
+            Array.from({ length: 12 }, (_, c) => {
+              const gold = (r === 1 && c === 2) || (r === 2 && c === 6) || (r === 0 && c === 9)
+              return (
+                <circle
+                  key={`${r}-${c}`}
+                  cx={6 + c * 12.4}
+                  cy={8 + r * 13}
+                  r={gold ? 2.6 : 1.4}
+                  fill={gold ? "#a4520f" : "rgba(25,26,28,0.25)"}
+                />
+              )
+            })
+          )}
+          <path
+            d="M30.8 21 L80.4 34 L117.6 8"
+            fill="none"
+            stroke="#a4520f"
+            strokeWidth="1"
+            strokeOpacity="0.45"
+          />
+        </svg>
+        <p className="mt-2 text-[0.45rem] tracking-[0.18em] text-black/55" style={MONO}>
+          Z AUDITU — MAPA PRIORÍT
+        </p>
+      </div>
+    )
+  }
+  if (kind === "dizajn") {
+    return (
+      <div className="w-[176px] border border-black/20 bg-white/45 p-3">
+        <div className="flex h-[54px] items-stretch gap-1.5">
+          <div
+            className="flex flex-1 items-center justify-center border border-black/20 text-[0.95rem] font-semibold"
+            style={{ background: "#d8d7d2", color: "#191a1c", fontStretch: "125%" }}
+          >
+            Aa
+          </div>
+          <div
+            className="flex flex-1 items-center justify-center text-[0.95rem] font-semibold"
+            style={{ background: "#e7efe9", color: "#1d5f5a" }}
+          >
+            Aa
+          </div>
+          <div
+            className="flex flex-1 items-center justify-center text-[1rem] italic"
+            style={{ background: "#201a15", color: "#efe6d8", fontFamily: "var(--font-fraunces), Georgia, serif" }}
+          >
+            Aa
+          </div>
+        </div>
+        <p className="mt-2 text-[0.45rem] tracking-[0.18em] text-black/55" style={MONO}>
+          TRI SVETY · VLASTNÁ RÉŽIA
+        </p>
+      </div>
+    )
+  }
+  return (
+    <div className="w-[176px] border border-black/20 bg-[#1b1c20] p-3">
+      <div className="space-y-1.5 text-[0.6rem] text-[#e8c99a]" style={MONO}>
+        {[
+          ["LCP", "1,9 s"],
+          ["CLS", "0,00"],
+          ["SNÍMKA", "16,7 ms"],
+        ].map(([k, v]) => (
+          <div key={k} className="flex items-baseline justify-between">
+            <span className="text-white/45">{k}</span>
+            <span>{v}</span>
+          </div>
+        ))}
+      </div>
+      <p className="mt-2 text-[0.45rem] tracking-[0.18em] text-white/40" style={MONO}>
+        MERANÉ NA TOMTO WEBE
+      </p>
+    </div>
+  )
+}
+
 function ActOffer({ world }: { world: boolean }) {
   return (
     <section
@@ -394,16 +480,18 @@ function ActOffer({ world }: { world: boolean }) {
         </div>
 
         <div className="flex-1">
-          {[
-            ["01", "STRATÉGIA", "Najprv pochopíme vašu firmu, zákazníkov a to, čo má web reálne priniesť.", "audit · pozicionovanie · obsah"],
-            ["02", "DIZAJN", "Z pochopenia vznikne vizuálny systém, ktorý firmu odlíši a pôsobí dôveryhodne.", "art direction · UI · prototyp"],
-            ["03", "VÝVOJ", "Rýchly, responzívny web pripravený na produkciu — bez kompromisov v detailoch.", "Next.js · výkon · nasadenie"],
-          ].map(([n, t, d, tags]) => (
+          {(
+            [
+              ["01", "STRATÉGIA", "Najprv pochopíme vašu firmu, zákazníkov a to, čo má web reálne priniesť.", "audit · pozicionovanie · obsah", "strategia"],
+              ["02", "DIZAJN", "Z pochopenia vznikne vizuálny systém, ktorý firmu odlíši a pôsobí dôveryhodne.", "art direction · UI · prototyp", "dizajn"],
+              ["03", "VÝVOJ", "Rýchly, responzívny web pripravený na produkciu — bez kompromisov v detailoch.", "Next.js · výkon · nasadenie", "vyvoj"],
+            ] as const
+          ).map(([n, t, d, tags, kind]) => (
             <div
               key={n}
               data-enter
               data-offer-row
-              className="enter offer-row grid grid-cols-[3.4rem_1fr] items-baseline gap-x-6 border-t border-black/15 py-[3.4svh]"
+              className="enter offer-row grid grid-cols-[3.4rem_1fr] items-baseline gap-x-6 border-t border-black/15 px-2 py-[3.4svh] lg:grid-cols-[3.4rem_1fr_auto] lg:items-center"
             >
               <span
                 className="font-semibold text-black/20"
@@ -422,6 +510,9 @@ function ActOffer({ world }: { world: boolean }) {
                 <p className="mt-2 text-[0.56rem] tracking-[0.2em] text-black/55" style={MONO}>
                   {tags.toUpperCase()}
                 </p>
+              </div>
+              <div className="hidden lg:block">
+                <OfferArtifact kind={kind} />
               </div>
             </div>
           ))}

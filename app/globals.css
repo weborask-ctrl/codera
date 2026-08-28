@@ -637,6 +637,12 @@ main[data-experience="v3"] .enter[data-entered] {
 main[data-experience="v3"] .offer-row {
   opacity: 1;
 }
+main[data-experience="v3"] .offer-row {
+  transition: background-color 0.35s ease;
+}
+main[data-experience="v3"] .offer-row:hover {
+  background-color: rgb(27 28 32 / 0.045);
+}
 main[data-experience="v3"] .offer-row .offer-title {
   color: rgb(27 28 32 / 0.62);
   transition: color 0.35s ease;
