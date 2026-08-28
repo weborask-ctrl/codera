@@ -358,26 +358,34 @@ function ActWork() {
 /** Work artifacts for the craft rows — each discipline shows a small
     specimen of its output instead of resting on type alone (The1's
     "show the material", Mercury's quiet plates). */
+const PRIORITY_DOTS = (() => {
+  const dots: { x: number; y: number; gold: boolean }[] = []
+  for (let r = 0; r < 4; r++) {
+    for (let c = 0; c < 12; c++) {
+      dots.push({
+        x: Math.round((6 + c * 12.4) * 10) / 10,
+        y: 8 + r * 13,
+        gold: (r === 1 && c === 2) || (r === 2 && c === 6) || (r === 0 && c === 9),
+      })
+    }
+  }
+  return dots
+})()
+
 function OfferArtifact({ kind }: { kind: "strategia" | "dizajn" | "vyvoj" }) {
   if (kind === "strategia") {
     return (
       <div className="w-[176px] border border-black/20 bg-white/45 p-3">
         <svg viewBox="0 0 148 54" className="w-full" aria-hidden="true">
-          {Array.from({ length: 4 }, (_, r) =>
-            Array.from({ length: 12 }, (_, c) => {
-              const gold = (r === 1 && c === 2) || (r === 2 && c === 6) || (r === 0 && c === 9)
-              return (
-                // biome-ignore lint/suspicious/noArrayIndexKey: static deterministic dot grid — never reordered or mutated
-                <circle
-                  key={`${r}-${c}`}
-                  cx={6 + c * 12.4}
-                  cy={8 + r * 13}
-                  r={gold ? 2.6 : 1.4}
-                  fill={gold ? "#a4520f" : "rgba(25,26,28,0.25)"}
-                />
-              )
-            })
-          )}
+          {PRIORITY_DOTS.map((d) => (
+            <circle
+              key={`${d.x}-${d.y}`}
+              cx={d.x}
+              cy={d.y}
+              r={d.gold ? 2.6 : 1.4}
+              fill={d.gold ? "#a4520f" : "rgba(25,26,28,0.25)"}
+            />
+          ))}
           <path
             d="M30.8 21 L80.4 34 L117.6 8"
             fill="none"
