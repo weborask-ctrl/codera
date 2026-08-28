@@ -367,6 +367,7 @@ function OfferArtifact({ kind }: { kind: "strategia" | "dizajn" | "vyvoj" }) {
             Array.from({ length: 12 }, (_, c) => {
               const gold = (r === 1 && c === 2) || (r === 2 && c === 6) || (r === 0 && c === 9)
               return (
+                // biome-ignore lint/suspicious/noArrayIndexKey: static deterministic dot grid — never reordered or mutated
                 <circle
                   key={`${r}-${c}`}
                   cx={6 + c * 12.4}
