@@ -235,7 +235,8 @@ function ActHero({ world }: { world: boolean }) {
             className="absolute top-[30svh] right-[8vmin] hidden text-[0.56rem] leading-[1.8] tracking-[0.14em] text-[#8b909a] lg:block"
             style={MONO}
           >
-            // OBJEKT — STUHA C<br />
+            {"// OBJEKT — STUHA C"}
+            <br />
             R 9.0 · MEDZERA 90°<br />
             TITÁN · VNÚTORNÉ SVETLO
           </p>
