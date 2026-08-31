@@ -157,9 +157,9 @@ test.describe("Codera homepage", () => {
     for (const text of [
       "Vaša firma je lepšia",
       "Rovnaká firma. Úplne iný dojem.",
-      "Postavené",
-      "Termín do 48 hodín",
-      "Interiéry, ktoré",
+      "Guji, 2 050 m",
+      "Právo je nástroj.",
+      "vo štvrtok.",
       "STRATÉGIA",
       "Váš ďalší web nemusí",
     ]) {
@@ -372,8 +372,8 @@ test.describe("Codera homepage", () => {
     }
     expect(acts[0]).toBe("hero")
     expect(acts).toContain("premena")
-    expect(acts).toContain("konstrukt")
-    expect(acts).toContain("forma")
+    expect(acts).toContain("meridian")
+    expect(acts).toContain("vlna")
     expect(acts[acts.length - 1]).toBe("resolution")
 
     /* /02 fold maps to scroll and completes into a readable hold */

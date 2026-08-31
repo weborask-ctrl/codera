@@ -13,7 +13,7 @@ import { useEffect, useRef } from "react"
 import { openEnquiry } from "./enquiry-bus"
 import { ActPremena } from "./premena"
 import { bindStage, stage } from "./stage"
-import { FormaWorld, KonstruktWorld, VitalisWorld } from "./worlds"
+import { MeridianWorld, StatutWorld, VlnaWorld } from "./worlds"
 
 const MONO = { fontFamily: "var(--font-geist-mono)" }
 
@@ -100,9 +100,9 @@ const ACT_NO: Record<string, string> = {
   pass: "01",
   premena: "02",
   work: "03",
-  konstrukt: "03",
-  vitalis: "03",
-  forma: "03",
+  meridian: "03",
+  statut: "03",
+  vlna: "03",
   offer: "04",
   resolution: "05",
 }
@@ -133,8 +133,8 @@ function useStage(probe: boolean) {
       if (fold >= 0.97 && !root.hasAttribute("data-wipe-done")) {
         root.setAttribute("data-wipe-done", "")
       }
-      root.style.setProperty("--recede-a", Math.min(1, stage.p.vitalis * 2).toFixed(4))
-      root.style.setProperty("--recede-b", Math.min(1, stage.p.forma * 2).toFixed(4))
+      root.style.setProperty("--recede-a", Math.min(1, stage.p.statut * 2).toFixed(4))
+      root.style.setProperty("--recede-b", Math.min(1, stage.p.vlna * 2).toFixed(4))
 
       if (actPill) {
         const label = `${ACT_NO[stage.act] ?? "01"} / 05`
@@ -286,9 +286,9 @@ function ActHero({ world }: { world: boolean }) {
 /* ----------------------------------------------------------- /03 WORK --- */
 
 const WORLDS = [
-  { id: "konstrukt", World: KonstruktWorld },
-  { id: "vitalis", World: VitalisWorld },
-  { id: "forma", World: FormaWorld },
+  { id: "meridian", World: MeridianWorld },
+  { id: "statut", World: StatutWorld },
+  { id: "vlna", World: VlnaWorld },
 ] as const
 
 function ActWork() {
@@ -621,7 +621,7 @@ function ActResolution({ world }: { world: boolean }) {
           <span>© 2026 Codera</span>
         </div>
         <p className="mt-2 opacity-80">
-          Konštrukt, Vitalis a Forma sú ukážkové koncepty — nejde o realizácie pre klientov.
+          Meridián, Štatút a Vlna sú ukážkové koncepty — nejde o realizácie pre klientov.
         </p>
       </footer>
     </section>
