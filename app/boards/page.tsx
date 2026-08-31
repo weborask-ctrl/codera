@@ -16,6 +16,7 @@
  */
 
 import { useEffect, useState } from "react"
+import { commercial } from "@/lib/site-config"
 
 const INK_DARK = "#16171b"
 const PAPER = "#f2f0ea"
@@ -97,7 +98,7 @@ function Board01() {
             Pozrieť prácu ↓
           </span>
           <span className="ml-auto hidden text-[0.72rem] text-white/40 lg:block">
-            Webové projekty od 699 €
+            {commercial.priceFromLabel}
           </span>
         </div>
       </div>
@@ -641,7 +642,8 @@ function Board04() {
         ))}
         <div className="flex items-baseline justify-between border-t border-black/12 py-5">
           <p className="text-[0.85rem] text-black/60">
-            Webové projekty od <span className="font-semibold text-black/85">699 €</span> — presnú
+            Webové projekty od{" "}
+            <span className="font-semibold text-black/85">{commercial.priceFrom}</span> — presnú
             cenu poviete po konzultácii.
           </p>
           <p className="hidden text-[0.7rem] text-black/40 md:block">prvý návrh do 72 h</p>

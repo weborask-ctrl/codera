@@ -29,7 +29,7 @@ const structuredData = {
     priceSpecification: {
       "@type": "PriceSpecification",
       priceCurrency: "EUR",
-      minPrice: 699,
+      minPrice: commercial.priceFromValue,
       description:
         "Východisková cena. Konečná cena závisí od rozsahu projektu.",
     },

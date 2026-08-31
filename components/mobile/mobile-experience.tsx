@@ -5,7 +5,7 @@ import { useEffect, useId, useRef } from "react"
 import { ButtonLink } from "@/components/site/button-link"
 import { KonstruktPreview } from "@/components/site/previews/konstrukt"
 import { LegacyPreview } from "@/components/site/previews/legacy"
-import { primaryCta, secondaryCta } from "@/lib/site-config"
+import { commercial, primaryCta, secondaryCta } from "@/lib/site-config"
 
 /**
  * THE MOBILE EXPERIENCE — separately directed, as the brief demands.
@@ -361,7 +361,7 @@ function MobileOffer() {
           ))}
         </ul>
         <p className="label mt-9 text-faint">
-          Webové projekty od 699 € — presnú cenu poviete po konzultácii.
+          {commercial.priceFromSentence}
         </p>
       </div>
     </section>
