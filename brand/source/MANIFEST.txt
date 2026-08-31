@@ -1,0 +1,12 @@
+CODERA 3D LOGO CREATION PACK
+
+Contents:
+- 01_APPROVED_CODERA_LOGO_REFERENCE.jpg
+- 02_CODERA_C_MARK_REFERENCE.png
+- README_CREATE_3D_LOGO.md
+
+Purpose:
+Give this entire ZIP to Claude Code and instruct it to read README_CREATE_3D_LOGO.md before creating any 3D asset.
+
+IMPORTANT:
+No previous/rejected 3D Codera model is included in this pack.

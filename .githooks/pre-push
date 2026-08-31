@@ -1,0 +1,22 @@
+#!/bin/sh
+# Fast half of `npm run verify`. The build and Playwright stay in CI; these two
+# catch the class of failure that has actually reached master before (Biome).
+#
+# Enable once per clone:  git config core.hooksPath .githooks
+# Emergency bypass:       git push --no-verify   (then say so in the PR)
+
+set -e
+
+printf '\n  pre-push: biome + typecheck\n\n'
+
+if ! npm run --silent check; then
+  printf '\n  BLOCKED: Biome failed. Try: npm run check:fix\n\n'
+  exit 1
+fi
+
+if ! npm run --silent typecheck; then
+  printf '\n  BLOCKED: TypeScript failed.\n\n'
+  exit 1
+fi
+
+printf '\n  ok — pushing. CI will run the build and Playwright.\n\n'

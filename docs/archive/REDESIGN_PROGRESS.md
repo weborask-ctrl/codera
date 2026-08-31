@@ -1,5 +1,10 @@
 # Codera — redesign progress
 
+> **ARCHIVED 2026-08-31. Historical record — do not update, do not treat as
+> current.** Durable knowledge moved to `STATE.md`, open items to GitHub Issues,
+> the working rules to `process/CODERA_PROCESS.md`. Kept because the
+> phase-by-phase reasoning is worth reading, not because it is still true.
+
 Living handover file. Keep it short. One section per heading, nothing else.
 
 ---
