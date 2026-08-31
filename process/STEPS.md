@@ -21,8 +21,8 @@ Status legend: **DONE** (gate passed) · **OPEN** (specified, not started) ·
 | 3 | Refokus-level spatial study | DONE — folded into the Step 1 library |
 | 4 | Audit of the live build | DONE |
 | 5 | The /01–/05 experience | DONE — specified retroactively |
-| 6 | Content and design of the pages | OPEN — phases A–C done, B in PR, D–G remain |
-| 7 | Full visual redesign — new art direction | OPEN — direction „Žiara" set, implementation next |
+| 6 | Content and design of the pages | OPEN — A–F done, G (validation) remains |
+| 7 | Full visual redesign — new art direction | OPEN — „Žiara" live (slices 1–3 + obsidián), gate awaits DEVICE |
 
 ---
 
