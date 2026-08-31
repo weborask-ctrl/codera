@@ -14,9 +14,9 @@ export type ActName =
   | "pass"
   | "premena"
   | "work"
-  | "konstrukt"
-  | "vitalis"
-  | "forma"
+  | "meridian"
+  | "statut"
+  | "vlna"
   | "offer"
   | "resolution"
 
@@ -39,9 +39,9 @@ export const stage: StageState = {
     pass: 0,
     premena: 0,
     work: 0,
-    konstrukt: 0,
-    vitalis: 0,
-    forma: 0,
+    meridian: 0,
+    statut: 0,
+    vlna: 0,
     offer: 0,
     resolution: 0,
   },
@@ -112,11 +112,11 @@ export function updateStage() {
 
   /* The work region is one sticky stack; its thirds are the project acts. */
   const w = stage.p.work
-  stage.p.konstrukt = clamp01(w * 3)
-  stage.p.vitalis = clamp01(w * 3 - 1)
-  stage.p.forma = clamp01(w * 3 - 2)
+  stage.p.meridian = clamp01(w * 3)
+  stage.p.statut = clamp01(w * 3 - 1)
+  stage.p.vlna = clamp01(w * 3 - 2)
   if (act === "work") {
-    act = w < 1 / 3 ? "konstrukt" : w < 2 / 3 ? "vitalis" : "forma"
+    act = w < 1 / 3 ? "meridian" : w < 2 / 3 ? "statut" : "vlna"
   }
 
   if (act !== stage.act) {
@@ -166,10 +166,14 @@ export const ACT_TONES: Record<ActName, string> = {
   hero: "#141519",
   pass: "#6f6156",
   premena: "#f2f0ea",
-  work: "#d9d8d3",
-  konstrukt: "#d9d8d3",
-  vitalis: "#e7efe9",
-  forma: "#201a15",
+  /* /03 is light-based across all three worlds, per the Step 5 brief — the
+     shell's graphite returns only as ink. The grounds warm, cool, then
+     brighten: roasted paper → institutional stone → chalk, which is what
+     makes the act resolve upward into /04 instead of trailing off. */
+  work: "#F4EFE6",
+  meridian: "#F4EFE6",
+  statut: "#EDEDEA",
+  vlna: "#FBFAF7",
   offer: "#f4f1ea",
   /* bookend: /05 returns to the hero's graphite so the molten glow and the
      white closing type read the way /01 taught the viewer to read them */

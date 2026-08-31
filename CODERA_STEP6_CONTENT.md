@@ -236,17 +236,70 @@ badge, because it proves the price is a real boundary and not bait.
 everywhere, including the live site, the metadata description, the structured
 data and the enquiry form's budget bands.
 
-| Package | For whom | From | Not included |
-| --- | --- | --- | --- |
-| 1 — entry | *proposed:* a business that needs one credible page | **1 000 €** *(confirmed)* | *owed* |
-| 2 — standard | *proposed:* a company website with several sections | *proposed:* 2 500 € | *owed* |
-| 3 — bespoke | *proposed:* a site with its own art direction and custom motion | *proposed:* 5 000 € | *owed* |
+**The ladder.** Entry anchor 1 000 € supplied by Ondrej; the rest set by Claude
+on his instruction ("vymysli ty, ale nie extrémne drahé") and adopted.
 
-The two upper numbers are a **proposal awaiting one word of confirmation** —
-they are not invented facts and must not reach the site until Ondrej approves
-them. The ladder is set so each step is roughly 2–2.5× the one below, which
-reads as three genuinely different products rather than three sizes of the same
-one, and it lines up with the enquiry form's budget bands.
+| Package | For whom | From |
+| --- | --- | --- |
+| **Vizitka** | A business that needs one credible page | **1 000 €** |
+| **Firemný web** | Several services, references, regular news | **1 800 €** |
+| **5D web** | A company that wants to be remembered | **3 200 €** |
+
+Steps of roughly 1.8× each. Three genuinely different products rather than three
+sizes of one, and the top is 3.2× the entry — mid-market for Slovakia, nowhere
+near the "luxury scarcity theatre" the audit forbids.
+
+**Why the 5D tier moved off 1 000–1 500 €.** That range was supplied first, and
+it does not survive contact with the work. This very site is the 5D product: a
+persistent WebGL world, a separately authored mobile edit, three device tiers, a
+parametric brand object and roughly four weeks for two people. At 1 500 € that
+is a rate no studio survives, and worse, it prices the studio's strongest
+argument as its cheapest add-on — a visitor who sees cinematic work at 1 200 €
+concludes it is either trivial or padded, and neither helps. 3 200 € is still
+below what the work costs; it is an accessible-premium position, not a premium
+one. The overlap problem also disappears: at 1 000 / 1 800 / 3 200 every step up
+buys something the buyer can name.
+
+### The three packages, as they ship
+
+**Vizitka — od 1 000 €** · *Pre firmu, ktorá potrebuje jednu dôveryhodnú stránku.*
+
+- Jedna stránka so všetkým podstatným: čo robíte, pre koho a ako vás osloviť
+- Vlastný vizuálny smer, nie prefarbená šablóna
+- Funkčný formulár, mapa a telefón na jeden dotyk
+- Rýchlosť a prístupnosť, ktorú ocení Google aj čítačka obrazovky
+- Základné SEO: titulky, popisy, štruktúrované dáta, sitemap
+
+*Čo v tom nie je: viac podstránok, blog ani e-shop.*
+
+**Firemný web — od 1 800 €** · *Pre firmu s viacerými službami, referenciami a
+pravidelnými novinkami.*
+
+- Až šesť podstránok: služby, referencie, o nás, kontakt
+- Jedna sekcia, ktorú si spravujete sami — novinky alebo referencie
+- Obsahová štruktúra postavená na to, čo ľudia naozaj hľadajú
+- Formuláre s ochranou proti spamu a upozornením na e-mail
+- Meranie: čo ľudia na stránke robia a odkiaľ prišli
+
+*Čo v tom nie je: e-shop, rezervačný systém ani druhý jazyk.*
+
+**5D web — od 3 200 €** · *Pre firmu, ktorá chce, aby si ju zapamätali.*
+
+- Vlastná art direction — stránka, ktorá nevyzerá ako žiadna iná
+- Priestorová réžia: scény, kamera, materiály a pohyb viazaný na scroll
+- Samostatne réžírovaná mobilná verzia, nie zmenšený desktop
+- Plný zážitok tam, kde ho zariadenie unesie; plnohodnotná stránka všade inde
+- Texty a dramaturgia celej cesty, nielen dizajn obrazoviek
+
+*Čo v tom nie je: e-shop a napojenie na sklad alebo ERP.*
+
+The "čo v tom nie je" line is not a disclaimer. It is the line that proves the
+price is a real boundary rather than bait, and it does more for trust than any
+badge this studio is not yet entitled to display.
+
+**Consequence for the enquiry form.** The budget bands must follow the ladder:
+`1 000 – 2 000 €` · `2 000 – 3 500 €` · `3 500 € a viac` · `Zatiaľ neviem`.
+They currently end at 3 000 €, set before the ladder existed.
 
 Rules for phase B: prices ascend and each is a *from* price; the cheapest holds
 the 1 000 € anchor; scope lines are outcomes, not deliverable counts; no package
@@ -351,14 +404,21 @@ anything that lengthens the page without adding a beat.
 
 ## 11. Open
 
-- The two upper package prices (2 500 € and 5 000 € proposed) and the one "not
-  included" line for each package. Owed by Ondrej.
-- Concept names, chosen with the worlds in phase C.
-- The 9-versus-8 viewport decision above.
+- Nothing blocking. Phase B can be implemented as specified.
+- The 9-versus-8 viewport decision: the offer act now carries a process spine
+  *and* three packages. Resolve it when building /04 — fold the spine into the
+  package row rather than shortening /03, which is the act that sells.
 
-**Closed 2026-08-31:** entry price confirmed at 1 000 € · the three sectors in
-§5 confirmed · concept designs to be modern and 5D, with the range guardrail in
-§0.
+**Closed 2026-08-31:** entry price 1 000 € · the ladder set at
+1 000 / 1 800 / 3 200 € with scope and a "čo v tom nie je" line each (§6) · the
+three sectors in §5 confirmed · concept designs modern and 5D, with the range
+guardrail in §0 · concept names chosen in phase C, see
+`CODERA_STEP6_WORLDS.md`.
+
+**Still to implement (phase B, its own pull request):** the packages in the /04
+act, the package structure in `lib/site-config.ts`, and the enquiry form's
+budget bands raised to match the ladder. Blocked only on PR #10 and #11 landing
+first — both touch the same files.
 
 ## 12. The price change is also a live-site defect
 
