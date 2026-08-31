@@ -9,13 +9,11 @@
  * belongs to the scene, and a visitor flipping it would break the
  * choreography rather than improve it.
  *
- * THE COLOUR RULE. Codera's own chrome is monochrome — near-black,
- * graphite, warm off-white, metallic silver. Saturated colour on this
- * page belongs to the *work*: the concept previews carry their own
- * palettes (Konštrukt amber, Vitalis teal, Forma terracotta) and are the
- * only place colour appears at strength. One low-chroma warm signal is
- * kept for focus rings and active states, because those have to be
- * unmistakable and monochrome cannot carry that on its own.
+ * THE COLOUR RULE (Žiara). Codera's chrome is monochrome frost — graphite
+ * fog to risen light, zero chroma. Saturated colour belongs to the *work*:
+ * the concept worlds carry their own palettes (Meridián ember, Štatút
+ * oxblood, Vlna citrus) and are the only place colour appears at strength.
+ * Focus rings and active states carry frost glow, not a warm signal.
  * ================================================================== */
 
 @theme inline {

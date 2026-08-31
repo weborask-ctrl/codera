@@ -230,13 +230,13 @@ export function ActPremena() {
           style={{
             clipPath:
               "polygon(calc(112% * (1 - var(--fold, 0)) - 6.45%) 0, calc(112% * (1 - var(--fold, 0)) - 5.55%) 0, calc(100% * (1 - var(--fold, 0)) - 5.55%) 100%, calc(100% * (1 - var(--fold, 0)) - 6.45%) 100%)",
-            background: "linear-gradient(180deg,#efe9dd 0%,#b9b3a6 40%,#7b756a 100%)",
+            background: "linear-gradient(180deg,#f2f4f6 0%,#c4c9d1 40%,#6e7480 100%)",
             boxShadow: "0 0 40px rgba(20,20,24,0.35)",
           }}
         />
 
         {/* act signage */}
-        <div className="absolute inset-x-0 top-0 z-30 flex items-baseline justify-between px-[clamp(1.25rem,4vw,3.5rem)] pt-20 mix-blend-difference" style={{ color: "#f4f1ea" }}>
+        <div className="absolute inset-x-0 top-0 z-30 flex items-baseline justify-between px-[clamp(1.25rem,4vw,3.5rem)] pt-20 mix-blend-difference" style={{ color: "#f2f4f6" }}>
           <p className="text-[0.62rem] tracking-[0.3em]" style={MONO}>
             02 — PREMENA VNÍMANIA
           </p>
@@ -271,14 +271,14 @@ export function ActPremena() {
       </div>
 
       {/* below lg: cinematic tap-switch trailer */}
-      <div className="lg:hidden" style={{ background: "#efece4" }}>
-        <div className="flex items-baseline justify-between px-[clamp(1.1rem,4vw,2rem)] pt-20 pb-3 text-[#1b1c1f]">
+      <div className="lg:hidden" style={{ background: "#EDF0F3" }}>
+        <div className="flex items-baseline justify-between px-[clamp(1.1rem,4vw,2rem)] pt-20 pb-3 text-[#17181d]">
           <p className="text-[0.62rem] tracking-[0.28em]" style={MONO}>
             02 — PREMENA VNÍMANIA
           </p>
         </div>
         <h2
-          className="px-[clamp(1.1rem,4vw,2rem)] pb-4 font-semibold text-[#1b1c1f]"
+          className="px-[clamp(1.1rem,4vw,2rem)] pb-4 font-semibold text-[#17181d]"
           style={{ fontSize: "clamp(1.7rem,7vw,2.6rem)", lineHeight: 0.98, letterSpacing: "-0.03em" }}
         >
           Rovnaká firma.{" "}
@@ -290,14 +290,14 @@ export function ActPremena() {
             <button
               type="button"
               onClick={() => setMobileState("pred")}
-              className={`rounded-full px-4 py-1.5 tracking-[0.14em] ${mobileState === "pred" ? "bg-[#1b1c1f] text-[#efece4]" : "text-[#1b1c1f]/60"}`}
+              className={`rounded-full px-4 py-1.5 tracking-[0.14em] ${mobileState === "pred" ? "bg-[#17181d] text-[#EDF0F3]" : "text-[#17181d]/60"}`}
             >
               PREDTÝM
             </button>
             <button
               type="button"
               onClick={() => setMobileState("po")}
-              className={`rounded-full px-4 py-1.5 tracking-[0.14em] ${mobileState === "po" ? "bg-[#1b1c1f] text-[#efece4]" : "text-[#1b1c1f]/60"}`}
+              className={`rounded-full px-4 py-1.5 tracking-[0.14em] ${mobileState === "po" ? "bg-[#17181d] text-[#EDF0F3]" : "text-[#17181d]/60"}`}
             >
               POTOM
             </button>
@@ -311,7 +311,7 @@ export function ActPremena() {
             <BilancBefore />
           </div>
         </div>
-        <p className="px-[clamp(1.1rem,4vw,2rem)] pb-8 text-[0.56rem] tracking-[0.16em] text-[#1b1c1f]/50" style={MONO}>
+        <p className="px-[clamp(1.1rem,4vw,2rem)] pb-8 text-[0.56rem] tracking-[0.16em] text-[#17181d]/50" style={MONO}>
           BILANC — FIKTÍVNY KLIENT NA UKÁŽKU PREMENY
         </p>
       </div>

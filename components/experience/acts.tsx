@@ -25,7 +25,7 @@ function EdgeLabel({ text }: { text: string }) {
     <p
       aria-hidden="true"
       className="pointer-events-none absolute top-1/2 right-4 z-20 hidden -translate-y-1/2 text-[0.54rem] tracking-[0.34em] mix-blend-difference lg:block"
-      style={{ writingMode: "vertical-rl", color: "rgba(244,241,234,0.4)", ...MONO }}
+      style={{ writingMode: "vertical-rl", color: "rgba(242,244,246,0.4)", ...MONO }}
     >
       {text}
     </p>
@@ -200,7 +200,7 @@ function ActHero({ world }: { world: boolean }) {
   return (
     <section
       data-zone="hero"
-      className={`relative flex h-svh flex-col overflow-hidden text-[#f4f1ea] ${world ? "" : "molten-field"}`}
+      className={`relative flex h-svh flex-col overflow-hidden text-[#f2f4f6] ${world ? "" : "molten-field"}`}
     >
       {/* poster-scale wordmark living BEHIND the object (North Kingdom) */}
       <p
@@ -255,10 +255,10 @@ function ActHero({ world }: { world: boolean }) {
           <defs>
             <path id="badge-circle" d="M50,50 m-38,0 a38,38 0 1,1 76,0 a38,38 0 1,1 -76,0" />
           </defs>
-          <text fill="#f4f1ea" fontSize="10" letterSpacing="2.6" style={MONO}>
+          <text fill="#f2f4f6" fontSize="10" letterSpacing="2.6" style={MONO}>
             <textPath href="#badge-circle">SCROLL · POZRIEŤ PRÁCU ·</textPath>
           </text>
-          <path d="M50 42 L50 58 M44 52 L50 58 L56 52" stroke="#f4f1ea" strokeWidth="1.6" fill="none" />
+          <path d="M50 42 L50 58 M44 52 L50 58 L56 52" stroke="#f2f4f6" strokeWidth="1.6" fill="none" />
         </svg>
       </a>
 
@@ -287,7 +287,7 @@ function ActHero({ world }: { world: boolean }) {
           <button
             type="button"
             onClick={() => openEnquiry()}
-            className="rounded-full bg-[#f4f1ea] px-6 py-3 text-[0.85rem] font-medium text-[#16171b]"
+            className="rounded-full bg-[#f2f4f6] px-6 py-3 text-[0.85rem] font-medium text-[#17181d]"
           >
             Začať projekt
           </button>
@@ -338,10 +338,12 @@ function ActWork() {
         ))}
       </div>
 
-      {/* below lg: full-width swipe deck of the same worlds */}
-      <div className="py-12 lg:hidden" style={{ background: "#1b1c1f" }}>
+      {/* below lg: full-width swipe deck of the same worlds. The sunrise
+          holds on mobile too — /03 sits in risen mist, not in a dark band
+          (no act returns to dark, AD v3). */}
+      <div className="py-12 lg:hidden" style={{ background: "#C4C9D1" }}>
         <div>
-          <header className="mb-4 flex items-baseline justify-between px-[clamp(1.1rem,4vw,2rem)] text-[#f4f1ea]">
+          <header className="mb-4 flex items-baseline justify-between px-[clamp(1.1rem,4vw,2rem)] text-[#17181d]">
             <p className="text-[0.66rem] tracking-[0.28em]" style={MONO}>
               03 — VYBRANÁ PRÁCA
             </p>
@@ -447,7 +449,7 @@ function OfferArtifact({ kind }: { kind: "strategia" | "dizajn" | "vyvoj" }) {
     )
   }
   return (
-    <div className="w-[176px] border border-black/20 bg-[#1b1c20] p-3">
+    <div className="w-[176px] border border-black/20 bg-[#17181d] p-3">
       <div className="space-y-1.5 text-[0.6rem] text-[#dce6ee]" style={MONO}>
         {[
           ["LCP", "1,9 s"],
@@ -472,8 +474,8 @@ function ActOffer({ world }: { world: boolean }) {
     <section
       data-zone="offer"
       id="sluzby"
-      className="act-rule relative text-[#1b1c20]"
-      style={world ? undefined : { background: "#f0ebe0" }}
+      className="act-rule relative text-[#17181d]"
+      style={world ? undefined : { background: "#EDF0F3" }}
     >
       <EdgeLabel text="/04 — REMESLO" />
       <div className="flex flex-col gap-10 px-[clamp(1.25rem,4vw,3.5rem)] py-[9svh] lg:flex-row lg:gap-16">
@@ -497,7 +499,7 @@ function ActOffer({ world }: { world: boolean }) {
             </p>
             {/* strand hairlines drawing toward the rows */}
             <svg aria-hidden="true" viewBox="0 0 220 60" className="mt-6 hidden w-[220px] lg:block">
-              <path d="M0 8 H150 M0 30 H190 M0 52 H120" stroke="#1b1c20" strokeOpacity="0.35" strokeWidth="1.2" />
+              <path d="M0 8 H150 M0 30 H190 M0 52 H120" stroke="#17181d" strokeOpacity="0.35" strokeWidth="1.2" />
               <circle cx="150" cy="8" r="2.4" fill="#a4520f" />
               <circle cx="190" cy="30" r="2.4" fill="#1d5f5a" />
               <circle cx="120" cy="52" r="2.4" fill="#9c3b22" />
@@ -552,7 +554,7 @@ function ActOffer({ world }: { world: boolean }) {
             className="enter mt-2 grid gap-px border-t border-black/15 bg-black/12 pt-px sm:grid-cols-3"
           >
             {packages.map((pkg) => (
-              <div key={pkg.id} className="flex flex-col bg-[#f0ebe0] px-5 py-6">
+              <div key={pkg.id} className="flex flex-col bg-[#EDF0F3] px-5 py-6">
                 <p
                   className="text-[0.56rem] tracking-[0.2em] text-black/50"
                   style={MONO}
@@ -594,7 +596,7 @@ function ActOffer({ world }: { world: boolean }) {
               <button
                 type="button"
                 onClick={() => openEnquiry()}
-                className="rounded-full bg-[#1b1c20] px-5 py-2.5 text-[0.75rem] font-medium text-[#f4f1ea]"
+                className="rounded-full bg-[#17181d] px-5 py-2.5 text-[0.75rem] font-medium text-[#f2f4f6]"
               >
                 Zistiť cenu
               </button>
