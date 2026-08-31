@@ -1,26 +1,27 @@
 import type { Metadata, Viewport } from "next"
-import { Archivo, Fraunces, Geist_Mono } from "next/font/google"
+import { Fraunces, Geist, Geist_Mono } from "next/font/google"
 
 import "./globals.css"
 import { siteConfig } from "@/lib/site-config"
 import { cn } from "@/lib/utils"
 
 /**
- * Two faces, and the second one only ever appears at 11px.
+ * The Žiara type system: one family plus its mono (CODERA_ART_DIRECTION_V3.md).
  *
- * Archivo is a variable grotesque with a real **width** axis, which is why it
- * is here rather than a second static display face: the offer scene expands
- * and compresses its headline as motion, and doing that by scaling type would
- * distort the letterforms. One variable file covers the whole range.
+ * Geist Sans carries everything — LIGHT weights at display sizes for the act
+ * statements [exoape: confidence through lightness], regular for body — and
+ * Geist Mono is the engineering voice: coordinates, measurements, annotations
+ * [igloo]. Archivo and its width axis retired with v2; Fraunces stays loaded
+ * only because the Meridián and Štatút concept worlds use a serif in their own
+ * interior grammar.
  *
  * `latin-ext` is required, not optional. Without it every Slovak diacritic
  * (č, ď, ľ, ĺ, ň, ô, ŕ, š, ť, ž) silently falls back to a different face
  * mid-word, which is unmissable at display sizes.
  */
-const archivo = Archivo({
+const geist = Geist({
   subsets: ["latin", "latin-ext"],
-  axes: ["wdth"],
-  variable: "--font-archivo",
+  variable: "--font-geist-sans",
   display: "swap",
 })
 
@@ -100,7 +101,7 @@ export default function RootLayout({
   return (
     <html
       lang="sk"
-      className={cn("antialiased", archivo.variable, geistMono.variable, fraunces.variable)}
+      className={cn("antialiased", geist.variable, geistMono.variable, fraunces.variable)}
     >
       <head>
         {/* the flat-mode hero C is the mobile LCP element — fetch it first */}
