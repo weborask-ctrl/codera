@@ -102,7 +102,7 @@ test.describe("Codera homepage", () => {
   test("exposes a single H1 and the act landmarks", async ({ page }) => {
     await page.goto("/")
     await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1)
-    for (const id of ["premena", "praca", "sluzby", "kontakt"]) {
+    for (const id of ["praca", "sluzby", "kontakt"]) {
       await expect(page.locator(`#${id}`)).toHaveCount(1)
     }
     await expect(page.locator("main[data-experience='v3']")).toHaveCount(1)
@@ -157,7 +157,7 @@ test.describe("Codera homepage", () => {
     await page.goto("/")
     for (const text of [
       "Vaša firma je lepšia",
-      "Rovnaká firma. Úplne iný dojem.",
+      "Tri značky, ktoré neexistujú.",
       "Guji, 2 050 m",
       "Právo je nástroj.",
       "vo štvrtok.",
@@ -375,24 +375,9 @@ test.describe("Codera homepage", () => {
       }
     }
     expect(acts[0]).toBe("hero")
-    expect(acts).toContain("premena")
     expect(acts).toContain("meridian")
     expect(acts).toContain("vlna")
     expect(acts[acts.length - 1]).toBe("resolution")
-
-    /* /02 fold maps to scroll and completes into a readable hold */
-    await page.evaluate(() => {
-      const zone = document.querySelector("[data-zone='premena']") as HTMLElement
-      const top = zone.getBoundingClientRect().top + window.scrollY
-      window.scrollTo({ top: top + zone.offsetHeight - window.innerHeight, behavior: "instant" as ScrollBehavior })
-    })
-    await page.waitForTimeout(350)
-    const fold = await page.evaluate(() =>
-      Number.parseFloat(
-        (document.querySelector("main[data-experience='v3']") as HTMLElement).style.getPropertyValue("--fold")
-      )
-    )
-    expect(fold).toBeGreaterThan(0.95)
   })
 
   test("scroll cannot be trapped: End reaches the footer immediately", async ({ page }) => {
