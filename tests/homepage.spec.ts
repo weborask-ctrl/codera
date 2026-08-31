@@ -479,3 +479,29 @@ test.describe("Codera homepage", () => {
     await expect(page.locator("body")).toContainText(/404|nenašli/i)
   })
 })
+
+test.describe("Case studies", () => {
+  test("every concept has a readable document page without JavaScript", async ({ browser }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false })
+    const page = await context.newPage()
+    for (const slug of ["meridian", "statut", "vlna"]) {
+      const res = await page.goto(`/praca/${slug}`)
+      expect(res?.status()).toBe(200)
+      /* the honest label is non-negotiable — Step 6 gate */
+      await expect(page.locator("main")).toContainText("UKÁŽKOVÝ KONCEPT")
+      await expect(page.locator("main")).toContainText("ROZHODNUTIA")
+      await expect(page.locator("main")).toContainText("nejde o realizácie", { ignoreCase: true })
+    }
+    await context.close()
+  })
+
+  test("the home /03 act links to the case studies", async ({ page }) => {
+    await page.goto("/")
+    for (const slug of ["meridian", "statut", "vlna"]) {
+      await expect(
+        page.locator(`a[href="/praca/${slug}"]`).first(),
+        `no link to /praca/${slug}`
+      ).toHaveCount(1)
+    }
+  })
+})
