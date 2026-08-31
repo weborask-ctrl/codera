@@ -161,21 +161,21 @@ export function bindStage(): () => void {
   }
 }
 
-/** Act tone script — the world lerps scene background between these. */
+/** Act tone script — the world lerps scene background between these.
+ *
+ * Žiara (CODERA_ART_DIRECTION_V3.md): the journey is ONE sunrise. The tones
+ * only ever brighten — deep fog at /01, one stop of light per act, full
+ * frost clarity at /05. No act returns to dark; the dramaturgy is the day
+ * itself [igloo, exoape]. The three /03 worlds keep their interior palettes;
+ * these are the ATMOSPHERE tones around their planes, rising mist-grey. */
 export const ACT_TONES: Record<ActName, string> = {
-  hero: "#141519",
-  pass: "#6f6156",
-  premena: "#f2f0ea",
-  /* /03 is light-based across all three worlds, per the Step 5 brief — the
-     shell's graphite returns only as ink. The grounds warm, cool, then
-     brighten: roasted paper → institutional stone → chalk, which is what
-     makes the act resolve upward into /04 instead of trailing off. */
-  work: "#F4EFE6",
-  meridian: "#F4EFE6",
-  statut: "#EDEDEA",
-  vlna: "#FBFAF7",
-  offer: "#f4f1ea",
-  /* bookend: /05 returns to the hero's graphite so the molten glow and the
-     white closing type read the way /01 taught the viewer to read them */
-  resolution: "#141519",
+  hero: "#0E0F13",
+  pass: "#23252C",
+  premena: "#4A4E58",
+  work: "#9BA1AC",
+  meridian: "#9BA1AC",
+  statut: "#C4C9D1",
+  vlna: "#DFE3E8",
+  offer: "#EDF0F3",
+  resolution: "#FAFBFC",
 }

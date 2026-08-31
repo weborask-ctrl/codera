@@ -1,12 +1,12 @@
 "use client"
 
 /**
- * Art Direction v2 — the DOM acts (/01–/05).
+ * Žiara — the DOM acts (/01–/05).
  *
- * Every act sits on a MATERIAL canvas (molten media, painted concrete,
- * sage dawn, candlelit olive, warm paper band) — never on emptiness.
+ * One atmosphere, one sunrise: the acts share a single fog-to-frost world
+ * and differ only in camera and light (CODERA_ART_DIRECTION_V3.md).
  * Native scroll, zero pins; sticky regions choreograph /02 and /03.
- * Reasoning and reference map: CODERA_ART_DIRECTION_V2.md.
+ * Reference records: CODERA_DESIGN_REFERENCES (igloo, exoape, basement).
  */
 
 import { useEffect, useRef } from "react"
@@ -33,7 +33,7 @@ function EdgeLabel({ text }: { text: string }) {
 }
 
 /* Hyperstudio's dot-matrix map, localized: Slovakia raster-scanned into
-   dots, one compass-gold point on Bratislava. Deterministic, computed
+   dots, one frost-lit point on Prešov. Deterministic, computed
    once at module scope. */
 const SK_POLY: [number, number][] = [
   [16.85, 48.38], [16.94, 48.62], [17.19, 48.87], [17.72, 48.86], [18.06, 49.05],
@@ -83,8 +83,8 @@ function SlovakiaDotMap() {
           ))}
         </g>
         {/* Prešov — the studio's home */}
-        <circle cx="244.6" cy="36.8" r="2.8" fill="#e8c99a" />
-        <circle cx="244.6" cy="36.8" r="6" fill="none" stroke="#e8c99a" strokeOpacity="0.4" strokeWidth="1" />
+        <circle cx="244.6" cy="36.8" r="2.8" fill="#dce6ee" />
+        <circle cx="244.6" cy="36.8" r="6" fill="none" stroke="#dce6ee" strokeOpacity="0.4" strokeWidth="1" />
       </svg>
       <p className="mt-3 text-center whitespace-nowrap text-[0.52rem] tracking-[0.18em] text-white/45" style={MONO}>
         PREŠOV · 49.00° N / 21.23° E
@@ -205,32 +205,44 @@ function ActHero({ world }: { world: boolean }) {
       {/* poster-scale wordmark living BEHIND the object (North Kingdom) */}
       <p
         aria-hidden="true"
-        className="pointer-events-none absolute bottom-[31svh] left-1/2 w-full -translate-x-1/2 text-center text-[clamp(2.9rem,15vw,19rem)] font-semibold whitespace-nowrap text-[#f4f1ea]/[0.07] select-none lg:text-[clamp(6rem,19vw,19rem)]"
-        style={{ lineHeight: 1, letterSpacing: "0.06em", fontStretch: "112%" }}
+        className="pointer-events-none absolute bottom-[31svh] left-1/2 w-full -translate-x-1/2 text-center text-[clamp(2.9rem,15vw,19rem)] font-light whitespace-nowrap text-[#f2f4f6]/[0.05] select-none lg:text-[clamp(6rem,19vw,19rem)]"
+        style={{ lineHeight: 1, letterSpacing: "0.08em" }}
       >
         CODERA
       </p>
 
       {!world ? (
         <>
-          {/* flat mode: the C over the molten field with a floor glow */}
+          {/* flat mode: the C glowing from within the fog [igloo]. The glow
+              is cool and sits BEHIND the mark — the object is lit, the page
+              is not decorated. */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute top-[26svh] right-[6vmin] h-[46vmin] w-[46vmin] rounded-full opacity-70 lg:top-1/2 lg:right-[2vmin] lg:h-[60vmin] lg:w-[60vmin] lg:-translate-y-1/2"
+            style={{ background: "radial-gradient(50% 50% at 50% 50%, rgba(220,230,238,0.22) 0%, rgba(220,230,238,0.07) 45%, transparent 70%)" }}
+          />
           {/* biome-ignore lint/performance/noImgElement: static same-origin brand SVG; next/image adds nothing here. */}
           <img
             src="/brand/codera-mark.svg"
             alt=""
             fetchPriority="high"
             className="pointer-events-none absolute top-[14svh] right-[-10vmin] w-[62vmin] max-w-none opacity-95 lg:top-[46%] lg:right-[-8vmin] lg:w-[74vmin] lg:-translate-y-1/2"
-            style={{ filter: "drop-shadow(0 46px 90px rgba(0,0,0,0.6))" }}
+            style={{ filter: "drop-shadow(0 0 34px rgba(220,230,238,0.28)) drop-shadow(0 46px 90px rgba(0,0,0,0.55))" }}
           />
-          <div
+          {/* engineering annotation over the object [igloo] */}
+          <p
             aria-hidden="true"
-            className="pointer-events-none absolute top-[52svh] right-[-6vmin] h-[10vmin] w-[60vmin] rounded-[50%] opacity-50 lg:top-[78%] lg:right-[-4vmin]"
-            style={{ background: "radial-gradient(50% 50% at 50% 50%, rgba(232,201,154,0.5) 0%, transparent 70%)" }}
-          />
+            className="absolute top-[30svh] right-[8vmin] hidden text-[0.56rem] leading-[1.8] tracking-[0.14em] text-[#8b909a] lg:block"
+            style={MONO}
+          >
+            // OBJEKT — STUHA C<br />
+            R 9.0 · MEDZERA 90°<br />
+            TITÁN · VNÚTORNÉ SVETLO
+          </p>
         </>
       ) : null}
 
-      <EdgeLabel text="/01 — ODLIATOK" />
+      <EdgeLabel text="/01 — ŽIARA" />
 
       {/* rotating scroll badge (monopo) */}
       <a
@@ -250,17 +262,20 @@ function ActHero({ world }: { world: boolean }) {
       </a>
 
       <div data-enter className="enter relative z-10 mt-auto mb-[8svh] px-[clamp(1.25rem,4vw,3.5rem)]">
-        <p className="mb-5 text-[0.6rem] tracking-[0.2em] text-[#e8c99a]/85 lg:text-[0.68rem] lg:tracking-[0.32em]" style={MONO}>
-          KREATÍVNE WEBOVÉ ŠTÚDIO — PREŠOV
+        <p className="mb-5 text-[0.6rem] tracking-[0.2em] text-[#8b909a] lg:text-[0.68rem] lg:tracking-[0.32em]" style={MONO}>
+          KREATÍVNE WEBOVÉ ŠTÚDIO — PREŠOV · 49.00° N
         </p>
+        {/* Žiara display voice: LIGHT weight at scale, slightly larger than
+            the v2 semibold could afford — confidence through lightness
+            [exoape]. Tight but not crushed; the halo keeps it legible where
+            it crosses the lit C. */}
         <h1
           data-hero-line
-          className="max-w-[10.5em] text-[clamp(1.6rem,8.4vw,4.4rem)] font-semibold lg:text-[clamp(2.2rem,6.6vw,6.9rem)]"
+          className="max-w-[10.5em] text-[clamp(1.7rem,8.8vw,4.8rem)] font-light lg:text-[clamp(2.4rem,7vw,7.4rem)]"
           style={{
-            lineHeight: 0.96,
-            letterSpacing: "-0.035em",
-            /* the headline crosses the white C — a dark halo keeps it legible */
-            textShadow: "0 1px 2px rgba(12,12,16,0.5), 0 14px 44px rgba(12,12,16,0.55)",
+            lineHeight: 1.02,
+            letterSpacing: "-0.022em",
+            textShadow: "0 1px 2px rgba(10,11,14,0.55), 0 14px 44px rgba(10,11,14,0.6)",
           }}
         >
           Vaša firma je lepšia,
@@ -432,7 +447,7 @@ function OfferArtifact({ kind }: { kind: "strategia" | "dizajn" | "vyvoj" }) {
   }
   return (
     <div className="w-[176px] border border-black/20 bg-[#1b1c20] p-3">
-      <div className="space-y-1.5 text-[0.6rem] text-[#e8c99a]" style={MONO}>
+      <div className="space-y-1.5 text-[0.6rem] text-[#dce6ee]" style={MONO}>
         {[
           ["LCP", "1,9 s"],
           ["CLS", "0,00"],
