@@ -1,4 +1,5 @@
 import { expect, type Page, test } from "@playwright/test"
+import { commercial } from "../lib/site-config"
 
 /**
  * Step 5 experience suite.
@@ -172,7 +173,7 @@ test.describe("Codera homepage", () => {
     const context = await browser.newContext({ javaScriptEnabled: false })
     const page = await context.newPage()
     await page.goto("/")
-    await expect(page.locator("main")).toContainText("699 €")
+    await expect(page.locator("main")).toContainText(commercial.priceFrom)
     await context.close()
   })
 

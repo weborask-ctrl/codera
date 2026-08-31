@@ -19,9 +19,10 @@ import {
  * SCENE 04 — ZÁVER
  *
  * The conversion, in the order a buyer actually decides in: reason to believe,
- * then price, then the ask. The price appears here and only here — putting
- * "od 699 €" in the hero would have priced the studio before it had shown
- * anything, which is the fastest way to be compared on cost alone.
+ * then price, then the ask. The price appears here and only here — an entry
+ * price in the hero would have priced the studio before it had shown anything,
+ * which is the fastest way to be compared on cost alone. The figure itself
+ * comes from `commercial`, never from a literal.
  *
  * The arc closes. It has been drawing, masking, sweeping and pointing for four
  * scenes; here it completes into the whole mark as the page ends. That is the
@@ -46,7 +47,7 @@ const REASONS = [
 
 const FACTS = [
   {
-    value: 699,
+    value: commercial.priceFromValue,
     prefix: "od ",
     suffix: " €",
     label: "Webové projekty",

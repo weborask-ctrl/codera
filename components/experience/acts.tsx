@@ -10,6 +10,7 @@
  */
 
 import { useEffect, useRef } from "react"
+import { commercial } from "@/lib/site-config"
 import { openEnquiry } from "./enquiry-bus"
 import { ActPremena } from "./premena"
 import { bindStage, stage } from "./stage"
@@ -529,7 +530,8 @@ function ActOffer({ world }: { world: boolean }) {
           {/* conversational close (The1's question + pill) */}
           <div className="flex flex-wrap items-center justify-between gap-4 border-t border-black/15 pt-6">
             <p className="text-[0.9rem] text-black/70">
-              Webové projekty od <span className="font-semibold text-black/90">699 €</span> — presnú
+              Webové projekty od{" "}
+              <span className="font-semibold text-black/90">{commercial.priceFrom}</span> — presnú
               cenu poviete po konzultácii.
             </p>
             <span className="flex items-center gap-3 text-[0.8rem] text-black/70">

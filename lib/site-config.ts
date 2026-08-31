@@ -22,7 +22,7 @@ export const siteConfig = {
   locale: "sk_SK",
   title: "Codera — tvorba firemných webstránok a redizajn webu",
   description:
-    "Navrhujeme a vyvíjame firemné webstránky, ktoré pôsobia dôveryhodne, načítajú sa rýchlo a vedú návštevníka k dopytu. Weby od 699 €, prvý návrh do 72 hodín.",
+    "Navrhujeme a vyvíjame firemné webstránky, ktoré pôsobia dôveryhodne, načítajú sa rýchlo a vedú návštevníka k dopytu. Weby od 1 000 €, prvý návrh do 72 hodín.",
   email: "coderaslovakia@gmail.com",
   phone: "+421 949 753 556",
   /** Digits only, for `tel:` links. */
@@ -35,8 +35,22 @@ export const siteConfig = {
  * the delivery windows can never drift between sections.
  */
 export const commercial = {
-  priceFrom: "699 €",
-  priceFromLabel: "Webové projekty od 699 €",
+  /**
+   * The entry price. Raised from 699 € on 2026-08-31.
+   *
+   * Every surface that mentions it derives from these three values — the
+   * offer act, the mobile edit, the world, the conversion facts, the boards,
+   * the structured data, the metadata description and the enquiry form's
+   * budget bands. Before this was routed, the number was hard-coded in eight
+   * places and a price change meant eight edits and a chance to miss one.
+   */
+  priceFrom: "1 000 €",
+  /** The same figure as a number, for structured data and the count-up. */
+  priceFromValue: 1000,
+  priceFromLabel: "Webové projekty od 1 000 €",
+  /** The full sentence used wherever the price appears in running copy. */
+  priceFromSentence:
+    "Webové projekty od 1 000 € — presnú cenu poviete po konzultácii.",
   firstProposalHours: 72,
   responseHours: 24,
   typicalDeliveryDays: 14,

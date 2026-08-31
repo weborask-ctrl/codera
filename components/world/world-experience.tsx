@@ -8,7 +8,7 @@ import { Magnetic } from "@/components/site/magnetic"
 import { CAMERA_STATES, film, useCapabilityTier } from "@/components/world/film"
 import { usePointerField } from "@/hooks/use-scene"
 import { EASE, gsap, ScrollTrigger } from "@/lib/motion"
-import { primaryCta, secondaryCta } from "@/lib/site-config"
+import { commercial, primaryCta, secondaryCta } from "@/lib/site-config"
 
 /**
  * SCENES 01–02 — the spatial world (desktop), or the designed DOM experience.
@@ -448,7 +448,7 @@ function WorldStage() {
                 ))}
               </ul>
               <p data-offer-price className="label mt-8 text-faint opacity-0">
-                Webové projekty od 699 € — presnú cenu poviete po konzultácii.
+                {commercial.priceFromSentence}
               </p>
             </div>
           </div>
