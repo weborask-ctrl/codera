@@ -283,6 +283,12 @@ function ActHero({ world }: { world: boolean }) {
           <br />
           než ukazuje váš web.
         </h1>
+        {/* the support line is about the READER, not our disciplines —
+            CODERA_STEP6_CONTENT.md §3 */}
+        <p className="mt-5 max-w-[30rem] text-[0.95rem] leading-[1.6] text-[#f2f4f6]/70">
+          Navrhujeme a staviame firemné weby, ktoré pôsobia tak dôveryhodne, ako
+          naozaj pracujete.
+        </p>
         <div className="mt-7 flex flex-wrap items-center gap-6">
           <button
             type="button"
@@ -331,6 +337,15 @@ function ActWork() {
             >
               <World />
             </div>
+            {/* the way into the document behind the vitrine — the study
+                sells the decisions the stage can only show */}
+            <a
+              href={`/praca/${id}`}
+              className="absolute bottom-6 left-[clamp(1.1rem,3.2vw,3rem)] z-20 rounded-full bg-[#17181d]/85 px-5 py-2.5 text-[0.62rem] tracking-[0.16em] text-[#f2f4f6] backdrop-blur-sm transition-colors hover:bg-[#17181d]"
+              style={MONO}
+            >
+              PRÍPADOVÁ ŠTÚDIA →
+            </a>
           </div>
           {/* the hold: 40svh of travel where the world above stays alone */}
           <div aria-hidden="true" className="h-[40svh]" />
@@ -357,9 +372,16 @@ function ActWork() {
           >
             {WORLDS.map(({ id, World }) => (
               <article key={id} data-deck-card className="w-[88vw] max-w-[30rem] shrink-0 snap-center">
-                <div className="h-[68svh] overflow-hidden rounded-[10px] shadow-[0_20px_50px_rgba(0,0,0,0.45)]">
+                <div className="h-[68svh] overflow-hidden rounded-[10px] shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
                   <World compact />
                 </div>
+                <a
+                  href={`/praca/${id}`}
+                  className="mt-3 inline-block text-[0.62rem] tracking-[0.16em] text-[#17181d] underline underline-offset-4"
+                  style={MONO}
+                >
+                  PRÍPADOVÁ ŠTÚDIA →
+                </a>
               </article>
             ))}
           </div>
@@ -660,6 +682,32 @@ function ActResolution({ world }: { world: boolean }) {
             coderaslovakia@gmail.com
           </a>
         </div>
+      </div>
+
+      {/* What happens after the form — the biggest SMB friction is not the
+          price, it is not knowing what they are starting
+          (CODERA_STEP6_CONTENT.md §7). Three verifiable commitments. */}
+      <div
+        data-enter
+        className="enter relative z-10 mx-auto mb-14 w-full max-w-[52rem] px-[clamp(1.25rem,4vw,3.5rem)]"
+      >
+        <p className="text-center text-[0.62rem] tracking-[0.28em] text-[#17181d]/50" style={MONO}>
+          ČO BUDE NASLEDOVAŤ
+        </p>
+        <ol className="mt-5 grid gap-px overflow-hidden rounded-[8px] border border-black/12 bg-black/12 sm:grid-cols-3">
+          {[
+            ["01", "Do 24 hodín sa ozveme a spýtame sa na to, čo z formulára nevyplynulo."],
+            ["02", "Do 72 hodín uvidíte prvý vizuálny návrh vašej stránky."],
+            ["03", "Ak vás nezaujme, končíme — nič neplatíte a nič nepodpisujete."],
+          ].map(([n, line]) => (
+            <li key={n} className="bg-[#F6F8FA]/80 px-5 py-5 text-left">
+              <span className="tnum text-[0.7rem] text-[#17181d]/40" style={MONO}>
+                {n}
+              </span>
+              <p className="mt-2 text-[0.85rem] leading-[1.55] text-[#17181d]/80">{line}</p>
+            </li>
+          ))}
+        </ol>
       </div>
 
       <EdgeLabel text="/05 — LIATIE" />

@@ -15,6 +15,10 @@ import { siteConfig } from "@/lib/site-config"
  */
 const routes: { path: string; changeFrequency: "monthly" | "weekly" }[] = [
   { path: "", changeFrequency: "monthly" },
+  /* Step 6 phase D: the concept case studies — real documents, not stubs. */
+  { path: "/praca/meridian", changeFrequency: "monthly" },
+  { path: "/praca/statut", changeFrequency: "monthly" },
+  { path: "/praca/vlna", changeFrequency: "monthly" },
 ]
 
 export default function sitemap(): MetadataRoute.Sitemap {
