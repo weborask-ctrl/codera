@@ -21,7 +21,7 @@ Status legend: **DONE** (gate passed) · **OPEN** (specified, not started) ·
 | 3 | Refokus-level spatial study | DONE — folded into the Step 1 library |
 | 4 | Audit of the live build | DONE |
 | 5 | The /01–/05 experience | DONE — specified retroactively |
-| 6 | Content and design of the pages | DRAFT — next |
+| 6 | Content and design of the pages | OPEN — specified, two inputs owed |
 
 ---
 
@@ -352,29 +352,139 @@ real-device validation explicitly **not** claimed.
 
 ## STEP 6 — Content and design of the pages
 
-**Status: DRAFT — this is the next step. Specify before starting.**
+**Status: OPEN.** Specified 2026-08-31. Two inputs still owed by Ondrej (§9)
+before implementation may begin.
 
-The working document deliberately left the final 01/02/03/04/05 content and
-layout structure unspecified. That specification is the subject of the next
-design session; implementation must not begin until this section is filled in
-and approved.
+### 1. Mission
 
-### To be defined
+Make the site sell. Step 5 proved Codera can build; Step 6 must make a Slovak
+SMB owner understand within one screen what they get, believe it, and start an
+enquiry — without inventing a single fact about the business.
 
-- [ ] Mission — what the content must achieve commercially, in one sentence
-- [ ] The final /01–/05 structure: what each act says, in what order, with what
-      single job
-- [ ] Copy: Slovak voice, headline grammar, length budget per state
-- [ ] Portfolio concepts: which industries, how many, what proves range —
-      Step 4 §2 sets the quality bar
-- [ ] Imagery: selection, licensing rules, `SOURCES.md` (CC0 or purchased only)
-- [ ] Offer and pricing presentation ("od 699 €" — accessible premium, no
-      luxury scarcity theatre)
-- [ ] Trust elements that are true today, given that nothing may be invented
-- [ ] Deliverables, completion gate and required validation classes
+### 2. Inputs
 
-### Standing constraints — already binding, do not re-litigate
+`CODERA_STEP5_DESIGN_BRIEF.md` (the intake and the tonal script stand — this
+step changes *what is said*, not the art direction) · `CODERA_STEP5_ARCHITECTURE.md`
+(the transition and device maps) · `CODERA_ART_DIRECTION_V2.md` ·
+`CODERA_DESIGN_INTELLIGENCE/03_INDUSTRY_STYLE_MATRIX.md` and
+`DESIGN_DECISION_ENGINE.md` (one engine run per concept world) ·
+`lib/site-config.ts` (the only source of business facts).
 
-Everything under Step 1 "Permanent deep design rules", Step 4 §4 (readability),
-§5 (no synthetic smooth scroll), §7 (dark/light dramaturgy), and the Step 5
-constraints above.
+### 3. Decisions taken 2026-08-31
+
+| Question | Decision |
+| --- | --- |
+| Site structure | One page **plus case-study pages** — the five-act journey stays a single URL; each concept gains its own route |
+| Portfolio concepts | **New industries.** The current three (construction GC, private clinic, interior studio) are replaced |
+| Offer presentation | **Three packages with prices**, anchored on the existing "od 699 €" |
+| Trust material | **Nothing new** — no legal entity, no completed client work, no testimonials. Trust must be carried by craft, transparency and process alone |
+
+The last one is the hard constraint of this step: every trust device must be
+true today. No client logos, no "50+ projektov", no invented years of
+experience, no stock portraits.
+
+### 4. Constraints
+
+Standing and binding, not to be re-litigated: Step 1 "Permanent deep design
+rules" · Step 4 §4 readability (ENTER → HOLD → EXIT, static-frame test) · §5 no
+synthetic smooth-scroll layer · §7 dark/light dramaturgy · all Step 5
+constraints (one motion engine, monochrome chrome, live-markup previews, nothing
+invented, reduced motion as layout).
+
+New to this step:
+
+- **Length budget holds.** Desktop ≤ ~8 viewports, mobile ≤ ~6.5. New content
+  displaces old content; it does not extend the page.
+- **Case-study pages are documents, not journeys.** No pinned scenes, no
+  canvas. They are read, printed and linked. The spatial experience lives on
+  the home page only.
+- **Every concept keeps its own climate**, bounded to its own world, per the
+  Step 5 accent economy. The shell stays achromatic.
+- **Previews stay live markup.** The new worlds are built the way the current
+  ones are — container-query sized components, no image bytes for the UI
+  itself.
+- **Honest labelling survives.** Concepts stay labelled `Koncept` on the home
+  page, in the case study, in the metadata and in the OG image.
+
+### 5. The concept worlds — proposed
+
+The three replacements are chosen so that each proves a different **commercial
+mechanic**, not merely a different palette. Range in mechanics is what an SMB
+buyer actually reads; range in colour is what a peer reads. This set does both.
+
+| # | Sector | Direction (matrix row) | Mechanic proven | Primary conversion |
+| --- | --- | --- | --- | --- |
+| 01 | Coffee roastery with a shop | warm-editorial + retro-craft, ecommerce discipline | Product grid, variants, cart, packaging art direction | Buy |
+| 02 | Law or accounting practice | corporate-institutional + heritage editorial serif | Density, document-heavy IA, restraint, trust-first hierarchy | Enquire |
+| 03 | Fitness or wellness studio | high-colour-expressive + soft-pastel pole | Schedule, membership tiers, mobile-first booking | Book |
+
+Why this set: it is maximally distant from the studio's own achromatic
+editorial shell and from each other (warm craft · institutional restraint ·
+expressive energy); none of the three needs photography that does not exist —
+packaging, documents and schedules are drawable as type, vector and colour;
+and all three are real Slovak SMB segments that pay for a website.
+
+Each world requires its own DESIGN_DECISION_ENGINE run recorded in its case
+study. A world that reads as "Codera in another colour" fails the step.
+
+**Names are content work**, decided during phase A. The existing names
+(Konštrukt, Vitalis, Forma) retire with their sectors.
+
+### 6. Phases
+
+| Phase | Output |
+| --- | --- |
+| **A — Narrative and copy** | The five acts rewritten: what each says, its single job, its length budget. Slovak voice, headline grammar, longest-form Slovak strings tested. One beat per viewport. |
+| **B — Offer** | The three packages: names, scope lines, from-prices, what is explicitly *not* included. Plus the honest-trust inventory: what may be claimed today and how it is worded. |
+| **C — Concept worlds** | One engine run per sector, then the three worlds built as live markup, replacing the current three. |
+| **D — Case-study pages** | Route, layout and content model for `/praca/<slug>`; one page per concept. |
+| **E — Imagery** | Selection and `SOURCES.md` with a licence line per file — CC0 or purchased only. Closes issue #7. |
+| **F — Implementation** | Home page acts and the new route, behind the standing constraints. |
+| **G — Validation** | Boards reviewed, static-frame test per state, device checklist, CI and preview. |
+
+Phases A and B are design-session work and produce documents. C onward is
+implementation and needs its own pull requests.
+
+### 7. Deliverables
+
+- `CODERA_STEP6_CONTENT.md` — the narrative, the copy deck, the offer, the
+  trust inventory (phases A–B)
+- Three engine runs, one per concept world, inside their case studies
+- Three rebuilt preview components under `components/site/previews/`
+- `app/praca/[slug]/page.tsx` and its content model
+- `SOURCES.md`
+- `lib/site-config.ts` extended with the package structure — real values only
+- Updated `STATE.md`
+
+### 8. Completion gate
+
+- [ ] Every claim on the page is true today; nothing is invented
+- [ ] Each of the three worlds passes its own engine run and reads as its own
+      studio's work, not as Codera recoloured
+- [ ] Each world proves a different commercial mechanic (buy / enquire / book)
+- [ ] Every text state passes the static-frame test at its reading moment
+- [ ] Length budget respected: desktop ≤ ~8 viewports, mobile ≤ ~6.5
+- [ ] Case-study pages readable with no canvas, no pins, and with scripting off
+- [ ] Prices consistent between `lib/site-config.ts`, the offer act and the
+      case studies — one source, no drift
+- [ ] `SOURCES.md` accounts for every image file
+- [ ] Concepts labelled `Koncept` everywhere they appear, metadata included
+- [ ] Mobile navigation and the enquiry path retested end to end
+
+### 9. Validation classes
+
+LOCAL + CI + PREVIEW required. **DEVICE required** — this step changes the
+conversion path, and issue #2 must be closed against the finished page, not
+against the current one.
+
+### 10. Inputs still owed by Ondrej
+
+Implementation of phase B is blocked until these exist. Nothing else is
+blocked; phases A, C and D can start immediately.
+
+1. **The three package prices and scopes.** The structure is proposed; the
+   numbers are a commercial decision and may not be invented. Anchor: the
+   existing `od 699 €` must remain the entry point of the cheapest package.
+2. **Confirmation of the three sectors** in §5, or a substitution. If one is
+   replaced, its mechanic must be replaced too — the set must still prove buy,
+   enquire and book.

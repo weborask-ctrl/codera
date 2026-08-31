@@ -2,6 +2,16 @@
 
 Every change to how the work is run is recorded here, with its reason.
 
+## 2026-08-31 — Step 6 specified
+
+The first step to be written before it is built rather than after. Four
+decisions were taken with Ondrej: the site gains case-study pages while the
+home page stays one journey; the three concept worlds are replaced with new
+sectors; the offer becomes three priced packages; and nothing new is true about
+the business, so every trust device must be carried by craft and transparency
+alone. Two inputs remain owed — the package prices, which are commercial and may
+not be invented, and confirmation of the three sectors.
+
 ## 2026-08-31 — v0.6: the process moves into the repository
 
 Triggered by a review of the repository, its GitHub history and its documents,
