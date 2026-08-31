@@ -3,8 +3,8 @@ id: basement
 url: https://basement.studio/
 captured: 2026-08-31
 tags: [5d]
-verdict: PENDING
-verdict-note:
+verdict: LIKED
+verdict-note: "vyhovuje" (kalibrácia 2026-08-31, hárky 01-05 + 09)
 ---
 
 # basement.studio | We make cool shit that performs.
@@ -22,8 +22,15 @@ shots/basement-01.png · shots/basement-02.png
 
 ## Why it works
 
-_Filled after calibration, LIKED records only._
+Industrial-brutalist confidence: giant grotesque set tight, hairline-ruled
+grids DENSE with real content (a wall of recognisable client logos, real
+project rows), tiny accent colour used maybe twice. It reads powerful because
+the density is REAL — every cell is verifiable content, not filler. The 3D
+(dot-matrix terrain) is monochrome and appears as material inside the grid.
 
 ## What we take / what we refuse
 
-_Filled after calibration, LIKED records only._
+TAKE: density of real content as the credibility engine; hairline grid
+discipline; huge tight display moments between dense passages (the wow rhythm:
+vast type ↔ dense grid). REFUSE: the logo wall itself — Codera has no clients
+yet and fakes nothing; our density must come from craft artifacts instead.

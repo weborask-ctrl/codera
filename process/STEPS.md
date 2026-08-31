@@ -22,7 +22,7 @@ Status legend: **DONE** (gate passed) · **OPEN** (specified, not started) ·
 | 4 | Audit of the live build | DONE |
 | 5 | The /01–/05 experience | DONE — specified retroactively |
 | 6 | Content and design of the pages | OPEN — phases A–C done, B in PR, D–G remain |
-| 7 | Full visual redesign — new art direction | OPEN — specified 2026-08-31 |
+| 7 | Full visual redesign — new art direction | OPEN — direction „Žiara" set, implementation next |
 
 ---
 
@@ -541,8 +541,8 @@ the concrete-reference pipeline in `CODERA_DESIGN_REFERENCES/README.md`.
 | Phase | Output |
 | --- | --- |
 | A — Harvest | 15–25 real modern 5D/spatial sites dissected from the source galleries into records: screenshots at reading moments, sampled palettes, real type stacks, scroll-beat inventories |
-| B — Calibration | Ondrej marks every record LIKED / REJECTED on a numbered contact sheet. The direction is derived only from LIKED records; REJECTED ones stay as documented anti-taste |
-| C — Art direction v3 | The contract document, every decision citing record IDs |
+| B — Calibration | Ondrej marks every record LIKED / REJECTED on a numbered contact sheet. The direction is derived only from LIKED records; REJECTED ones stay as documented anti-taste | **DONE 2026-08-31: LIKED = lusion, activetheory, refokus, exoape, igloo, basement.**
+| C — Art direction v3 | The contract document, every decision citing record IDs | **DONE: CODERA_ART_DIRECTION_V3.md — „Žiara".**
 | D — Implementation | Act by act; built frames reviewed side by side against the reference shots |
 | E — Validation | Full gate: LOCAL + CI + PREVIEW, device checklist re-run |
 
