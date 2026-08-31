@@ -236,17 +236,32 @@ badge, because it proves the price is a real boundary and not bait.
 everywhere, including the live site, the metadata description, the structured
 data and the enquiry form's budget bands.
 
-| Package | For whom | From | Not included |
-| --- | --- | --- | --- |
-| 1 — entry | *proposed:* a business that needs one credible page | **1 000 €** *(confirmed)* | *owed* |
-| 2 — standard | *proposed:* a company website with several sections | *proposed:* 2 500 € | *owed* |
-| 3 — bespoke | *proposed:* a site with its own art direction and custom motion | *proposed:* 5 000 € | *owed* |
+**The real ladder, supplied by Ondrej on 2026-08-31: two products, not three.**
 
-The two upper numbers are a **proposal awaiting one word of confirmation** —
-they are not invented facts and must not reach the site until Ondrej approves
-them. The ladder is set so each step is roughly 2–2.5× the one below, which
-reads as three genuinely different products rather than three sizes of the same
-one, and it lines up with the enquiry form's budget bands.
+| Package | What it is | Price |
+| --- | --- | --- |
+| Klasický web | A professional conventional company website | **1 000 €** |
+| 5D web | The full spatial experience, the thing this site is | **1 000 – 1 500 €** |
+
+Two things follow, and both need resolving before this reaches the page.
+
+**The overlap makes the cheaper product unsellable.** Both start at 1 000 €. A
+visitor reading that takes the 5D one every time — which is fine as a sales
+outcome and fatal as a price list, because a price list whose lower option is
+never rational reads as either a mistake or a trick. Two clean readings, one
+word decides it: either *klasický 1 000 € · 5D od 1 500 €*, or *klasický
+1 000 € · 5D 1 200–1 500 €*. Until Ondrej picks, the packages do not ship.
+
+**The 5D price is far below the work.** This very site is the 5D product: a
+persistent WebGL world, a separately authored mobile edit, three device tiers, a
+custom parametric brand object and roughly four weeks of design and build. At
+1 500 € that is a rate no studio survives at, and it prices the studio's best
+argument as its cheapest add-on — a visitor who sees cinematic work at 1 200 €
+concludes it is either simple or padded, and neither helps. The number is
+Ondrej's call and it is recorded as given; the concern is recorded next to it,
+once. If the intent is a low entry point to win first commissions, the honest
+form of that is a stated introductory price with an end date, not a permanent
+list price that has to be defended later.
 
 Rules for phase B: prices ascend and each is a *from* price; the cheapest holds
 the 1 000 € anchor; scope lines are outcomes, not deliverable counts; no package
@@ -351,14 +366,16 @@ anything that lengthens the page without adding a beat.
 
 ## 11. Open
 
-- The two upper package prices (2 500 € and 5 000 € proposed) and the one "not
-  included" line for each package. Owed by Ondrej.
-- Concept names, chosen with the worlds in phase C.
-- The 9-versus-8 viewport decision above.
+- **The 1 000 € overlap between the two packages** (§6). One word decides it;
+  the packages do not ship until then.
+- The one "čo v tom nie je" line for each of the two packages.
+- The 9-versus-8 viewport decision above. With two packages instead of three
+  this is probably already solved — the offer act should fit in one viewport.
 
-**Closed 2026-08-31:** entry price confirmed at 1 000 € · the three sectors in
+**Closed 2026-08-31:** entry price confirmed at 1 000 € · the offer is two
+products, not three (classic 1 000 €, 5D 1 000–1 500 €) · the three sectors in
 §5 confirmed · concept designs to be modern and 5D, with the range guardrail in
-§0.
+§0 · concept names chosen in phase C, see `CODERA_STEP6_WORLDS.md`.
 
 ## 12. The price change is also a live-site defect
 
