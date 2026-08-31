@@ -3,111 +3,114 @@
 What is live, what was decided, and what must not be relearned. One file, kept
 short. Open work does **not** live here — it lives in GitHub Issues.
 
-Last reviewed: 2026-08-31 · Release: **Codera 1.0** · Production:
-`https://www.codera.sk` · Open backlog: see Issues.
+Last reviewed: 2026-08-31 (evening) · Production: `https://www.codera.sk` ·
+Open backlog: see Issues.
 
 ---
 
 ## What is live
 
-The homepage is one authored journey in five acts — `#top` (/01 Identita) →
-`#premena` (/02 Premena) → `#praca` (/03 Práca) → `#sluzby` (/04 Ponuka) →
-`#kontakt` (/05 Kontakt) — plus a small footer. Around 9.5 viewports of scroll,
-of which three pins account for roughly five: a pinned scene advances in place,
-so the visitor experiences four scenes rather than a longer page.
+**Art Direction v3 — „Žiara"** (`CODERA_ART_DIRECTION_V3.md`), derived from the
+calibrated reference library (`CODERA_DESIGN_REFERENCES/`, six LIKED records).
+One graphite-to-frost atmosphere; the titanium ribbon C is the single lit
+object; the /01→/05 journey is one sunrise — tones only ever brighten
+(`ACT_TONES` in `components/experience/stage.ts`). Obsidian shards (Ondrej's
+idea, AD v3 §Obsidián) drift in the fog as the third element: raw matter that
+thins as the light rises.
 
-Visual contract: `CODERA_ART_DIRECTION_V2.md` ("Zlievareň"). Experience
-contract: `CODERA_STEP5_ARCHITECTURE.md`. Brief: `CODERA_STEP5_DESIGN_BRIEF.md`.
+The homepage is five acts — /01 Identita (dark fog, lit C, shards) ·
+/02 Premena (Bilanc before/after, frost seam) · /03 Práca (three concept
+worlds) · /04 Ponuka (process + three packages) · /05 Kontakt (ink on frost,
+the ribbon closes). Plus three **case-study pages** (`/praca/meridian`,
+`/praca/statut`, `/praca/vlna`) — documents, no canvas, readable without JS.
 
-Three rendering tiers, decided after hydration and never exposed to the user:
-the WebGL world (desktop), the separately authored mobile experience, and a
-designed DOM tier for wide/no-WebGL/reduced-motion visitors — the last is a
-designed experience, not a fallback apology.
+**Type system:** Geist Sans (light weights carry display) + Geist Mono (the
+engineering voice: coordinates, annotations). Fraunces loads only for the
+concept worlds' interior serif. Archivo retired with v2.
 
-The most valuable assets in the repository, all reused rather than rebuilt:
+**The offer:** Vizitka od 1 000 € · Firemný web od 1 800 € · 5D web od
+3 200 €, declared once in `lib/site-config.ts` (`packages`) and consumed by
+the /04 act, the structured data and the tests — drift fails CI.
 
-- `components/site/previews/*` — Konštrukt, Vitalis, Forma and the 2011-era
-  Legacy site as **live markup**, container-query sized, zero image bytes.
-- `components/site/enquiry-form.tsx` — validated, accessible, test-covered.
-- `lib/site-config.ts` — the only source of business facts. Nothing invented.
-- The accessibility floor in `app/globals.css`.
+**The concept worlds:** Meridián (roastery — buy) · Štatút (law practice —
+enquire) · Vlna (wellness — book). Each owns its interior palette; the shell
+is monochrome frost. All labelled `UKÁŽKOVÝ KONCEPT`, enforced by tests.
 
-Dependencies went from 23 to 8 during the rebuild.
+The v2 experience (components/world, components/mobile, v2 scenes, retired
+previews, /textures) was deleted 2026-08-31 — git remembers.
 
 ---
 
 ## Architecture decisions
 
-1. **One world, one timeline.** A single persistent canvas and one master
-   scrubbed ScrollTrigger; DOM and camera read the same clock.
-2. **One geometry.** The parametric mark generator feeds both the SVG assets and
-   the 3D sweep — the logo and the cinematic object cannot diverge.
+1. **One atmosphere, one sunrise.** Acts differ only in camera and light;
+   no act returns to dark. The five-moods failure is structurally impossible.
+2. **One geometry.** The parametric mark generator feeds both the SVG assets
+   and the GLB — the logo and the cinematic object cannot diverge.
 3. **DOM is the floor.** All commercial content is semantic DOM; the canvas is
-   enhancement.
-4. **GSAP is the only animator.** R3F is a renderer, not a second engine.
-5. **Mobile is authored separately** — different structure, different interaction
-   language, shared brand and copy.
-6. **Monochrome chrome, colour only in the work.**
-7. **Previews stay live markup**, never screenshots; photography is composed
-   around them.
-8. **Nothing about the business is invented.** Concepts stay labelled `Koncept`.
-9. **Reduced motion is a layout, not a fallback** — pinned scenes are never
-   registered when the preference is set, so nothing can trap the scroll.
+   enhancement. Flat mode (SSR default, mobile, no-WebGL, reduced motion) is a
+   designed experience.
+4. **Native scroll, zero pins, no smoothing layer.** The world interpolates;
+   input never lags.
+5. **Monochrome shell, colour only in the work.** Zero chromatic accent in the
+   chrome; each concept world owns its palette, bounded to its frame.
+6. **Nothing about the business is invented.** `lib/site-config.ts` is the
+   only source of business facts; concepts stay labelled everywhere.
+7. **Reduced motion is a layout.** Shards freeze into a composed still; the
+   fog stops breathing; nothing disappears.
+8. **No visual design without cited references** (CLAUDE.md rule 8) — the
+   direction cites LIKED records; invented-from-principles was tried and
+   rejected as AI-looking.
 
 ---
 
 ## Hard-won findings — do not relearn
 
-- **`ScrollTrigger.create()` does not re-measure existing triggers, and
-  `refresh()` processes them in creation order.** Without `ScrollTrigger.sort()`
-  before `refresh()`, the master pin's 2 880 px of pin distance never reaches
-  later starts and those sections pin on top of the world.
-- **A pinned trigger re-parents its element into the pin-spacer.** If a
-  server-rendered fallback scene creates its pin and is then swapped out by the
-  post-hydration tier decision, React unmounts a node whose parent changed →
-  `removeChild` crash. `useScene` defers all setup by one rAF so the swap
-  decision always lands first.
-- **react-hooks v6 immutability:** per-frame mutation must never touch a
-  hook-tracked value. Route it through `state.scene.getObjectByName()` in the
-  frame callback — the same pattern for mesh rotation, uniforms and lights.
-- **shadcn's CSS import** brings 629 lines of accordion keyframes this site does
-  not use, and resolving it through the package `exports` map is fragile under
-  Turbopack. The CLI is kept out of the app entirely.
+- **react-hooks v6 immutability:** per-frame mutation never touches
+  hook-tracked values. Everything routes through
+  `state.scene.getObjectByName()` + `userData` in the frame loop.
+- **Slovak low-9 quotes („) paired with straight closers (") terminate JS
+  strings.** Use „…“ pairs in Slovak copy inside code.
+- **Biome reads `//` in JSX text as a suspicious comment** — wrap engineering
+  annotations as string expressions.
+- **A compact world is a ~490 px card on a 768 px viewport** — viewport-gated
+  (`md:`) chrome inside container-sized components lets elements in that then
+  collide. Gate on `compact`, not on the viewport.
+- **The element screenshot of a section over a fixed WebGL canvas composites
+  black** — capture the viewport, not the element, when the world is behind.
+- **shadcn's CSS import** brings unused keyframes and resolves fragilely under
+  Turbopack; kept out of the app entirely.
 
 ---
 
-## Measured
+## Measured — production build, 2026-08-31 (Žiara, post-cleanup)
 
-Production build, 1440×900, served uncompressed locally:
-LCP 412 ms · CLS 0 · one long task · 660 KB JS · 209 KB fonts · 53 KB CSS ·
-81 KB HTML. Brotli in production cuts these to roughly a third.
+Desktop 1440×900, world mode: frame median **16.9 ms** (vsync floor), jank
+**0.5 %**; at 4× CPU throttle median 16.6 ms, p95 28.6 ms, jank 4.6 % — the
+obsidian shards cost nothing measurable.
 
-Mobile at 6× CPU throttle, 390 px: LCP 1 164 ms · CLS 0 · scroll jank 10.3%.
-Mobile JS floor ≈ 705 KB raw ≈ 210 KB brotli (framework + Next runtime + GSAP,
-which every tier needs). three.js is correctly lazy — the 887 KB world chunk
-downloads only on the world tier, after hydration; mobile never sees it.
+Mobile 390 px @ 6× CPU: **LCP 1 804 ms** (< 2.5 s budget; up from v2's
+1 164 ms — the LCP element is the hero mark SVG, worth a look if it climbs
+further) · **CLS 0**.
 
-Tests: 77 passed, 1 skipped across Chromium, Firefox and WebKit. The skip is the
-keyboard-walk test on WebKit, which does not tab to links unless the OS
-preference is on.
+Payload, desktop world, uncompressed: JS 1 702 KB (three.js world chunk
+included, lazy) · fonts **206 KB** across six files (three families ×
+latin/latin-ext; Archivo's exit was offset by Geist's subsets — issue #5 stays
+open with these numbers) · CSS 77 KB · GLB 706 KB · HTML 129 KB.
 
-No horizontal overflow and no runtime errors at 320, 375, 390, 768, 1024, 1440
-or 1920. Every control is keyboard reachable with a visible focus ring; body and
-display text clear 4.5:1 on both grounds.
-
-`layout-shift` entries *are* emitted by ScrollTrigger's pinning, but each falls
-within 500 ms of user input and is therefore excluded from real CLS.
+Tests: **26/26** chromium (two known singleton flakes under full parallel load
+pass in isolation and with 2 workers).
 
 ---
 
-## Validation status of this release
+## Validation status — Žiara release line
 
 | Class | Status |
 | --- | --- |
-| LOCAL | Passed |
-| CI | Passed — run `33141177009`, green |
-| PREVIEW | Passed |
-| DEVICE | **Not validated.** No physical iPhone available to the machine that built this. See `docs/DEVICE_CHECKLIST.md`. |
+| LOCAL | Passed (verify + suite, this file's numbers) |
+| CI | Passed — every slice merged green through PRs #14–#18 |
+| PREVIEW | Spot-checked per PR on Vercel previews |
+| DEVICE | **Not validated.** `docs/DEVICE_CHECKLIST.md` waits for a physical iPhone — issue #2, the release blocker |
 
 ---
 
@@ -115,5 +118,8 @@ within 500 ms of user input and is therefore excluded from real CLS.
 
 - Step contracts and their gates: `process/STEPS.md`
 - How the work is run: `process/CODERA_PROCESS.md`
+- The direction: `CODERA_ART_DIRECTION_V3.md` · references:
+  `CODERA_DESIGN_REFERENCES/`
+- Asset provenance: `SOURCES.md`
 - Open items: GitHub Issues
-- Superseded phase-by-phase history: `docs/archive/`
+- Superseded history: `docs/archive/` (v2 direction included)
