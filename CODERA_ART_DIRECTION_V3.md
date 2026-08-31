@@ -183,3 +183,26 @@ real state — never decoration for its own sake.
 
 The font cost (+2 families) is accepted consciously against issue #5; the
 range argument wins over the kilobytes, and the numbers get re-measured.
+
+## Amendment 2 — 2026-08-31: the concepts become real sites, /03 becomes portals
+
+Ondrej's verdict on the dynamics release: the concept designs sit at half the
+main page's level, and /03 reads boring and AI-generated. The fix is
+structural, not cosmetic:
+
+1. **Each concept is a full 5D responsive website** at `/koncept/<slug>` — a
+   real multi-section scrolling page a visitor can browse: hero, commerce or
+   document sections, motion choreography, its own responsive behaviour. The
+   LIKED references set the bar and the grammar; the faces and palettes stay
+   Codera's own per-world identities (Fraunces / Instrument Serif / Bricolage,
+   the ember/oxblood/citrus climates). Every page carries a slim honest ribbon
+   back to codera.sk — a concept, never a fake client.
+2. **/03 becomes a portal gallery.** The full-bleed sticky stack retires.
+   Each project gets an editorial split: the name at poster scale in its own
+   face, sector + the reasoning line, and a PORTAL — the concept's live hero
+   rendered small in a perspective-tilted frame that answers the pointer.
+   Two ways in: „Vstúpiť do konceptu" (the full site) and the case study.
+3. The case studies embed the same live hero and link to the full site.
+
+The v2-era `worlds.tsx` retires with the stack; the concept sites own their
+sections, and the portals reuse their heroes — one source, no drift.
