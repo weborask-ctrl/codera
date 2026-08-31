@@ -77,16 +77,16 @@ function SlovakiaDotMap() {
   return (
     <div data-enter className="enter relative z-10 mx-auto mb-8 w-[min(300px,72vw)]">
       <svg viewBox="0 0 320 110" aria-hidden="true" className="w-full">
-        <g fill="#f4f1ea" opacity="0.14">
+        <g fill="#17181d" opacity="0.2">
           {SK_DOTS.map(([x, y]) => (
             <circle key={`${x}-${y}`} cx={x} cy={y} r="1.6" />
           ))}
         </g>
         {/* Prešov — the studio's home */}
-        <circle cx="244.6" cy="36.8" r="2.8" fill="#dce6ee" />
-        <circle cx="244.6" cy="36.8" r="6" fill="none" stroke="#dce6ee" strokeOpacity="0.4" strokeWidth="1" />
+        <circle cx="244.6" cy="36.8" r="2.8" fill="#17181d" />
+        <circle cx="244.6" cy="36.8" r="6" fill="none" stroke="#17181d" strokeOpacity="0.35" strokeWidth="1" />
       </svg>
-      <p className="mt-3 text-center whitespace-nowrap text-[0.52rem] tracking-[0.18em] text-white/45" style={MONO}>
+      <p className="mt-3 text-center whitespace-nowrap text-[0.52rem] tracking-[0.18em] text-[#17181d]/50" style={MONO}>
         PREŠOV · 49.00° N / 21.23° E
       </p>
     </div>
@@ -613,7 +613,8 @@ function ActResolution({ world }: { world: boolean }) {
     <section
       data-zone="resolution"
       id="kontakt"
-      className={`relative flex min-h-svh flex-col overflow-hidden text-[#f4f1ea] ${world ? "" : "molten-field"}`}
+      className="relative flex min-h-svh flex-col overflow-hidden text-[#17181d]"
+      style={world ? undefined : { background: "radial-gradient(70% 55% at 50% 38%, #FFFFFF 0%, #EDF0F3 62%, #E2E6EB 100%)" }}
     >
       {!world ? (
         // biome-ignore lint/performance/noImgElement: static same-origin brand SVG; next/image adds nothing here.
@@ -630,29 +631,30 @@ function ActResolution({ world }: { world: boolean }) {
         className="enter relative z-10 flex flex-1 flex-col items-center justify-end px-[clamp(1.25rem,4vw,3.5rem)] pt-[34svh] pb-[10svh] text-center lg:justify-center lg:pt-[46svh]"
       >
         <h2
-          className="text-[clamp(1.5rem,7.4vw,4.6rem)] font-semibold lg:text-[clamp(1.9rem,4.6vw,4.6rem)]"
+          className="text-[clamp(1.6rem,7.6vw,4.9rem)] font-light lg:text-[clamp(2rem,4.9vw,5rem)]"
           style={{
-            lineHeight: 0.98,
-            letterSpacing: "-0.035em",
-            /* the closing line crosses the bright C — same halo as the hero */
-            textShadow: "0 1px 2px rgba(12,12,16,0.5), 0 14px 44px rgba(12,12,16,0.55)",
+            lineHeight: 1.02,
+            letterSpacing: "-0.022em",
+            /* the closing line crosses the bright C — a FROST halo now, the
+               ground is risen light and ink needs lift, not shadow */
+            textShadow: "0 1px 2px rgba(250,251,252,0.7), 0 10px 36px rgba(250,251,252,0.55)",
           }}
         >
           Váš ďalší web nemusí
           <br />
           vyzerať ako všetky ostatné.
         </h2>
-        <p className="mt-5 text-[0.95rem] text-white/65">Vytvorme taký, ktorý si ľudia zapamätajú.</p>
+        <p className="mt-5 text-[0.95rem] text-[#17181d]/70">Vytvorme taký, ktorý si ľudia zapamätajú.</p>
         <div className="mt-9 flex flex-wrap items-center justify-center gap-6" id="dopyt">
-          <span className="hidden text-[0.85rem] text-white/60 md:block">Máte projekt v hlave?</span>
+          <span className="hidden text-[0.85rem] text-[#17181d]/60 md:block">Máte projekt v hlave?</span>
           <button
             type="button"
             onClick={() => openEnquiry()}
-            className="rounded-full bg-[#f4f1ea] px-7 py-3.5 text-[0.9rem] font-medium text-[#16171b]"
+            className="rounded-full bg-[#17181d] px-7 py-3.5 text-[0.9rem] font-medium text-[#fafbfc]"
           >
             Začať projekt
           </button>
-          <a href="mailto:coderaslovakia@gmail.com" className="text-[0.8rem] text-white/60 underline underline-offset-4">
+          <a href="mailto:coderaslovakia@gmail.com" className="text-[0.8rem] text-[#17181d]/60 underline underline-offset-4">
             coderaslovakia@gmail.com
           </a>
         </div>
@@ -661,7 +663,7 @@ function ActResolution({ world }: { world: boolean }) {
       <EdgeLabel text="/05 — LIATIE" />
       <SlovakiaDotMap />
 
-      <footer className="relative z-10 border-t border-white/15 px-[clamp(1.25rem,4vw,3.5rem)] py-5 text-[0.62rem] text-white/65">
+      <footer className="relative z-10 border-t border-black/15 px-[clamp(1.25rem,4vw,3.5rem)] py-5 text-[0.62rem] text-[#17181d]/70">
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <span className="flex items-center gap-2">
             {/* biome-ignore lint/performance/noImgElement: static same-origin brand SVG; next/image adds nothing here. */}
