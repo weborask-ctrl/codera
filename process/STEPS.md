@@ -561,3 +561,12 @@ the concrete-reference pipeline in `CODERA_DESIGN_REFERENCES/README.md`.
 
 LOCAL + CI + PREVIEW required; DEVICE required before release (issue #2 rolls
 into this step's gate).
+
+### Step 7 — remaining queue (2026-08-31, after the portal release)
+
+Ondrej's direction: /02 Premena is CUT from the page (it never sat right and
+he does not want to force it); the portal gallery layout is right, its type
+was too small and the ukážka framing too quiet — both fixed. What remains is
+the big one: **the three concept sites get individually redesigned to a far
+more interesting level, one at a time, each as its own session with Ondrej.**
+Order to be picked by him: Meridián / Štatút / Vlna.

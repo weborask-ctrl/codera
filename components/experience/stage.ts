@@ -12,7 +12,6 @@
 export type ActName =
   | "hero"
   | "pass"
-  | "premena"
   | "work"
   | "meridian"
   | "statut"
@@ -37,7 +36,6 @@ export const stage: StageState = {
   p: {
     hero: 0,
     pass: 0,
-    premena: 0,
     work: 0,
     meridian: 0,
     statut: 0,
@@ -171,7 +169,6 @@ export function bindStage(): () => void {
 export const ACT_TONES: Record<ActName, string> = {
   hero: "#0E0F13",
   pass: "#23252C",
-  premena: "#4A4E58",
   work: "#9BA1AC",
   meridian: "#9BA1AC",
   statut: "#C4C9D1",

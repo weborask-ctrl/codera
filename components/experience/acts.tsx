@@ -15,7 +15,6 @@ import { StatutHero } from "@/components/concepts/statut"
 import { VlnaHero } from "@/components/concepts/vlna"
 import { packages } from "@/lib/site-config"
 import { openEnquiry } from "./enquiry-bus"
-import { ActPremena } from "./premena"
 import { bindStage, stage } from "./stage"
 
 const MONO = { fontFamily: "var(--font-geist-mono)" }
@@ -101,13 +100,12 @@ function SlovakiaDotMap() {
 const ACT_NO: Record<string, string> = {
   hero: "01",
   pass: "01",
-  premena: "02",
-  work: "03",
-  meridian: "03",
-  statut: "03",
-  vlna: "03",
-  offer: "04",
-  resolution: "05",
+  work: "02",
+  meridian: "02",
+  statut: "02",
+  vlna: "02",
+  offer: "03",
+  resolution: "04",
 }
 
 function useStage(probe: boolean) {
@@ -130,18 +128,12 @@ function useStage(probe: boolean) {
       if (!root) {
         return
       }
-      /* /02 wipe: completes at 62% of the region, then HOLDS readable */
-      const fold = Math.min(1, stage.p.premena / 0.62)
-      root.style.setProperty("--fold", fold.toFixed(4))
-      if (fold >= 0.97 && !root.hasAttribute("data-wipe-done")) {
-        root.setAttribute("data-wipe-done", "")
-      }
       root.style.setProperty("--recede-a", Math.min(1, stage.p.statut * 2).toFixed(4))
       root.style.setProperty("--recede-b", Math.min(1, stage.p.vlna * 2).toFixed(4))
       root.style.setProperty("--journey", stage.total.toFixed(4))
 
       if (actPill) {
-        const label = `${ACT_NO[stage.act] ?? "01"} / 05`
+        const label = `${ACT_NO[stage.act] ?? "01"} / 04`
         if (actPill.textContent !== label) {
           actPill.textContent = label
         }
@@ -153,7 +145,7 @@ function useStage(probe: boolean) {
         if (delta > worst && delta < 250) {
           worst = delta
         }
-        probeRef.current.textContent = `act ${stage.act} · input→write ${delta.toFixed(1)} ms (worst ${worst.toFixed(1)}) · fold ${fold.toFixed(2)}`
+        probeRef.current.textContent = `act ${stage.act} · input→write ${delta.toFixed(1)} ms (worst ${worst.toFixed(1)})`
       }
     }
     frame = requestAnimationFrame(write)
@@ -250,8 +242,8 @@ function ActHero({ world }: { world: boolean }) {
 
       {/* rotating scroll badge (monopo) */}
       <a
-        href="#premena"
-        aria-label="Posunúť na premenu"
+        href="#praca"
+        aria-label="Posunúť na prácu"
         className="absolute right-[clamp(1.25rem,4vw,3.5rem)] bottom-[7svh] hidden h-[92px] w-[92px] lg:block"
       >
         <svg viewBox="0 0 100 100" className="scroll-badge h-full w-full opacity-70" role="img" aria-label="Skrolujte">
@@ -369,6 +361,13 @@ function Portal({ Hero, id }: { Hero: React.ComponentType<{ portal?: boolean }>;
         boxShadow: "0 40px 90px -35px rgba(14,15,19,0.55), 0 0 0 1px rgba(23,24,29,0.1)",
       }}
     >
+      {/* an unmissable label ON the artefact — nobody may mistake the demo for a client */}
+      <span
+        className="absolute top-4 left-4 z-10 rounded-full bg-[#17181d]/85 px-4 py-1.5 text-[0.6rem] tracking-[0.18em] text-[#f2f4f6] backdrop-blur-sm"
+        style={MONO}
+      >
+        UKÁŽKA · FIKTÍVNA ZNAČKA
+      </span>
       {/* the live hero at half scale — a real page behind glass, never a screenshot */}
       <div
         aria-hidden="true"
@@ -398,9 +397,28 @@ function ActWork({ world }: { world: boolean }) {
       className="relative"
       style={world ? undefined : { background: "linear-gradient(180deg,#9BA1AC 0%,#C4C9D1 55%,#DFE3E8 100%)" }}
     >
-      <div className="px-[clamp(1.1rem,4vw,3.5rem)] pt-[10svh]">
-        <p className="text-[0.66rem] tracking-[0.3em] text-[#17181d]/70" style={MONO}>
-          03 — VYBRANÁ PRÁCA · TRI KONCEPTY, TRI JAZYKY
+      {/* The section says WHAT THIS IS at display scale — the ukážka framing
+          must be unmissable, not a mono whisper (Ondrej, 2026-08-31). */}
+      <div data-enter className="px-[clamp(1.1rem,4vw,3.5rem)] pt-[12svh] pb-[2svh]">
+        <p className="text-[0.72rem] tracking-[0.3em] text-[#17181d]/70" style={MONO}>
+          02 — UKÁŽKY PRÁCE
+        </p>
+        <h2
+          className="mt-4 max-w-[11em] font-light text-[#17181d]"
+          style={{ fontSize: "clamp(2.2rem,5vw,4.6rem)", lineHeight: 1.02, letterSpacing: "-0.022em" }}
+        >
+          <span className="rise-wrap">
+            <span className="rise">Tri značky, ktoré neexistujú.</span>
+          </span>
+          <span className="rise-wrap">
+            <span className="rise" style={{ ["--rise-delay" as string]: "0.12s" }}>
+              Tri weby, ktoré áno.
+            </span>
+          </span>
+        </h2>
+        <p className="mt-5 max-w-[34rem] text-[1.02rem] leading-[1.6] text-[#17181d]/70">
+          Ukážkové koncepty navrhnuté od nuly — každý v inom odvetví, s iným
+          písmom a iným jazykom. Do každého môžete vstúpiť a preklikať si ho.
         </p>
       </div>
 
@@ -420,30 +438,30 @@ function ActWork({ world }: { world: boolean }) {
           }}
         >
           <div className={i % 2 ? "lg:order-2" : ""}>
-            <p className="tnum text-[0.66rem] text-[#17181d]/50" style={MONO}>
-              03·0{i + 1}
+            <p className="tnum text-[0.8rem] text-[#17181d]/50" style={MONO}>
+              02·0{i + 1}
             </p>
-            <p className="mt-3 text-[0.6rem] tracking-[0.24em]" style={{ ...MONO, color: accent }}>
+            <p className="mt-3 text-[0.72rem] tracking-[0.24em]" style={{ ...MONO, color: accent }}>
               {sector} · UKÁŽKOVÝ KONCEPT
             </p>
             <h3
               className="mt-2 text-[#17181d]"
-              style={{ ...font, fontSize: "clamp(3rem,7.2vw,6.6rem)", lineHeight: 0.95, letterSpacing: "-0.015em" }}
+              style={{ ...font, fontSize: "clamp(3.4rem,7.6vw,7rem)", lineHeight: 0.95, letterSpacing: "-0.015em" }}
             >
               {name}
             </h3>
-            <p className="mt-4 max-w-[26rem] text-[0.95rem] leading-[1.6] text-[#17181d]/70">{line}</p>
+            <p className="mt-5 max-w-[27rem] text-[1.08rem] leading-[1.6] text-[#17181d]/75">{line}</p>
             <div className="mt-7 flex flex-wrap items-center gap-5">
               <a
                 href={`/koncept/${id}`}
-                className="rounded-full px-6 py-3 text-[0.66rem] tracking-[0.14em] text-[#f2f4f6] transition-transform hover:-translate-y-0.5"
+                className="rounded-full px-7 py-3.5 text-[0.78rem] tracking-[0.14em] text-[#f2f4f6] transition-transform hover:-translate-y-0.5"
                 style={{ ...MONO, background: "#17181d" }}
               >
                 VSTÚPIŤ DO KONCEPTU →
               </a>
               <a
                 href={`/praca/${id}`}
-                className="text-[0.66rem] tracking-[0.14em] text-[#17181d]/70 underline underline-offset-4"
+                className="text-[0.78rem] tracking-[0.14em] text-[#17181d]/70 underline underline-offset-4"
                 style={MONO}
               >
                 PRÍPADOVÁ ŠTÚDIA
@@ -565,13 +583,13 @@ function ActOffer({ world }: { world: boolean }) {
       className="act-rule relative text-[#17181d]"
       style={world ? undefined : { background: "#EDF0F3" }}
     >
-      <EdgeLabel text="/04 — REMESLO" />
+      <EdgeLabel text="/03 — REMESLO" />
       <div className="flex flex-col gap-10 px-[clamp(1.25rem,4vw,3.5rem)] py-[9svh] lg:flex-row lg:gap-16">
         {/* sticky act title (Navigate band structure) */}
         <div className="lg:w-[34%]">
           <div className="lg:sticky lg:top-28">
             <p className="text-[0.66rem] tracking-[0.3em] text-black/55" style={MONO}>
-              04 — REMESLO
+              03 — REMESLO
             </p>
             <h2
               data-enter
@@ -787,7 +805,7 @@ function ActResolution({ world }: { world: boolean }) {
         </ol>
       </div>
 
-      <EdgeLabel text="/05 — LIATIE" />
+      <EdgeLabel text="/04 — LIATIE" />
       <SlovakiaDotMap />
 
       <footer className="relative z-10 border-t border-black/15 px-[clamp(1.25rem,4vw,3.5rem)] py-5 text-[0.62rem] text-[#17181d]/70">
@@ -830,7 +848,6 @@ export function ExperienceActs({ world, probe = false }: { world: boolean; probe
       <div aria-hidden="true" className="journey-line" />
       <ActHero world={world} />
       {world ? <div data-zone="pass" aria-hidden="true" className="h-[60svh]" /> : null}
-      <ActPremena />
       <ActWork world={world} />
       <ActOffer world={world} />
       <ActResolution world={world} />
