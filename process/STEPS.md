@@ -21,7 +21,8 @@ Status legend: **DONE** (gate passed) · **OPEN** (specified, not started) ·
 | 3 | Refokus-level spatial study | DONE — folded into the Step 1 library |
 | 4 | Audit of the live build | DONE |
 | 5 | The /01–/05 experience | DONE — specified retroactively |
-| 6 | Content and design of the pages | OPEN — specified, two inputs owed |
+| 6 | Content and design of the pages | OPEN — phases A–C done, B in PR, D–G remain |
+| 7 | Full visual redesign — new art direction | OPEN — specified 2026-08-31 |
 
 ---
 
@@ -488,3 +489,69 @@ blocked; phases A, C and D can start immediately.
 2. **Confirmation of the three sectors** in §5, or a substitution. If one is
    replaced, its mechanic must be replaced too — the set must still prove buy,
    enquire and book.
+
+---
+
+## STEP 7 — Full visual redesign: a new art direction
+
+**Status: OPEN. Specified 2026-08-31, on Ondrej's instruction.**
+
+### Mission
+
+Replace the "Zlievareň" art direction with a new one that makes a first-time
+visitor stop — the current site reads competent but ordinary, and for a studio
+whose site is its primary proof artefact, ordinary is failure.
+
+### The verdict on v2 (the input, honestly stated)
+
+Ondrej's critique, 2026-08-31: little wow · wrong colours and mood · wrong
+typography · reads as pieces, not one world. The diagnosis behind all four is
+the same: **"Zlievareň" was a fusion compromise.** Graphite + warm paper +
+metal accents average out into tasteful neutrality; Archivo semibold everywhere
+is a competent SaaS voice, not a studio's voice; and giving every act its own
+material canvas (molten, concrete, sage, olive, paper) produced five moods
+where one world was needed.
+
+### Inputs
+
+The Step 1 library and decision engine (the twelve intake answers stand — the
+client did not change, the execution verdict did) · the Step 6 copy deck
+(`CODERA_STEP6_CONTENT.md` — the words survive, the clothes change) · the
+approved C ribbon mark (`brand/source/` — identity is NOT in scope).
+
+### Constraints
+
+- The C ribbon mark stays. A new art direction is not a rebrand.
+- The permanent rules stand: dark/light rhythm as dramaturgy (never full-dark),
+  readability over choreography, no synthetic smooth scroll, one motion engine,
+  reduced motion as layout, nothing invented.
+- The concept worlds (Meridián / Štatút / Vlna) keep their own interior
+  grammars; the redesign changes the shell that stages them.
+- **One world.** Whatever the direction, a single coherent ground/material
+  logic across all five acts — the exact failure of v2 must not recur.
+- Typeface changes are in scope, including replacing Archivo.
+
+### Phases
+
+| Phase | Output |
+| --- | --- |
+| A — Direction candidates | Three deliberately distant directions built as static boards (real copy, real type, one hero frame each), reviewed by Ondrej |
+| B — Direction chosen | One picked (or one revised); recorded here with its reasoning |
+| C — Art direction v3 | The full contract document: palette, type system, materials, per-act tonal script, motion language |
+| D — Implementation | Act by act on a branch, boards → build, static-frame test per state |
+| E — Validation | Full gate: LOCAL + CI + PREVIEW, device checklist re-run |
+
+### Completion gate
+
+- [ ] Ondrej picked the direction from built boards, not from descriptions
+- [ ] One ground logic across all five acts — the swap-mood test passes
+- [ ] The four complaints each have a named answer in the v3 document
+- [ ] Every state passes the static-frame test
+- [ ] Contrast ≥ 4.5:1 for body and display on every ground
+- [ ] Step 6 copy renders unchanged in the new clothes
+- [ ] The old direction's documents moved to `docs/archive/`
+
+### Validation classes
+
+LOCAL + CI + PREVIEW required; DEVICE required before release (issue #2 rolls
+into this step's gate).
