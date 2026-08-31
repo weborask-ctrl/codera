@@ -1,7 +1,9 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { MeridianWorld, StatutWorld, VlnaWorld } from "@/components/experience/worlds"
+import { MeridianHero } from "@/components/concepts/meridian"
+import { StatutHero } from "@/components/concepts/statut"
+import { VlnaHero } from "@/components/concepts/vlna"
 import { caseStudies, getCaseStudy } from "@/lib/case-studies"
 import { siteConfig } from "@/lib/site-config"
 
@@ -19,9 +21,9 @@ import { siteConfig } from "@/lib/site-config"
  */
 
 const WORLDS = {
-  meridian: MeridianWorld,
-  statut: StatutWorld,
-  vlna: VlnaWorld,
+  meridian: MeridianHero,
+  statut: StatutHero,
+  vlna: VlnaHero,
 } as const
 
 const MONO = { fontFamily: "var(--font-geist-mono)" }
@@ -96,11 +98,14 @@ export default async function CaseStudyPage({
           aria-label={`Živá ukážka konceptu ${study.name}`}
         >
           <div className="absolute inset-0">
-            <World />
+            <World portal />
           </div>
         </figure>
         <p className="mt-3 text-center text-[0.6rem] tracking-[0.18em] text-[#17181d]/45" style={MONO}>
-          ŽIVÁ UKÁŽKA — KONCEPT, NIE REALIZÁCIA PRE KLIENTA
+          ŽIVÁ UKÁŽKA — KONCEPT, NIE REALIZÁCIA PRE KLIENTA ·{" "}
+          <Link href={`/koncept/${study.slug}`} className="underline underline-offset-4 hover:opacity-70">
+            OTVORIŤ CELÝ KONCEPT →
+          </Link>
         </p>
       </div>
 

@@ -10,11 +10,13 @@
  */
 
 import { useEffect, useRef } from "react"
+import { MeridianHero } from "@/components/concepts/meridian"
+import { StatutHero } from "@/components/concepts/statut"
+import { VlnaHero } from "@/components/concepts/vlna"
 import { packages } from "@/lib/site-config"
 import { openEnquiry } from "./enquiry-bus"
 import { ActPremena } from "./premena"
 import { bindStage, stage } from "./stage"
-import { MeridianWorld, StatutWorld, VlnaWorld } from "./worlds"
 
 const MONO = { fontFamily: "var(--font-geist-mono)" }
 
@@ -314,88 +316,146 @@ function ActHero({ world }: { world: boolean }) {
 
 /* ----------------------------------------------------------- /03 WORK --- */
 
-const WORLDS = [
-  { id: "meridian", World: MeridianWorld },
-  { id: "statut", World: StatutWorld },
-  { id: "vlna", World: VlnaWorld },
+/**
+ * /03 as a PORTAL GALLERY (AD v3 amendment 2). The full-bleed sticky stack
+ * retires: each project is an editorial split — the name at poster scale in
+ * its own face, the reasoning line, and a PORTAL: the concept's live hero
+ * rendered at half scale inside a perspective-tilted frame that answers the
+ * pointer. Two ways in — the full concept site and the case study. The hero
+ * components are the same ones the /koncept pages open with, so the portal
+ * and the destination cannot drift.
+ */
+const PROJECTS = [
+  {
+    id: "meridian",
+    name: "Meridián",
+    sector: "PRAŽIAREŇ KÁVY · E-SHOP",
+    line: "Obal predáva skôr než popis — balenie je hrdinom stránky, nie fotka zrniek.",
+    Hero: MeridianHero,
+    font: { fontFamily: "var(--font-fraunces), Georgia, serif" },
+    accent: "#C4531F",
+  },
+  {
+    id: "statut",
+    name: "Štatút",
+    sector: "ADVOKÁTSKA KANCELÁRIA",
+    line: "Klient hľadá istotu, nie efekt — stránka mu ju dá hustotou a poriadkom.",
+    Hero: StatutHero,
+    font: { fontFamily: "var(--font-instrument), Georgia, serif" },
+    accent: "#6E1F26",
+  },
+  {
+    id: "vlna",
+    name: "Vlna",
+    sector: "WELLNESS A POHYB",
+    line: "Rozvrh na prvej obrazovke — rozhodnutie padne skôr, než návštevník začne hľadať.",
+    Hero: VlnaHero,
+    font: { fontFamily: "var(--font-bricolage), var(--font-geist-sans), sans-serif" },
+    accent: "#123B3A",
+  },
 ] as const
 
-function ActWork() {
+function Portal({ Hero, id }: { Hero: React.ComponentType<{ portal?: boolean }>; id: string }) {
   return (
-    <section data-zone="work" data-zone-sticky id="praca" className="relative lg:h-[420svh]">
-      {/* lg+: full-bleed paint worlds covering each other. The spacers give
-          every world a HOLD — a stretch of travel where it owns the frame
-          alone — instead of being perpetually mid-slide. */}
-      <div className="hidden lg:block">
-        {WORLDS.map(({ id, World }, i) => (
-          <div key={id} className="contents">
-          <div className="sticky top-0 h-svh overflow-hidden" style={{ zIndex: i + 1 }}>
-            <div
-              className="h-full"
-              style={
-                i < 2
-                  ? {
-                      transform: `translateY(calc(var(--recede-${i === 0 ? "a" : "b"}, 0) * -5svh)) scale(calc(1 - var(--recede-${i === 0 ? "a" : "b"}, 0) * 0.03))`,
-                      filter: `brightness(calc(1 - var(--recede-${i === 0 ? "a" : "b"}, 0) * 0.18))`,
-                    }
-                  : undefined
-              }
-            >
-              <World />
-            </div>
-            {/* the way into the document behind the vitrine — the study
-                sells the decisions the stage can only show */}
-            <a
-              href={`/praca/${id}`}
-              className="absolute bottom-6 left-[clamp(1.1rem,3.2vw,3rem)] z-20 rounded-full bg-[#17181d]/85 px-5 py-2.5 text-[0.62rem] tracking-[0.16em] text-[#f2f4f6] backdrop-blur-sm transition-colors hover:bg-[#17181d]"
-              style={MONO}
-            >
-              PRÍPADOVÁ ŠTÚDIA →
-            </a>
-          </div>
-          {/* the hold: 40svh of travel where the world above stays alone */}
-          <div aria-hidden="true" className="h-[40svh]" />
-          </div>
-        ))}
+    <a
+      href={`/koncept/${id}`}
+      aria-label="Vstúpiť do konceptu"
+      className="group relative block overflow-hidden rounded-[12px]"
+      style={{
+        aspectRatio: "16/10",
+        transform:
+          "perspective(1400px) rotateY(calc(var(--tx, 0) * 7deg)) rotateX(calc(var(--ty, 0) * -7deg))",
+        transition: "transform 0.5s cubic-bezier(0.16,1,0.3,1), box-shadow 0.5s",
+        boxShadow: "0 40px 90px -35px rgba(14,15,19,0.55), 0 0 0 1px rgba(23,24,29,0.1)",
+      }}
+    >
+      {/* the live hero at half scale — a real page behind glass, never a screenshot */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute top-0 left-0 h-[200%] w-[200%] origin-top-left"
+        style={{ transform: "scale(0.5)", containerType: "inline-size" }}
+      >
+        <div className="h-full">
+          <Hero portal />
+        </div>
+      </div>
+      {/* frost glass lip + invitation */}
+      <span
+        className="absolute right-4 bottom-4 z-10 rounded-full bg-[#17181d]/85 px-5 py-2.5 text-[0.6rem] tracking-[0.16em] text-[#f2f4f6] opacity-0 backdrop-blur-sm transition-opacity duration-300 group-hover:opacity-100"
+        style={MONO}
+      >
+        VSTÚPIŤ →
+      </span>
+    </a>
+  )
+}
+
+function ActWork({ world }: { world: boolean }) {
+  return (
+    <section
+      data-zone="work"
+      id="praca"
+      className="relative"
+      style={world ? undefined : { background: "linear-gradient(180deg,#9BA1AC 0%,#C4C9D1 55%,#DFE3E8 100%)" }}
+    >
+      <div className="px-[clamp(1.1rem,4vw,3.5rem)] pt-[10svh]">
+        <p className="text-[0.66rem] tracking-[0.3em] text-[#17181d]/70" style={MONO}>
+          03 — VYBRANÁ PRÁCA · TRI KONCEPTY, TRI JAZYKY
+        </p>
       </div>
 
-      {/* below lg: full-width swipe deck of the same worlds. The sunrise
-          holds on mobile too — /03 sits in risen mist, not in a dark band
-          (no act returns to dark, AD v3). */}
-      <div className="py-12 lg:hidden" style={{ background: "#C4C9D1" }}>
-        <div>
-          <header className="mb-4 flex items-baseline justify-between px-[clamp(1.1rem,4vw,2rem)] text-[#17181d]">
-            <p className="text-[0.66rem] tracking-[0.28em]" style={MONO}>
-              03 — VYBRANÁ PRÁCA
+      {PROJECTS.map(({ id, name, sector, line, Hero, font, accent }, i) => (
+        <div
+          key={id}
+          data-enter
+          className="world-shell grid min-h-[92svh] items-center gap-8 px-[clamp(1.1rem,4vw,3.5rem)] py-[6svh] lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.25fr)] lg:gap-14"
+          onPointerMove={(e) => {
+            const r = e.currentTarget.getBoundingClientRect()
+            e.currentTarget.style.setProperty("--tx", ((e.clientX - r.left) / r.width - 0.5).toFixed(3))
+            e.currentTarget.style.setProperty("--ty", ((e.clientY - r.top) / r.height - 0.5).toFixed(3))
+          }}
+          onPointerLeave={(e) => {
+            e.currentTarget.style.setProperty("--tx", "0")
+            e.currentTarget.style.setProperty("--ty", "0")
+          }}
+        >
+          <div className={i % 2 ? "lg:order-2" : ""}>
+            <p className="tnum text-[0.66rem] text-[#17181d]/50" style={MONO}>
+              03·0{i + 1}
             </p>
-            <p className="text-[0.58rem] tracking-[0.12em] opacity-60" style={MONO}>
-              POTIAHNITE ←
+            <p className="mt-3 text-[0.6rem] tracking-[0.24em]" style={{ ...MONO, color: accent }}>
+              {sector} · UKÁŽKOVÝ KONCEPT
             </p>
-          </header>
-          <div
-            data-work-deck
-            className="scrollbar-none flex snap-x snap-proximity gap-4 overflow-x-auto px-[clamp(1.1rem,4vw,2rem)] pb-4"
-          >
-            {WORLDS.map(({ id, World }) => (
-              <article key={id} data-deck-card className="w-[88vw] max-w-[30rem] shrink-0 snap-center">
-                <div className="h-[68svh] overflow-hidden rounded-[10px] shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
-                  <World compact />
-                </div>
-                <a
-                  href={`/praca/${id}`}
-                  className="mt-3 inline-block text-[0.62rem] tracking-[0.16em] text-[#17181d] underline underline-offset-4"
-                  style={MONO}
-                >
-                  PRÍPADOVÁ ŠTÚDIA →
-                </a>
-              </article>
-            ))}
+            <h3
+              className="mt-2 text-[#17181d]"
+              style={{ ...font, fontSize: "clamp(3rem,7.2vw,6.6rem)", lineHeight: 0.95, letterSpacing: "-0.015em" }}
+            >
+              {name}
+            </h3>
+            <p className="mt-4 max-w-[26rem] text-[0.95rem] leading-[1.6] text-[#17181d]/70">{line}</p>
+            <div className="mt-7 flex flex-wrap items-center gap-5">
+              <a
+                href={`/koncept/${id}`}
+                className="rounded-full px-6 py-3 text-[0.66rem] tracking-[0.14em] text-[#f2f4f6] transition-transform hover:-translate-y-0.5"
+                style={{ ...MONO, background: "#17181d" }}
+              >
+                VSTÚPIŤ DO KONCEPTU →
+              </a>
+              <a
+                href={`/praca/${id}`}
+                className="text-[0.66rem] tracking-[0.14em] text-[#17181d]/70 underline underline-offset-4"
+                style={MONO}
+              >
+                PRÍPADOVÁ ŠTÚDIA
+              </a>
+            </div>
+          </div>
+
+          <div className={i % 2 ? "lg:order-1" : ""}>
+            <Portal Hero={Hero} id={id} />
           </div>
         </div>
-        {/* lg+ gets no extra strip — the worlds ARE the section; this dark
-            band exists only as the deck's stage below lg */}
-        <div className="hidden lg:block" aria-hidden="true" />
-      </div>
+      ))}
     </section>
   )
 }
@@ -771,7 +831,7 @@ export function ExperienceActs({ world, probe = false }: { world: boolean; probe
       <ActHero world={world} />
       {world ? <div data-zone="pass" aria-hidden="true" className="h-[60svh]" /> : null}
       <ActPremena />
-      <ActWork />
+      <ActWork world={world} />
       <ActOffer world={world} />
       <ActResolution world={world} />
       {probe ? (
