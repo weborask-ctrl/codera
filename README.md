@@ -7,6 +7,20 @@ standards it advertises: server-rendered, minimal client JavaScript, WCAG 2.2
 AA contrast, keyboard operable, reduced-motion aware, readable with scripting
 off, and tested in Chromium, Gecko and WebKit.
 
+## How the work is run
+
+| Question | File |
+| --- | --- |
+| What is being built, step by step | [`process/STEPS.md`](process/STEPS.md) |
+| How work is run, gated and declared done | [`process/CODERA_PROCESS.md`](process/CODERA_PROCESS.md) |
+| What is live and what was decided | [`STATE.md`](STATE.md) |
+| What is still open | GitHub Issues |
+| Rules for anyone (or anything) writing code here | [`CLAUDE.md`](CLAUDE.md) |
+
+Work happens on branches and reaches `master` through a pull request. Run
+`npm run verify` before pushing; enable the pre-push hook once per clone with
+`git config core.hooksPath .githooks`.
+
 ## Stack
 
 Next.js (App Router) · React · TypeScript · Tailwind CSS v4 · Base UI ·
@@ -109,7 +123,8 @@ rewritten rather than configured. The reasons are recorded per file and in
 `REDESIGN_PROGRESS.md` — the short version is that `Magnet` re-rendered React
 on every mousemove, `ScrollReveal`'s cleanup killed every ScrollTrigger on the
 page, `GlareHover` put mouse handlers on a static div, and `CountUp` shipped an
-empty span to anything that did not run its effect.
+empty span to anything that did not run its effect. The detail is in
+`docs/archive/REDESIGN_PROGRESS.md`.
 
 ### Concept projects
 

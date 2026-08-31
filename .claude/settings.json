@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run check)",
+      "Bash(npm run check:fix)",
+      "Bash(npm run typecheck)",
+      "Bash(npm run build)",
+      "Bash(npm run verify)",
+      "Bash(npm run test:e2e)",
+      "Bash(npm run capture)",
+      "Bash(npm run measure)",
+      "Bash(npm run smoke)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git branch:*)",
+      "Bash(git show:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh issue list:*)",
+      "Bash(gh issue view:*)"
+    ],
+    "deny": [
+      "Bash(git push --force:*)",
+      "Bash(git push origin master:*)"
+    ]
+  }
+}

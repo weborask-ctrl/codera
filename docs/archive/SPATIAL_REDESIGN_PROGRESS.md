@@ -1,5 +1,10 @@
 # Codera — spatial redesign (spatial-v2)
 
+> **ARCHIVED 2026-08-31. Historical record — do not update, do not treat as
+> current.** Durable knowledge moved to `STATE.md`, open items to GitHub Issues,
+> the working rules to `process/CODERA_PROCESS.md`. The storyboards, camera map
+> and "hard-won findings" here are the reason this file was kept.
+
 Living handover file for the Refokus-level spatial rebuild. `master` holds the
 live v1 site and stays untouched until this branch passes the preview gate.
 

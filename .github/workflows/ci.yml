@@ -1,15 +1,20 @@
 name: CI
 
+# Every branch, not only master. A mistake must be visible before it reaches
+# the production branch — see process/CODERA_PROCESS.md §3.
 on:
   push:
-    branches: [main, master, visual-redesign-v1]
   pull_request:
-    branches: [main, master]
+    branches: [master]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  quality:
-    name: Quality gates
-    timeout-minutes: 30
+  fast:
+    name: Fast gate
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,8 +30,28 @@ jobs:
       - name: Biome
         run: npm run check
 
+      - name: TypeScript
+        run: npm run typecheck
+
       - name: Production build
         run: npm run build
+
+  e2e:
+    name: End-to-end
+    needs: fast
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/master'
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
