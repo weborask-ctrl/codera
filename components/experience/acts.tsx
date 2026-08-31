@@ -9,11 +9,12 @@
  * Reference records: CODERA_DESIGN_REFERENCES (igloo, exoape, basement).
  */
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { MeridianHero } from "@/components/concepts/meridian"
 import { StatutHero } from "@/components/concepts/statut"
 import { VlnaHero } from "@/components/concepts/vlna"
 import { packages } from "@/lib/site-config"
+import { skills } from "@/lib/skills"
 import { openEnquiry } from "./enquiry-bus"
 import { bindStage, stage } from "./stage"
 
@@ -101,9 +102,6 @@ const ACT_NO: Record<string, string> = {
   hero: "01",
   pass: "01",
   work: "02",
-  meridian: "02",
-  statut: "02",
-  vlna: "02",
   offer: "03",
   resolution: "04",
 }
@@ -128,8 +126,6 @@ function useStage(probe: boolean) {
       if (!root) {
         return
       }
-      root.style.setProperty("--recede-a", Math.min(1, stage.p.statut * 2).toFixed(4))
-      root.style.setProperty("--recede-b", Math.min(1, stage.p.vlna * 2).toFixed(4))
       root.style.setProperty("--journey", stage.total.toFixed(4))
 
       if (actPill) {
@@ -309,66 +305,44 @@ function ActHero({ world }: { world: boolean }) {
 /* ----------------------------------------------------------- /03 WORK --- */
 
 /**
- * /03 as a PORTAL GALLERY (AD v3 amendment 2). The full-bleed sticky stack
- * retires: each project is an editorial split — the name at poster scale in
- * its own face, the reasoning line, and a PORTAL: the concept's live hero
- * rendered at half scale inside a perspective-tilted frame that answers the
- * pointer. Two ways in — the full concept site and the case study. The hero
- * components are the same ones the /koncept pages open with, so the portal
- * and the destination cannot drift.
+ * /02 as a SKILLS INDEX (AD v3 amendment 3, refokus grammar): capabilities,
+ * not invented brands. Numbered rows at display scale; the active row shows
+ * its live demo in the tilted portal. Ready skills open their full demo page;
+ * the rest say V PRÍPRAVE and promise nothing they cannot keep.
  */
-const PROJECTS = [
-  {
-    id: "meridian",
-    name: "Meridián",
-    sector: "PRAŽIAREŇ KÁVY · E-SHOP",
-    line: "Obal predáva skôr než popis — balenie je hrdinom stránky, nie fotka zrniek.",
-    Hero: MeridianHero,
-    font: { fontFamily: "var(--font-fraunces), Georgia, serif" },
-    accent: "#C4531F",
-  },
-  {
-    id: "statut",
-    name: "Štatút",
-    sector: "ADVOKÁTSKA KANCELÁRIA",
-    line: "Klient hľadá istotu, nie efekt — stránka mu ju dá hustotou a poriadkom.",
-    Hero: StatutHero,
-    font: { fontFamily: "var(--font-instrument), Georgia, serif" },
-    accent: "#6E1F26",
-  },
-  {
-    id: "vlna",
-    name: "Vlna",
-    sector: "WELLNESS A POHYB",
-    line: "Rozvrh na prvej obrazovke — rozhodnutie padne skôr, než návštevník začne hľadať.",
-    Hero: VlnaHero,
-    font: { fontFamily: "var(--font-bricolage), var(--font-geist-sans), sans-serif" },
-    accent: "#123B3A",
-  },
-] as const
+const SKILL_HEROES: Record<string, React.ComponentType<{ portal?: boolean }>> = {
+  dizajn: StatutHero,
+  objednavky: MeridianHero,
+  rezervacie: VlnaHero,
+}
 
-function Portal({ Hero, id }: { Hero: React.ComponentType<{ portal?: boolean }>; id: string }) {
+/** Each ready skill's design decisions live in its case study. */
+const SKILL_STUDY: Record<string, string> = {
+  dizajn: "statut",
+  objednavky: "meridian",
+  rezervacie: "vlna",
+}
+
+function Portal({ Hero, href }: { Hero: React.ComponentType<{ portal?: boolean }>; href: string }) {
   return (
     <a
-      href={`/koncept/${id}`}
-      aria-label="Vstúpiť do konceptu"
+      href={href}
+      aria-label="Otvoriť živú ukážku"
       className="group relative block overflow-hidden rounded-[12px]"
       style={{
         aspectRatio: "16/10",
         transform:
           "perspective(1400px) rotateY(calc(var(--tx, 0) * 7deg)) rotateX(calc(var(--ty, 0) * -7deg))",
-        transition: "transform 0.5s cubic-bezier(0.16,1,0.3,1), box-shadow 0.5s",
+        transition: "transform 0.5s cubic-bezier(0.16,1,0.3,1)",
         boxShadow: "0 40px 90px -35px rgba(14,15,19,0.55), 0 0 0 1px rgba(23,24,29,0.1)",
       }}
     >
-      {/* an unmissable label ON the artefact — nobody may mistake the demo for a client */}
       <span
         className="absolute top-4 left-4 z-10 rounded-full bg-[#17181d]/85 px-4 py-1.5 text-[0.6rem] tracking-[0.18em] text-[#f2f4f6] backdrop-blur-sm"
         style={MONO}
       >
-        UKÁŽKA · FIKTÍVNA ZNAČKA
+        ŽIVÁ UKÁŽKA
       </span>
-      {/* the live hero at half scale — a real page behind glass, never a screenshot */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute top-0 left-0 h-[200%] w-[200%] origin-top-left"
@@ -378,9 +352,8 @@ function Portal({ Hero, id }: { Hero: React.ComponentType<{ portal?: boolean }>;
           <Hero portal />
         </div>
       </div>
-      {/* frost glass lip + invitation */}
       <span
-        className="absolute right-4 bottom-4 z-10 rounded-full bg-[#17181d]/85 px-5 py-2.5 text-[0.6rem] tracking-[0.16em] text-[#f2f4f6] opacity-0 backdrop-blur-sm transition-opacity duration-300 group-hover:opacity-100"
+        className="absolute right-4 bottom-4 z-10 rounded-full bg-[#17181d]/85 px-5 py-2.5 text-[0.62rem] tracking-[0.16em] text-[#f2f4f6] opacity-0 backdrop-blur-sm transition-opacity duration-300 group-hover:opacity-100"
         style={MONO}
       >
         VSTÚPIŤ →
@@ -390,6 +363,9 @@ function Portal({ Hero, id }: { Hero: React.ComponentType<{ portal?: boolean }>;
 }
 
 function ActWork({ world }: { world: boolean }) {
+  const [active, setActive] = useState(0)
+  const current = skills[active]
+  const CurrentHero = current.demo ? SKILL_HEROES[current.demo] : undefined
   return (
     <section
       data-zone="work"
@@ -397,83 +373,128 @@ function ActWork({ world }: { world: boolean }) {
       className="relative"
       style={world ? undefined : { background: "linear-gradient(180deg,#9BA1AC 0%,#C4C9D1 55%,#DFE3E8 100%)" }}
     >
-      {/* The section says WHAT THIS IS at display scale — the ukážka framing
-          must be unmissable, not a mono whisper (Ondrej, 2026-08-31). */}
-      <div data-enter className="px-[clamp(1.1rem,4vw,3.5rem)] pt-[12svh] pb-[2svh]">
+      {/* the section says what this is, at display scale */}
+      <div data-enter className="px-[clamp(1.1rem,4vw,3.5rem)] pt-[12svh] pb-[4svh]">
         <p className="text-[0.72rem] tracking-[0.3em] text-[#17181d]/70" style={MONO}>
-          02 — UKÁŽKY PRÁCE
+          02 — SCHOPNOSTI
         </p>
         <h2
-          className="mt-4 max-w-[11em] font-light text-[#17181d]"
+          className="mt-4 max-w-[12em] font-light text-[#17181d]"
           style={{ fontSize: "clamp(2.2rem,5vw,4.6rem)", lineHeight: 1.02, letterSpacing: "-0.022em" }}
         >
           <span className="rise-wrap">
-            <span className="rise">Tri značky, ktoré neexistujú.</span>
+            <span className="rise">Neukazujeme logá klientov.</span>
           </span>
           <span className="rise-wrap">
             <span className="rise" style={{ ["--rise-delay" as string]: "0.12s" }}>
-              Tri weby, ktoré áno.
+              Ukazujeme, čo vieme postaviť.
             </span>
           </span>
         </h2>
-        <p className="mt-5 max-w-[34rem] text-[1.02rem] leading-[1.6] text-[#17181d]/70">
-          Ukážkové koncepty navrhnuté od nuly — každý v inom odvetví, s iným
-          písmom a iným jazykom. Do každého môžete vstúpiť a preklikať si ho.
+        <p className="mt-5 max-w-[36rem] text-[1.02rem] leading-[1.6] text-[#17181d]/70">
+          Päť schopností, žiadne vymyslené značky — každá hotová ukážka je živá
+          stránka, do ktorej môžete vstúpiť a preklikať si ju.
         </p>
       </div>
 
-      {PROJECTS.map(({ id, name, sector, line, Hero, font, accent }, i) => (
-        <div
-          key={id}
-          data-enter
-          className="world-shell grid min-h-[92svh] items-center gap-8 px-[clamp(1.1rem,4vw,3.5rem)] py-[6svh] lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.25fr)] lg:gap-14"
-          onPointerMove={(e) => {
-            const r = e.currentTarget.getBoundingClientRect()
-            e.currentTarget.style.setProperty("--tx", ((e.clientX - r.left) / r.width - 0.5).toFixed(3))
-            e.currentTarget.style.setProperty("--ty", ((e.clientY - r.top) / r.height - 0.5).toFixed(3))
-          }}
-          onPointerLeave={(e) => {
-            e.currentTarget.style.setProperty("--tx", "0")
-            e.currentTarget.style.setProperty("--ty", "0")
-          }}
-        >
-          <div className={i % 2 ? "lg:order-2" : ""}>
-            <p className="tnum text-[0.8rem] text-[#17181d]/50" style={MONO}>
-              02·0{i + 1}
-            </p>
-            <p className="mt-3 text-[0.72rem] tracking-[0.24em]" style={{ ...MONO, color: accent }}>
-              {sector} · UKÁŽKOVÝ KONCEPT
-            </p>
-            <h3
-              className="mt-2 text-[#17181d]"
-              style={{ ...font, fontSize: "clamp(3.4rem,7.6vw,7rem)", lineHeight: 0.95, letterSpacing: "-0.015em" }}
-            >
-              {name}
-            </h3>
-            <p className="mt-5 max-w-[27rem] text-[1.08rem] leading-[1.6] text-[#17181d]/75">{line}</p>
-            <div className="mt-7 flex flex-wrap items-center gap-5">
-              <a
-                href={`/koncept/${id}`}
-                className="rounded-full px-7 py-3.5 text-[0.78rem] tracking-[0.14em] text-[#f2f4f6] transition-transform hover:-translate-y-0.5"
-                style={{ ...MONO, background: "#17181d" }}
+      <div
+        className="grid gap-10 px-[clamp(1.1rem,4vw,3.5rem)] pb-[12svh] lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1.15fr)] lg:gap-14"
+        onPointerMove={(e) => {
+          const r = e.currentTarget.getBoundingClientRect()
+          e.currentTarget.style.setProperty("--tx", ((e.clientX - r.left) / r.width - 0.5).toFixed(3))
+          e.currentTarget.style.setProperty("--ty", ((e.clientY - r.top) / r.height - 0.5).toFixed(3))
+        }}
+        onPointerLeave={(e) => {
+          e.currentTarget.style.setProperty("--tx", "0")
+          e.currentTarget.style.setProperty("--ty", "0")
+        }}
+      >
+        {/* the index */}
+        <ol>
+          {skills.map((s, i) => (
+            <li key={s.slug} data-enter className="border-t border-black/15 last:border-b">
+              <div
+                className="group flex w-full flex-col gap-2 py-6 text-left lg:py-7"
+                onPointerEnter={() => setActive(i)}
+                onFocusCapture={() => setActive(i)}
               >
-                VSTÚPIŤ DO KONCEPTU →
-              </a>
-              <a
-                href={`/praca/${id}`}
-                className="text-[0.78rem] tracking-[0.14em] text-[#17181d]/70 underline underline-offset-4"
-                style={MONO}
-              >
-                PRÍPADOVÁ ŠTÚDIA
-              </a>
-            </div>
-          </div>
+                <div className="flex items-baseline gap-5">
+                  <span className="tnum text-[0.8rem] text-[#17181d]/45" style={MONO}>
+                    0{i + 1}
+                  </span>
+                  {s.ready ? (
+                    <a
+                      href={`/ukazky/${s.slug}`}
+                      className="font-semibold text-[#17181d] transition-transform duration-300 group-hover:translate-x-2"
+                      style={{ fontSize: "clamp(2.2rem,4.6vw,4.4rem)", lineHeight: 0.95, letterSpacing: "-0.03em" }}
+                    >
+                      {s.name}
+                      <span className={`ml-4 inline-block align-middle text-[0.5em] transition-opacity ${active === i ? "opacity-100" : "opacity-0"}`}>
+                        →
+                      </span>
+                    </a>
+                  ) : (
+                    <span
+                      className="font-semibold text-[#17181d]/45"
+                      style={{ fontSize: "clamp(2.2rem,4.6vw,4.4rem)", lineHeight: 0.95, letterSpacing: "-0.03em" }}
+                    >
+                      {s.name}
+                      <span className="ml-5 inline-block translate-y-[-0.35em] rounded-full border border-[#17181d]/25 px-3 py-1 align-middle text-[0.16em] tracking-[0.18em] text-[#17181d]/55" style={MONO}>
+                        V PRÍPRAVE
+                      </span>
+                    </span>
+                  )}
+                </div>
+                <p className={`max-w-[34rem] pl-[2.6rem] text-[0.95rem] leading-[1.55] text-[#17181d]/70 transition-opacity duration-300 ${active === i ? "opacity-100" : "opacity-60"}`}>
+                  {s.line}
+                </p>
+                <p className="pl-[2.6rem] text-[0.6rem] tracking-[0.18em] text-[#17181d]/45" style={MONO}>
+                  {s.tags}
+                  {s.ready ? (
+                    <>
+                      {" · "}
+                      <a
+                        href={`/praca/${SKILL_STUDY[s.slug]}`}
+                        className="text-[#17181d]/60 underline underline-offset-4 hover:text-[#17181d]"
+                      >
+                        AKO SME TO NAVRHLI
+                      </a>
+                    </>
+                  ) : null}
+                </p>
+                {/* mobile: the portal rides under its own row */}
+                {s.ready && s.demo ? (
+                  <div className="mt-4 pl-[2.6rem] lg:hidden">
+                    <Portal Hero={SKILL_HEROES[s.demo]} href={`/ukazky/${s.slug}`} />
+                  </div>
+                ) : null}
+              </div>
+            </li>
+          ))}
+        </ol>
 
-          <div className={i % 2 ? "lg:order-1" : ""}>
-            <Portal Hero={Hero} id={id} />
+        {/* the live portal follows the active row (desktop) */}
+        <div className="hidden lg:block">
+          <div className="sticky top-[14svh]">
+            {CurrentHero ? (
+              <Portal Hero={CurrentHero} href={`/ukazky/${current.slug}`} />
+            ) : (
+              <div
+                className="flex items-center justify-center rounded-[12px] border border-dashed border-[#17181d]/30"
+                style={{ aspectRatio: "16/10" }}
+              >
+                <p className="max-w-[22rem] px-8 text-center text-[0.9rem] leading-[1.6] text-[#17181d]/60">
+                  Táto ukážka sa práve stavia — pribudne ako ďalšia. Zatiaľ si
+                  pozrite hotové tri.
+                </p>
+              </div>
+            )}
+            <p className="mt-3 text-center text-[0.6rem] tracking-[0.18em] text-[#17181d]/45" style={MONO}>
+              DEMO ŠTÚDIA CODERA · ŽIADNA SKUTOČNÁ FIRMA
+            </p>
           </div>
         </div>
-      ))}
+      </div>
     </section>
   )
 }
@@ -825,7 +846,7 @@ function ActResolution({ world }: { world: boolean }) {
           <span>© 2026 Codera</span>
         </div>
         <p className="mt-2 opacity-80">
-          Meridián, Štatút a Vlna sú ukážkové koncepty — nejde o realizácie pre klientov.
+          Ukážky v sekcii 02 sú demá štúdia Codera — nejde o realizácie pre klientov.
         </p>
       </footer>
     </section>

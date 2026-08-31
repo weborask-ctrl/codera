@@ -93,12 +93,12 @@ export function VlnaHero({ portal = false }: { portal?: boolean }) {
         className="wpar pointer-events-none absolute right-[-0.05em] bottom-[-0.16em] font-extrabold uppercase select-none"
         style={{ ...BRIC, fontSize: "clamp(11rem,32vh,26rem)", lineHeight: 0.8, color: "rgba(18,59,58,0.05)", ["--depth" as string]: "26" }}
       >
-        VL
+        ŠT
       </span>
 
       <header className={`relative z-10 flex items-center justify-between px-[clamp(1.25rem,4vw,4rem)] ${portal ? "pt-6" : "pt-14"}`}>
         <span className="font-extrabold" style={{ ...BRIC, fontSize: "1.3rem", letterSpacing: "-0.02em" }}>
-          VLNA
+          ŠTÚDIO
         </span>
         <nav className="hidden items-center gap-7 text-[0.6rem] tracking-[0.18em] text-[#123B3A]/60 md:flex" style={MONO}>
           <span>ROZVRH</span>
@@ -160,7 +160,7 @@ export default function VlnaSite() {
         <Arcs className="opacity-[0.35] invert" />
         <div className="relative">
           <h2 className="wfx font-extrabold uppercase" style={{ ...BRIC, fontSize: "clamp(1.9rem,4.4vw,3.8rem)", lineHeight: 0.95, ...fx(0) }}>
-            Týždeň vo Vlne
+            Týždeň v štúdiu
           </h2>
           <div className="mt-8 grid gap-px overflow-hidden rounded-[10px] bg-white/12 sm:grid-cols-2 lg:grid-cols-3">
             {WEEK.map(([d, list], i) => (
@@ -217,10 +217,10 @@ export default function VlnaSite() {
       <footer className="border-t border-[#123B3A]/15 px-[clamp(1.25rem,4vw,4rem)] py-6 text-[0.58rem] tracking-[0.14em] text-[#123B3A]/55" style={MONO}>
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <span className="font-extrabold text-[#123B3A]" style={{ ...BRIC, fontSize: "0.95rem", letterSpacing: "-0.01em" }}>
-            VLNA
+            ŠTÚDIO
           </span>
-          <span>WELLNESS ŠTÚDIO · FIKTÍVNY KONCEPT ŠTÚDIA CODERA</span>
-          <span>VLNA-KONCEPT.SK</span>
+          <span>DEMO REZERVAČNÉHO SYSTÉMU · ŠTÚDIO CODERA</span>
+          <span>UKÁŽKA · ŽIADNA SKUTOČNÁ FIRMA</span>
         </div>
       </footer>
     </main>

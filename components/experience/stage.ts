@@ -13,9 +13,6 @@ export type ActName =
   | "hero"
   | "pass"
   | "work"
-  | "meridian"
-  | "statut"
-  | "vlna"
   | "offer"
   | "resolution"
 
@@ -37,9 +34,6 @@ export const stage: StageState = {
     hero: 0,
     pass: 0,
     work: 0,
-    meridian: 0,
-    statut: 0,
-    vlna: 0,
     offer: 0,
     resolution: 0,
   },
@@ -108,15 +102,6 @@ export function updateStage() {
     }
   }
 
-  /* The work region is one sticky stack; its thirds are the project acts. */
-  const w = stage.p.work
-  stage.p.meridian = clamp01(w * 3)
-  stage.p.statut = clamp01(w * 3 - 1)
-  stage.p.vlna = clamp01(w * 3 - 2)
-  if (act === "work") {
-    act = w < 1 / 3 ? "meridian" : w < 2 / 3 ? "statut" : "vlna"
-  }
-
   if (act !== stage.act) {
     stage.act = act
     document.documentElement.setAttribute("data-act", act)
@@ -169,10 +154,7 @@ export function bindStage(): () => void {
 export const ACT_TONES: Record<ActName, string> = {
   hero: "#0E0F13",
   pass: "#23252C",
-  work: "#9BA1AC",
-  meridian: "#9BA1AC",
-  statut: "#C4C9D1",
-  vlna: "#DFE3E8",
+  work: "#C4C9D1",
   offer: "#EDF0F3",
   resolution: "#FAFBFC",
 }

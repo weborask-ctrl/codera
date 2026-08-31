@@ -20,6 +20,12 @@ import { siteConfig } from "@/lib/site-config"
  * pages say so — in the copy, the labels and the metadata.
  */
 
+const SKILL_ROUTE: Record<string, string> = {
+  meridian: "objednavky",
+  statut: "dizajn",
+  vlna: "rezervacie",
+}
+
 const WORLDS = {
   meridian: MeridianHero,
   statut: StatutHero,
@@ -103,7 +109,7 @@ export default async function CaseStudyPage({
         </figure>
         <p className="mt-3 text-center text-[0.6rem] tracking-[0.18em] text-[#17181d]/45" style={MONO}>
           ŽIVÁ UKÁŽKA — KONCEPT, NIE REALIZÁCIA PRE KLIENTA ·{" "}
-          <Link href={`/koncept/${study.slug}`} className="underline underline-offset-4 hover:opacity-70">
+          <Link href={`/ukazky/${SKILL_ROUTE[study.slug]}`} className="underline underline-offset-4 hover:opacity-70">
             OTVORIŤ CELÝ KONCEPT →
           </Link>
         </p>

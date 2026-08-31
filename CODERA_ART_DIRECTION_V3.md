@@ -206,3 +206,21 @@ structural, not cosmetic:
 
 The v2-era `worlds.tsx` retires with the stack; the concept sites own their
 sections, and the portals reuse their heroes — one source, no drift.
+
+## Amendment 3 — 2026-08-31: skills, not brands
+
+Ondrej: invented brand names go ("Meridián — už len ten názov je zlý").
+Refokus's model applies — the showcase section elevates the SKILLS the sites
+contain. Each skill gets a demo page that embodies it:
+
+01 Dizajn · 02 Objednávky · 03 Rezervácie · 04 Animácie & 3D · 05 Výkon
+
+The three built demo sites stay as the first three skills' pages, de-branded
+to generic nouns (Pražiareň, Kancelária, Štúdio) — the content demonstrates
+the capability, no fictional company pretends to exist. 04 and 05 are marked
+V PRÍPRAVE until their sessions build them, one at a time.
+
+/02 becomes a refokus-grammar skills index: numbered rows with the skill at
+display scale, commercial one-liners, capability tags, and a live portal
+preview of the active row. The top ribbon on demo pages is deleted; a small
+corner DEMO · CODERA tag replaces it.

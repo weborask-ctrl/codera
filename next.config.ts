@@ -22,6 +22,15 @@ const nextConfig: NextConfig = {
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }]
   },
+  /* Amendment 3: the brand-named /koncept routes became skill demos. The old
+     URLs were live briefly — send them to their skills, permanently. */
+  async redirects() {
+    return [
+      { source: "/koncept/meridian", destination: "/ukazky/objednavky", permanent: true },
+      { source: "/koncept/statut", destination: "/ukazky/dizajn", permanent: true },
+      { source: "/koncept/vlna", destination: "/ukazky/rezervacie", permanent: true },
+    ]
+  },
 }
 
 export default nextConfig

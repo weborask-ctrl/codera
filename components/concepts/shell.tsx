@@ -79,22 +79,19 @@ export function Shell({
   )
 }
 
-/** The honest ribbon: worn by every concept page, linking back to the studio. */
-export function KonceptRibbon({ tone = "dark" }: { tone?: "dark" | "light" }) {
-  const dark = tone === "dark"
+/**
+ * The honest corner tag (amendment 3: the top ribbon is deleted). A demo page
+ * still must say what it is — quietly, in the corner, always tappable back to
+ * the studio.
+ */
+export function DemoTag() {
   return (
     <a
       href="/"
-      className="fixed inset-x-0 top-0 z-[80] flex items-center justify-center gap-3 px-4 py-2 text-[0.56rem] tracking-[0.18em] backdrop-blur-sm"
-      style={{
-        ...MONO,
-        background: dark ? "rgba(14,15,19,0.82)" : "rgba(250,251,252,0.85)",
-        color: dark ? "#F2F4F6" : "#17181D",
-      }}
+      className="fixed right-4 bottom-4 z-[80] rounded-full px-4 py-2 text-[0.58rem] tracking-[0.16em] backdrop-blur-sm transition-transform hover:-translate-y-0.5"
+      style={{ ...MONO, background: "rgba(14,15,19,0.85)", color: "#F2F4F6" }}
     >
-      <span className="opacity-70">UKÁŽKOVÝ KONCEPT ŠTÚDIA</span>
-      <span className="font-semibold">CODERA</span>
-      <span className="opacity-70">— SPÄŤ NA CODERA.SK →</span>
+      DEMO · CODERA →
     </a>
   )
 }
