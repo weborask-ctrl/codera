@@ -303,25 +303,20 @@ test.describe("Codera homepage", () => {
     await expect(menu).toHaveAttribute("aria-hidden", "true")
   })
 
-  test("mobile is a touch edit: no pins, swipeable work deck", async ({ page }) => {
+  test("mobile is a touch edit: no pins, portal gallery stacks", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto("/")
     await waitForHydration(page)
     await expect(page.locator(".pin-spacer")).toHaveCount(0)
     await expect(page.locator("canvas")).toHaveCount(0)
 
-    const deck = page.locator("[data-work-deck]")
-    await deck.scrollIntoViewIfNeeded()
-    await expect(deck).toBeVisible()
-    const scrollable = await deck.evaluate((el) => el.scrollWidth > el.clientWidth + 50)
-    expect(scrollable, "deck is not horizontally scrollable").toBe(true)
-    await deck.evaluate((el) => {
-      el.scrollLeft = el.scrollWidth
-    })
-    await expect
-      .poll(() => deck.evaluate((el) => el.scrollLeft), { timeout: 4_000 })
-      .toBeGreaterThan(100)
-    /* the page itself must not gain horizontal scroll from the deck */
+    /* the portal gallery replaced the swipe deck (AD v3 amendment 2):
+       three portals stack vertically, each linking into its concept */
+    const portals = page.locator('#praca a[href^="/koncept/"]')
+    await expect(portals).toHaveCount(6) // portal frame + text CTA per project
+    await portals.first().scrollIntoViewIfNeeded()
+    await expect(portals.first()).toBeVisible()
+    /* the page itself must not gain horizontal scroll from the portals */
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)
     ).toBe(true)
@@ -502,6 +497,30 @@ test.describe("Case studies", () => {
         page.locator(`a[href="/praca/${slug}"]`).first(),
         `no link to /praca/${slug}`
       ).toHaveCount(1)
+    }
+  })
+})
+
+test.describe("Concept sites", () => {
+  test("every concept opens as a full page wearing the honest ribbon", async ({ browser }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false })
+    const page = await context.newPage()
+    for (const slug of ["meridian", "statut", "vlna"]) {
+      const res = await page.goto(`/koncept/${slug}`)
+      expect(res?.status()).toBe(200)
+      await expect(page.locator("body")).toContainText("UKÁŽKOVÝ KONCEPT ŠTÚDIA")
+      await expect(page.locator("body")).toContainText("FIKTÍVNY KONCEPT ŠTÚDIA CODERA")
+    }
+    await context.close()
+  })
+
+  test("the portal gallery links into the concepts", async ({ page }) => {
+    await page.goto("/")
+    for (const slug of ["meridian", "statut", "vlna"]) {
+      await expect(
+        page.locator(`a[href="/koncept/${slug}"]`).first(),
+        `no portal link to /koncept/${slug}`
+      ).toBeAttached()
     }
   })
 })
