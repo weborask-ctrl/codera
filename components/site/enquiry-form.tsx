@@ -18,8 +18,12 @@ import { cn } from "@/lib/utils"
  * match what a backend would need.
  */
 
+/**
+ * Bands, not a slider: the lowest one starts at the entry price, so nobody
+ * selects a budget the studio cannot deliver at. Raised with the price on
+ * 2026-08-31 — the old first band (699 – 1 000 €) sat entirely below it.
+ */
 const BUDGETS = [
-  "699 – 1 000 €",
   "1 000 – 2 000 €",
   "2 000 – 5 000 €",
   "5 000 € a viac",
