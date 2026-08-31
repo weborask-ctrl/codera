@@ -730,3 +730,96 @@ main[data-experience="v3"][data-wipe-done] .wipe-statement {
     transition: none;
   }
 }
+
+/* ================================================================ *
+ * Žiara dynamics (AD v3 amendment 2026-08-31)
+ * ================================================================ */
+
+/* The journey hairline: a frost thread across the top edge, scaled by the
+   real scroll progress the stage writes (--journey). State, not decoration. */
+.journey-line {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 2px;
+  z-index: 60;
+  transform-origin: left;
+  transform: scaleX(var(--journey, 0));
+  background: linear-gradient(90deg, rgba(220, 230, 238, 0.25), rgba(220, 230, 238, 0.9));
+  pointer-events: none;
+}
+
+/* Line-rise reveals: statements enter line by line once their container is
+   observed (the stage's IntersectionObserver sets data-entered). */
+.rise-wrap { display: block; overflow: hidden; }
+.rise {
+  display: block;
+  transform: translateY(112%);
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--rise-delay, 0s);
+}
+[data-entered] .rise { transform: none; }
+
+/* World shells: each concept world is a live mini-site. --tx/--ty follow the
+   pointer (set by the shell), data-on arms the entrance choreography. */
+.world-shell { --tx: 0; --ty: 0; }
+.world-shell .wfx {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--fx-delay, 0s);
+}
+.world-shell[data-on] .wfx { opacity: 1; transform: none; }
+
+/* pointer-parallax layers — depth set per element, motion eased out */
+.world-shell .wpar {
+  transform: translate3d(
+    calc(var(--tx) * var(--depth, 8) * 1px),
+    calc(var(--ty) * var(--depth, 8) * 1px),
+    0
+  );
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* self-drawing strokes (latitude lines, arcs) */
+.world-shell .wdraw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 1.6s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--fx-delay, 0s);
+}
+.world-shell[data-on] .wdraw { stroke-dashoffset: 0; }
+
+/* Vlna: the live-capacity pulse — one rhythmic beat, per the world spec */
+@keyframes vlna-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(216, 242, 75, 0.55); }
+  50% { box-shadow: 0 0 0 6px rgba(216, 242, 75, 0); }
+}
+.world-shell[data-on] .wpulse { animation: vlna-pulse 2.6s ease-in-out infinite; }
+
+/* Štatút: the scanning hairline — an engineer's slow read of the document */
+@keyframes statut-scan {
+  0% { top: 6%; opacity: 0; }
+  8% { opacity: 0.5; }
+  92% { opacity: 0.5; }
+  100% { top: 94%; opacity: 0; }
+}
+.world-shell[data-on] .wscan {
+  position: absolute;
+  inset-inline: 0;
+  height: 1px;
+  background: rgba(110, 31, 38, 0.5);
+  animation: statut-scan 9s linear infinite;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise { transform: none; transition: none; }
+  .world-shell .wfx { opacity: 1; transform: none; transition: none; }
+  .world-shell .wpar { transform: none; transition: none; }
+  .world-shell .wdraw { stroke-dashoffset: 0; transition: none; }
+  .world-shell[data-on] .wpulse { animation: none; }
+  .world-shell[data-on] .wscan { animation: none; opacity: 0.3; top: 40%; }
+  .journey-line { transition: none; }
+}

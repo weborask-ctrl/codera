@@ -1,5 +1,11 @@
 import type { Metadata, Viewport } from "next"
-import { Fraunces, Geist, Geist_Mono } from "next/font/google"
+import {
+  Bricolage_Grotesque,
+  Fraunces,
+  Geist,
+  Geist_Mono,
+  Instrument_Serif,
+} from "next/font/google"
 
 import "./globals.css"
 import { siteConfig } from "@/lib/site-config"
@@ -35,6 +41,23 @@ const fraunces = Fraunces({
   subsets: ["latin", "latin-ext"],
   variable: "--font-fraunces",
   axes: ["opsz"],
+})
+
+/* Per-world faces (AD v3 amendment 2026-08-31): the concept worlds prove
+   typographic range, not only palette range. Instrument Serif is Štatút's
+   institutional voice; Bricolage is Vlna's loud wide grotesque. The +2
+   families are a conscious spend against issue #5 — range wins. */
+const instrument = Instrument_Serif({
+  subsets: ["latin", "latin-ext"],
+  weight: "400",
+  variable: "--font-instrument",
+  display: "swap",
+})
+
+const bricolage = Bricolage_Grotesque({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-bricolage",
+  display: "swap",
 })
 
 export const metadata: Metadata = {
@@ -101,7 +124,14 @@ export default function RootLayout({
   return (
     <html
       lang="sk"
-      className={cn("antialiased", geist.variable, geistMono.variable, fraunces.variable)}
+      className={cn(
+        "antialiased",
+        geist.variable,
+        geistMono.variable,
+        fraunces.variable,
+        instrument.variable,
+        bricolage.variable
+      )}
     >
       <head>
         {/* the flat-mode hero C is the mobile LCP element — fetch it first */}

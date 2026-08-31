@@ -154,3 +154,32 @@ The C ribbon geometry and its parametric source · the Step 6 copy deck verbatim
 · the three concept worlds' interiors · the packages and every commercial fact
 · monochrome-shell/colour-in-work law · all process constraints (no Lenis,
 readability over choreography, reduced-motion-as-layout, nothing invented).
+
+## Amendment 2026-08-31 — the worlds go dynamic, the page gains an effect tier
+
+Ondrej's verdict after the Žiara release line: the direction is right, but the
+level is not — the main page has too few effects to be "wau representative",
+and the concept worlds are static backdrops on the old system. Both change:
+
+**The concept worlds become dynamic 5D mini-sites**, each with its OWN type
+family on top of its own palette — the range must now be typographic too:
+
+| World | Family | Motion signature |
+| --- | --- | --- |
+| Meridián | Fraunces (kept) | pointer-tilt on the bags, the latitude line draws itself, slow warm drift |
+| Štatút | Instrument Serif (new) | restrained by contract — staggered index reveal and a slow scanning hairline; its stillness stays the point |
+| Vlna | Bricolage Grotesque (new) | pulse on live capacity, arcs draw on entry, energetic reveals |
+
+Each world reads its own scroll progress (`--wp-*` vars from the stage) and
+the pointer (`--tx/--ty` on its shell), so interiors move with depth — layers
+at different parallax rates, entrances choreographed when the world takes the
+frame. All within the standing rules: readability over choreography, native
+scroll, reduced motion freezes everything into composed stills.
+
+**The page gains a micro-effect tier**: act statements rise line by line when
+they enter; a frost progress hairline tracks the journey at the top edge; the
+/01 flat mode gets pointer-following glow. Few, consistent, and each tied to
+real state — never decoration for its own sake.
+
+The font cost (+2 families) is accepted consciously against issue #5; the
+range argument wins over the kilobytes, and the numbers get re-measured.
