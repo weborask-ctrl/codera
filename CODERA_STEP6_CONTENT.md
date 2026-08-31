@@ -1,8 +1,9 @@
 # Step 6 — Content (Phase A: narrative and copy)
 
 The five acts rewritten: what each one says, the single job it does, how it is
-staged in the desktop 5D world, and the Slovak copy verbatim. Phase B (offer and
-pricing) is blocked on the numbers; everything here is implementable now.
+staged in the desktop 5D world, and the Slovak copy verbatim. The entry price is
+confirmed at `od 1 000 €`; the two upper package prices are proposed and await
+one word of confirmation. Everything else here is implementable now.
 
 Contract: `process/STEPS.md` Step 6. Art direction: `CODERA_ART_DIRECTION_V2.md`.
 Behaviour: `CODERA_STEP5_ARCHITECTURE.md`. Business facts: `lib/site-config.ts`.
@@ -17,12 +18,19 @@ Requested 2026-08-31. Applied as follows:
 - The world stages the work. Each concept arrives as a physical object in the
   space — a plane with real depth, its own ground material, its own light —
   and the camera travels between them. That staging is Codera's language.
-- The *inside* of each concept stays faithful to its own industry. A law
-  practice does not become cinematic because our shell is; that would break the
-  first permanent rule of the library (style is derived from the client's
-  context, never from a fashionable default) and would make all three worlds
-  read as one studio's mood. The 5D is the vitrine; the work behind the glass
-  keeps its own grammar.
+- **The concepts themselves are modern and 5D as well.** Decided by Ondrej on
+  2026-08-31, after the alternative was put to him: all three concept sites get
+  contemporary, spatially staged designs rather than a conservative treatment
+  matched to sector convention.
+- **The guardrail that keeps that from collapsing.** Modern and spatial is the
+  shared level of ambition; it is not a shared look. Each world still runs its
+  own decision-engine pass and keeps its own palette, type voice, density and
+  imagery grammar. If the three worlds could swap their content without anyone
+  noticing, the act has failed — it would prove one taste rather than range,
+  which is the exact failure Step 4 §2 was written about. Concretely: the
+  roastery is warm and material, the practice is dense and institutional, the
+  studio is bright and expressive. All three are modern. None of them is the
+  same page recoloured.
 
 **"Smooth scrolling" means smooth motion, not a smooth-scroll layer.** Step 4 §5
 forbids Lenis, Locomotive and ScrollSmoother by name, and that stands. What the
@@ -45,7 +53,7 @@ everything written in this step.
 - **Display lines stay under ten words** and never wrap past two lines at any
   width. Slovak is roughly 15 % longer than English; every string is tested at
   its longest declension.
-- **Numbers only when true.** 699 €, 72 hodín, 24 hodín, 14 dní — these are
+- **Numbers only when true.** 1 000 €, 72 hodín, 24 hodín, 14 dní — these are
   verified in `lib/site-config.ts`. No counts of projects, clients or years.
 - **No superlatives, no agency noise.** Forbidden: "inovatívny", "na kľúč",
   "riešenia na mieru", "unikátny", "kreatívna agentúra", "digitálna
@@ -217,24 +225,34 @@ is the design here, not the absence of design.
 > | Dizajn | Vizuálny systém, ktorý firmu odlíši od konkurencie a dá jej dôveryhodnosť, akú si zaslúži. |
 > | Vývoj | Rýchla a responzívna implementácia, postavená na reálnu prevádzku — nie na prezentáciu. |
 
-**The three packages — structure ready, numbers owed (phase B).**
+**The three packages.**
 
 Each package needs exactly four things and nothing more: a name, who it is for
 in one line, an entry price, and four to six scope lines. Plus one line of what
 it explicitly does *not* include — that single line does more for trust than any
 badge, because it proves the price is a real boundary and not bait.
 
+**The entry price is now `od 1 000 €`** (Ondrej, 2026-08-31). It replaces 699 €
+everywhere, including the live site, the metadata description, the structured
+data and the enquiry form's budget bands.
+
 | Package | For whom | From | Not included |
 | --- | --- | --- | --- |
-| 1 — entry | *owed* | **699 €** (fixed anchor) | *owed* |
-| 2 — standard | *owed* | *owed* | *owed* |
-| 3 — bespoke | *owed* | *owed* | *owed* |
+| 1 — entry | *proposed:* a business that needs one credible page | **1 000 €** *(confirmed)* | *owed* |
+| 2 — standard | *proposed:* a company website with several sections | *proposed:* 2 500 € | *owed* |
+| 3 — bespoke | *proposed:* a site with its own art direction and custom motion | *proposed:* 5 000 € | *owed* |
 
-Rules for phase B: prices ascend and each is a *from* price; the cheapest keeps
-the existing 699 € anchor; scope lines are outcomes, not deliverable counts; no
-package is called "Premium", "Pro" or "Business"; no third-column highlighting
-that pushes the middle option — the audit's ban on scarcity theatre covers
-pricing psychology too.
+The two upper numbers are a **proposal awaiting one word of confirmation** —
+they are not invented facts and must not reach the site until Ondrej approves
+them. The ladder is set so each step is roughly 2–2.5× the one below, which
+reads as three genuinely different products rather than three sizes of the same
+one, and it lines up with the enquiry form's budget bands.
+
+Rules for phase B: prices ascend and each is a *from* price; the cheapest holds
+the 1 000 € anchor; scope lines are outcomes, not deliverable counts; no package
+is called "Premium", "Pro" or "Business"; no third-column highlighting that
+pushes the middle option — the audit's ban on scarcity theatre covers pricing
+psychology too.
 
 **Length budget.** 1 viewport for the process, 1 for the packages.
 
@@ -261,7 +279,7 @@ in /01 is closed here. Premium-bright ending, never a return to gloom.
 
 > | Commitment | Line |
 > | --- | --- |
-> | Webové projekty od 699 € | Konečná cena závisí od rozsahu. Povieme ju po konzultácii, nie až v zmluve. |
+> | Webové projekty od 1 000 € | Konečná cena závisí od rozsahu. Povieme ju po konzultácii, nie až v zmluve. |
 > | Prvý návrh do 72 hodín | Konkrétny vizuálny smer, nie prezentácia o tom, ako pracujeme. |
 > | Odpoveď na dopyt do 24 hodín | Konzultácia je bezplatná a nezáväzná. Nevoláme opakovane. |
 
@@ -292,7 +310,7 @@ it is enough — provided the site itself is the proof.
 | The three concepts | True, if labelled | `Koncept` everywhere, `*-koncept.sk` domains, never implied as client work |
 | 72 h first proposal | True | Stated as a commitment, in /01 and /05 |
 | 24 h response | True | Stated at the form, where it reduces friction |
-| From 699 € | True | Stated openly; the opposite of scarcity theatre |
+| From 1 000 € | True | Stated openly; the opposite of scarcity theatre |
 | Two named people | True | "Štúdio dvoch ľudí" — small is a credibility asset here, not a weakness to hide |
 | No invoicing details yet | True | The footer already says so plainly; it reads as honesty, not as a gap |
 | Client logos, counts, years, testimonials, awards | **Absent** | None exist. They stay absent until they do |
@@ -333,8 +351,23 @@ anything that lengthens the page without adding a beat.
 
 ## 11. Open
 
-- Phase B: the three package prices and scopes, and the one "not included" line
-  each. Owed by Ondrej.
-- Confirmation of the three sectors in §5.
+- The two upper package prices (2 500 € and 5 000 € proposed) and the one "not
+  included" line for each package. Owed by Ondrej.
 - Concept names, chosen with the worlds in phase C.
 - The 9-versus-8 viewport decision above.
+
+**Closed 2026-08-31:** entry price confirmed at 1 000 € · the three sectors in
+§5 confirmed · concept designs to be modern and 5D, with the range guardrail in
+§0.
+
+## 12. The price change is also a live-site defect
+
+`od 699 €` is hard-coded in eight places — `app/page.tsx` (structured data),
+`components/experience/acts.tsx`, `components/mobile/mobile-experience.tsx`,
+`components/world/world-experience.tsx`, `components/site/scene-close.tsx`,
+`components/site/enquiry-form.tsx` (budget bands), `app/boards/page.tsx` (twice)
+— while `lib/site-config.ts` already declares `priceFrom`. Raising the price is
+therefore not a find-and-replace: every usage routes through the config in the
+same change, so the next price change is one line. The Step 6 gate item "prices
+consistent, one source, no drift" is closed by that work, and the Playwright
+assertion moves from the literal `699 €` to the config value.

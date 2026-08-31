@@ -376,7 +376,7 @@ step changes *what is said*, not the art direction) · `CODERA_STEP5_ARCHITECTUR
 | --- | --- |
 | Site structure | One page **plus case-study pages** — the five-act journey stays a single URL; each concept gains its own route |
 | Portfolio concepts | **New industries.** The current three (construction GC, private clinic, interior studio) are replaced |
-| Offer presentation | **Three packages with prices**, anchored on the existing "od 699 €" |
+| Offer presentation | **Three packages with prices**, anchored on "od 1 000 €" (raised from 699 € on 2026-08-31) |
 | Trust material | **Nothing new** — no legal entity, no completed client work, no testimonials. Trust must be carried by craft, transparency and process alone |
 
 The last one is the hard constraint of this step: every trust device must be
@@ -484,7 +484,7 @@ blocked; phases A, C and D can start immediately.
 
 1. **The three package prices and scopes.** The structure is proposed; the
    numbers are a commercial decision and may not be invented. Anchor: the
-   existing `od 699 €` must remain the entry point of the cheapest package.
+   entry price is `od 1 000 €`, confirmed 2026-08-31; the two upper prices are proposed and await confirmation.
 2. **Confirmation of the three sectors** in §5, or a substitution. If one is
    replaced, its mechanic must be replaced too — the set must still prove buy,
    enquire and book.
