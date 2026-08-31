@@ -1,5 +1,5 @@
 import { Experience } from "@/components/experience"
-import { commercial, people, siteConfig } from "@/lib/site-config"
+import { commercial, packages, people, siteConfig } from "@/lib/site-config"
 
 /**
  * Structured data.
@@ -36,15 +36,17 @@ const structuredData = {
   },
   hasOfferCatalog: {
     "@type": "OfferCatalog",
-    name: "Služby",
-    itemListElement: [
-      "Firemné webstránky",
-      "Landing pages",
-      "Redizajn existujúcich webov",
-      "Správa a rozvoj webu",
-    ].map((service) => ({
+    name: "Balíky",
+    /* The real packages with their from-prices, from the same source the page
+       renders — the catalogue must never disagree with the visible offer. */
+    itemListElement: packages.map((pkg) => ({
       "@type": "Offer",
-      itemOffered: { "@type": "Service", name: service },
+      itemOffered: { "@type": "Service", name: `${pkg.name} — webstránka` },
+      priceSpecification: {
+        "@type": "PriceSpecification",
+        priceCurrency: "EUR",
+        minPrice: pkg.priceFromValue,
+      },
     })),
   },
 }

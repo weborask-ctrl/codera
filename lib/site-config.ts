@@ -63,6 +63,70 @@ export const commercial = {
 } as const
 
 /**
+ * The offer, as three packages.
+ *
+ * Ladder set 2026-08-31: the 1 000 € anchor is Codera's; the steps of roughly
+ * 1.8× make each rung buy something the buyer can name, which is also what
+ * stops the cheapest option from being the one nobody would rationally take.
+ * Reasoning in `CODERA_STEP6_CONTENT.md` §6.
+ *
+ * `notIncluded` is not a disclaimer. It is the line that proves the price is a
+ * real boundary rather than bait, and it is trust this studio can claim today —
+ * unlike anything that would need a track record.
+ *
+ * Scope lines are OUTCOMES, never deliverable counts. Nothing here may be
+ * called Premium, Pro or Business, and no package is visually pushed over the
+ * others: the audit's ban on scarcity theatre covers pricing psychology too.
+ */
+export const packages = [
+  {
+    id: "vizitka",
+    name: "Vizitka",
+    audience: "Pre firmu, ktorá potrebuje jednu dôveryhodnú stránku.",
+    priceFrom: "1 000 €",
+    priceFromValue: 1000,
+    scope: [
+      "Jedna stránka so všetkým podstatným: čo robíte, pre koho a ako vás osloviť",
+      "Vlastný vizuálny smer, nie prefarbená šablóna",
+      "Funkčný formulár, mapa a telefón na jeden dotyk",
+      "Rýchlosť a prístupnosť, ktorú ocení Google aj čítačka obrazovky",
+      "Základné SEO: titulky, popisy, štruktúrované dáta, sitemap",
+    ],
+    notIncluded: "viac podstránok, blog ani e-shop",
+  },
+  {
+    id: "firemny",
+    name: "Firemný web",
+    audience: "Pre firmu s viacerými službami, referenciami a pravidelnými novinkami.",
+    priceFrom: "1 800 €",
+    priceFromValue: 1800,
+    scope: [
+      "Až šesť podstránok: služby, referencie, o nás, kontakt",
+      "Jedna sekcia, ktorú si spravujete sami — novinky alebo referencie",
+      "Obsahová štruktúra postavená na to, čo ľudia naozaj hľadajú",
+      "Formuláre s ochranou proti spamu a upozornením na e-mail",
+      "Meranie: čo ľudia na stránke robia a odkiaľ prišli",
+    ],
+    notIncluded: "e-shop, rezervačný systém ani druhý jazyk",
+  },
+  {
+    id: "5d",
+    name: "5D web",
+    audience: "Pre firmu, ktorá chce, aby si ju zapamätali.",
+    priceFrom: "3 200 €",
+    priceFromValue: 3200,
+    scope: [
+      "Vlastná art direction — stránka, ktorá nevyzerá ako žiadna iná",
+      "Priestorová réžia: scény, kamera, materiály a pohyb viazaný na scroll",
+      "Samostatne réžírovaná mobilná verzia, nie zmenšený desktop",
+      "Plný zážitok tam, kde ho zariadenie unesie; plnohodnotná stránka všade inde",
+      "Texty a dramaturgia celej cesty, nielen dizajn obrazoviek",
+    ],
+    notIncluded: "e-shop a napojenie na sklad alebo ERP",
+  },
+] as const
+
+/**
  * Legal identification.
  *
  * Codera currently has no trade licence or registered company, so there is
