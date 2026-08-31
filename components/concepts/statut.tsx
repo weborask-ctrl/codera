@@ -53,7 +53,7 @@ export function StatutHero({ portal = false }: { portal?: boolean }) {
       <header className={`relative z-10 mx-[clamp(1.25rem,4vw,4rem)] border-b border-[#14161A]/30 ${portal ? "pt-6" : "pt-14"} pb-4`}>
         <div className="flex items-baseline justify-between">
           <span style={{ ...INST, fontSize: "1.5rem" }}>
-            Štatút<span style={{ color: OX }}>.</span>
+            Kancelária<span style={{ color: OX }}>.</span>
           </span>
           <nav className="hidden gap-6 text-[0.58rem] tracking-[0.18em] text-[#14161A]/60 md:flex" style={MONO}>
             <span>PRAX</span>
@@ -168,7 +168,7 @@ export default function StatutSite() {
               DOHODNÚŤ TERMÍN
             </span>
             <span className="text-[0.64rem] text-[#14161A]/60" style={MONO}>
-              KANCELARIA@STATUT-KONCEPT.SK
+              DEMO · ŽIADNA SKUTOČNÁ KANCELÁRIA
             </span>
           </div>
         </div>
@@ -177,7 +177,7 @@ export default function StatutSite() {
       <footer className="border-t border-[#14161A]/25 px-[clamp(1.25rem,4vw,4rem)] py-5 text-[0.54rem] tracking-[0.14em] text-[#14161A]/55" style={MONO}>
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <span>SLOVENSKÁ ADVOKÁTSKA KOMORA · ZAPÍSANÁ</span>
-          <span>ADVOKÁTSKA KANCELÁRIA · FIKTÍVNY KONCEPT ŠTÚDIA CODERA</span>
+          <span>DEMO EDITORIÁLNEHO DIZAJNU · ŠTÚDIO CODERA</span>
           <span>BRATISLAVA · KOŠICE</span>
         </div>
       </footer>

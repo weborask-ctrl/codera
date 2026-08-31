@@ -157,7 +157,7 @@ test.describe("Codera homepage", () => {
     await page.goto("/")
     for (const text of [
       "Vaša firma je lepšia",
-      "Tri značky, ktoré neexistujú.",
+      "Neukazujeme logá klientov.",
       "Guji, 2 050 m",
       "Právo je nástroj.",
       "vo štvrtok.",
@@ -247,7 +247,7 @@ test.describe("Codera homepage", () => {
 
   test("concept work stays labelled as concept work", async ({ page }) => {
     await page.goto("/")
-    await expect(page.locator("main")).toContainText(/UKÁŽKOVÝ KONCEPT/i)
+    await expect(page.locator("main")).toContainText(/ŽIVÁ UKÁŽKA/i)
     await expect(page.locator("footer")).toContainText(/nejde o realizácie pre klientov/i)
   })
 
@@ -312,8 +312,8 @@ test.describe("Codera homepage", () => {
 
     /* the portal gallery replaced the swipe deck (AD v3 amendment 2):
        three portals stack vertically, each linking into its concept */
-    const portals = page.locator('#praca a[href^="/koncept/"]')
-    await expect(portals).toHaveCount(6) // portal frame + text CTA per project
+    const portals = page.locator('#praca a[href^="/ukazky/"]')
+    await expect(portals).toHaveCount(7) // name link + inline portal per ready skill + the desktop sticky portal (attached, lg-hidden)
     await portals.first().scrollIntoViewIfNeeded()
     await expect(portals.first()).toBeVisible()
     /* the page itself must not gain horizontal scroll from the portals */
@@ -375,8 +375,7 @@ test.describe("Codera homepage", () => {
       }
     }
     expect(acts[0]).toBe("hero")
-    expect(acts).toContain("meridian")
-    expect(acts).toContain("vlna")
+    expect(acts).toContain("work")
     expect(acts[acts.length - 1]).toBe("resolution")
   })
 
@@ -490,21 +489,21 @@ test.describe("Concept sites", () => {
   test("every concept opens as a full page wearing the honest ribbon", async ({ browser }) => {
     const context = await browser.newContext({ javaScriptEnabled: false })
     const page = await context.newPage()
-    for (const slug of ["meridian", "statut", "vlna"]) {
-      const res = await page.goto(`/koncept/${slug}`)
+    for (const slug of ["dizajn", "objednavky", "rezervacie"]) {
+      const res = await page.goto(`/ukazky/${slug}`)
       expect(res?.status()).toBe(200)
-      await expect(page.locator("body")).toContainText("UKÁŽKOVÝ KONCEPT ŠTÚDIA")
-      await expect(page.locator("body")).toContainText("FIKTÍVNY KONCEPT ŠTÚDIA CODERA")
+      await expect(page.locator("body")).toContainText("DEMO · CODERA")
+      await expect(page.locator("body")).toContainText("ŠTÚDIO CODERA")
     }
     await context.close()
   })
 
   test("the portal gallery links into the concepts", async ({ page }) => {
     await page.goto("/")
-    for (const slug of ["meridian", "statut", "vlna"]) {
+    for (const slug of ["dizajn", "objednavky", "rezervacie"]) {
       await expect(
-        page.locator(`a[href="/koncept/${slug}"]`).first(),
-        `no portal link to /koncept/${slug}`
+        page.locator(`a[href="/ukazky/${slug}"]`).first(),
+        `no portal link to /ukazky/${slug}`
       ).toBeAttached()
     }
   })

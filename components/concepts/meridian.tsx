@@ -91,7 +91,7 @@ export function MeridianHero({ portal = false }: { portal?: boolean }) {
       </span>
 
       <header className={`relative z-10 flex items-center justify-between px-[clamp(1.25rem,4vw,4rem)] ${portal ? "pt-6" : "pt-14"}`}>
-        <span style={{ ...FR, fontSize: "1.4rem" }}>Meridián</span>
+        <span style={{ ...FR, fontSize: "1.4rem" }}>Pražiareň</span>
         <nav className="hidden items-center gap-7 text-[0.62rem] tracking-[0.2em] text-[#2A1D14]/60 md:flex" style={MONO}>
           <span>KÁVA</span>
           <span>PREDPLATNÉ</span>
@@ -253,9 +253,9 @@ export default function MeridianSite() {
 
       <footer className="border-t border-[#2A1D14]/15 px-[clamp(1.25rem,4vw,4rem)] py-6 text-[0.58rem] tracking-[0.14em] text-[#2A1D14]/55" style={MONO}>
         <div className="flex flex-wrap items-baseline justify-between gap-3">
-          <span style={{ ...FR, fontSize: "1rem", letterSpacing: 0 }}>Meridián</span>
-          <span>PRAŽIAREŇ KÁVY · FIKTÍVNY KONCEPT ŠTÚDIA CODERA</span>
-          <span>MERIDIAN-KONCEPT.SK</span>
+          <span style={{ ...FR, fontSize: "1rem", letterSpacing: 0 }}>Pražiareň</span>
+          <span>DEMO OBJEDNÁVKOVÉHO SYSTÉMU · ŠTÚDIO CODERA</span>
+          <span>UKÁŽKA · ŽIADNA SKUTOČNÁ FIRMA</span>
         </div>
       </footer>
     </main>
