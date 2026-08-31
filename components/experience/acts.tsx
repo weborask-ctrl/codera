@@ -136,6 +136,7 @@ function useStage(probe: boolean) {
       }
       root.style.setProperty("--recede-a", Math.min(1, stage.p.statut * 2).toFixed(4))
       root.style.setProperty("--recede-b", Math.min(1, stage.p.vlna * 2).toFixed(4))
+      root.style.setProperty("--journey", stage.total.toFixed(4))
 
       if (actPill) {
         const label = `${ACT_NO[stage.act] ?? "01"} / 05`
@@ -279,9 +280,14 @@ function ActHero({ world }: { world: boolean }) {
             textShadow: "0 1px 2px rgba(10,11,14,0.55), 0 14px 44px rgba(10,11,14,0.6)",
           }}
         >
-          Vaša firma je lepšia,
-          <br />
-          než ukazuje váš web.
+          <span className="rise-wrap">
+            <span className="rise">Vaša firma je lepšia,</span>
+          </span>
+          <span className="rise-wrap">
+            <span className="rise" style={{ ["--rise-delay" as string]: "0.12s" }}>
+              než ukazuje váš web.
+            </span>
+          </span>
         </h1>
         {/* the support line is about the READER, not our disciplines —
             CODERA_STEP6_CONTENT.md §3 */}
@@ -508,12 +514,18 @@ function ActOffer({ world }: { world: boolean }) {
               04 — REMESLO
             </p>
             <h2
-              className="mt-4 font-semibold"
-              style={{ fontSize: "clamp(1.9rem,3.4vw,3.4rem)", lineHeight: 0.98, letterSpacing: "-0.03em" }}
+              data-enter
+              className="mt-4 font-light"
+              style={{ fontSize: "clamp(2rem,3.6vw,3.6rem)", lineHeight: 1.02, letterSpacing: "-0.022em" }}
             >
-              Čo pre vás
-              <br />
-              urobíme.
+              <span className="rise-wrap">
+                <span className="rise">Čo pre vás</span>
+              </span>
+              <span className="rise-wrap">
+                <span className="rise" style={{ ["--rise-delay" as string]: "0.12s" }}>
+                  urobíme.
+                </span>
+              </span>
             </h2>
             <p className="mt-4 max-w-[22em] text-[0.85rem] leading-relaxed text-black/60">
               Jedna stuha, tri disciplíny — od pochopenia firmy až po web
@@ -664,9 +676,14 @@ function ActResolution({ world }: { world: boolean }) {
             textShadow: "0 1px 2px rgba(250,251,252,0.7), 0 10px 36px rgba(250,251,252,0.55)",
           }}
         >
-          Váš ďalší web nemusí
-          <br />
-          vyzerať ako všetky ostatné.
+          <span className="rise-wrap">
+            <span className="rise">Váš ďalší web nemusí</span>
+          </span>
+          <span className="rise-wrap">
+            <span className="rise" style={{ ["--rise-delay" as string]: "0.12s" }}>
+              vyzerať ako všetky ostatné.
+            </span>
+          </span>
         </h2>
         <p className="mt-5 text-[0.95rem] text-[#17181d]/70">Vytvorme taký, ktorý si ľudia zapamätajú.</p>
         <div className="mt-9 flex flex-wrap items-center justify-center gap-6" id="dopyt">
@@ -749,6 +766,8 @@ export function ExperienceActs({ world, probe = false }: { world: boolean; probe
       className="relative z-10 outline-none"
       style={{ background: world ? "transparent" : undefined }}
     >
+      {/* the journey hairline: real scroll state, worn at the top edge */}
+      <div aria-hidden="true" className="journey-line" />
       <ActHero world={world} />
       {world ? <div data-zone="pass" aria-hidden="true" className="h-[60svh]" /> : null}
       <ActPremena />

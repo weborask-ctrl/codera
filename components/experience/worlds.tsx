@@ -27,8 +27,76 @@
  * is labelled UKÁŽKOVÝ KONCEPT. Nothing here is a claim about Codera.
  */
 
+import { useEffect, useRef } from "react"
+
 const MONO = { fontFamily: "var(--font-geist-mono)" }
-const SERIF = { fontFamily: "var(--font-fraunces), Georgia, serif" }
+/* Per-world type (AD v3 amendment): range is typographic too. */
+const SERIF = { fontFamily: "var(--font-fraunces), Georgia, serif" } // Meridián
+const SERIF_I = { fontFamily: "var(--font-instrument), Georgia, serif" } // Štatút
+const GROT_B = { fontFamily: "var(--font-bricolage), var(--font-geist-sans), sans-serif" } // Vlna
+
+/**
+ * WorldShell — what turns a backdrop into a live mini-site.
+ *
+ * Sets --tx/--ty from the pointer (for .wpar parallax layers), and arms the
+ * entrance choreography (data-on → .wfx/.wdraw) when the world actually takes
+ * the frame, via its own IntersectionObserver. Works identically in the /03
+ * stack, the mobile deck and the case-study embeds. Reduced motion is handled
+ * entirely in CSS — the shell still arms, the styles refuse to move.
+ */
+function WorldShell({
+  children,
+  className = "",
+  style,
+}: {
+  children: React.ReactNode
+  className?: string
+  style?: React.CSSProperties
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) {
+      return
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            el.setAttribute("data-on", "")
+            io.disconnect()
+          }
+        }
+      },
+      { threshold: 0.35 }
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+  return (
+    <div
+      ref={ref}
+      className={`world-shell ${className}`}
+      style={style}
+      onPointerMove={(e) => {
+        const r = e.currentTarget.getBoundingClientRect()
+        e.currentTarget.style.setProperty("--tx", ((e.clientX - r.left) / r.width - 0.5).toFixed(3))
+        e.currentTarget.style.setProperty("--ty", ((e.clientY - r.top) / r.height - 0.5).toFixed(3))
+      }}
+      onPointerLeave={(e) => {
+        e.currentTarget.style.setProperty("--tx", "0")
+        e.currentTarget.style.setProperty("--ty", "0")
+      }}
+    >
+      {children}
+    </div>
+  )
+}
+
+/** Staggered entrance helper: nth item enters n×90 ms later. */
+function fx(i: number): React.CSSProperties {
+  return { ["--fx-delay" as string]: `${(i * 0.09).toFixed(2)}s` }
+}
 
 /** The1's building-scale numeral: a poster-cropped ghost index anchoring
     each world's air. Desktop full-bleed worlds only. */
@@ -44,13 +112,14 @@ function GhostNumeral({
   return (
     <span
       aria-hidden="true"
-      className={`pointer-events-none absolute font-semibold select-none ${className}`}
+      className={`wpar pointer-events-none absolute font-semibold select-none ${className}`}
       style={{
         fontSize: "clamp(11rem,26vh,20rem)",
         lineHeight: 0.78,
         letterSpacing: "-0.04em",
         fontStretch: "125%",
         color,
+        ["--depth" as string]: "26",
       }}
     >
       {n}
@@ -133,7 +202,14 @@ function Bag({
           <path d="M0 46 H120" />
           <path d="M0 62 H120" />
         </g>
-        <path d="M0 46 C30 34, 90 58, 120 46" stroke={ink} strokeWidth="1.4" fill="none" />
+        <path
+          className="wdraw"
+          pathLength={1}
+          d="M0 46 C30 34, 90 58, 120 46"
+          stroke={ink}
+          strokeWidth="1.4"
+          fill="none"
+        />
       </svg>
       <div className="relative px-[7%] pt-[7%] text-[0.5rem] tracking-[0.2em]" style={MONO}>
         {code}
@@ -152,7 +228,7 @@ function Bag({
 
 export function MeridianWorld({ compact = false }: { compact?: boolean }) {
   return (
-    <div
+    <WorldShell
       className="relative flex h-full flex-col overflow-hidden"
       style={{ background: "#F4EFE6", color: "#2A1D14" }}
     >
@@ -210,28 +286,29 @@ export function MeridianWorld({ compact = false }: { compact?: boolean }) {
       <div className="relative z-10 flex min-h-0 flex-1 flex-col justify-center px-[clamp(1.1rem,3.2vw,3rem)] py-[clamp(1rem,2.4vh,2.2rem)]">
         {/* the hero product: bag left, origin data right */}
         <div className={`flex gap-[clamp(1rem,2.6vw,2.6rem)] ${compact ? "items-start" : "items-center"}`}>
-          <div className={compact ? "w-[38%] shrink-0" : "w-[26%] shrink-0"}>
+          <div className={`wpar wfx ${compact ? "w-[38%] shrink-0" : "w-[26%] shrink-0"}`} style={{ ...fx(1), ["--depth" as string]: "-16" }}>
             <Bag origin="Guji" code="ET · 06" tone="#7A3B1E" />
           </div>
 
           <div className="min-w-0 flex-1">
-            <p className="text-[0.6rem] tracking-[0.26em] text-[#C4531F]" style={MONO}>
+            <p className="wfx text-[0.6rem] tracking-[0.26em] text-[#C4531F]" style={{ ...MONO, ...fx(2) }}>
               ETIÓPIA · PRAŽENÉ V UTOROK
             </p>
             {/* one line, always: "Guji, 2 050 m" breaking after the comma left
                 a widowed "m" on the deck card, which reads as a typo */}
             <p
-              className="mt-2 whitespace-nowrap"
+              className="wfx mt-2 whitespace-nowrap"
               style={{
                 ...SERIF,
                 fontSize: compact ? "clamp(1.4rem,5.2vw,2.1rem)" : "clamp(2.2rem,5vw,5.2rem)",
                 lineHeight: 0.94,
                 letterSpacing: "-0.015em",
+                ...fx(3),
               }}
             >
               Guji, 2 050 m
             </p>
-            <p className="mt-3 max-w-[26rem] text-[0.8rem] leading-relaxed text-[#2A1D14]/70">
+            <p className="wfx mt-3 max-w-[26rem] text-[0.8rem] leading-relaxed text-[#2A1D14]/70" style={fx(4)}>
               Umytá príprava, jasná kyselina, broskyňa a čierny čaj. Pražíme malé
               dávky a posielame do troch dní.
             </p>
@@ -239,8 +316,8 @@ export function MeridianWorld({ compact = false }: { compact?: boolean }) {
             {/* origin data in mono — the contrast with the serif IS the brand */}
             {!compact ? (
               <div
-                className="mt-5 grid max-w-[30rem] grid-cols-4 gap-px border border-[#2A1D14]/20 bg-[#2A1D14]/20 text-[0.55rem]"
-                style={MONO}
+                className="wfx mt-5 grid max-w-[30rem] grid-cols-4 gap-px border border-[#2A1D14]/20 bg-[#2A1D14]/20 text-[0.55rem]"
+                style={{ ...MONO, ...fx(5) }}
               >
                 {[
                   ["06°12′ N", "ŠÍRKA"],
@@ -256,7 +333,7 @@ export function MeridianWorld({ compact = false }: { compact?: boolean }) {
               </div>
             ) : null}
 
-            <div className="mt-5 flex flex-wrap items-center gap-4">
+            <div className="wfx mt-5 flex flex-wrap items-center gap-4" style={fx(6)}>
               <span
                 className={`rounded-full font-medium whitespace-nowrap ${
                   compact ? "px-4 py-2 text-[0.6rem] tracking-[0.06em]" : "px-6 py-2.5 text-[0.68rem] tracking-[0.1em]"
@@ -275,7 +352,7 @@ export function MeridianWorld({ compact = false }: { compact?: boolean }) {
         {/* the grid below: a shop always shows more than one thing. It renders
             in compact too — without it the deck card is a single product and
             two thirds of dead air, which reads as a landing page, not a shop. */}
-        <div className="mt-[clamp(1rem,3vh,2.4rem)] grid grid-cols-3 gap-[clamp(0.6rem,1.4vw,1.4rem)]">
+        <div className="wfx mt-[clamp(1rem,3vh,2.4rem)] grid grid-cols-3 gap-[clamp(0.6rem,1.4vw,1.4rem)]" style={fx(7)}>
           {[
             { origin: "Huila", code: "CO · 11", tone: "#3F4A2C" },
             { origin: "Chiapas", code: "MX · 04", tone: "#8A5A2B" },
@@ -322,7 +399,7 @@ export function MeridianWorld({ compact = false }: { compact?: boolean }) {
           ))}
         </div>
       ) : null}
-    </div>
+    </WorldShell>
   )
 }
 
@@ -335,10 +412,12 @@ export function MeridianWorld({ compact = false }: { compact?: boolean }) {
 
 export function StatutWorld({ compact = false }: { compact?: boolean }) {
   return (
-    <div
+    <WorldShell
       className="relative flex h-full flex-col overflow-hidden"
       style={{ background: "#EDEDEA", color: "#14161A" }}
     >
+      {/* the slow scanning hairline: an engineer reading the document */}
+      <div aria-hidden="true" className="wscan" />
       {/* flat, even, frontal — deliberately the least lit world of the three */}
       <div
         aria-hidden="true"
@@ -367,7 +446,7 @@ export function StatutWorld({ compact = false }: { compact?: boolean }) {
       {/* masthead, not a nav bar */}
       <div className="relative z-10 mx-[clamp(1.1rem,3.2vw,3rem)] border-y border-[#14161A]/30 py-3">
         <div className="flex items-baseline justify-between">
-          <span style={{ ...SERIF, fontSize: "1.3rem", letterSpacing: "0.02em" }}>
+          <span style={{ ...SERIF_I, fontSize: "1.3rem", letterSpacing: "0.02em" }}>
             Štatút<span className="text-[#6E1F26]">.</span>
           </span>
           {!compact ? (
@@ -399,16 +478,17 @@ export function StatutWorld({ compact = false }: { compact?: boolean }) {
               ["05", "Insolvencia", "reštrukturalizácia · konkurz"],
             ]
               .slice(0, compact ? 3 : 5)
-              .map(([n, title, sub]) => (
+              .map(([n, title, sub], rowI) => (
                 <li
                   key={n}
-                  className="flex items-baseline gap-4 border-b border-[#14161A]/15 py-[clamp(0.4rem,1.1vh,0.75rem)]"
+                  className="wfx flex items-baseline gap-4 border-b border-[#14161A]/15 py-[clamp(0.4rem,1.1vh,0.75rem)]"
+                  style={fx(rowI + 1)}
                 >
                   <span className="tnum text-[0.62rem] text-[#6E1F26]" style={MONO}>
                     {n}
                   </span>
                   <div className="min-w-0">
-                    <p style={{ ...SERIF, fontSize: "clamp(0.95rem,1.5vw,1.35rem)", lineHeight: 1.15 }}>
+                    <p style={{ ...SERIF_I, fontSize: "clamp(0.95rem,1.5vw,1.35rem)", lineHeight: 1.15 }}>
                       {title}
                     </p>
                     {!compact ? (
@@ -421,11 +501,11 @@ export function StatutWorld({ compact = false }: { compact?: boolean }) {
         </div>
 
         {/* right: the statement and the quiet ask */}
-        <div className={compact ? "hidden" : "flex min-w-0 flex-1 flex-col justify-between"}>
+        <div className={`wfx ${compact ? "hidden" : "flex min-w-0 flex-1 flex-col justify-between"}`} style={fx(3)}>
           <div>
             <p
               style={{
-                ...SERIF,
+                ...SERIF_I,
                 fontSize: "clamp(1.5rem,3.1vw,3.1rem)",
                 lineHeight: 1.06,
                 letterSpacing: "-0.01em",
@@ -481,7 +561,7 @@ export function StatutWorld({ compact = false }: { compact?: boolean }) {
           <span>BRATISLAVA · KOŠICE</span>
         </div>
       ) : null}
-    </div>
+    </WorldShell>
   )
 }
 
@@ -500,7 +580,7 @@ export function VlnaWorld({ compact = false }: { compact?: boolean }) {
   ]
 
   return (
-    <div
+    <WorldShell
       className="relative flex h-full flex-col overflow-hidden"
       style={{ background: "#FBFAF7", color: "#123B3A" }}
     >
@@ -521,9 +601,9 @@ export function VlnaWorld({ compact = false }: { compact?: boolean }) {
         className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.5]"
       >
         <g fill="none" stroke="#123B3A" strokeOpacity="0.14" strokeWidth="1.2">
-          <path d="M-20 220 C 90 150, 150 250, 260 170 S 400 120, 440 160" />
-          <path d="M-20 250 C 90 180, 150 280, 260 200 S 400 150, 440 190" />
-          <path d="M-20 190 C 90 120, 150 220, 260 140 S 400 90, 440 130" />
+          <path className="wdraw" pathLength={1} style={fx(1)} d="M-20 220 C 90 150, 150 250, 260 170 S 400 120, 440 160" />
+          <path className="wdraw" pathLength={1} style={fx(3)} d="M-20 250 C 90 180, 150 280, 260 200 S 400 150, 440 190" />
+          <path className="wdraw" pathLength={1} style={fx(5)} d="M-20 190 C 90 120, 150 220, 260 140 S 400 90, 440 130" />
         </g>
       </svg>
 
@@ -536,7 +616,7 @@ export function VlnaWorld({ compact = false }: { compact?: boolean }) {
       <div className="relative z-10 mx-[clamp(1.1rem,3.2vw,3rem)] flex items-center justify-between border-b border-[#123B3A]/20 pb-3">
         <span
           className="font-semibold"
-          style={{ fontSize: "1.15rem", fontStretch: "125%", letterSpacing: "-0.02em" }}
+          style={{ ...GROT_B, fontSize: "1.15rem", letterSpacing: "-0.01em" }}
         >
           VLNA
         </span>
@@ -560,12 +640,13 @@ export function VlnaWorld({ compact = false }: { compact?: boolean }) {
 
       <div className="relative z-10 flex min-h-0 flex-1 flex-col justify-center px-[clamp(1.1rem,3.2vw,3rem)] py-[clamp(0.9rem,2.2vh,2rem)]">
         <p
-          className="font-semibold uppercase"
+          className="wfx font-semibold uppercase"
           style={{
             fontSize: compact ? "clamp(2rem,8.5vw,3rem)" : "clamp(2.4rem,6vw,6.4rem)",
-            lineHeight: 0.86,
-            letterSpacing: "-0.035em",
-            fontStretch: "135%",
+            lineHeight: 0.9,
+            letterSpacing: "-0.03em",
+            ...GROT_B,
+            ...fx(0),
           }}
         >
           Začnite
@@ -575,7 +656,7 @@ export function VlnaWorld({ compact = false }: { compact?: boolean }) {
 
         {/* the timetable — the whole argument of the site */}
         <div className="mt-[clamp(0.8rem,2.4vh,1.6rem)]">
-          <div className="flex gap-1.5">
+          <div className="wfx flex gap-1.5" style={fx(1)}>
             {["PO", "UT", "ST", "ŠT", "PI", "SO"].map((d, i) => (
               <span
                 key={d}
@@ -592,17 +673,18 @@ export function VlnaWorld({ compact = false }: { compact?: boolean }) {
           </div>
 
           <ul className="mt-3 grid gap-1.5">
-            {slots.slice(0, compact ? 3 : 4).map(([time, name, free]) => (
+            {slots.slice(0, compact ? 3 : 4).map(([time, name, free], slotI) => (
               <li
                 key={time}
-                className="flex items-center gap-4 rounded-[6px] border border-[#123B3A]/15 bg-white/70 px-4 py-[clamp(0.4rem,1.1vh,0.7rem)]"
+                className="wfx flex items-center gap-4 rounded-[6px] border border-[#123B3A]/15 bg-white/70 px-4 py-[clamp(0.4rem,1.1vh,0.7rem)]"
+                style={fx(slotI + 2)}
               >
                 <span className="tnum text-[0.85rem] font-semibold" style={MONO}>
                   {time}
                 </span>
                 <span className="min-w-0 flex-1 truncate text-[0.9rem] font-medium">{name}</span>
                 <span
-                  className="rounded-full px-2.5 py-0.5 text-[0.56rem] tracking-[0.1em]"
+                  className={`rounded-full px-2.5 py-0.5 text-[0.56rem] tracking-[0.1em] ${free === "voľné" ? "wpulse" : ""}`}
                   style={
                     free === "voľné"
                       ? { background: "#D8F24B", color: "#123B3A" }
@@ -618,7 +700,7 @@ export function VlnaWorld({ compact = false }: { compact?: boolean }) {
 
         {/* membership tiers — the second mechanic behind the first */}
         {!compact ? (
-          <div className="mt-[clamp(0.8rem,2.2vh,1.4rem)] grid grid-cols-3 gap-[clamp(0.5rem,1.2vw,1rem)]">
+          <div className="wfx mt-[clamp(0.8rem,2.2vh,1.4rem)] grid grid-cols-3 gap-[clamp(0.5rem,1.2vw,1rem)]" style={fx(6)}>
             {[
               ["JEDNORAZOVO", "12 €", "za lekciu"],
               ["8 LEKCIÍ", "79 €", "platnosť 60 dní"],
@@ -636,7 +718,7 @@ export function VlnaWorld({ compact = false }: { compact?: boolean }) {
                 <p className="text-[0.54rem] tracking-[0.16em] opacity-70" style={MONO}>
                   {tier}
                 </p>
-                <p className="mt-1 text-[1.3rem] font-semibold" style={{ fontStretch: "115%" }}>
+                <p className="mt-1 text-[1.3rem] font-semibold" style={GROT_B}>
                   {price}
                 </p>
                 <p className="text-[0.58rem] opacity-65">{note}</p>
@@ -656,6 +738,6 @@ export function VlnaWorld({ compact = false }: { compact?: boolean }) {
           <span>ŠTÚDIO · 9 LEKTOROV</span>
         </div>
       ) : null}
-    </div>
+    </WorldShell>
   )
 }
