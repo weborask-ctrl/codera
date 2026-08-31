@@ -616,20 +616,20 @@ main[data-experience="v3"] .enter[data-entered] {
   color: #16171b;
   transition: color 0.45s ease;
 }
+/* Žiara: only the two dark opening acts carry light nav ink — the sunrise
+   never returns to dark, so /05 now reads as a light act. */
 :root[data-act="hero"] .experience-nav,
-:root[data-act="pass"] .experience-nav,
-:root[data-act="resolution"] .experience-nav {
-  color: #f4f1ea;
+:root[data-act="pass"] .experience-nav {
+  color: #f2f4f6;
 }
 .experience-nav .experience-cta {
   background: #16171b;
-  color: #f4f1ea;
+  color: #fafbfc;
   transition: background 0.45s ease, color 0.45s ease;
 }
 :root[data-act="hero"] .experience-nav .experience-cta,
-:root[data-act="pass"] .experience-nav .experience-cta,
-:root[data-act="resolution"] .experience-nav .experience-cta {
-  background: #f4f1ea;
+:root[data-act="pass"] .experience-nav .experience-cta {
+  background: #f2f4f6;
   color: #16171b;
 }
 
@@ -683,9 +683,12 @@ main[data-experience="v3"] .offer-row[data-active] .offer-title {
   backdrop-filter: blur(14px);
   border-bottom: 1px solid rgb(255 255 255 / 0.08);
 }
-:root[data-scrolled]:not([data-act="hero"]):not([data-act="pass"]):not([data-act="forma"]):not([data-act="resolution"])
+/* Žiara: the sunrise means every act after the pass sits on risen light,
+   so the frost shell goes light everywhere except the two dark opening
+   acts. The retired v2 act names (forma) left with their worlds. */
+:root[data-scrolled]:not([data-act="hero"]):not([data-act="pass"])
   .experience-nav .nav-shell {
-  --nav-frost: #f0ede6;
+  --nav-frost: #eef1f4;
   border-bottom-color: rgb(20 20 24 / 0.1);
 }
 @media (max-width: 1023px) {
@@ -693,9 +696,6 @@ main[data-experience="v3"] .offer-row[data-active] .offer-title {
     backdrop-filter: none;
     background: var(--nav-frost, #16171b);
   }
-}
-:root[data-act="forma"] .experience-nav {
-  color: #efe6d8;
 }
 
 /* Patient motion curve (monopo) for entrances */

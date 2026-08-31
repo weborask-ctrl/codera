@@ -101,6 +101,35 @@ whole system — fewer voices than v2, each with a real job.
 - Native scroll, no synthetic smoothing, input → immediate response — all
   standing rules hold [lusion's latency bar].
 
+## Obsidián — the third element
+
+Added 2026-08-31 on Ondrej's idea, recorded before implementation: the world's
+colours read as a stone — chrome-black **obsidian** — and the wow layer is
+floating fractured shards of it, dynamic on scroll. The idea fits the direction
+exactly, and it completes the material story: the world had atmosphere (fog)
+and light (the glow); obsidian gives it **matter**.
+
+**The narrative job** (motion must never be decoration): the shards are the raw
+material and the ribbon is the crafted form. /01 opens with sharp scattered
+shards drifting in the fog; as the light rises they thin and settle; by /05
+almost nothing is left but the closed ribbon in full clarity — raw web, refined
+into shape. That is Codera's offer told in matter.
+
+**The rules that keep it wow instead of kitsch:**
+
+1. Few and large — 6–8 shards, never confetti [lusion: objects with weight].
+2. Monochrome obsidian only: black glass body, chrome-like frost speculars from
+   the environment; zero chroma, per the shell law.
+3. Distributed in real depth for parallax; the big ones live behind the ribbon.
+4. Motion is slow drift + slow rotation, scroll-linked; the pointer adds a
+   subtle magnetic tilt [lusion]. Nothing bounces, nothing spins fast.
+5. Shards never cross text during its hold — placement is biased away from the
+   copy zones, and their presence fades in text-dense acts.
+6. Reduced motion: the shards freeze into a composed still — a layout, not a
+   fallback. They do not disappear.
+7. World tier only; flat mode keeps the CSS fog (a static shard would read as
+   a pasted sticker without the live light).
+
 ## Motion tiers
 
 Tier 1 signature (unchanged count, re-aimed): the light itself rising across

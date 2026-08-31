@@ -1,7 +1,7 @@
 "use client"
 
 /**
- * Step 5 experience — the persistent world.
+ * Žiara — the persistent world (AD v3).
  *
  * One fixed R3F canvas behind the naturally-scrolling DOM. Renders the
  * production ribbon GLB (Step 2) and the act tone environment. Reads the
@@ -26,9 +26,12 @@ interface Pose {
   cam: [number, number, number]
   target: [number, number, number]
   ribbon: number // target ribbon opacity
-  molten: number // target molten-field intensity
-  ember: number // target ember-particle presence (Auros atmosphere)
+  molten: number // target fog-field intensity
+  ember: number // target frost-mote presence
   iridescence: number // heat-temper film on the C (OHZI: object owns the color)
+  /* obsidian-shard presence 0..1 (AD v3 §Obsidián): raw matter that thins as
+     the light rises — full in the fog, almost gone at the resolution */
+  shards: number
 }
 
 /** Held camera poses per act; the pass act interpolates through the C. */
@@ -45,6 +48,7 @@ function desiredPose(): Pose {
         ribbon: 1,
         molten: 1,
         ember: 0.3,
+        shards: 1,
         iridescence: 0,
       }
     case "pass": {
@@ -59,6 +63,7 @@ function desiredPose(): Pose {
         molten: 1 - t,
         /* the foundry breathes hardest mid-pass, then lets go */
         ember: Math.max(0.25, 4 * t * (1 - t)),
+        shards: Math.max(0.35, 1 - t),
         iridescence: 0,
       }
     }
@@ -72,13 +77,16 @@ function desiredPose(): Pose {
         ribbon: resP > 0.08 ? 1 : 0,
         molten: 0.35,
         ember: 0.22,
+        shards: 0.12,
         /* the metal remembers the fire: thin-film temper colors bloom
            as the C settles into its final frontal pose */
         iridescence: 0.34 * resP,
       }
     }
     default:
-      return { cam: [0, 0, 3.4], target: [0, 0, 0], ribbon: 0, molten: 0, ember: 0, iridescence: 0 }
+      /* mid-journey acts: the DOM owns the frame; a few deep shards keep
+         the world breathing behind it without touching the text */
+      return { cam: [0, 0, 3.4], target: [0, 0, 0], ribbon: 0, molten: 0, ember: 0, iridescence: 0, shards: 0.28 }
   }
 }
 
@@ -122,19 +130,21 @@ const MOLTEN_FRAG = /* glsl */ `
     /* the pointer bends the flow — the liquid answers the hand (monopo) */
     float flow = fbm(p + vec2(t, -t * 0.6) + uMouse * 0.45 + fbm(p * 1.4 - t + uMouse * 0.25) * 0.9);
 
-    vec3 graphite = vec3(0.078, 0.082, 0.098);
-    vec3 oxblood  = vec3(0.29, 0.121, 0.086);
-    vec3 amber    = vec3(0.69, 0.404, 0.165);
-    vec3 champagne= vec3(0.91, 0.788, 0.604);
+    /* Žiara fog: graphite depths, mist mids, one frost glow where the flow
+       peaks [igloo: the light lives INSIDE the material]. No warmth. */
+    vec3 graphite = vec3(0.055, 0.059, 0.075);
+    vec3 slate    = vec3(0.118, 0.129, 0.157);
+    vec3 mist     = vec3(0.31, 0.335, 0.38);
+    vec3 frost    = vec3(0.862, 0.902, 0.933);
 
     vec3 col = graphite;
-    col = mix(col, oxblood, smoothstep(0.32, 0.62, flow));
-    col = mix(col, amber, smoothstep(0.55, 0.8, flow) * 0.85);
-    col = mix(col, champagne, smoothstep(0.74, 0.95, flow) * 0.7);
+    col = mix(col, slate, smoothstep(0.3, 0.6, flow));
+    col = mix(col, mist, smoothstep(0.55, 0.82, flow) * 0.7);
+    col = mix(col, frost, smoothstep(0.78, 0.97, flow) * 0.35);
 
-    /* a soft warm bloom trails the pointer through the melt */
+    /* a cool bloom trails the pointer through the fog */
     float md = distance(vUv, vec2(0.5) + uMouse * vec2(0.24, -0.18));
-    col += champagne * smoothstep(0.46, 0.0, md) * 0.09;
+    col += frost * smoothstep(0.46, 0.0, md) * 0.06;
 
     /* vignette so the field melts into the scene tone at its edges */
     float vig = smoothstep(0.0, 0.42, vUv.x) * smoothstep(1.0, 0.58, vUv.x)
@@ -234,9 +244,85 @@ function Embers() {
         opacity={0}
         depthWrite={false}
         blending={THREE.AdditiveBlending}
-        color="#e8c39a"
+        color="#dce6ee"
       />
     </points>
+  )
+}
+
+/**
+ * Obsidian shards — Ondrej's idea, AD v3 §Obsidián.
+ *
+ * Seven fractured pieces of chrome-black glass drifting in the fog: the raw
+ * matter the ribbon was crafted from. Few and large, distributed in real
+ * depth, biased right and up so they never sit over the copy zone
+ * (bottom-left). Transforms are seeded and deterministic; all motion happens
+ * in Rig's frame loop through userData, so React owns nothing on the hot
+ * path. Non-uniform scale turns the icosahedron into a sliver; flat shading
+ * gives it facets that catch the softbox like chrome.
+ */
+const SHARD_COUNT = 7
+
+function ObsidianShards() {
+  const shards = useMemo(
+    () =>
+      Array.from({ length: SHARD_COUNT }, (_, i) => {
+        const big = i < 2 // two large ones live deep, behind the ribbon
+        const s = big ? 0.34 + prand(i + 11) * 0.14 : 0.09 + prand(i + 11) * 0.1
+        return {
+          key: `shard-${i}`,
+          position: [
+            // right-and-up bias, away from the hero copy (bottom-left)
+            -0.7 + prand(i + 31) * 3.4,
+            -0.2 + prand(i + 53) * 2.1,
+            big ? -2.3 - prand(i + 71) * 0.9 : -1.4 + prand(i + 71) * 1.6,
+          ] as [number, number, number],
+          scale: [s, s * (0.32 + prand(i + 97) * 0.25), s * (0.6 + prand(i + 13) * 0.3)] as [
+            number,
+            number,
+            number,
+          ],
+          rotation: [prand(i + 3) * Math.PI, prand(i + 7) * Math.PI, prand(i + 19) * Math.PI] as [
+            number,
+            number,
+            number,
+          ],
+          seed: {
+            spin: 0.05 + prand(i + 41) * 0.09, // slow — obsidian has mass
+            bob: 0.35 + prand(i + 61) * 0.5,
+            phase: prand(i + 83) * Math.PI * 2,
+            baseY: 0,
+            parallax: big ? 0.25 : 0.6 + prand(i + 29) * 0.5,
+          },
+        }
+      }),
+    []
+  )
+  return (
+    <group name="codera-shards">
+      {shards.map((sh) => (
+        <mesh
+          key={sh.key}
+          position={sh.position}
+          scale={sh.scale}
+          rotation={sh.rotation}
+          userData={{ shardSeed: sh.seed }}
+        >
+          <icosahedronGeometry args={[1, 0]} />
+          <meshPhysicalMaterial
+            color="#0a0b0e"
+            metalness={0.25}
+            roughness={0.12}
+            clearcoat={1}
+            clearcoatRoughness={0.08}
+            envMapIntensity={1.5}
+            flatShading
+            transparent
+            opacity={0}
+          />
+        </mesh>
+      ))}
+    </group>
   )
 }
 
@@ -255,7 +341,7 @@ function FloorGlow() {
           void main() {
             float d = distance(vUv, vec2(0.5));
             float a = smoothstep(0.5, 0.05, d) * 0.32 * uIntensity;
-            gl_FragColor = vec4(0.91, 0.79, 0.6, a);
+            gl_FragColor = vec4(0.86, 0.9, 0.93, a);
           }
         `}
         uniforms={{ uTime: { value: 0 }, uIntensity: { value: 0 } }}
@@ -276,7 +362,7 @@ function Atmosphere() {
   }, [])
   return (
     <>
-      <directionalLight position={[-0.9, 1.4, 5]} intensity={1.6} color="#fff4e2" />
+      <directionalLight position={[-0.9, 1.4, 5]} intensity={1.6} color="#edf3fa" />
       <ambientLight intensity={0.55} color="#ffffff" />
     </>
   )
@@ -371,7 +457,7 @@ function Rig() {
                PHYSICAL define and wedge the shader compile) */
             const source = mesh.material as THREE.MeshStandardMaterial
             const phys = new THREE.MeshPhysicalMaterial({
-              color: new THREE.Color(0.9, 0.86, 0.79), // warm titanium
+              color: new THREE.Color(0.84, 0.87, 0.9), // cool titanium (Žiara)
               metalness: source.metalness,
               roughness: source.roughness,
               side: source.side,
@@ -406,7 +492,7 @@ function Rig() {
             own.transparent = true
             own.opacity = 0
             own.envMapIntensity = 0.35
-            own.color.setRGB(0.55, 0.53, 0.5)
+            own.color.setRGB(0.5, 0.53, 0.56)
             mesh.material = own
             mesh.userData.reflectionMaterial = true
           }
@@ -434,6 +520,42 @@ function Rig() {
           dt
         )
         node.visible = mat.uniforms.uIntensity.value > 0.02
+      }
+    }
+
+    /* obsidian shards: slow drift + slow rotation + scroll parallax +
+       subtle magnetic tilt toward the pointer [lusion]. Under reduced
+       motion they freeze into the composed still — present, not moving. */
+    const shardsGroup = state.scene.getObjectByName("codera-shards")
+    if (shardsGroup) {
+      const still = stage.reducedMotion
+      for (const obj of shardsGroup.children) {
+        const mesh = obj as THREE.Mesh
+        const seed = mesh.userData.shardSeed as
+          | { spin: number; bob: number; phase: number; baseY: number; parallax: number }
+          | undefined
+        if (!seed) {
+          continue
+        }
+        if (seed.baseY === 0) {
+          seed.baseY = mesh.position.y
+        }
+        const mat = mesh.material as THREE.MeshPhysicalMaterial
+        mat.opacity = damp(mat.opacity, pose.shards, 5, dt)
+        mesh.visible = mat.opacity > 0.02
+        if (!mesh.visible || still) {
+          continue
+        }
+        mesh.rotation.x += dt * seed.spin
+        mesh.rotation.y += dt * seed.spin * 0.7
+        /* drift: a slow bob plus scroll-linked rise — deeper shards move
+           less, so the fog gains real parallax */
+        mesh.position.y =
+          seed.baseY +
+          Math.sin(moltenTime * seed.bob * 0.4 + seed.phase) * 0.07 +
+          stage.total * seed.parallax * 0.9
+        /* magnetic tilt: the hand bends the field, barely */
+        mesh.rotation.z = damp(mesh.rotation.z, pointerLerp.x * 0.18, 3, dt)
       }
     }
 
@@ -473,6 +595,7 @@ export function ExperienceWorld() {
         <Atmosphere />
         <MoltenField />
         <Embers />
+        <ObsidianShards />
         <Ribbon />
         <RibbonReflection />
         <FloorGlow />
