@@ -20,7 +20,12 @@ an output directory; keep it out of the repository.
 | --- | --- | --- |
 | `capture-devices.mjs` | `npm run capture -- <dir>` | The five acts at tablet 768×1024 and mobile 390×844. |
 | `capture-boards.mjs` | `npm run capture:boards -- <dir>` | The Step 5 composition boards from `/boards`. |
-| `capture-work-textures.mjs` | `npm run capture:textures -- <dir>` | The `/textures` material studies. |
+
+## References
+
+| Script | npm | What it does |
+| --- | --- | --- |
+| `harvest-references.mjs` | `node scripts/harvest-references.mjs [slug ...]` | Dissects reference sites into `CODERA_DESIGN_REFERENCES/` — shots at reading moments plus measured facts. Reusable for client projects. |
 
 ## Measurement
 
@@ -31,11 +36,6 @@ an output directory; keep it out of the repository.
 | `probe-mobile.mjs` | `npm run probe:mobile -- <url>` | Mobile-specific probe: overflow, tier decision, scroll behaviour. |
 | `smoke-preview.mjs` | `npm run smoke -- <url> [dir]` | Smoke test a preview or production URL: status, hydration, canvas presence, screenshots. |
 
-## Superseded — delete in a follow-up pull request
-
-Kept only until it is confirmed nothing depends on them. They duplicate the
-scripts above or served a single past task:
-`capture-v3.mjs`, `capture-v4.mjs`, `probe-premena.mjs`, `probe-premena2.mjs`,
-`shot-offer.mjs` (a single screenshot of the offer section, taken once against
-production), `watch-ci-preview.mjs` (replaced by `gh run watch` and
-`/release-check`).
+The superseded scripts (`capture-v3`, `capture-v4`, `probe-premena`,
+`probe-premena2`, `shot-offer`, `watch-ci-preview`, `capture-work-textures`)
+were deleted with the v2 experience on 2026-08-31 — git remembers them.

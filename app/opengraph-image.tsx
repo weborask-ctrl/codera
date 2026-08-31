@@ -16,10 +16,10 @@ export const alt = `${siteConfig.name} — digitálne štúdio`
 export const size = { width: 1200, height: 630 }
 export const contentType = "image/png"
 
-const GROUND = "#0a0b0c"
-const INK = "#f4f2ee"
-const MUTED = "#a7a49e"
-const SIGNAL = "#e0b06a"
+const GROUND = "#0E0F13"
+const INK = "#F2F4F6"
+const MUTED = "#8B909A"
+const SIGNAL = "#DCE6EE"
 
 export default function OpengraphImage() {
   return new ImageResponse(

@@ -17,7 +17,6 @@
     "brand:glb": "node scripts/build-ribbon-glb.mjs",
     "capture": "node scripts/capture-devices.mjs",
     "capture:boards": "node scripts/capture-boards.mjs",
-    "capture:textures": "node scripts/capture-work-textures.mjs",
     "measure": "node scripts/measure-experience.mjs",
     "probe:lcp": "node scripts/probe-lcp.mjs",
     "probe:mobile": "node scripts/probe-mobile.mjs",
