@@ -531,19 +531,25 @@ approved C ribbon mark (`brand/source/` — identity is NOT in scope).
   logic across all five acts — the exact failure of v2 must not recur.
 - Typeface changes are in scope, including replacing Archivo.
 
-### Phases
+### Phases — revised 2026-08-31 after phase A was rejected
+
+The first phase A (three invented direction boards) was built and rejected as
+"AI-looking". The lesson is recorded as process, not as a mood: **directions
+invented from principles reproduce generic taste.** The step now runs through
+the concrete-reference pipeline in `CODERA_DESIGN_REFERENCES/README.md`.
 
 | Phase | Output |
 | --- | --- |
-| A — Direction candidates | Three deliberately distant directions built as static boards (real copy, real type, one hero frame each), reviewed by Ondrej |
-| B — Direction chosen | One picked (or one revised); recorded here with its reasoning |
-| C — Art direction v3 | The full contract document: palette, type system, materials, per-act tonal script, motion language |
-| D — Implementation | Act by act on a branch, boards → build, static-frame test per state |
+| A — Harvest | 15–25 real modern 5D/spatial sites dissected from the source galleries into records: screenshots at reading moments, sampled palettes, real type stacks, scroll-beat inventories |
+| B — Calibration | Ondrej marks every record LIKED / REJECTED on a numbered contact sheet. The direction is derived only from LIKED records; REJECTED ones stay as documented anti-taste |
+| C — Art direction v3 | The contract document, every decision citing record IDs |
+| D — Implementation | Act by act; built frames reviewed side by side against the reference shots |
 | E — Validation | Full gate: LOCAL + CI + PREVIEW, device checklist re-run |
 
 ### Completion gate
 
-- [ ] Ondrej picked the direction from built boards, not from descriptions
+- [ ] The direction derives only from LIKED records in `CODERA_DESIGN_REFERENCES/`,
+      and every decision in the v3 document cites the record IDs behind it
 - [ ] One ground logic across all five acts — the swap-mood test passes
 - [ ] The four complaints each have a named answer in the v3 document
 - [ ] Every state passes the static-frame test

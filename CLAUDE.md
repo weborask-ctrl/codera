@@ -30,6 +30,7 @@ guide in `node_modules/next/dist/docs/` before writing App Router code — see
 | How should it look? | `CODERA_ART_DIRECTION_V2.md` |
 | How does the experience behave? | `CODERA_STEP5_ARCHITECTURE.md` |
 | Design knowledge for any project | `CODERA_DESIGN_INTELLIGENCE/` |
+| Concrete reference sites + Ondrej's verdicts | `CODERA_DESIGN_REFERENCES/` |
 | The brand mark | `brand/source/` → `CODERA_3D_LOGO_DELIVERABLES/` |
 
 ## Commands
@@ -60,6 +61,11 @@ Slash commands: `/verify`, `/release-check`, `/capture`, `/audit-live`.
 6. **Style is derived from context**, never from a default aesthetic. Not
    permanently dark: dark/light contrast is dramaturgy.
 7. **A step never starts without its contract** in `process/STEPS.md`.
+8. **No visual design work without concrete references.** Load the relevant
+   LIKED records from `CODERA_DESIGN_REFERENCES/records/` before designing
+   anything, and name them in the PR. A design that cannot cite its references
+   is presumed generic and is not built. Inventing a direction from principles
+   alone was tried on 2026-08-31 and rejected as AI-looking.
 
 ## Declaring things done
 
