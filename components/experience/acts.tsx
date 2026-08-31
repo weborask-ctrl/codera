@@ -10,7 +10,7 @@
  */
 
 import { useEffect, useRef } from "react"
-import { commercial } from "@/lib/site-config"
+import { packages } from "@/lib/site-config"
 import { openEnquiry } from "./enquiry-bus"
 import { ActPremena } from "./premena"
 import { bindStage, stage } from "./stage"
@@ -527,12 +527,51 @@ function ActOffer({ world }: { world: boolean }) {
             </div>
           ))}
 
+          {/* The offer itself. Three packages, no highlighted middle column:
+              pushing one of them is the pricing form of scarcity theatre, and
+              the audit bans it. The "čo v tom nie je" line is the point of the
+              whole block — it proves the price is a boundary, not bait. */}
+          <div
+            data-enter
+            className="enter mt-2 grid gap-px border-t border-black/15 bg-black/12 pt-px sm:grid-cols-3"
+          >
+            {packages.map((pkg) => (
+              <div key={pkg.id} className="flex flex-col bg-[#f0ebe0] px-5 py-6">
+                <p
+                  className="text-[0.56rem] tracking-[0.2em] text-black/50"
+                  style={MONO}
+                >
+                  {pkg.name.toUpperCase()}
+                </p>
+                <p
+                  className="mt-2 font-semibold"
+                  style={{ fontSize: "clamp(1.5rem,2.4vw,2.1rem)", letterSpacing: "-0.02em", fontStretch: "112%" }}
+                >
+                  od {pkg.priceFrom}
+                </p>
+                <p className="mt-2 text-[0.78rem] leading-relaxed text-black/65">
+                  {pkg.audience}
+                </p>
+                <ul className="mt-4 flex flex-col gap-2 border-t border-black/12 pt-4 text-[0.76rem] leading-snug text-black/75">
+                  {pkg.scope.map((line) => (
+                    <li key={line} className="grid grid-cols-[0.7rem_1fr] gap-2">
+                      <span aria-hidden="true" className="mt-[0.42em] h-px bg-black/35" />
+                      <span>{line}</span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-4 border-t border-black/12 pt-3 text-[0.72rem] text-black/50">
+                  Čo v tom nie je: {pkg.notIncluded}.
+                </p>
+              </div>
+            ))}
+          </div>
+
           {/* conversational close (The1's question + pill) */}
-          <div className="flex flex-wrap items-center justify-between gap-4 border-t border-black/15 pt-6">
+          <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-black/15 pt-6">
             <p className="text-[0.9rem] text-black/70">
-              Webové projekty od{" "}
-              <span className="font-semibold text-black/90">{commercial.priceFrom}</span> — presnú
-              cenu poviete po konzultácii.
+              Uvedené sú východiskové ceny — presnú cenu poviete po konzultácii,
+              nie až v zmluve.
             </p>
             <span className="flex items-center gap-3 text-[0.8rem] text-black/70">
               Koľko by stál ten váš?

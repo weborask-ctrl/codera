@@ -1,5 +1,5 @@
 import { expect, type Page, test } from "@playwright/test"
-import { commercial } from "../lib/site-config"
+import { commercial, packages } from "../lib/site-config"
 
 /**
  * Step 5 experience suite.
@@ -174,6 +174,14 @@ test.describe("Codera homepage", () => {
     const page = await context.newPage()
     await page.goto("/")
     await expect(page.locator("main")).toContainText(commercial.priceFrom)
+    /* every package renders with its from-price and its boundary line — the
+       page and the config may never disagree about what is on sale */
+    for (const pkg of packages) {
+      /* the act renders names uppercased — compare case-insensitively */
+      await expect(page.locator("main")).toContainText(pkg.name, { ignoreCase: true })
+      await expect(page.locator("main")).toContainText(`od ${pkg.priceFrom}`)
+      await expect(page.locator("main")).toContainText(pkg.notIncluded)
+    }
     await context.close()
   })
 
