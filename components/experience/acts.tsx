@@ -675,11 +675,11 @@ function ActOffer({ world }: { world: boolean }) {
               <div>
                 <span
                   className="offer-title"
-                  style={{ ...DISPLAY, fontSize: "clamp(2.2rem,4.4vw,4.4rem)", letterSpacing: "-0.014em", fontWeight: 520 }}
+                  style={{ ...DISPLAY, fontSize: "clamp(2.5rem,5.1vw,5.2rem)", letterSpacing: "-0.015em", fontWeight: 520 }}
                 >
                   {t}
                 </span>
-                <p className="mt-2.5 max-w-[30em] text-[1.02rem] leading-relaxed text-black/80">{d}</p>
+                <p className="mt-1.5 max-w-[30em] text-[1.02rem] leading-relaxed text-black/80">{d}</p>
               </div>
               <div className="hidden lg:mr-[2.5vw] lg:block">
                 <IsoArtifact kind={kind} />
