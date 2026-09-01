@@ -98,6 +98,54 @@ function useStage(probe: boolean) {
 
 /* ---------------------------------------------------------- /01 ENTRY --- */
 
+/* Flat-mode obsidians: under 1024px (and wherever WebGL is missing) the R3F
+   world never mounts, so the constellation is drawn as SVG stones — same
+   visual language (dark facets, one lit top edge), composed into the free
+   upper half above the bottom-anchored copy. Cheap by design; the picture
+   information survives the edit (§2.6). */
+const FLAT_STONE_SHAPES = [
+  { body: "50,6 88,30 94,62 70,92 28,88 8,52 20,20", lit: "20,20 50,6 88,30" },
+  { body: "50,4 72,40 60,96 34,70 30,30", lit: "30,30 50,4 72,40" },
+  { body: "8,40 55,12 92,34 70,72 24,66", lit: "8,40 55,12 92,34" },
+] as const
+const FLAT_STONES = [
+  { shape: 0, style: { right: "4%", top: "16%", width: "min(30vmin,132px)" }, dur: "11s", delay: "0s" },
+  { shape: 1, style: { left: "7%", top: "8%", width: "min(15vmin,64px)" }, dur: "9s", delay: "-3s" },
+  { shape: 2, style: { right: "30%", top: "30%", width: "min(13vmin,56px)" }, dur: "10s", delay: "-6s" },
+  { shape: 1, style: { left: "22%", top: "32%", width: "min(8vmin,36px)" }, dur: "8s", delay: "-2s" },
+  { shape: 2, style: { left: "47%", top: "6%", width: "min(7vmin,30px)" }, dur: "12s", delay: "-8s" },
+  { shape: 0, style: { right: "13%", top: "40%", width: "min(7.5vmin,32px)" }, dur: "9.5s", delay: "-5s" },
+] as const
+
+function FlatStones() {
+  return (
+    <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-[5svh] h-[42svh]">
+      {FLAT_STONES.map((st, i) => {
+        const shape = FLAT_STONE_SHAPES[st.shape]
+        return (
+          <svg
+            // biome-ignore lint/suspicious/noArrayIndexKey: static config list, never reordered.
+            key={i}
+            aria-hidden="true"
+            viewBox="0 0 100 100"
+            className="flat-stone absolute"
+            style={{ ...st.style, ["--drift-dur" as string]: st.dur, ["--drift-delay" as string]: st.delay }}
+          >
+            <defs>
+              <linearGradient id={`fs-${i}`} x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stopColor="#333a46" />
+                <stop offset="1" stopColor="#12161d" />
+              </linearGradient>
+            </defs>
+            <polygon points={shape.body} fill={`url(#fs-${i})`} stroke="rgba(235,242,252,0.3)" strokeWidth="1.2" />
+            <polyline points={shape.lit} fill="none" stroke="rgba(245,250,255,0.65)" strokeWidth="1.8" />
+          </svg>
+        )
+      })}
+    </div>
+  )
+}
+
 function ActHero({ world }: { world: boolean }) {
   return (
     <section
@@ -105,13 +153,17 @@ function ActHero({ world }: { world: boolean }) {
       className={`relative flex h-svh flex-col overflow-hidden text-[#f2f4f6] ${world ? "" : "molten-field"}`}
     >
       {!world ? (
-        /* flat mode (no WebGL): the typography still owns the frame; one
-           cool glow keeps the fog alive where the stones would drift */
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute top-[26svh] right-[6vmin] h-[46vmin] w-[46vmin] rounded-full opacity-70 lg:top-1/2 lg:right-[2vmin] lg:h-[60vmin] lg:w-[60vmin] lg:-translate-y-1/2"
-          style={{ background: "radial-gradient(50% 50% at 50% 50%, rgba(220,230,238,0.22) 0%, rgba(220,230,238,0.07) 45%, transparent 70%)" }}
-        />
+        /* flat mode: the typography still owns the frame; one cool glow
+           keeps the fog alive, and the SVG constellation carries the same
+           picture the R3F stones paint on desktop */
+        <>
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute top-[26svh] right-[6vmin] h-[46vmin] w-[46vmin] rounded-full opacity-70 lg:top-1/2 lg:right-[2vmin] lg:h-[60vmin] lg:w-[60vmin] lg:-translate-y-1/2"
+            style={{ background: "radial-gradient(50% 50% at 50% 50%, rgba(220,230,238,0.22) 0%, rgba(220,230,238,0.07) 45%, transparent 70%)" }}
+          />
+          <FlatStones />
+        </>
       ) : null}
 
 
@@ -146,6 +198,13 @@ function ActHero({ world }: { world: boolean }) {
             [refokus: type at display scale; exoape: confidence through
             lightness]. The svh term caps the size on short viewports so
             three lines + support never overflow the fold. */}
+        {/* micro-overline: one deliberate engineering-voice line that gives
+            the eye a step between the island and the display headline —
+            not a return of the retired provenance micro-labels */}
+        <p className="mb-4 flex items-center gap-3 text-[0.68rem] tracking-[0.3em] text-[#f2f4f6]/60 uppercase lg:mb-6" style={MONO}>
+          <span aria-hidden="true" className="inline-block h-px w-8 bg-[#f2f4f6]/35" />
+          Kreatívne webové štúdio
+        </p>
         <h1
           data-hero-line
           className="text-[clamp(2.2rem,12.5vw,4.2rem)] lg:text-[clamp(3.5rem,min(11.4vw,23svh),12rem)]"
