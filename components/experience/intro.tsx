@@ -24,7 +24,7 @@
  * holds back (stage.introHold + html[data-intro]) so the mark never doubles.
  */
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { gsap, prefersReducedMotion } from "@/lib/motion"
 import { stage } from "./stage"
 
@@ -45,18 +45,27 @@ function shouldPlay(): boolean {
 }
 
 export function ExperienceIntro() {
-  /* the decision is made before first paint so the hold never flickers */
-  const [play] = useState(shouldPlay)
+  /* Server and first client render agree on NOTHING rendered — deciding in a
+     state initializer caused a hydration mismatch (#418) on CI. The layout
+     effect decides after hydration but before paint, so the hold still never
+     flickers. */
+  const [play, setPlay] = useState(false)
   const svgRef = useRef<SVGSVGElement>(null)
   const stageRef = useRef<HTMLDivElement>(null)
   const [gone, setGone] = useState(false)
+
+  useLayoutEffect(() => {
+    if (shouldPlay()) {
+      stage.introHold = true
+      document.documentElement.setAttribute("data-intro", "")
+      setPlay(true)
+    }
+  }, [])
 
   useEffect(() => {
     if (!play) {
       return
     }
-    stage.introHold = true
-    document.documentElement.setAttribute("data-intro", "")
 
     const svg = svgRef.current
     const wrap = stageRef.current
