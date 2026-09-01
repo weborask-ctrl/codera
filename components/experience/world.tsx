@@ -14,21 +14,16 @@
  * (react-hooks v6 immutability; the pattern proven in the v2 world).
  */
 
-import { useGLTF } from "@react-three/drei"
 import { Canvas, useFrame } from "@react-three/fiber"
 import { useEffect, useMemo } from "react"
 import * as THREE from "three"
 import { ACT_TONES, type ActName, stage } from "./stage"
 
-const RIBBON_URL = "/brand/codera-c-ribbon.glb"
-
 interface Pose {
   cam: [number, number, number]
   target: [number, number, number]
-  ribbon: number // target ribbon opacity
   molten: number // target fog-field intensity
   ember: number // target frost-mote presence
-  iridescence: number // heat-temper film on the C (OHZI: object owns the color)
   /* obsidian-shard presence 0..1 (AD v3 §Obsidián): raw matter that thins as
      the light rises — full in the fog, almost gone at the resolution */
   shards: number
@@ -42,16 +37,14 @@ function desiredPose(): Pose {
   switch (act) {
     case "hero":
       /* board /01: the C sits right-of-centre, cropped by the frame edge */
-      /* near-frontal (Iterácia 0.2): the approved mark must read symmetric —
-         a mild offset keeps depth without skewing the letterform */
+      /* straight-on (two-Cs pass): the stone letter must read symmetric and
+         sit WHOLE in the centre of the right half — no edge cropping */
       return {
-        cam: [0.14, 0.1, 2.05],
-        target: [-0.3, 0.02, 0],
-        ribbon: 0,
+        cam: [0, 0.06, 2.1],
+        target: [0, 0.05, 0],
         molten: 0.45,
         ember: 0.25,
         shards: 1,
-        iridescence: 0,
       }
     case "pass": {
       /* dolly toward the C so it swallows the frame, then release it —
@@ -61,12 +54,10 @@ function desiredPose(): Pose {
       return {
         cam: [0.5 - 0.34 * t, 0.36 - 0.3 * t, 1.95 - 1.35 * t],
         target: [-0.36 + 0.5 * t, 0.05 * t, -1.3 * t],
-        ribbon: 0,
         molten: 0.45 * (1 - t),
         /* the foundry breathes hardest mid-pass, then lets go */
         ember: Math.max(0.25, 4 * t * (1 - t)),
         shards: Math.max(0.35, 1 - t),
-        iridescence: 0,
       }
     }
     case "resolution": {
@@ -76,21 +67,18 @@ function desiredPose(): Pose {
          edge, large and half-cropped, clear of the centred copy and steps */
       const settle = 4.1 - 0.3 * resP
       return {
-        cam: [0, 0.02, settle],
-        target: [-0.62, 0.12, 0],
-        ribbon: resP > 0.08 ? 1 : 0,
+        cam: [0, 0.06, settle],
+        target: [-0.72, 0.36, 0],
         molten: 0.35,
         ember: 0.22,
-        shards: 0.55,
-        /* the metal remembers the fire: thin-film temper colors bloom
-           as the C settles into its final frontal pose */
-        iridescence: 0.34 * resP,
+        /* the stones ARE the closing C now — full presence */
+        shards: 1,
       }
     }
     default:
       /* mid-journey acts: the DOM owns the frame; a few deep shards keep
          the world breathing behind it without touching the text */
-      return { cam: [0, 0, 3.4], target: [0, 0, 0], ribbon: 0, molten: 0, ember: 0, iridescence: 0, shards: 0.42 }
+      return { cam: [0, 0, 3.4], target: [0, 0, 0], molten: 0, ember: 0, shards: 0.42 }
   }
 }
 
@@ -168,7 +156,6 @@ const toneTarget = new THREE.Color()
 let envTexture: THREE.Texture | null = null
 let envApplied = false
 let moltenTime = 0
-const crystalTint = new THREE.Color("#cdd4dc")
 const shardTint = new THREE.Color()
 const mistTint = new THREE.Color("#6E7480")
 const shardTarget = new THREE.Vector3()
@@ -181,24 +168,6 @@ function prand(n: number) {
 
 function damp(current: number, target: number, lambda: number, dt: number) {
   return THREE.MathUtils.damp(current, target, lambda, dt)
-}
-
-/**
- * The approved folded-ribbon C (Step 2), restored on Ondrej's instruction:
- * the mark from the brand reference is the mark — chevron terminals, the
- * central twist, the inner face showing through the fold. The Rig gives it
- * life instead of a new shape: a gentle side-to-side sway, crisper env
- * light, and a whisper of thin-film colour so the metal never reads dead.
- */
-function Ribbon() {
-  const { scene: gltfScene } = useGLTF(RIBBON_URL)
-  /* material prep happens once in Rig's frame loop via getObjectByName —
-     React never mutates the loaded scene (react-hooks/immutability). */
-  return (
-    <group name="codera-ribbon">
-      <primitive object={gltfScene} />
-    </group>
-  )
 }
 
 function MoltenField() {
@@ -270,17 +239,22 @@ const SHARD_COUNT = 22
 /* The C letterform as assembly slots (amendment 7): stones line the open-C
    arc — gap on the right, like the mark — with radial and depth jitter so
    the letter reads as built from rock, not beads on a wire. */
-const C_CENTER = { x: 0.5, y: 0.04, z: 0 }
-const C_R = 0.44
+const C_CENTER = { x: 0.47, y: 0.04, z: 0 }
+const C_R = 0.4
+/* the SECOND letter (Ondrej: "úplne dole poskladajú druhé céčko"): the
+   stones reassemble at the origin for the /04 bookend, where the far camera
+   frames it right-of-centre and whole */
+const C2_CENTER = { x: 0, y: 0.38, z: 0 }
+const C2_R = 0.46
 const C_GAP = 0.62 // half-angle of the right-facing gap
-function slotFor(i: number) {
+function slotFor(i: number, c = C_CENTER, radius = C_R) {
   const t = i / (SHARD_COUNT - 1)
   const a = C_GAP + t * (Math.PI * 2 - C_GAP * 2)
-  const r = C_R + (prand(i + 301) - 0.5) * 0.09
+  const r = radius + (prand(i + 301) - 0.5) * 0.09 * (radius / C_R)
   return new THREE.Vector3(
-    C_CENTER.x + Math.cos(a) * r,
-    C_CENTER.y + Math.sin(a) * r * 1.04,
-    C_CENTER.z + (prand(i + 401) - 0.5) * 0.14
+    c.x + Math.cos(a) * r,
+    c.y + Math.sin(a) * r * 1.04,
+    c.z + (prand(i + 401) - 0.5) * 0.14
   )
 }
 
@@ -321,6 +295,7 @@ function ObsidianShards() {
               -0.35 + prand(i + 53) * 2.2,
               -2.4 + prand(i + 71) * 1.9
             ),
+            grow: 1,
           },
         }
       }),
@@ -476,64 +451,6 @@ function Rig() {
        standard material is upgraded to MeshPhysicalMaterial so the C can
        carry a thin-film heat-temper (iridescence) at the resolution —
        OHZI's law: the object owns all the color. */
-    const ribbon = state.scene.getObjectByName("codera-ribbon")
-    if (ribbon) {
-      if (!stage.reducedMotion) {
-        ribbon.rotation.y = Math.sin(moltenTime * 0.3) * 0.04 + pointerLerp.x * 0.04
-        ribbon.rotation.x = Math.sin(moltenTime * 0.24 + 1) * 0.02 - pointerLerp.y * 0.025
-      }
-      ribbon.traverse((obj) => {
-        const mesh = obj as THREE.Mesh
-        if (mesh.isMesh) {
-          if (!mesh.userData.temperMaterial) {
-            /* the GLB's satin-titanium is untextured PBR — rebuild it as
-               physical explicitly (a prototype copy() would wipe the
-               PHYSICAL define and wedge the shader compile) */
-            const source = mesh.material as THREE.MeshStandardMaterial
-            const phys = new THREE.MeshPhysicalMaterial({
-              color: new THREE.Color(0.84, 0.87, 0.9), // cool titanium (Žiara)
-              metalness: source.metalness,
-              roughness: source.roughness,
-              side: source.side,
-              transparent: true,
-              opacity: source.opacity,
-            })
-            phys.envMapIntensity = 1.1
-            phys.clearcoat = 0.5
-            phys.clearcoatRoughness = 0.3
-            phys.iridescence = 0
-            phys.iridescenceIOR = 1.28
-            phys.iridescenceThicknessRange = [120, 460]
-            mesh.material = phys
-            mesh.userData.temperMaterial = true
-          }
-          const mat = mesh.material as THREE.MeshPhysicalMaterial
-          mat.opacity = damp(mat.opacity, pose.ribbon, 10, dt)
-          mat.iridescence = damp(mat.iridescence, Math.max(pose.iridescence, 0.16), 5, dt)
-          /* the section's own colour: cool titanium in the fog, graphite ink
-             once the C stands on risen light */
-          /* the mark stays WHITE like the brand reference — Ondrej's "toto C
-             chcem čo najlepšie zachovať" outranks the section-ink idea; a
-             graphite variant is one value away if he ever wants it */
-          crystalTint.set("#d3d9df")
-          mat.color.lerp(crystalTint, 1 - Math.exp(-4 * dt))
-          /* metal on risen light: the bright softbox would wash the ink out,
-             so the reflections dim with the act, not the colour alone */
-          mat.envMapIntensity = damp(
-            mat.envMapIntensity,
-            stage.act === "resolution" ? 0.7 : 1.1,
-            4,
-            dt
-          )
-          /* the resolution stage is a narrow band — the C scales into it */
-          const targetScale = stage.act === "resolution" ? 0.92 : 1
-          const s = damp(mesh.scale.x, targetScale, 5, dt)
-          mesh.scale.setScalar(s)
-          mesh.visible = mat.opacity > 0.02
-        }
-      })
-    }
-
     /* molten field + floor glow intensity */
     moltenTime += dt
     for (const name of ["codera-molten", "codera-floor-glow"]) {
@@ -570,7 +487,16 @@ function Rig() {
       for (const obj of shardsGroup.children) {
         const mesh = obj as THREE.Mesh
         const seed = mesh.userData.shardSeed as
-          | { spin: number; bob: number; phase: number; baseY: number; parallax: number; bg: THREE.Vector3 }
+          | {
+              spin: number
+              bob: number
+              phase: number
+              baseY: number
+              parallax: number
+              bg: THREE.Vector3
+              baseScale?: THREE.Vector3
+              grow: number
+            }
           | undefined
         if (!seed) {
           continue
@@ -578,6 +504,14 @@ function Rig() {
         const mat = mesh.material as THREE.MeshPhysicalMaterial
         mat.opacity = damp(mat.opacity, pose.shards, 5, dt)
         mesh.visible = mat.opacity > 0.02
+
+        /* the /04 camera stands far back — the stones grow so the second
+           letter reads as chunky as the first */
+        if (!seed.baseScale) {
+          seed.baseScale = mesh.scale.clone()
+        }
+        seed.grow = damp(seed.grow, act === "resolution" ? 1.45 : 1, 3, dt)
+        mesh.scale.copy(seed.baseScale).multiplyScalar(seed.grow)
 
         if (act === "hero") {
           /* ASSEMBLY (amendment 7): every stone chases its letter slot; the
@@ -604,8 +538,9 @@ function Rig() {
             -0.5 - (i % 2) * 0.35
           )
         } else if (act === "resolution") {
-          const slow = moltenTime * 0.12 * (i % 2 ? 1 : -1) + seed.phase
-          shardTarget.set(Math.cos(slow) * 1.5 - 0.55, Math.sin(slow) * 0.6 + 0.05, Math.sin(slow + 1.1) * 0.4 - 0.3)
+          /* the SECOND assembly: the letter returns at the bookend, breathing */
+          shardTarget.copy(slotFor(i, C2_CENTER, C2_R))
+          shardTarget.y += Math.sin(moltenTime * seed.bob * 0.35 + seed.phase) * 0.03
         } else {
           /* the background asteroids the letter became */
           shardTarget.set(
@@ -632,7 +567,7 @@ function Rig() {
         } else if (act === "pass") {
           shardTint.set("#171a20").lerp(mistTint, passT)
         } else if (act === "resolution") {
-          shardTint.set("#aeb8c4")
+          shardTint.set("#262a31")
         } else {
           shardTint.copy(mistTint)
         }
@@ -678,7 +613,6 @@ export function ExperienceWorld() {
         <MoltenField />
         <Embers />
         <ObsidianShards />
-        <Ribbon />
         <FloorGlow />
         <Rig />
       </Canvas>
@@ -686,4 +620,3 @@ export function ExperienceWorld() {
   )
 }
 
-useGLTF.preload(RIBBON_URL)
