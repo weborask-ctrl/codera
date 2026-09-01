@@ -295,3 +295,22 @@ mid graphite-grey with black-grey stones; the ribbon GLB leaves the hero and
 survives only as the /04 bookend. The line-rise masks gain more descender
 room after the g-clip resurfaced. Flat mode (no WebGL) keeps the 2D mark —
 an assembly without the world would be a fake.
+
+## Amendment 8 — 2026-09-01: Iterácia 0.3 — typography IS the hero
+
+After five image mockups (glass C, particle C, anamorphic C, monolith, stone
+gate, full carved C, live-work plate), Ondrej picked TYPOGRAFIA AKO HERO
+("3 jednoznačne najkrajšia"): the letterform leaves /01 entirely. The
+headline is the main element — Fraunces at display scale (~11.4vw, capped by
+svh so the fold always holds three lines + support), broken as "Vaša firma
+je / lepšia, *než ukazuje* / váš web." with the accent in TRUE italic
+(Fraunces italic loads now; a faux oblique at this size reads as a bug)
+[refokus: type at display scale; exoape: confidence through lightness].
+
+The obsidian stones stay VISIBLE, as themselves: a hanging constellation —
+three boulder anchors right of centre, the rest scattered into real depth,
+a few deep far-left for balance. No letter slots in the hero; on scroll the
+field disperses into the background asteroids (scrubbed, reversible). The
+/04 bookend C assembly is untouched — the letter now lives only where the
+journey resolves. Flat mode drops the 2D mark too: typography carries /01
+everywhere.

@@ -41,6 +41,9 @@ const fraunces = Fraunces({
   subsets: ["latin", "latin-ext"],
   variable: "--font-fraunces",
   axes: ["opsz"],
+  /* Iterácia 0.3: the hero headline carries a true-italic accent — a faux
+     oblique at 12vw would read as a rendering bug, so both styles load */
+  style: ["normal", "italic"],
 })
 
 /* Per-world faces (AD v3 amendment 2026-08-31): the concept worlds prove

@@ -105,24 +105,13 @@ function ActHero({ world }: { world: boolean }) {
       className={`relative flex h-svh flex-col overflow-hidden text-[#f2f4f6] ${world ? "" : "molten-field"}`}
     >
       {!world ? (
-        <>
-          {/* flat mode: the C glowing from within the fog [igloo]. The glow
-              is cool and sits BEHIND the mark — the object is lit, the page
-              is not decorated. */}
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute top-[26svh] right-[6vmin] h-[46vmin] w-[46vmin] rounded-full opacity-70 lg:top-1/2 lg:right-[2vmin] lg:h-[60vmin] lg:w-[60vmin] lg:-translate-y-1/2"
-            style={{ background: "radial-gradient(50% 50% at 50% 50%, rgba(220,230,238,0.22) 0%, rgba(220,230,238,0.07) 45%, transparent 70%)" }}
-          />
-          {/* biome-ignore lint/performance/noImgElement: static same-origin brand SVG; next/image adds nothing here. */}
-          <img
-            src="/brand/codera-mark.svg"
-            alt=""
-            fetchPriority="high"
-            className="hero-c-flat pointer-events-none absolute top-[14svh] right-[-10vmin] w-[62vmin] max-w-none opacity-95 lg:top-[46%] lg:right-[-8vmin] lg:w-[74vmin] lg:-translate-y-1/2"
-            style={{ filter: "drop-shadow(0 0 34px rgba(220,230,238,0.28)) drop-shadow(0 46px 90px rgba(0,0,0,0.55))" }}
-          />
-        </>
+        /* flat mode (no WebGL): the typography still owns the frame; one
+           cool glow keeps the fog alive where the stones would drift */
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute top-[26svh] right-[6vmin] h-[46vmin] w-[46vmin] rounded-full opacity-70 lg:top-1/2 lg:right-[2vmin] lg:h-[60vmin] lg:w-[60vmin] lg:-translate-y-1/2"
+          style={{ background: "radial-gradient(50% 50% at 50% 50%, rgba(220,230,238,0.22) 0%, rgba(220,230,238,0.07) 45%, transparent 70%)" }}
+        />
       ) : null}
 
 
@@ -150,22 +139,29 @@ function ActHero({ world }: { world: boolean }) {
         className="pointer-events-none absolute inset-0 z-[5]"
         style={{ background: "radial-gradient(60% 55% at 16% 78%, rgba(8,9,12,0.72) 0%, rgba(8,9,12,0.3) 55%, transparent 78%)" }}
       />
-      <div data-enter className="enter relative z-10 mt-auto mb-[8svh] px-[clamp(1.25rem,4vw,3.5rem)] lg:max-w-[52vw]">
-        {/* Žiara display voice: LIGHT weight at scale, slightly larger than
-            the v2 semibold could afford — confidence through lightness
-            [exoape]. Tight but not crushed; the halo keeps it legible where
-            it crosses the lit C. */}
+      <div data-enter className="enter relative z-10 mt-auto mb-[7svh] px-[clamp(1.25rem,4vw,3.5rem)]">
+        {/* Iterácia 0.3 (mockup 3): TYPOGRAFIA AKO HERO. The letterform left
+            the stage — the headline IS the main element of /01, set at
+            display scale across the full canvas with a true-italic accent
+            [refokus: type at display scale; exoape: confidence through
+            lightness]. The svh term caps the size on short viewports so
+            three lines + support never overflow the fold. */}
         <h1
           data-hero-line
-          className="max-w-[10.5em] text-[clamp(2rem,10vw,5.4rem)] lg:text-[clamp(2.6rem,6.4vw,6.8rem)]"
-          style={{ ...DISPLAY, lineHeight: 1.08, letterSpacing: "-0.015em", fontWeight: 420 }}
+          className="text-[clamp(2.2rem,12.5vw,4.2rem)] lg:text-[clamp(3.5rem,min(11.4vw,23svh),12rem)]"
+          style={{ ...DISPLAY, lineHeight: 1.05, letterSpacing: "-0.02em", fontWeight: 420 }}
         >
           <span className="rise-wrap">
-            <span className="rise">Vaša firma je lepšia,</span>
+            <span className="rise">Vaša firma je</span>
           </span>
           <span className="rise-wrap">
-            <span className="rise" style={{ ["--rise-delay" as string]: "0.12s" }}>
-              než ukazuje váš web.
+            <span className="rise" style={{ ["--rise-delay" as string]: "0.1s" }}>
+              lepšia, <em style={{ fontWeight: 380, color: "#dfe5ee" }}>než ukazuje</em>
+            </span>
+          </span>
+          <span className="rise-wrap">
+            <span className="rise" style={{ ["--rise-delay" as string]: "0.2s" }}>
+              váš web.
             </span>
           </span>
         </h1>
