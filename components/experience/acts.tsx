@@ -675,7 +675,7 @@ function ActOffer({ world }: { world: boolean }) {
               <div>
                 <span
                   className="offer-title"
-                  style={{ ...DISPLAY, fontSize: "clamp(2.5rem,5.1vw,5.2rem)", letterSpacing: "-0.015em", fontWeight: 520 }}
+                  style={{ ...DISPLAY, fontSize: "clamp(2rem,5.1vw,5.2rem)", letterSpacing: "-0.015em", fontWeight: 520 }}
                 >
                   {t}
                 </span>
