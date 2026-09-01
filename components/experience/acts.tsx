@@ -251,13 +251,6 @@ const SKILL_HEROES: Record<string, React.ComponentType<{ portal?: boolean }>> = 
   rezervacie: VlnaHero,
 }
 
-/** Each ready skill's design decisions live in its case study. */
-const SKILL_STUDY: Record<string, string> = {
-  dizajn: "statut",
-  objednavky: "meridian",
-  rezervacie: "vlna",
-}
-
 /* Iterácia 0.4: provisional portal panels for the two skills whose demo
    sites are not built yet — an honest teaser in the portal frame, never a
    dead link. Each gets replaced by its real demo in its own session. */
@@ -416,7 +409,7 @@ function ActWork({ world }: { world: boolean }) {
       <div data-enter className="px-[clamp(1.1rem,4vw,3.5rem)] pt-[12svh] pb-[4svh]">
         <h2
           className="mt-4 max-w-[12em] text-[#17181d]"
-          style={{ ...DISPLAY, fontSize: "clamp(2.4rem,5.4vw,5rem)", lineHeight: 1.02, letterSpacing: "-0.012em", fontWeight: 420 }}
+          style={{ ...DISPLAY, fontSize: "clamp(3rem,7vw,7.2rem)", lineHeight: 1.02, letterSpacing: "-0.016em", fontWeight: 480 }}
         >
           <span className="rise-wrap">
             <span className="rise">Neukazujeme logá klientov.</span>
@@ -446,9 +439,9 @@ function ActWork({ world }: { world: boolean }) {
         }}
       >
         {/* the index (Iterácia 0.4): pure titles at display scale — no
-            numbers, no support lines; the one intro paragraph above serves
-            the whole list. The case-study link surfaces only on the active
-            row, so the path to /praca stays alive without row clutter. */}
+            numbers, no support lines, no side links; the one intro
+            paragraph above serves the whole list. Case studies live on
+            /praca, reached from the demos themselves. */}
         <ol ref={listRef} onPointerLeave={() => { hoverRef.current = null }}>
           {skills.map((s, i) => (
             <li key={s.slug} data-skill-row data-enter className="border-t border-black/15 last:border-b">
@@ -482,19 +475,6 @@ function ActWork({ world }: { world: boolean }) {
                     </span>
                   </span>
                 )}
-                {s.ready ? (
-                  <p
-                    className={`mt-2 text-[0.88rem] text-[#17181d]/60 transition-opacity duration-300 ${active === i ? "opacity-100" : "opacity-0"}`}
-                  >
-                    <a
-                      href={`/praca/${SKILL_STUDY[s.slug]}`}
-                      className="underline underline-offset-4 hover:text-[#17181d]"
-                      tabIndex={active === i ? 0 : -1}
-                    >
-                      Ako sme to navrhli →
-                    </a>
-                  </p>
-                ) : null}
                 {/* mobile: the portal rides under its own row */}
                 <div className="mt-4 lg:hidden">
                   <Portal
