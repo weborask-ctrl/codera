@@ -913,3 +913,22 @@ main[data-experience="v3"][data-wipe-done] .wipe-statement {
     animation: none;
   }
 }
+
+/* The written mark (Iterácia 0.6): the /05 signature reveals along the
+   scroll via --write (0..1, set by the experience rAF loop; defaults to
+   1 so no-JS and reduced motion read it complete). The pen dot leads the
+   stroke and fades at both ends of the gesture. */
+.codera-script {
+  clip-path: inset(-25% calc((1 - var(--write, 1)) * 108% - 8%) -25% -8%);
+}
+.codera-pen {
+  position: absolute;
+  top: 52%;
+  left: calc(var(--write, 1) * 92% + 2%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #17181d;
+  opacity: clamp(0, calc((1 - var(--write, 1)) * var(--write, 1) * 14), 1);
+  pointer-events: none;
+}
