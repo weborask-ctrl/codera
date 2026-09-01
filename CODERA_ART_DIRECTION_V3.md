@@ -348,3 +348,12 @@ plates fan apart on hover, the stack tilts with the pointer, and a quiet
 pulsing dot invites the pass-over. Pricing cards lead with the two facts a
 visitor scans for: the package name in serif and the price at display
 weight; everything else drops to footnote weight.
+
+## Amendment 11 — 2026-09-01: Iterácia 0.5b — the stone C stays stone
+
+Ondrej cut the ink-letter morph ("to C nie je dobré — úplne odstráň
+tento nápad"): /03 keeps ONE material language. The stones themselves are
+the letter — an even, SYMMETRIC ring (uniform per-stone size via a
+normalising grow target, tight jitter), placed further left, right under
+the act heading. The specimen windows grow ~35% and pull in from the
+right edge.
