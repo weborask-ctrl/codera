@@ -74,11 +74,36 @@ function desiredPose(): Pose {
         shards: 1,
       }
     }
+    case "offer": {
+      /* /03, the FORGE (Iterácia 0.5): the stones assemble the letter in
+         the bottom-left corner, then sink into the smooth C as it sets —
+         their presence hands over to the finished letter */
+      const morph = offerMorph()
+      return {
+        cam: [0, 0, 3.4],
+        target: [0, 0, 0],
+        molten: 0,
+        ember: 0,
+        /* the hand-over is decisive: the stones are gone by mid-morph so
+           the set letter never wears a debris ring */
+        shards: 0.95 * (1 - morph) * (1 - morph) + 0.02,
+      }
+    }
     default:
       /* mid-journey acts: the DOM owns the frame; a few deep shards keep
          the world breathing behind it without touching the text */
       return { cam: [0, 0, 3.4], target: [0, 0, 0], molten: 0, ember: 0, shards: 0.42 }
   }
+}
+
+/** 0→1 over the second half of /03: raw stones hand over to the smooth C.
+    Scrubbed from scroll state, so reversing the wheel un-forges the letter. */
+function offerMorph() {
+  if (stage.reducedMotion) {
+    return stage.act === "offer" ? 1 : 0
+  }
+  const t = (stage.p.offer - 0.42) / 0.24
+  return t < 0 ? 0 : t > 1 ? 1 : t
 }
 
 /* Molten-titanium field shader — the foundry glow behind the C
@@ -245,6 +270,10 @@ const C_R = 0.4
    frames it right-of-centre and whole */
 const C2_CENTER = { x: 0, y: 0.38, z: 0 }
 const C2_R = 0.46
+/* /03 forge letter (Iterácia 0.5): bottom-left, under the sticky title,
+   clear of the pricing column */
+const C_OFFER = { x: -1.04, y: -0.36, z: -0.2 }
+const C_OFFER_R = 0.29
 const C_GAP = 0.62 // half-angle of the right-facing gap
 /* Iterácia 0.3 (mockup 3): the hero letter is GONE — typography owns /01
    and the stones hang as a visible constellation instead: three large
@@ -371,6 +400,43 @@ function ObsidianShards() {
         </mesh>
       ))}
     </group>
+  )
+}
+
+/** The finished letter the stones forge at /03 (Iterácia 0.5): one smooth
+    extruded C in the mark's proportions — open on the right like the brand
+    mark — revealed as the stones sink into it. Rig drives its opacity and
+    scale from the scrubbed offer progress. */
+function SmoothLetter() {
+  const geometry = useMemo(() => {
+    const gap = 0.62
+    const outer = 0.33
+    const inner = 0.175
+    const shape = new THREE.Shape()
+    shape.absarc(0, 0, outer, gap, Math.PI * 2 - gap, false)
+    shape.absarc(0, 0, inner, Math.PI * 2 - gap, gap, true)
+    const geo = new THREE.ExtrudeGeometry(shape, {
+      depth: 0.11,
+      bevelEnabled: true,
+      bevelThickness: 0.018,
+      bevelSize: 0.018,
+      bevelSegments: 3,
+      curveSegments: 48,
+    })
+    geo.center()
+    return geo
+  }, [])
+  return (
+    <mesh
+      name="codera-letter"
+      geometry={geometry}
+      position={[C_OFFER.x, C_OFFER.y, C_OFFER.z]}
+      visible={false}
+    >
+      {/* flat ink, deliberately unlit — the set letter is the MARK, and
+          the mark is graphic; the studio softbox must not silver it */}
+      <meshBasicMaterial color="#191d24" transparent opacity={0} />
+    </mesh>
   )
 }
 
@@ -553,7 +619,10 @@ function Rig() {
         if (!seed.baseScale) {
           seed.baseScale = mesh.scale.clone()
         }
-        seed.grow = damp(seed.grow, act === "resolution" ? 1.45 : 1, 3, dt)
+        /* /03: the stones shrink into the smooth letter as it sets */
+        const growTarget =
+          act === "resolution" ? 1.45 : act === "offer" ? 1 - offerMorph() * 0.85 : 1
+        seed.grow = damp(seed.grow, growTarget, 3, dt)
         mesh.scale.copy(seed.baseScale).multiplyScalar(seed.grow)
 
         if (act === "hero") {
@@ -576,12 +645,11 @@ function Rig() {
           shardTarget.x += (dx / dl) * burst
           shardTarget.y += (dy / dl) * burst
         } else if (act === "offer") {
-          /* the quiet corner, filled (Ondrej: dole vľavo) */
-          shardTarget.set(
-            -1.5 + (i % 6) * 0.19,
-            -0.72 + Math.floor(i / 6) * 0.21 + Math.sin(moltenTime * seed.bob * 0.3 + seed.phase) * 0.04,
-            -0.5 - (i % 2) * 0.35
-          )
+          /* the FORGE (Iterácia 0.5): the corner cluster became the letter —
+             stones line the C bottom-left, breathing, until the morph
+             hands them over to the smooth letter */
+          shardTarget.copy(slotFor(i, C_OFFER, C_OFFER_R))
+          shardTarget.y += Math.sin(moltenTime * seed.bob * 0.3 + seed.phase) * 0.02
         } else if (act === "resolution") {
           /* the SECOND assembly: the letter returns at the bookend, breathing */
           shardTarget.copy(slotFor(i, C2_CENTER, C2_R))
@@ -613,12 +681,28 @@ function Rig() {
           shardTint.set("#171a20").lerp(mistTint, passT)
         } else if (act === "resolution") {
           shardTint.set("#262a31")
+        } else if (act === "offer") {
+          /* forge ink — the letter must read against the light /03 tone */
+          shardTint.set("#2b3038")
         } else {
           shardTint.copy(mistTint)
         }
         mat.color.lerp(shardTint, 1 - Math.exp(-3 * dt))
         i++
       }
+    }
+
+    /* the smooth letter sets as the stones sink in (/03 forge) */
+    const letter = state.scene.getObjectByName("codera-letter") as THREE.Mesh | undefined
+    if (letter) {
+      const lm = letter.material as THREE.MeshBasicMaterial
+      const morph = stage.act === "offer" ? offerMorph() : 0
+      lm.opacity = damp(lm.opacity, morph, 5, dt)
+      letter.visible = lm.opacity > 0.02
+      const ls = damp(letter.scale.x, 0.9 + 0.1 * morph, 5, dt)
+      letter.scale.setScalar(ls)
+      /* a slow settle roll while forming, dead still once set */
+      letter.rotation.z = damp(letter.rotation.z, (1 - morph) * -0.12, 4, dt)
     }
 
     /* embers rise off the melt; still air under reduced motion */
@@ -658,6 +742,7 @@ export function ExperienceWorld() {
         <MoltenField />
         <Embers />
         <ObsidianShards />
+        <SmoothLetter />
         <FloorGlow />
         <Rig />
       </Canvas>

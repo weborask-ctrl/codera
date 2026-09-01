@@ -582,7 +582,19 @@ function IsoArtifact({ kind }: { kind: "strategia" | "dizajn" | "vyvoj" }) {
             },
           ]
   return (
-    <div className="iso-stage h-[150px] w-[210px]" aria-hidden="true">
+    <div
+      className="iso-stage h-[150px] w-[210px]"
+      aria-hidden="true"
+      onPointerMove={(e) => {
+        const r = e.currentTarget.getBoundingClientRect()
+        e.currentTarget.style.setProperty("--px", ((e.clientX - r.left) / r.width - 0.5).toFixed(3))
+        e.currentTarget.style.setProperty("--py", ((e.clientY - r.top) / r.height - 0.5).toFixed(3))
+      }}
+      onPointerLeave={(e) => {
+        e.currentTarget.style.setProperty("--px", "0")
+        e.currentTarget.style.setProperty("--py", "0")
+      }}
+    >
       <div className="iso mx-auto mt-6 h-[96px] w-[150px]">
         {plates.map((p, i) => (
           <div
@@ -600,6 +612,7 @@ function IsoArtifact({ kind }: { kind: "strategia" | "dizajn" | "vyvoj" }) {
           </div>
         ))}
       </div>
+      <span className="iso-hint" />
     </div>
   )
 }
@@ -618,7 +631,7 @@ function ActOffer({ world }: { world: boolean }) {
           <div className="lg:sticky lg:top-28">
             <h2
               data-enter
-              style={{ ...DISPLAY, fontSize: "clamp(2.4rem,4.4vw,4.4rem)", lineHeight: 1.0, letterSpacing: "-0.012em", fontWeight: 420 }}
+              style={{ ...DISPLAY, fontSize: "clamp(3rem,6.4vw,6.6rem)", lineHeight: 1.0, letterSpacing: "-0.016em", fontWeight: 480 }}
             >
               <span className="rise-wrap">
                 <span className="rise">Čo pre vás</span>
@@ -629,10 +642,6 @@ function ActOffer({ world }: { world: boolean }) {
                 </span>
               </span>
             </h2>
-            <p className="mt-5 max-w-[24em] text-[1.05rem] leading-relaxed text-black/65">
-              Jedna stuha, tri disciplíny — od pochopenia firmy až po web
-              pripravený na produkciu.
-            </p>
             {/* strand hairlines drawing toward the rows */}
             <svg aria-hidden="true" viewBox="0 0 220 60" className="mt-6 hidden w-[220px] lg:block">
               <path d="M0 8 H150 M0 30 H190 M0 52 H120" stroke="#17181d" strokeOpacity="0.35" strokeWidth="1.2" />
@@ -666,11 +675,11 @@ function ActOffer({ world }: { world: boolean }) {
               <div>
                 <span
                   className="offer-title"
-                  style={{ ...DISPLAY, fontSize: "clamp(2rem,3.8vw,3.8rem)", letterSpacing: "-0.012em", fontWeight: 460 }}
+                  style={{ ...DISPLAY, fontSize: "clamp(2.2rem,4.4vw,4.4rem)", letterSpacing: "-0.014em", fontWeight: 520 }}
                 >
                   {t}
                 </span>
-                <p className="mt-2.5 max-w-[30em] text-[0.98rem] leading-relaxed text-black/70">{d}</p>
+                <p className="mt-2.5 max-w-[30em] text-[1.02rem] leading-relaxed text-black/80">{d}</p>
               </div>
               <div className="hidden lg:block">
                 <IsoArtifact kind={kind} />
@@ -688,17 +697,21 @@ function ActOffer({ world }: { world: boolean }) {
           >
             {packages.map((pkg) => (
               <div key={pkg.id} className="flex flex-col bg-[#EDF0F3] px-5 py-6">
+                {/* Iterácia 0.5: the two facts a visitor scans for — WHAT
+                    and FOR HOW MUCH — carry the card; everything else is
+                    footnote weight */}
                 <p
-                  className="text-[0.56rem] tracking-[0.2em] text-black/50"
-                  style={MONO}
+                  className="text-[#17181d]"
+                  style={{ ...DISPLAY, fontSize: "clamp(1.5rem,2vw,1.9rem)", lineHeight: 1.05, letterSpacing: "-0.01em", fontWeight: 520 }}
                 >
-                  {pkg.name.toUpperCase()}
+                  {pkg.name}
                 </p>
                 <p
-                  className="mt-2 font-semibold"
-                  style={{ fontSize: "clamp(1.5rem,2.4vw,2.1rem)", letterSpacing: "-0.02em", fontStretch: "112%" }}
+                  className="mt-2.5 font-semibold"
+                  style={{ fontSize: "clamp(2rem,3vw,2.8rem)", letterSpacing: "-0.02em", fontStretch: "112%", lineHeight: 1 }}
                 >
-                  od {pkg.priceFrom}
+                  <span className="mr-1.5 align-[0.35em] text-[0.45em] font-normal text-black/55">od</span>
+                  {pkg.priceFrom}
                 </p>
                 <p className="mt-2 text-[0.78rem] leading-relaxed text-black/65">
                   {pkg.audience}

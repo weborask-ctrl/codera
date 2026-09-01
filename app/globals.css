@@ -836,27 +836,63 @@ main[data-experience="v3"][data-wipe-done] .wipe-statement {
 }
 
 /* Isometric artifacts for the process trio — real depth, CSS 3D. */
-.iso-stage { perspective: 900px; }
+/* Iterácia 0.5: the specimens ANSWER THE HAND — plates fan apart on
+   hover, the whole stack tilts with the pointer, and a quiet pulsing dot
+   invites the pass-over. --zs is a registered property so the fan-out
+   eases instead of snapping. */
+@property --zs {
+  syntax: "<number>";
+  initial-value: 1;
+  inherits: true;
+}
+.iso-stage {
+  position: relative;
+  perspective: 900px;
+  --zs: 1;
+  transition: --zs 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.iso-stage:hover { --zs: 2.1; }
 .iso {
   position: relative;
-  transform: rotateX(55deg) rotateZ(-38deg);
+  transform: rotateX(calc(55deg + var(--py, 0) * 9deg)) rotateZ(calc(-38deg + var(--px, 0) * 11deg));
   transform-style: preserve-3d;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .iso-f {
   position: absolute;
   inset: 0;
   border-radius: 8px;
-  transform: translateZ(var(--z, 0px));
+  transform: translateZ(calc(var(--z, 0px) * var(--zs, 1)));
   animation: iso-float 7s ease-in-out infinite;
   animation-delay: var(--fd, 0s);
 }
 @keyframes iso-float {
-  0%, 100% { transform: translateZ(var(--z, 0px)); }
-  50% { transform: translateZ(calc(var(--z, 0px) + 7px)); }
+  0%, 100% { transform: translateZ(calc(var(--z, 0px) * var(--zs, 1))); }
+  50% { transform: translateZ(calc(var(--z, 0px) * var(--zs, 1) + 7px)); }
+}
+.iso-hint {
+  position: absolute;
+  right: 12px;
+  bottom: 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(23, 24, 29, 0.5);
+  animation: hint-pulse 2.4s ease-out infinite;
+  transition: opacity 0.3s;
+}
+.iso-stage:hover .iso-hint { opacity: 0; }
+@keyframes hint-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(23, 24, 29, 0.28); }
+  70% { box-shadow: 0 0 0 9px rgba(23, 24, 29, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(23, 24, 29, 0); }
 }
 @media (prefers-reduced-motion: reduce) {
   .portal-swap { animation: none; }
   .iso-f { animation: none; }
+  .iso-hint { animation: none; }
+  .iso-stage { transition: none; }
+  .iso { transition: none; }
 }
 
 /* Flat-mode obsidian drift: the SVG stones breathe like their R3F
