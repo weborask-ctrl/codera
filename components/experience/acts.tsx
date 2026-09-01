@@ -19,81 +19,9 @@ import { openEnquiry } from "./enquiry-bus"
 import { bindStage, stage } from "./stage"
 
 const MONO = { fontFamily: "var(--font-geist-mono)" }
-
-/* Exhibition rail: ORYZO's vertical edge label — quiet act signage
-   running down the right edge on desktop. */
-function EdgeLabel({ text }: { text: string }) {
-  return (
-    <p
-      aria-hidden="true"
-      className="pointer-events-none absolute top-1/2 right-4 z-20 hidden -translate-y-1/2 text-[0.54rem] tracking-[0.34em] mix-blend-difference lg:block"
-      style={{ writingMode: "vertical-rl", color: "rgba(242,244,246,0.4)", ...MONO }}
-    >
-      {text}
-    </p>
-  )
-}
-
-/* Hyperstudio's dot-matrix map, localized: Slovakia raster-scanned into
-   dots, one frost-lit point on Prešov. Deterministic, computed
-   once at module scope. */
-const SK_POLY: [number, number][] = [
-  [16.85, 48.38], [16.94, 48.62], [17.19, 48.87], [17.72, 48.86], [18.06, 49.05],
-  [18.39, 49.4], [18.85, 49.52], [19.45, 49.6], [19.8, 49.41], [20.3, 49.4],
-  [20.9, 49.3], [21.6, 49.45], [22.1, 49.3], [22.56, 49.08], [22.53, 48.85],
-  [22.15, 48.4], [21.7, 48.35], [21.1, 48.5], [20.5, 48.55], [20.1, 48.25],
-  [19.6, 48.23], [18.85, 48.05], [18.75, 47.87], [18.3, 47.76], [17.7, 47.76],
-  [17.25, 47.9], [17.1, 48.03], [16.98, 48.17],
-]
-
-function skInside(x: number, y: number) {
-  let c = false
-  for (let i = 0, j = SK_POLY.length - 1; i < SK_POLY.length; j = i++) {
-    const [xi, yi] = SK_POLY[i]
-    const [xj, yj] = SK_POLY[j]
-    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) {
-      c = !c
-    }
-  }
-  return c
-}
-
-const SK_DOTS: [number, number][] = (() => {
-  const dots: [number, number][] = []
-  for (let r = 0; r < 16; r++) {
-    for (let cIdx = 0; cIdx < 46; cIdx++) {
-      const lon = 16.8 + ((cIdx + 0.5) / 46) * 5.8
-      const lat = 49.65 - ((r + 0.5) / 16) * 1.95
-      if (skInside(lon, lat)) {
-        dots.push([
-          Math.round(((lon - 16.8) / 5.8) * 3200) / 10,
-          Math.round(((49.65 - lat) / 1.95) * 1100) / 10,
-        ])
-      }
-    }
-  }
-  return dots
-})()
-
-function SlovakiaDotMap() {
-  return (
-    <div data-enter className="enter relative z-10 mx-auto mb-8 w-[min(300px,72vw)]">
-      <svg viewBox="0 0 320 110" aria-hidden="true" className="w-full">
-        <g fill="#17181d" opacity="0.2">
-          {SK_DOTS.map(([x, y]) => (
-            <circle key={`${x}-${y}`} cx={x} cy={y} r="1.6" />
-          ))}
-        </g>
-        {/* Prešov — the studio's home */}
-        <circle cx="244.6" cy="36.8" r="2.8" fill="#17181d" />
-        <circle cx="244.6" cy="36.8" r="6" fill="none" stroke="#17181d" strokeOpacity="0.35" strokeWidth="1" />
-      </svg>
-      <p className="mt-3 text-center whitespace-nowrap text-[0.52rem] tracking-[0.18em] text-[#17181d]/50" style={MONO}>
-        PREŠOV · 49.00° N / 21.23° E
-      </p>
-    </div>
-  )
-}
+/* Iterácia 0.1: the display voice is Fraunces, worn MODERN — large, tight,
+   confident, never bookish, never with a shadow halo. */
+const DISPLAY = { fontFamily: "var(--font-fraunces), Georgia, serif" }
 
 /* ------------------------------------------------------------ binding --- */
 
@@ -193,15 +121,6 @@ function ActHero({ world }: { world: boolean }) {
       data-zone="hero"
       className={`relative flex h-svh flex-col overflow-hidden text-[#f2f4f6] ${world ? "" : "molten-field"}`}
     >
-      {/* poster-scale wordmark living BEHIND the object (North Kingdom) */}
-      <p
-        aria-hidden="true"
-        className="pointer-events-none absolute bottom-[31svh] left-1/2 w-full -translate-x-1/2 text-center text-[clamp(2.9rem,15vw,19rem)] font-light whitespace-nowrap text-[#f2f4f6]/[0.05] select-none lg:text-[clamp(6rem,19vw,19rem)]"
-        style={{ lineHeight: 1, letterSpacing: "0.08em" }}
-      >
-        CODERA
-      </p>
-
       {!world ? (
         <>
           {/* flat mode: the C glowing from within the fog [igloo]. The glow
@@ -220,21 +139,9 @@ function ActHero({ world }: { world: boolean }) {
             className="pointer-events-none absolute top-[14svh] right-[-10vmin] w-[62vmin] max-w-none opacity-95 lg:top-[46%] lg:right-[-8vmin] lg:w-[74vmin] lg:-translate-y-1/2"
             style={{ filter: "drop-shadow(0 0 34px rgba(220,230,238,0.28)) drop-shadow(0 46px 90px rgba(0,0,0,0.55))" }}
           />
-          {/* engineering annotation over the object [igloo] */}
-          <p
-            aria-hidden="true"
-            className="absolute top-[30svh] right-[8vmin] hidden text-[0.56rem] leading-[1.8] tracking-[0.14em] text-[#8b909a] lg:block"
-            style={MONO}
-          >
-            {"// OBJEKT — STUHA C"}
-            <br />
-            R 9.0 · MEDZERA 90°<br />
-            TITÁN · VNÚTORNÉ SVETLO
-          </p>
         </>
       ) : null}
 
-      <EdgeLabel text="/01 — ŽIARA" />
 
       {/* rotating scroll badge (monopo) */}
       <a
@@ -254,21 +161,14 @@ function ActHero({ world }: { world: boolean }) {
       </a>
 
       <div data-enter className="enter relative z-10 mt-auto mb-[8svh] px-[clamp(1.25rem,4vw,3.5rem)]">
-        <p className="mb-5 text-[0.6rem] tracking-[0.2em] text-[#8b909a] lg:text-[0.68rem] lg:tracking-[0.32em]" style={MONO}>
-          KREATÍVNE WEBOVÉ ŠTÚDIO — PREŠOV · 49.00° N
-        </p>
         {/* Žiara display voice: LIGHT weight at scale, slightly larger than
             the v2 semibold could afford — confidence through lightness
             [exoape]. Tight but not crushed; the halo keeps it legible where
             it crosses the lit C. */}
         <h1
           data-hero-line
-          className="max-w-[10.5em] text-[clamp(1.7rem,8.8vw,4.8rem)] font-light lg:text-[clamp(2.4rem,7vw,7.4rem)]"
-          style={{
-            lineHeight: 1.02,
-            letterSpacing: "-0.022em",
-            textShadow: "0 1px 2px rgba(10,11,14,0.55), 0 14px 44px rgba(10,11,14,0.6)",
-          }}
+          className="max-w-[10.5em] text-[clamp(2rem,10vw,5.4rem)] lg:text-[clamp(2.8rem,7.8vw,8.2rem)]"
+          style={{ ...DISPLAY, lineHeight: 1.0, letterSpacing: "-0.015em", fontWeight: 420 }}
         >
           <span className="rise-wrap">
             <span className="rise">Vaša firma je lepšia,</span>
@@ -281,7 +181,7 @@ function ActHero({ world }: { world: boolean }) {
         </h1>
         {/* the support line is about the READER, not our disciplines —
             CODERA_STEP6_CONTENT.md §3 */}
-        <p className="mt-5 max-w-[30rem] text-[0.95rem] leading-[1.6] text-[#f2f4f6]/70">
+        <p className="mt-6 max-w-[32rem] text-[1.08rem] leading-[1.6] text-[#f2f4f6]/80 lg:text-[1.18rem]">
           Navrhujeme a staviame firemné weby, ktoré pôsobia tak dôveryhodne, ako
           naozaj pracujete.
         </p>
@@ -337,12 +237,6 @@ function Portal({ Hero, href }: { Hero: React.ComponentType<{ portal?: boolean }
         boxShadow: "0 40px 90px -35px rgba(14,15,19,0.55), 0 0 0 1px rgba(23,24,29,0.1)",
       }}
     >
-      <span
-        className="absolute top-4 left-4 z-10 rounded-full bg-[#17181d]/85 px-4 py-1.5 text-[0.6rem] tracking-[0.18em] text-[#f2f4f6] backdrop-blur-sm"
-        style={MONO}
-      >
-        ŽIVÁ UKÁŽKA
-      </span>
       <div
         aria-hidden="true"
         className="pointer-events-none absolute top-0 left-0 h-[200%] w-[200%] origin-top-left"
@@ -364,6 +258,33 @@ function Portal({ Hero, href }: { Hero: React.ComponentType<{ portal?: boolean }
 
 function ActWork({ world }: { world: boolean }) {
   const [active, setActive] = useState(0)
+  const listRef = useRef<HTMLOListElement>(null)
+  /* the portal follows SCROLL (Iterácia 0.1): the row nearest the viewport
+     centre owns the portal; hover only previews on top of that. */
+  useEffect(() => {
+    let frame = 0
+    const pick = () => {
+      frame = requestAnimationFrame(pick)
+      const rows = listRef.current?.querySelectorAll("[data-skill-row]")
+      if (!rows?.length) {
+        return
+      }
+      const mid = window.innerHeight / 2
+      let best = 0
+      let bestD = Number.POSITIVE_INFINITY
+      rows.forEach((r, i) => {
+        const rect = r.getBoundingClientRect()
+        const d = Math.abs(rect.top + rect.height / 2 - mid)
+        if (d < bestD) {
+          bestD = d
+          best = i
+        }
+      })
+      setActive((prev) => (prev === best ? prev : best))
+    }
+    frame = requestAnimationFrame(pick)
+    return () => cancelAnimationFrame(frame)
+  }, [])
   const current = skills[active]
   const CurrentHero = current.demo ? SKILL_HEROES[current.demo] : undefined
   return (
@@ -375,12 +296,9 @@ function ActWork({ world }: { world: boolean }) {
     >
       {/* the section says what this is, at display scale */}
       <div data-enter className="px-[clamp(1.1rem,4vw,3.5rem)] pt-[12svh] pb-[4svh]">
-        <p className="text-[0.72rem] tracking-[0.3em] text-[#17181d]/70" style={MONO}>
-          02 — SCHOPNOSTI
-        </p>
         <h2
-          className="mt-4 max-w-[12em] font-light text-[#17181d]"
-          style={{ fontSize: "clamp(2.2rem,5vw,4.6rem)", lineHeight: 1.02, letterSpacing: "-0.022em" }}
+          className="mt-4 max-w-[12em] text-[#17181d]"
+          style={{ ...DISPLAY, fontSize: "clamp(2.4rem,5.4vw,5rem)", lineHeight: 1.02, letterSpacing: "-0.012em", fontWeight: 420 }}
         >
           <span className="rise-wrap">
             <span className="rise">Neukazujeme logá klientov.</span>
@@ -410,12 +328,11 @@ function ActWork({ world }: { world: boolean }) {
         }}
       >
         {/* the index */}
-        <ol>
+        <ol ref={listRef}>
           {skills.map((s, i) => (
-            <li key={s.slug} data-enter className="border-t border-black/15 last:border-b">
+            <li key={s.slug} data-skill-row data-enter className="border-t border-black/15 last:border-b">
               <div
                 className="group flex w-full flex-col gap-2 py-6 text-left lg:py-7"
-                onPointerEnter={() => setActive(i)}
                 onFocusCapture={() => setActive(i)}
               >
                 <div className="flex items-baseline gap-5">
@@ -425,8 +342,8 @@ function ActWork({ world }: { world: boolean }) {
                   {s.ready ? (
                     <a
                       href={`/ukazky/${s.slug}`}
-                      className="font-semibold text-[#17181d] transition-transform duration-300 group-hover:translate-x-2"
-                      style={{ fontSize: "clamp(2.2rem,4.6vw,4.4rem)", lineHeight: 0.95, letterSpacing: "-0.03em" }}
+                      className="text-[#17181d] transition-transform duration-300 group-hover:translate-x-2"
+                      style={{ ...DISPLAY, fontSize: "clamp(2.3rem,4.8vw,4.6rem)", lineHeight: 0.98, letterSpacing: "-0.015em", fontWeight: 460 }}
                     >
                       {s.name}
                       <span className={`ml-4 inline-block align-middle text-[0.5em] transition-opacity ${active === i ? "opacity-100" : "opacity-0"}`}>
@@ -435,8 +352,8 @@ function ActWork({ world }: { world: boolean }) {
                     </a>
                   ) : (
                     <span
-                      className="font-semibold text-[#17181d]/45"
-                      style={{ fontSize: "clamp(2.2rem,4.6vw,4.4rem)", lineHeight: 0.95, letterSpacing: "-0.03em" }}
+                      className="text-[#17181d]/45"
+                      style={{ ...DISPLAY, fontSize: "clamp(2.3rem,4.8vw,4.6rem)", lineHeight: 0.98, letterSpacing: "-0.015em", fontWeight: 460 }}
                     >
                       {s.name}
                       <span className="ml-5 inline-block translate-y-[-0.35em] rounded-full border border-[#17181d]/25 px-3 py-1 align-middle text-[0.16em] tracking-[0.18em] text-[#17181d]/55" style={MONO}>
@@ -448,20 +365,16 @@ function ActWork({ world }: { world: boolean }) {
                 <p className={`max-w-[34rem] pl-[2.6rem] text-[0.95rem] leading-[1.55] text-[#17181d]/70 transition-opacity duration-300 ${active === i ? "opacity-100" : "opacity-60"}`}>
                   {s.line}
                 </p>
-                <p className="pl-[2.6rem] text-[0.6rem] tracking-[0.18em] text-[#17181d]/45" style={MONO}>
-                  {s.tags}
-                  {s.ready ? (
-                    <>
-                      {" · "}
-                      <a
-                        href={`/praca/${SKILL_STUDY[s.slug]}`}
-                        className="text-[#17181d]/60 underline underline-offset-4 hover:text-[#17181d]"
-                      >
-                        AKO SME TO NAVRHLI
-                      </a>
-                    </>
-                  ) : null}
-                </p>
+                {s.ready ? (
+                  <p className="pl-[2.6rem] text-[0.88rem] text-[#17181d]/60">
+                    <a
+                      href={`/praca/${SKILL_STUDY[s.slug]}`}
+                      className="underline underline-offset-4 hover:text-[#17181d]"
+                    >
+                      Ako sme to navrhli →
+                    </a>
+                  </p>
+                ) : null}
                 {/* mobile: the portal rides under its own row */}
                 {s.ready && s.demo ? (
                   <div className="mt-4 pl-[2.6rem] lg:hidden">
@@ -477,10 +390,13 @@ function ActWork({ world }: { world: boolean }) {
         <div className="hidden lg:block">
           <div className="sticky top-[14svh]">
             {CurrentHero ? (
-              <Portal Hero={CurrentHero} href={`/ukazky/${current.slug}`} />
+              <div key={current.slug} className="portal-swap">
+                <Portal Hero={CurrentHero} href={`/ukazky/${current.slug}`} />
+              </div>
             ) : (
               <div
-                className="flex items-center justify-center rounded-[12px] border border-dashed border-[#17181d]/30"
+                key="pripravuje"
+                className="portal-swap flex items-center justify-center rounded-[12px] border border-dashed border-[#17181d]/30"
                 style={{ aspectRatio: "16/10" }}
               >
                 <p className="max-w-[22rem] px-8 text-center text-[0.9rem] leading-[1.6] text-[#17181d]/60">
@@ -489,9 +405,6 @@ function ActWork({ world }: { world: boolean }) {
                 </p>
               </div>
             )}
-            <p className="mt-3 text-center text-[0.6rem] tracking-[0.18em] text-[#17181d]/45" style={MONO}>
-              DEMO ŠTÚDIA CODERA · ŽIADNA SKUTOČNÁ FIRMA
-            </p>
           </div>
         </div>
       </div>
@@ -501,97 +414,101 @@ function ActWork({ world }: { world: boolean }) {
 
 /* ---------------------------------------------------------- /04 OFFER --- */
 
-/** Work artifacts for the craft rows — each discipline shows a small
-    specimen of its output instead of resting on type alone (The1's
-    "show the material", Mercury's quiet plates). */
-const PRIORITY_DOTS = (() => {
-  const dots: { x: number; y: number; gold: boolean }[] = []
-  for (let r = 0; r < 4; r++) {
-    for (let c = 0; c < 12; c++) {
-      dots.push({
-        x: Math.round((6 + c * 12.4) * 10) / 10,
-        y: 8 + r * 13,
-        gold: (r === 1 && c === 2) || (r === 2 && c === 6) || (r === 0 && c === 9),
-      })
-    }
-  }
-  return dots
-})()
-
-function OfferArtifact({ kind }: { kind: "strategia" | "dizajn" | "vyvoj" }) {
-  if (kind === "strategia") {
-    return (
-      <div className="w-[176px] border border-black/20 bg-white/45 p-3">
-        <svg viewBox="0 0 148 54" className="w-full" aria-hidden="true">
-          {PRIORITY_DOTS.map((d) => (
-            <circle
-              key={`${d.x}-${d.y}`}
-              cx={d.x}
-              cy={d.y}
-              r={d.gold ? 2.6 : 1.4}
-              fill={d.gold ? "#a4520f" : "rgba(25,26,28,0.25)"}
-            />
-          ))}
-          <path
-            d="M30.8 21 L80.4 34 L117.6 8"
-            fill="none"
-            stroke="#a4520f"
-            strokeWidth="1"
-            strokeOpacity="0.45"
-          />
-        </svg>
-        <p className="mt-2 text-[0.45rem] tracking-[0.18em] text-black/55" style={MONO}>
-          Z AUDITU — MAPA PRIORÍT
-        </p>
-      </div>
-    )
-  }
-  if (kind === "dizajn") {
-    return (
-      <div className="w-[176px] border border-black/20 bg-white/45 p-3">
-        <div className="flex h-[54px] items-stretch gap-1.5">
-          <div
-            className="flex flex-1 items-center justify-center border border-black/20 text-[0.95rem] font-semibold"
-            style={{ background: "#d8d7d2", color: "#191a1c", fontStretch: "125%" }}
-          >
-            Aa
-          </div>
-          <div
-            className="flex flex-1 items-center justify-center text-[0.95rem] font-semibold"
-            style={{ background: "#e7efe9", color: "#1d5f5a" }}
-          >
-            Aa
-          </div>
-          <div
-            className="flex flex-1 items-center justify-center text-[1rem] italic"
-            style={{ background: "#201a15", color: "#efe6d8", fontFamily: "var(--font-fraunces), Georgia, serif" }}
-          >
-            Aa
-          </div>
-        </div>
-        <p className="mt-2 text-[0.45rem] tracking-[0.18em] text-black/55" style={MONO}>
-          TRI SVETY · VLASTNÁ RÉŽIA
-        </p>
-      </div>
-    )
-  }
+/**
+ * Isometric artifacts (Iterácia 0.1): each discipline shows a specimen with
+ * REAL depth — layered CSS 3D plates that float apart, not a flat plate.
+ * Monochrome frost/ink only; the depth is the decoration.
+ */
+function IsoArtifact({ kind }: { kind: "strategia" | "dizajn" | "vyvoj" }) {
+  const plates: { z: number; inner: React.ReactNode; bg: string; border?: string }[] =
+    kind === "dizajn"
+      ? [
+          { z: 0, bg: "#DFE3E8", inner: null },
+          {
+            z: 22,
+            bg: "#F6F8FA",
+            inner: (
+              <div className="flex h-full flex-col justify-between p-3">
+                <div className="h-2 w-1/2 rounded-full bg-[#17181d]/25" />
+                <div className="h-8 w-full rounded-[4px] bg-[#17181d]/10" />
+              </div>
+            ),
+          },
+          {
+            z: 44,
+            bg: "#17181d",
+            inner: (
+              <p className="p-3 text-[1.5rem] leading-none text-[#F2F4F6]" style={{ fontFamily: "var(--font-fraunces), serif" }}>
+                Aa
+              </p>
+            ),
+          },
+        ]
+      : kind === "strategia"
+        ? [
+            { z: 0, bg: "#DFE3E8", inner: null },
+            {
+              z: 22,
+              bg: "#F6F8FA",
+              inner: (
+                <svg viewBox="0 0 120 80" className="h-full w-full p-2" aria-hidden="true">
+                  <g stroke="#17181d" strokeOpacity="0.3" strokeWidth="1" fill="none">
+                    <path d="M12 62 L44 40 L74 50 L108 18" />
+                  </g>
+                  <circle cx="44" cy="40" r="3.5" fill="#17181d" fillOpacity="0.55" />
+                  <circle cx="108" cy="18" r="4.5" fill="#17181d" />
+                </svg>
+              ),
+            },
+            {
+              z: 44,
+              bg: "transparent",
+              border: "1px dashed rgba(23,24,29,0.35)",
+              inner: null,
+            },
+          ]
+        : [
+            { z: 0, bg: "#17181d", inner: null },
+            {
+              z: 22,
+              bg: "#22252c",
+              inner: (
+                <div className="flex h-full flex-col justify-center gap-1.5 p-3">
+                  <div className="h-1.5 w-3/4 rounded-full bg-[#DCE6EE]/50" />
+                  <div className="h-1.5 w-1/2 rounded-full bg-[#DCE6EE]/30" />
+                  <div className="h-1.5 w-2/3 rounded-full bg-[#DCE6EE]/40" />
+                </div>
+              ),
+            },
+            {
+              z: 44,
+              bg: "#DCE6EE",
+              inner: (
+                <p className="p-2.5 text-[0.62rem] tracking-[0.1em] text-[#17181d]" style={MONO}>
+                  0,4 s
+                </p>
+              ),
+            },
+          ]
   return (
-    <div className="w-[176px] border border-black/20 bg-[#17181d] p-3">
-      <div className="space-y-1.5 text-[0.6rem] text-[#dce6ee]" style={MONO}>
-        {[
-          ["LCP", "1,9 s"],
-          ["CLS", "0,00"],
-          ["SNÍMKA", "16,7 ms"],
-        ].map(([k, v]) => (
-          <div key={k} className="flex items-baseline justify-between">
-            <span className="text-white/45">{k}</span>
-            <span>{v}</span>
+    <div className="iso-stage h-[150px] w-[210px]" aria-hidden="true">
+      <div className="iso mx-auto mt-6 h-[96px] w-[150px]">
+        {plates.map((p, i) => (
+          <div
+            key={p.z}
+            className="iso-f overflow-hidden"
+            style={{
+              ["--z" as string]: `${p.z}px`,
+              ["--fd" as string]: `${i * 0.6}s`,
+              background: p.bg,
+              border: p.border,
+              boxShadow: i === 0 ? "0 30px 40px -18px rgba(14,15,19,0.35)" : "0 0 0 1px rgba(23,24,29,0.08)",
+            }}
+          >
+            {p.inner}
           </div>
         ))}
       </div>
-      <p className="mt-2 text-[0.45rem] tracking-[0.18em] text-white/40" style={MONO}>
-        MERANÉ NA TOMTO WEBE
-      </p>
     </div>
   )
 }
@@ -604,18 +521,13 @@ function ActOffer({ world }: { world: boolean }) {
       className="act-rule relative text-[#17181d]"
       style={world ? undefined : { background: "#EDF0F3" }}
     >
-      <EdgeLabel text="/03 — REMESLO" />
       <div className="flex flex-col gap-10 px-[clamp(1.25rem,4vw,3.5rem)] py-[9svh] lg:flex-row lg:gap-16">
         {/* sticky act title (Navigate band structure) */}
         <div className="lg:w-[34%]">
           <div className="lg:sticky lg:top-28">
-            <p className="text-[0.66rem] tracking-[0.3em] text-black/55" style={MONO}>
-              03 — REMESLO
-            </p>
             <h2
               data-enter
-              className="mt-4 font-light"
-              style={{ fontSize: "clamp(2rem,3.6vw,3.6rem)", lineHeight: 1.02, letterSpacing: "-0.022em" }}
+              style={{ ...DISPLAY, fontSize: "clamp(2.4rem,4.4vw,4.4rem)", lineHeight: 1.0, letterSpacing: "-0.012em", fontWeight: 420 }}
             >
               <span className="rise-wrap">
                 <span className="rise">Čo pre vás</span>
@@ -626,7 +538,7 @@ function ActOffer({ world }: { world: boolean }) {
                 </span>
               </span>
             </h2>
-            <p className="mt-4 max-w-[22em] text-[0.85rem] leading-relaxed text-black/60">
+            <p className="mt-5 max-w-[24em] text-[1.05rem] leading-relaxed text-black/65">
               Jedna stuha, tri disciplíny — od pochopenia firmy až po web
               pripravený na produkciu.
             </p>
@@ -643,11 +555,11 @@ function ActOffer({ world }: { world: boolean }) {
         <div className="flex-1">
           {(
             [
-              ["01", "STRATÉGIA", "Najprv pochopíme vašu firmu, zákazníkov a to, čo má web reálne priniesť.", "audit · pozicionovanie · obsah", "strategia"],
-              ["02", "DIZAJN", "Z pochopenia vznikne vizuálny systém, ktorý firmu odlíši a pôsobí dôveryhodne.", "art direction · UI · prototyp", "dizajn"],
-              ["03", "VÝVOJ", "Rýchly, responzívny web pripravený na produkciu — bez kompromisov v detailoch.", "Next.js · výkon · nasadenie", "vyvoj"],
+              ["01", "STRATÉGIA", "Najprv pochopíme vašu firmu, zákazníkov a to, čo má web reálne priniesť.", "strategia"],
+              ["02", "DIZAJN", "Z pochopenia vznikne vizuálny systém, ktorý firmu odlíši a pôsobí dôveryhodne.", "dizajn"],
+              ["03", "VÝVOJ", "Rýchly, responzívny web pripravený na produkciu — bez kompromisov v detailoch.", "vyvoj"],
             ] as const
-          ).map(([n, t, d, tags, kind]) => (
+          ).map(([n, t, d, kind]) => (
             <div
               key={n}
               data-enter
@@ -662,18 +574,15 @@ function ActOffer({ world }: { world: boolean }) {
               </span>
               <div>
                 <span
-                  className="offer-title font-semibold"
-                  style={{ fontSize: "clamp(1.6rem,3vw,3rem)", letterSpacing: "-0.02em", fontStretch: "112%" }}
+                  className="offer-title"
+                  style={{ ...DISPLAY, fontSize: "clamp(2rem,3.8vw,3.8rem)", letterSpacing: "-0.012em", fontWeight: 460 }}
                 >
                   {t}
                 </span>
-                <p className="mt-2 max-w-[32em] text-[0.85rem] leading-relaxed text-black/70">{d}</p>
-                <p className="mt-2 text-[0.56rem] tracking-[0.2em] text-black/55" style={MONO}>
-                  {tags.toUpperCase()}
-                </p>
+                <p className="mt-2.5 max-w-[30em] text-[0.98rem] leading-relaxed text-black/70">{d}</p>
               </div>
               <div className="hidden lg:block">
-                <OfferArtifact kind={kind} />
+                <IsoArtifact kind={kind} />
               </div>
             </div>
           ))}
@@ -721,8 +630,7 @@ function ActOffer({ world }: { world: boolean }) {
           {/* conversational close (The1's question + pill) */}
           <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-black/15 pt-6">
             <p className="text-[0.9rem] text-black/70">
-              Uvedené sú východiskové ceny — presnú cenu poviete po konzultácii,
-              nie až v zmluve.
+              Uvedené sú východiskové ceny — presnú cenu poviete po konzultácii.
             </p>
             <span className="flex items-center gap-3 text-[0.8rem] text-black/70">
               Koľko by stál ten váš?
@@ -766,14 +674,8 @@ function ActResolution({ world }: { world: boolean }) {
         className="enter relative z-10 flex flex-1 flex-col items-center justify-end px-[clamp(1.25rem,4vw,3.5rem)] pt-[34svh] pb-[10svh] text-center lg:justify-center lg:pt-[46svh]"
       >
         <h2
-          className="text-[clamp(1.6rem,7.6vw,4.9rem)] font-light lg:text-[clamp(2rem,4.9vw,5rem)]"
-          style={{
-            lineHeight: 1.02,
-            letterSpacing: "-0.022em",
-            /* the closing line crosses the bright C — a FROST halo now, the
-               ground is risen light and ink needs lift, not shadow */
-            textShadow: "0 1px 2px rgba(250,251,252,0.7), 0 10px 36px rgba(250,251,252,0.55)",
-          }}
+          className="text-[clamp(1.8rem,8vw,5.2rem)] lg:text-[clamp(2.2rem,5.4rem,5.6rem)]"
+          style={{ ...DISPLAY, lineHeight: 1.02, letterSpacing: "-0.012em", fontWeight: 420 }}
         >
           <span className="rise-wrap">
             <span className="rise">Váš ďalší web nemusí</span>
@@ -800,6 +702,10 @@ function ActResolution({ world }: { world: boolean }) {
         </div>
       </div>
 
+      {/* the crystal C's own stage: the world places the section-coloured C
+          into this quiet band, whole and uncovered (Iterácia 0.1) */}
+      <div aria-hidden="true" className="hidden h-[30svh] lg:block" />
+
       {/* What happens after the form — the biggest SMB friction is not the
           price, it is not knowing what they are starting
           (CODERA_STEP6_CONTENT.md §7). Three verifiable commitments. */}
@@ -807,29 +713,27 @@ function ActResolution({ world }: { world: boolean }) {
         data-enter
         className="enter relative z-10 mx-auto mb-14 w-full max-w-[52rem] px-[clamp(1.25rem,4vw,3.5rem)]"
       >
-        <p className="text-center text-[0.62rem] tracking-[0.28em] text-[#17181d]/50" style={MONO}>
-          ČO BUDE NASLEDOVAŤ
+        <p className="text-center text-[1.3rem] text-[#17181d]/80" style={{ ...DISPLAY, fontWeight: 460 }}>
+          Čo bude nasledovať
         </p>
-        <ol className="mt-5 grid gap-px overflow-hidden rounded-[8px] border border-black/12 bg-black/12 sm:grid-cols-3">
+        <ol className="mt-6 grid gap-px overflow-hidden rounded-[12px] border border-black/12 bg-black/12 sm:grid-cols-3">
           {[
             ["01", "Do 24 hodín sa ozveme a spýtame sa na to, čo z formulára nevyplynulo."],
             ["02", "Do 72 hodín uvidíte prvý vizuálny návrh vašej stránky."],
             ["03", "Ak vás nezaujme, končíme — nič neplatíte a nič nepodpisujete."],
           ].map(([n, line]) => (
-            <li key={n} className="bg-[#F6F8FA]/80 px-5 py-5 text-left">
-              <span className="tnum text-[0.7rem] text-[#17181d]/40" style={MONO}>
+            <li key={n} className="bg-[#F6F8FA]/85 px-6 py-6 text-left">
+              <span className="text-[1.8rem] text-[#17181d]/30" style={{ ...DISPLAY, fontWeight: 460 }}>
                 {n}
               </span>
-              <p className="mt-2 text-[0.85rem] leading-[1.55] text-[#17181d]/80">{line}</p>
+              <p className="mt-2.5 text-[0.98rem] leading-[1.55] text-[#17181d]/85">{line}</p>
             </li>
           ))}
         </ol>
       </div>
 
-      <EdgeLabel text="/04 — LIATIE" />
-      <SlovakiaDotMap />
 
-      <footer className="relative z-10 border-t border-black/15 px-[clamp(1.25rem,4vw,3.5rem)] py-5 text-[0.62rem] text-[#17181d]/70">
+      <footer className="relative z-10 bg-[#101116] px-[clamp(1.25rem,4vw,3.5rem)] py-7 text-[0.66rem] text-[#f2f4f6]/70">
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <span className="flex items-center gap-2">
             {/* biome-ignore lint/performance/noImgElement: static same-origin brand SVG; next/image adds nothing here. */}

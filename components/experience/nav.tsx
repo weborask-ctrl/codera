@@ -1,23 +1,21 @@
 "use client"
 
 /**
- * Step 5 experience navigation.
- *
- * Fixed typographic bar whose ink follows the act (dark act → paper ink,
- * light acts → graphite ink) via [data-act] CSS. The under-lg menu is the
- * audit §3 rebuild: ONE translation channel (a CSS class toggling
- * `transform`, animated by transition — GSAP nowhere near it), aria-hidden
- * kept in sync, focus moved in on open and restored on close, Escape and
- * link activation close it, body scroll locked while open.
+ * The dynamic island (Iterácia 0.1): the full-width bar is gone. One floating
+ * pill, centred at the top, that condenses once the visitor scrolls — the
+ * refokus-family gesture. Ink follows the act via [data-act] CSS exactly as
+ * before, and the a11y contract is unchanged: the same menu id, the same
+ * aria wiring, focus in on open and back on close, Escape closes, body
+ * scroll locks while open.
  */
 
 import { useEffect, useRef, useState } from "react"
 import { openEnquiry } from "./enquiry-bus"
 
 const LINKS = [
-  ["01", "Práca", "#praca"],
-  ["02", "Služby", "#sluzby"],
-  ["03", "Kontakt", "#kontakt"],
+  ["Ukážky", "#praca"],
+  ["Služby", "#sluzby"],
+  ["Kontakt", "#kontakt"],
 ] as const
 
 export function ExperienceNav() {
@@ -47,65 +45,62 @@ export function ExperienceNav() {
   }, [open])
 
   return (
-    <header className="experience-nav fixed inset-x-0 top-0 z-40">
-      <div className="nav-shell flex items-center justify-between px-[clamp(1.25rem,4vw,3.5rem)] py-4 transition-colors duration-500">
-        <a href="#hlavny-obsah" className="flex items-center gap-3" aria-label="Codera — domov">
+    <header className="experience-nav pointer-events-none fixed inset-x-0 top-4 z-40 flex justify-center px-4">
+      <div className="nav-island pointer-events-auto flex items-center gap-1 rounded-full py-1.5 pr-1.5 pl-4 transition-all duration-500">
+        <a href="#hlavny-obsah" className="flex items-center gap-2.5 pr-2" aria-label="Codera — domov">
           {/* biome-ignore lint/performance/noImgElement: static same-origin brand SVG; next/image adds nothing here. */}
-          <img src="/brand/codera-mark-mono.svg" alt="" className="h-6 w-6" />
-          <span className="text-[0.8rem] font-semibold tracking-[0.34em]">CODERA</span>
+          <img src="/brand/codera-mark-mono.svg" alt="" className="h-5 w-5" />
+          <span className="text-[0.74rem] font-semibold tracking-[0.28em]">CODERA</span>
         </a>
 
-        <nav aria-label="Hlavná navigácia" className="hidden items-center gap-8 lg:flex">
-          {LINKS.map(([n, label, href]) => (
+        <nav aria-label="Hlavná navigácia" className="hidden items-center lg:flex">
+          {LINKS.map(([label, href]) => (
             <a
               key={href}
               href={href}
-              className="text-[0.72rem] tracking-[0.22em] opacity-70 transition-opacity hover:opacity-100"
+              className="rounded-full px-3.5 py-2 text-[0.74rem] font-medium opacity-75 transition-opacity hover:opacity-100"
             >
-              {n} {label.toUpperCase()}
+              {label}
             </a>
           ))}
         </nav>
 
-        <div className="flex items-center gap-3">
-          {/* act signage pill (Laxenaire's scroll indicator) — text is
-              driven by the stage writer via [data-act-pill] */}
-          <span
-            data-act-pill
-            aria-hidden="true"
-            className="hidden rounded-full border border-current/25 px-3 py-1.5 text-[0.6rem] tracking-[0.22em] opacity-70 lg:block"
-            style={{ fontFamily: "var(--font-geist-mono)" }}
-          >
-            01 / 05
+        <span
+          data-act-pill
+          aria-hidden="true"
+          className="mx-1 hidden text-[0.58rem] tracking-[0.2em] opacity-55 lg:block"
+          style={{ fontFamily: "var(--font-geist-mono)" }}
+        >
+          01 / 04
+        </span>
+
+        <button
+          type="button"
+          onClick={() => openEnquiry()}
+          className="experience-cta rounded-full px-4 py-2 text-[0.72rem] font-medium tracking-[0.04em]"
+        >
+          Začať projekt
+        </button>
+        <button
+          ref={buttonRef}
+          type="button"
+          aria-label={open ? "Zavrieť menu" : "Otvoriť menu"}
+          aria-expanded={open}
+          aria-controls="experience-menu"
+          onClick={() => setOpen((v) => !v)}
+          className="flex h-9 w-9 items-center justify-center lg:hidden"
+        >
+          <span className="relative block h-[10px] w-5">
+            <span
+              className="absolute top-0 left-0 h-[1.6px] w-full bg-current transition-transform duration-300"
+              style={open ? { transform: "translateY(4.2px) rotate(45deg)" } : undefined}
+            />
+            <span
+              className="absolute bottom-0 left-0 h-[1.6px] w-full bg-current transition-transform duration-300"
+              style={open ? { transform: "translateY(-4.2px) rotate(-45deg)" } : undefined}
+            />
           </span>
-          <button
-            type="button"
-            onClick={() => openEnquiry()}
-            className="experience-cta rounded-full px-4 py-2 text-[0.72rem] font-medium tracking-[0.08em]"
-          >
-            Začať projekt
-          </button>
-          <button
-            ref={buttonRef}
-            type="button"
-            aria-label={open ? "Zavrieť menu" : "Otvoriť menu"}
-            aria-expanded={open}
-            aria-controls="experience-menu"
-            onClick={() => setOpen((v) => !v)}
-            className="flex h-10 w-10 items-center justify-center lg:hidden"
-          >
-            <span className="relative block h-[10px] w-5">
-              <span
-                className="absolute top-0 left-0 h-[1.6px] w-full bg-current transition-transform duration-300"
-                style={open ? { transform: "translateY(4.2px) rotate(45deg)" } : undefined}
-              />
-              <span
-                className="absolute bottom-0 left-0 h-[1.6px] w-full bg-current transition-transform duration-300"
-                style={open ? { transform: "translateY(-4.2px) rotate(-45deg)" } : undefined}
-              />
-            </span>
-          </button>
-        </div>
+        </button>
       </div>
 
       {/* The under-lg menu panel: transform lives ONLY here, driven by the
@@ -114,7 +109,7 @@ export function ExperienceNav() {
         ref={panelRef}
         id="experience-menu"
         aria-hidden={!open}
-        className="experience-menu fixed inset-0 z-50 flex flex-col justify-between bg-[#16171b] px-[clamp(1.25rem,5vw,3rem)] pt-24 pb-10 text-[#f4f1ea] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] lg:hidden"
+        className="experience-menu pointer-events-auto fixed inset-0 z-50 flex flex-col justify-between bg-[#101116] px-[clamp(1.25rem,5vw,3rem)] pt-24 pb-10 text-[#f2f4f6] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] lg:hidden"
         style={{ transform: open ? "translateX(0)" : "translateX(100%)" }}
         {...(!open ? { inert: true } : {})}
       >
@@ -133,15 +128,19 @@ export function ExperienceNav() {
           </span>
         </button>
         <nav aria-label="Mobilná navigácia" className="mt-6 flex flex-col gap-1">
-          {LINKS.map(([n, label, href]) => (
+          {LINKS.map(([label, href]) => (
             <a
               key={href}
               href={href}
               onClick={() => setOpen(false)}
-              className="flex items-baseline gap-4 border-b border-white/12 py-5"
+              className="border-b border-white/12 py-5"
             >
-              <span className="font-mono text-[0.7rem] text-white/40">{n}</span>
-              <span className="text-[1.7rem] font-semibold tracking-[-0.01em]">{label}</span>
+              <span
+                className="text-[2rem]"
+                style={{ fontFamily: "var(--font-fraunces), Georgia, serif" }}
+              >
+                {label}
+              </span>
             </a>
           ))}
           <button
@@ -150,7 +149,7 @@ export function ExperienceNav() {
               setOpen(false)
               openEnquiry()
             }}
-            className="mt-8 w-full rounded-full bg-[#f4f1ea] py-4 text-center text-[0.95rem] font-medium text-[#16171b]"
+            className="mt-8 w-full rounded-full bg-[#f2f4f6] py-4 text-center text-[0.95rem] font-medium text-[#101116]"
           >
             Začať projekt
           </button>
