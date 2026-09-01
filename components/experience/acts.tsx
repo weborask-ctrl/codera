@@ -583,7 +583,7 @@ function IsoArtifact({ kind }: { kind: "strategia" | "dizajn" | "vyvoj" }) {
           ]
   return (
     <div
-      className="iso-stage h-[150px] w-[210px]"
+      className="iso-stage h-[200px] w-[290px]"
       aria-hidden="true"
       onPointerMove={(e) => {
         const r = e.currentTarget.getBoundingClientRect()
@@ -595,7 +595,7 @@ function IsoArtifact({ kind }: { kind: "strategia" | "dizajn" | "vyvoj" }) {
         e.currentTarget.style.setProperty("--py", "0")
       }}
     >
-      <div className="iso mx-auto mt-6 h-[96px] w-[150px]">
+      <div className="iso mx-auto mt-8 h-[126px] w-[196px]">
         {plates.map((p, i) => (
           <div
             key={p.z}
@@ -681,7 +681,7 @@ function ActOffer({ world }: { world: boolean }) {
                 </span>
                 <p className="mt-2.5 max-w-[30em] text-[1.02rem] leading-relaxed text-black/80">{d}</p>
               </div>
-              <div className="hidden lg:block">
+              <div className="hidden lg:mr-[2.5vw] lg:block">
                 <IsoArtifact kind={kind} />
               </div>
             </div>
