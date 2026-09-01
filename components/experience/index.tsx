@@ -17,7 +17,6 @@ import dynamic from "next/dynamic"
 import { useSyncExternalStore } from "react"
 import { ExperienceActs } from "./acts"
 import { ContactDrawer } from "./contact-drawer"
-import { ExperienceIntro } from "./intro"
 import { ExperienceNav } from "./nav"
 
 const ExperienceWorld = dynamic(
@@ -61,7 +60,6 @@ export function Experience({ probe = false }: { probe?: boolean }) {
   const world = useSyncExternalStore(subscribe, snapshot, () => false)
   return (
     <div className="experience">
-      <ExperienceIntro />
       <ExperienceNav />
       {world ? <ExperienceWorld /> : null}
       <ExperienceActs world={world} probe={probe} />

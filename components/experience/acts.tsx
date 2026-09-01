@@ -25,22 +25,12 @@ const DISPLAY = { fontFamily: "var(--font-fraunces), Georgia, serif" }
 
 /* ------------------------------------------------------------ binding --- */
 
-/* Laxenaire's scroll pill, retold as act signage in the nav. */
-const ACT_NO: Record<string, string> = {
-  hero: "01",
-  pass: "01",
-  work: "02",
-  offer: "03",
-  resolution: "04",
-}
-
 function useStage(probe: boolean) {
   const probeRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     const unbind = bindStage()
     const root = document.querySelector<HTMLElement>("main[data-experience=v3]")
     root?.setAttribute("data-hydrated", "")
-    const actPill = document.querySelector<HTMLElement>("[data-act-pill]")
     let frame = 0
     let lastScrollTs = 0
     let worst = 0
@@ -55,13 +45,6 @@ function useStage(probe: boolean) {
         return
       }
       root.style.setProperty("--journey", stage.total.toFixed(4))
-
-      if (actPill) {
-        const label = `${ACT_NO[stage.act] ?? "01"} / 04`
-        if (actPill.textContent !== label) {
-          actPill.textContent = label
-        }
-      }
 
       if (probe && probeRef.current) {
         const now = performance.now()
@@ -160,6 +143,13 @@ function ActHero({ world }: { world: boolean }) {
         </svg>
       </a>
 
+      {/* quiet fog thickening behind the copy so the headline never blends
+          into the white C (Iterácia 0.2) — a scrim, never a text outline */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-[5]"
+        style={{ background: "radial-gradient(60% 55% at 16% 78%, rgba(8,9,12,0.72) 0%, rgba(8,9,12,0.3) 55%, transparent 78%)" }}
+      />
       <div data-enter className="enter relative z-10 mt-auto mb-[8svh] px-[clamp(1.25rem,4vw,3.5rem)]">
         {/* Žiara display voice: LIGHT weight at scale, slightly larger than
             the v2 semibold could afford — confidence through lightness

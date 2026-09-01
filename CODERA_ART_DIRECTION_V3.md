@@ -272,3 +272,14 @@ none, content visible beneath); reduced motion skips it entirely; the real C
 holds back (world opacity gate + flat-img CSS) until the handoff so the mark
 never doubles. GSAP timeline — the sanctioned engine — with overlapping
 tweens for the smoothness Ondrej asked for by name.
+
+## Amendment 6 — 2026-09-01: Iterácia 0.2 / 01
+
+Ondrej's hero pass: the paper intro is CUT (it did not land — deleted, not
+parked). The C keeps its approved shape but must read SYMMETRIC — the hero
+camera straightens toward frontal and the sway drops to a breath. Descenders
+(g, j, p) were being clipped by the line-rise masks site-wide — the masks get
+descender room. The island slims down and loses the act pill. The headline
+separates from the C with a quiet fog scrim on the text side, never a text
+outline. Obsidians gain top-left homes; the 01→02 orbital spins calmer — one
+clean sweep, no pointer wobble mid-flight.
