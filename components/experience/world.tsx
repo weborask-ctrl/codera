@@ -14,10 +14,13 @@
  * (react-hooks v6 immutability; the pattern proven in the v2 world).
  */
 
+import { useGLTF } from "@react-three/drei"
 import { Canvas, useFrame } from "@react-three/fiber"
 import { useEffect, useMemo } from "react"
 import * as THREE from "three"
 import { ACT_TONES, type ActName, stage } from "./stage"
+
+const RIBBON_URL = "/brand/codera-c-ribbon.glb"
 
 interface Pose {
   cam: [number, number, number]
@@ -67,12 +70,12 @@ function desiredPose(): Pose {
     case "resolution": {
       /* frontal pose, eye-line dropped so the C rides the upper half and
          the closing type owns the lower third (logo-lockup composition) */
-      /* farther and higher than the old ribbon pose: the crystal C must be
-         seen WHOLE and must never sit over the closing line */
-      const settle = 5.0 - 0.35 * resP
+      /* the bookend echoes the hero: the section-coloured C rides the RIGHT
+         edge, large and half-cropped, clear of the centred copy and steps */
+      const settle = 4.1 - 0.3 * resP
       return {
-        cam: [0, 0.04, settle],
-        target: [0, 0.16, 0],
+        cam: [0, 0.02, settle],
+        target: [-0.62, 0.12, 0],
         ribbon: resP > 0.08 ? 1 : 0,
         molten: 0.35,
         ember: 0.22,
@@ -179,38 +182,19 @@ function damp(current: number, target: number, lambda: number, dt: number) {
 }
 
 /**
- * The crystal C (Iterácia 0.1, free-form by Ondrej's licence): a faceted
- * arc in the obsidian family — low radial segments + flat shading give it
- * the sharp, defined edges the soft ribbon never had. One material,
- * physical, prepped here so the Rig only ever damps its numbers.
+ * The approved folded-ribbon C (Step 2), restored on Ondrej's instruction:
+ * the mark from the brand reference is the mark — chevron terminals, the
+ * central twist, the inner face showing through the fold. The Rig gives it
+ * life instead of a new shape: a gentle side-to-side sway, crisper env
+ * light, and a whisper of thin-film colour so the metal never reads dead.
  */
-function CrystalC() {
-  const geometry = useMemo(() => {
-    const g = new THREE.TorusGeometry(0.46, 0.175, 7, 96, Math.PI * 1.62)
-    /* opening faces right like the mark: rotate the gap into place */
-    g.rotateZ(Math.PI * 0.19)
-    return g
-  }, [])
-  const material = useMemo(() => {
-    const m = new THREE.MeshPhysicalMaterial({
-      color: new THREE.Color("#cdd4dc"),
-      metalness: 0.85,
-      roughness: 0.22,
-      flatShading: true,
-      transparent: true,
-      opacity: 0,
-      clearcoat: 0.6,
-      clearcoatRoughness: 0.25,
-    })
-    m.envMapIntensity = 1.15
-    m.iridescence = 0
-    m.iridescenceIOR = 1.28
-    m.iridescenceThicknessRange = [120, 460]
-    return m
-  }, [])
+function Ribbon() {
+  const { scene: gltfScene } = useGLTF(RIBBON_URL)
+  /* material prep happens once in Rig's frame loop via getObjectByName —
+     React never mutates the loaded scene (react-hooks/immutability). */
   return (
     <group name="codera-ribbon">
-      <mesh geometry={geometry} material={material} userData={{ temperMaterial: true }} />
+      <primitive object={gltfScene} />
     </group>
   )
 }
@@ -468,6 +452,10 @@ function Rig() {
        OHZI's law: the object owns all the color. */
     const ribbon = state.scene.getObjectByName("codera-ribbon")
     if (ribbon) {
+      if (!stage.reducedMotion) {
+        ribbon.rotation.y = Math.sin(moltenTime * 0.35) * 0.11 + pointerLerp.x * 0.08
+        ribbon.rotation.x = Math.sin(moltenTime * 0.27 + 1) * 0.05 - pointerLerp.y * 0.05
+      }
       ribbon.traverse((obj) => {
         const mesh = obj as THREE.Mesh
         if (mesh.isMesh) {
@@ -484,7 +472,9 @@ function Rig() {
               transparent: true,
               opacity: source.opacity,
             })
-            phys.envMapIntensity = 0.7
+            phys.envMapIntensity = 1.1
+            phys.clearcoat = 0.5
+            phys.clearcoatRoughness = 0.3
             phys.iridescence = 0
             phys.iridescenceIOR = 1.28
             phys.iridescenceThicknessRange = [120, 460]
@@ -493,13 +483,24 @@ function Rig() {
           }
           const mat = mesh.material as THREE.MeshPhysicalMaterial
           mat.opacity = damp(mat.opacity, pose.ribbon, 10, dt)
-          mat.iridescence = damp(mat.iridescence, pose.iridescence, 5, dt)
+          mat.iridescence = damp(mat.iridescence, Math.max(pose.iridescence, 0.16), 5, dt)
           /* the section's own colour: cool titanium in the fog, graphite ink
              once the C stands on risen light */
-          crystalTint.set(stage.act === "resolution" ? "#3b414b" : "#cdd4dc")
+          /* the mark stays WHITE like the brand reference — Ondrej's "toto C
+             chcem čo najlepšie zachovať" outranks the section-ink idea; a
+             graphite variant is one value away if he ever wants it */
+          crystalTint.set("#d3d9df")
           mat.color.lerp(crystalTint, 1 - Math.exp(-4 * dt))
+          /* metal on risen light: the bright softbox would wash the ink out,
+             so the reflections dim with the act, not the colour alone */
+          mat.envMapIntensity = damp(
+            mat.envMapIntensity,
+            stage.act === "resolution" ? 0.7 : 1.1,
+            4,
+            dt
+          )
           /* the resolution stage is a narrow band — the C scales into it */
-          const targetScale = stage.act === "resolution" ? 0.52 : 1
+          const targetScale = stage.act === "resolution" ? 0.92 : 1
           const s = damp(mesh.scale.x, targetScale, 5, dt)
           mesh.scale.setScalar(s)
           mesh.visible = mat.opacity > 0.02
@@ -573,7 +574,7 @@ function Rig() {
           )
         } else if (act === "resolution") {
           const slow = moltenTime * 0.12 * (i % 2 ? 1 : -1) + seed.phase
-          shardTarget.set(Math.cos(slow) * 1.35, Math.sin(slow) * 0.55 + 0.15, Math.sin(slow + 1.1) * 0.4 - 0.3)
+          shardTarget.set(Math.cos(slow) * 1.5 - 0.55, Math.sin(slow) * 0.6 + 0.05, Math.sin(slow + 1.1) * 0.4 - 0.3)
         } else {
           shardTarget.set(
             seed.home.x,
@@ -645,7 +646,7 @@ export function ExperienceWorld() {
         <MoltenField />
         <Embers />
         <ObsidianShards />
-        <CrystalC />
+        <Ribbon />
         <FloorGlow />
         <Rig />
       </Canvas>
@@ -653,3 +654,4 @@ export function ExperienceWorld() {
   )
 }
 
+useGLTF.preload(RIBBON_URL)
