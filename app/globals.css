@@ -858,3 +858,22 @@ main[data-experience="v3"][data-wipe-done] .wipe-statement {
   .portal-swap { animation: none; }
   .iso-f { animation: none; }
 }
+
+/* Flat-mode obsidian drift (Iterácia 0.3 final polish): the SVG stones
+   breathe like their R3F siblings; still air under reduced motion. */
+@keyframes stone-drift {
+  from {
+    transform: translateY(-5px) rotate(-1.2deg);
+  }
+  to {
+    transform: translateY(6px) rotate(1.4deg);
+  }
+}
+.flat-stone {
+  animation: stone-drift var(--drift-dur, 9s) ease-in-out var(--drift-delay, 0s) infinite alternate;
+}
+@media (prefers-reduced-motion: reduce) {
+  .flat-stone {
+    animation: none;
+  }
+}

@@ -252,6 +252,13 @@ const C_GAP = 0.62 // half-angle of the right-facing gap
    the far left for balance. The headline spans the full width, so nothing
    floats close to the camera over the copy zone. */
 const HERO_FOCUS = { x: 0.62, y: 0.02 }
+/* Portrait phones see a much narrower frustum — the desktop slots fall
+   outside it and the hero loses its matter. Rig flips this flag from the
+   live viewport; the constellation then uses portrait slots: same stones,
+   same hierarchy (three anchors + mids + deep field), composed into the
+   free upper half so the bottom-anchored copy stays untouched. */
+let portraitView = false
+const HERO_FOCUS_PORTRAIT = { x: 0.05, y: 0.7 }
 /* Ondrej's spread pass: the TEXT is the main idea — stones live only in
    the free space around it. Three anchors + a short curated list of mid
    stones in genuinely empty spots (corners, the right margin, under and
@@ -260,28 +267,56 @@ const HERO_FOCUS = { x: 0.62, y: 0.02 }
 const HERO_ANCHORS: [number, number, number][] = [
   [0.84, 0.38, -0.2],
   [1.02, -0.2, -0.4],
-  [0.4, -0.52, -0.3],
+  /* the low-centre anchor sits deeper and further right — near the CTA
+     row it read as a dark cropped blob (final-look critique, point 5) */
+  [0.52, -0.54, -0.55],
 ]
 const HERO_MIDS: [number, number, number][] = [
   [0.52, 0.56, -1.1], // high, in the clear gap right of the island
   [1.1, 0.52, -1.3], // top-right corner
-  [0.98, 0.08, -1.1], // right margin, past the italic line's end
-  [1.18, -0.52, -0.9], // bottom-right corner
+  [1.12, 0.06, -1.2], // right margin, safely past the italic line's end
+  [1.22, -0.42, -0.95], // bottom-right, lifted clear of the scroll badge
   [-0.75, 0.55, -1.9], // small, far high-left — balance above the headline
   [0.14, -0.6, -1.3], // low centre, under the support line's right edge
   [1.24, 0.28, -1.6], // far right, deep
 ]
+/* Portrait composition: the copy owns the lower half, so the stones hang
+   in the sky above it — same three-anchor hierarchy, narrower spread. */
+const HERO_ANCHORS_PORTRAIT: [number, number, number][] = [
+  [0.14, 0.52, -0.7],
+  [-0.24, 0.8, -1.1],
+  [0.3, 0.98, -1.6],
+]
+const HERO_MIDS_PORTRAIT: [number, number, number][] = [
+  [-0.32, 0.34, -1.5],
+  [0.38, 0.64, -1.9],
+  [-0.12, 1.08, -2.2],
+  [0.06, 1.34, -2.6],
+  [-0.42, 0.95, -2.4],
+  [0.46, 1.5, -2.8],
+  [0.22, 0.22, -2.9],
+]
 function heroSlot(i: number) {
-  if (i < HERO_ANCHORS.length) {
-    return new THREE.Vector3(...HERO_ANCHORS[i])
+  const anchors = portraitView ? HERO_ANCHORS_PORTRAIT : HERO_ANCHORS
+  const mids = portraitView ? HERO_MIDS_PORTRAIT : HERO_MIDS
+  if (i < anchors.length) {
+    return new THREE.Vector3(...anchors[i])
   }
-  const m = i - HERO_ANCHORS.length
-  if (m < HERO_MIDS.length) {
-    return new THREE.Vector3(...HERO_MIDS[m])
+  const m = i - anchors.length
+  if (m < mids.length) {
+    return new THREE.Vector3(...mids[m])
   }
   /* the deep field: tiny, far — atmosphere, not actors. It stays OUT of
-     the headline block: only the right band and the far-left edge, so no
-     speck ever sits behind the letters (Ondrej: the text must stand out) */
+     the headline block: on desktop only the right band and the far-left
+     edge; in portrait the narrow sky above the copy (Ondrej: the text
+     must stand out) */
+  if (portraitView) {
+    return new THREE.Vector3(
+      -0.5 + prand(i + 111) * 1.0,
+      0.3 + prand(i + 131) * 1.2,
+      -3.4 + prand(i + 151) * 0.9
+    )
+  }
   const band = prand(i + 171) < 0.75
   const x = band ? 0.55 + prand(i + 111) * 1.05 : -1.6 + prand(i + 111) * 0.5
   const y = -0.7 + prand(i + 131) * 1.4
@@ -304,9 +339,19 @@ function ObsidianShards() {
     () =>
       Array.from({ length: SHARD_COUNT }, (_, i) => {
         /* three larger anchors — the visible hero stones (Iterácia 0.3);
-           chunkier in Y than the sliver rest so they read as boulders */
+           chunkier in Y than the sliver rest so they read as boulders.
+           Final-look critique, point 1: each anchor gets its OWN
+           silhouette — a finer-faceted boulder, a stretched sharp shard,
+           a flatter slab — so the two biggest stones never read as the
+           same low-poly prop twice. The third anchor runs smaller (point
+           5: near the CTA row it must be presence, not a blob). */
         const big = i < 3
-        const s = big ? 0.16 + prand(i + 11) * 0.06 : 0.09 + prand(i + 11) * 0.07
+        const s =
+          i === 2
+            ? 0.12 + prand(i + 11) * 0.04
+            : big
+              ? 0.16 + prand(i + 11) * 0.06
+              : 0.09 + prand(i + 11) * 0.07
         return {
           key: `shard-${i}`,
           /* birth positions: scattered across the RIGHT half, so the load
@@ -316,7 +361,13 @@ function ObsidianShards() {
             -0.9 + prand(i + 53) * 1.9,
             -1.6 + prand(i + 71) * 1.9,
           ] as [number, number, number],
-          scale: [s, s * (big ? 0.62 + prand(i + 97) * 0.2 : 0.32 + prand(i + 97) * 0.25), s * (0.6 + prand(i + 13) * 0.3)] as [
+          scale: [
+            i === 1 ? s * 0.66 : s,
+            i === 1
+              ? s * 1.42
+              : s * (big ? 0.62 + prand(i + 97) * 0.2 : 0.32 + prand(i + 97) * 0.25),
+            i === 1 ? s * 0.66 : s * (0.6 + prand(i + 13) * 0.3),
+          ] as [
             number,
             number,
             number,
@@ -346,7 +397,7 @@ function ObsidianShards() {
   )
   return (
     <group name="codera-shards">
-      {shards.map((sh) => (
+      {shards.map((sh, i) => (
         <mesh
           key={sh.key}
           position={sh.position}
@@ -354,11 +405,18 @@ function ObsidianShards() {
           rotation={sh.rotation}
           userData={{ shardSeed: sh.seed }}
         >
-          <icosahedronGeometry args={[1, 0]} />
+          {/* silhouette per anchor: 0 = finer-faceted boulder (no single
+              flat triangle catches the softbox), 1 = stretched octahedron
+              shard, rest = the raw level-0 slivers */}
+          {i === 1 ? (
+            <octahedronGeometry args={[1, 0]} />
+          ) : (
+            <icosahedronGeometry args={[1, i === 0 ? 1 : 0]} />
+          )}
           <meshPhysicalMaterial
             color="#171a20"
             metalness={0.3}
-            roughness={0.14}
+            roughness={0.1 + prand(i + 23) * 0.18}
             clearcoat={1}
             clearcoatRoughness={0.08}
             envMapIntensity={1.9}
@@ -453,6 +511,9 @@ function Rig() {
       state.scene.background = new THREE.Color(ACT_TONES.hero)
       envApplied = true
     }
+
+    /* the constellation recomposes for narrow frustums (phones) */
+    portraitView = state.size.width / state.size.height < 0.8
 
     const pose = desiredPose()
     const λ = stage.reducedMotion ? 100 : 9 // ≈120 ms glide, instant under PRM
@@ -570,8 +631,9 @@ function Rig() {
           const slot = heroSlot(i)
           shardTarget.lerpVectors(slot, seed.bg, k)
           const burst = Math.sin(passT * Math.PI) * 0.3
-          const dx = slot.x - HERO_FOCUS.x
-          const dy = slot.y - HERO_FOCUS.y
+          const focus = portraitView ? HERO_FOCUS_PORTRAIT : HERO_FOCUS
+          const dx = slot.x - focus.x
+          const dy = slot.y - focus.y
           const dl = Math.max(0.001, Math.hypot(dx, dy))
           shardTarget.x += (dx / dl) * burst
           shardTarget.y += (dy / dl) * burst
