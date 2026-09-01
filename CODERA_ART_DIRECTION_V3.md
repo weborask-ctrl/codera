@@ -357,3 +357,17 @@ the letter — an even, SYMMETRIC ring (uniform per-stone size via a
 normalising grow target, tight jitter), placed further left, right under
 the act heading. The specimen windows grow ~35% and pull in from the
 right edge.
+
+## Amendment 12 — 2026-09-01: Iterácia 0.6 — /05 signs itself
+
+Ondrej's bigger plan for the closing act, the ETA gesture (eta.cz: the
+monoline logotype writes itself): the stone C from /03 dissolves on the
+way down — in the world the stones stream toward the word and thin out —
+and the studio's name writes itself between the headline and the
+next-steps band. Sacramento (Ondrej's pick C of four scripts), thin
+monoline, display size, slight rotation; revealed along the scroll via a
+--write custom property with a leading pen dot, reversible by
+construction. No-JS and reduced motion read it complete. The stone
+bookend C and the flat-mode mark are gone — the journey ends as a
+signature, not as matter. Everything else in the act grows: headline to
+the display league, CTA row and button, next-steps title and cards.

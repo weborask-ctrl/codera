@@ -60,18 +60,17 @@ function desiredPose(): Pose {
       }
     }
     case "resolution": {
-      /* frontal pose, eye-line dropped so the C rides the upper half and
-         the closing type owns the lower third (logo-lockup composition) */
-      /* the bookend echoes the hero: the section-coloured C rides the RIGHT
-         edge, large and half-cropped, clear of the centred copy and steps */
+      /* /05 (Iterácia 0.6): no bookend letter — the stones stream toward
+         the written word and DISSOLVE as it writes itself (the ETA
+         gesture: the journey ends as a signature, not as matter) */
       const settle = 4.1 - 0.3 * resP
       return {
         cam: [0, 0.06, settle],
-        target: [-0.72, 0.36, 0],
-        molten: 0.35,
+        target: [0, 0.12, 0],
+        /* the day ends in light — the fog thins to a breath */
+        molten: 0.16,
         ember: 0.22,
-        /* the stones ARE the closing C now — full presence */
-        shards: 1,
+        shards: Math.max(0, 1 - resP * 1.7),
       }
     }
     case "offer":
@@ -250,13 +249,6 @@ const SHARD_COUNT = 22
 /* The C letterform as assembly slots (amendment 7): stones line the open-C
    arc — gap on the right, like the mark — with radial and depth jitter so
    the letter reads as built from rock, not beads on a wire. */
-const C_CENTER = { x: 0.47, y: 0.04, z: 0 }
-const C_R = 0.4
-/* the SECOND letter (Ondrej: "úplne dole poskladajú druhé céčko"): the
-   stones reassemble at the origin for the /04 bookend, where the far camera
-   frames it right-of-centre and whole */
-const C2_CENTER = { x: 0, y: 0.38, z: 0 }
-const C2_R = 0.46
 /* /03 stone letter (Iterácia 0.5c): the C centres itself in the free band
    LEFT of the steps and pricing. The DOM column is a percentage of the
    viewport, so a fixed world-x lands differently on every screen — the
@@ -308,16 +300,6 @@ function heroSlot(i: number) {
   const y = -0.7 + prand(i + 131) * 1.4
   const z = -3.6 + prand(i + 151) * 1.0
   return new THREE.Vector3(x, y, z)
-}
-function slotFor(i: number, c = C_CENTER, radius = C_R) {
-  const t = i / (SHARD_COUNT - 1)
-  const a = C_GAP + t * (Math.PI * 2 - C_GAP * 2)
-  const r = radius + (prand(i + 301) - 0.5) * 0.09 * (radius / C_R)
-  return new THREE.Vector3(
-    c.x + Math.cos(a) * r,
-    c.y + Math.sin(a) * r * 1.04,
-    c.z + (prand(i + 401) - 0.5) * 0.14
-  )
 }
 
 function ObsidianShards() {
@@ -585,7 +567,11 @@ function Rig() {
             0.36 / (seed.baseScale.x + seed.baseScale.y + seed.baseScale.z)
         }
         const growTarget =
-          act === "resolution" ? 1.45 : act === "offer" ? (seed.norm ?? 1) : 1
+          act === "resolution"
+            ? Math.max(0.3, 1 - stage.p.resolution * 1.1)
+            : act === "offer"
+              ? (seed.norm ?? 1)
+              : 1
         seed.grow = damp(seed.grow, growTarget, 3, dt)
         mesh.scale.copy(seed.baseScale).multiplyScalar(seed.grow)
 
@@ -621,9 +607,14 @@ function Rig() {
             C_OFFER.z + (prand(i + 401) - 0.5) * 0.05
           )
         } else if (act === "resolution") {
-          /* the SECOND assembly: the letter returns at the bookend, breathing */
-          shardTarget.copy(slotFor(i, C2_CENTER, C2_R))
-          shardTarget.y += Math.sin(moltenTime * seed.bob * 0.35 + seed.phase) * 0.03
+          /* the DISSOLVE (Iterácia 0.6): stones stream in toward the
+             written word and thin out as the signature completes */
+          const k = Math.min(1, stage.p.resolution * 1.4)
+          shardTarget.set(
+            seed.bg.x * (1 - k * 0.7),
+            seed.bg.y * (1 - k * 0.75) + 0.12 * k + Math.sin(moltenTime * seed.bob * 0.35 + seed.phase) * 0.03,
+            seed.bg.z * (1 - k * 0.5) - 0.3 * k
+          )
         } else {
           /* the background asteroids the letter became */
           shardTarget.set(

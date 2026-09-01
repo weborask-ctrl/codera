@@ -45,6 +45,12 @@ function useStage(probe: boolean) {
         return
       }
       root.style.setProperty("--journey", stage.total.toFixed(4))
+      /* the /05 signature writes itself along the scroll (Iterácia 0.6);
+         PRM reads it complete — a layout, not an animation */
+      const written = stage.reducedMotion
+        ? 1
+        : Math.min(1, Math.max(0, (stage.p.resolution - 0.2) / 0.5))
+      root.style.setProperty("--write", written.toFixed(4))
 
       if (probe && probeRef.current) {
         const now = performance.now()
@@ -763,23 +769,14 @@ function ActResolution({ world }: { world: boolean }) {
       className="relative flex min-h-svh flex-col overflow-hidden text-[#17181d]"
       style={world ? undefined : { background: "radial-gradient(70% 55% at 50% 38%, #FFFFFF 0%, #EDF0F3 62%, #E2E6EB 100%)" }}
     >
-      {!world ? (
-        // biome-ignore lint/performance/noImgElement: static same-origin brand SVG; next/image adds nothing here.
-        <img
-          src="/brand/codera-mark.svg"
-          alt=""
-          className="pointer-events-none absolute top-1/2 left-1/2 w-[44vmin] -translate-x-1/2 -translate-y-[64%] opacity-80"
-          style={{ filter: "drop-shadow(0 30px 70px rgba(0,0,0,0.5))" }}
-        />
-      ) : null}
 
       <div
         data-enter
         className="enter relative z-10 flex flex-1 flex-col items-center justify-end px-[clamp(1.25rem,4vw,3.5rem)] pt-[34svh] pb-[10svh] text-center lg:justify-center lg:pt-[46svh]"
       >
         <h2
-          className="text-[clamp(1.8rem,8vw,5.2rem)] lg:text-[clamp(2.2rem,5.4rem,5.6rem)]"
-          style={{ ...DISPLAY, lineHeight: 1.02, letterSpacing: "-0.012em", fontWeight: 420 }}
+          className="text-[clamp(2.2rem,9.5vw,4.4rem)] lg:text-[clamp(3rem,7vw,7.4rem)]"
+          style={{ ...DISPLAY, lineHeight: 1.02, letterSpacing: "-0.016em", fontWeight: 480 }}
         >
           <span className="rise-wrap">
             <span className="rise">Váš ďalší web nemusí</span>
@@ -790,34 +787,55 @@ function ActResolution({ world }: { world: boolean }) {
             </span>
           </span>
         </h2>
-        <p className="mt-5 text-[0.95rem] text-[#17181d]/70">Vytvorme taký, ktorý si ľudia zapamätajú.</p>
-        <div className="mt-9 flex flex-wrap items-center justify-center gap-6" id="dopyt">
-          <span className="hidden text-[0.85rem] text-[#17181d]/60 md:block">Máte projekt v hlave?</span>
+        <p className="mt-6 text-[1.1rem] text-[#17181d]/70 lg:text-[1.35rem]">
+          Vytvorme taký, ktorý si ľudia zapamätajú.
+        </p>
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-7" id="dopyt">
+          <span className="hidden text-[1.05rem] text-[#17181d]/60 md:block">Máte projekt v hlave?</span>
           <button
             type="button"
             onClick={() => openEnquiry()}
-            className="rounded-full bg-[#17181d] px-7 py-3.5 text-[0.9rem] font-medium text-[#fafbfc]"
+            className="rounded-full bg-[#17181d] px-10 py-5 text-[1.1rem] font-medium text-[#fafbfc]"
           >
             Začať projekt
           </button>
-          <a href="mailto:coderaslovakia@gmail.com" className="text-[0.8rem] text-[#17181d]/60 underline underline-offset-4">
+          <a href="mailto:coderaslovakia@gmail.com" className="text-[1rem] text-[#17181d]/60 underline underline-offset-4">
             coderaslovakia@gmail.com
           </a>
         </div>
       </div>
 
-      {/* the crystal C's own stage: the world places the section-coloured C
-          into this quiet band, whole and uncovered (Iterácia 0.1) */}
-      <div aria-hidden="true" className="hidden h-[30svh] lg:block" />
+      {/* the WRITTEN MARK (Iterácia 0.6, the ETA gesture, Ondrej's pick C):
+          the /03 stone C dissolved in the world; its trail writes the
+          studio's name here — a thin monoline script revealed along the
+          scroll via --write (see useStage), reversible by construction.
+          No-JS and reduced motion read it fully written. */}
+      <div aria-hidden="true" className="codera-sign relative z-10 mx-auto my-[2svh]">
+        <span
+          className="codera-script block px-[0.12em] text-[#17181d]"
+          style={{
+            fontFamily: "var(--font-sacramento), cursive",
+            fontSize: "clamp(4.5rem,16vw,14rem)",
+            lineHeight: 1.2,
+            transform: "rotate(-2.5deg)",
+          }}
+        >
+          Codera
+        </span>
+        <span className="codera-pen" />
+      </div>
 
       {/* What happens after the form — the biggest SMB friction is not the
           price, it is not knowing what they are starting
           (CODERA_STEP6_CONTENT.md §7). Three verifiable commitments. */}
       <div
         data-enter
-        className="enter relative z-10 mx-auto mb-14 w-full max-w-[52rem] px-[clamp(1.25rem,4vw,3.5rem)]"
+        className="enter relative z-10 mx-auto mb-16 w-full max-w-[64rem] px-[clamp(1.25rem,4vw,3.5rem)]"
       >
-        <p className="text-center text-[1.3rem] text-[#17181d]/80" style={{ ...DISPLAY, fontWeight: 460 }}>
+        <p
+          className="text-center text-[clamp(1.7rem,2.8vw,2.5rem)] text-[#17181d]"
+          style={{ ...DISPLAY, fontWeight: 480 }}
+        >
           Čo bude nasledovať
         </p>
         <ol className="mt-6 grid gap-px overflow-hidden rounded-[12px] border border-black/12 bg-black/12 sm:grid-cols-3">
@@ -826,11 +844,11 @@ function ActResolution({ world }: { world: boolean }) {
             ["02", "Do 72 hodín uvidíte prvý vizuálny návrh vašej stránky."],
             ["03", "Ak vás nezaujme, končíme — nič neplatíte a nič nepodpisujete."],
           ].map(([n, line]) => (
-            <li key={n} className="bg-[#F6F8FA]/85 px-6 py-6 text-left">
-              <span className="text-[1.8rem] text-[#17181d]/30" style={{ ...DISPLAY, fontWeight: 460 }}>
+            <li key={n} className="bg-[#F6F8FA]/85 px-7 py-8 text-left">
+              <span className="text-[2.3rem] text-[#17181d]/30" style={{ ...DISPLAY, fontWeight: 480 }}>
                 {n}
               </span>
-              <p className="mt-2.5 text-[0.98rem] leading-[1.55] text-[#17181d]/85">{line}</p>
+              <p className="mt-3 text-[1.08rem] leading-[1.55] text-[#17181d]/85">{line}</p>
             </li>
           ))}
         </ol>

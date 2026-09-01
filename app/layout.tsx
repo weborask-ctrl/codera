@@ -5,6 +5,7 @@ import {
   Geist,
   Geist_Mono,
   Instrument_Serif,
+  Sacramento,
 } from "next/font/google"
 
 import "./globals.css"
@@ -54,6 +55,15 @@ const instrument = Instrument_Serif({
   subsets: ["latin", "latin-ext"],
   weight: "400",
   variable: "--font-instrument",
+  display: "swap",
+})
+
+/* Iterácia 0.6: the written mark — a thin monoline script (ETA gesture,
+   Ondrej's pick C). One weight, display-only, the /05 signature. */
+const sacramento = Sacramento({
+  subsets: ["latin", "latin-ext"],
+  weight: "400",
+  variable: "--font-sacramento",
   display: "swap",
 })
 
@@ -133,7 +143,8 @@ export default function RootLayout({
         geistMono.variable,
         fraunces.variable,
         instrument.variable,
-        bricolage.variable
+        bricolage.variable,
+        sacramento.variable
       )}
     >
       <head>
