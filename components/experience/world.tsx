@@ -252,19 +252,40 @@ const C_GAP = 0.62 // half-angle of the right-facing gap
    the far left for balance. The headline spans the full width, so nothing
    floats close to the camera over the copy zone. */
 const HERO_FOCUS = { x: 0.62, y: 0.02 }
+/* Ondrej's spread pass: the TEXT is the main idea — stones live only in
+   the free space around it. Three anchors + a short curated list of mid
+   stones in genuinely empty spots (corners, the right margin, under and
+   over the headline block); everything else drops deep into the
+   background as tiny distant asteroids, giving depth without clutter. */
 const HERO_ANCHORS: [number, number, number][] = [
   [0.84, 0.38, -0.2],
   [1.02, -0.2, -0.4],
   [0.4, -0.52, -0.3],
 ]
+const HERO_MIDS: [number, number, number][] = [
+  [0.52, 0.56, -1.1], // high, in the clear gap right of the island
+  [1.1, 0.52, -1.3], // top-right corner
+  [0.98, 0.08, -1.1], // right margin, past the italic line's end
+  [1.18, -0.52, -0.9], // bottom-right corner
+  [-0.75, 0.55, -1.9], // small, far high-left — balance above the headline
+  [0.14, -0.6, -1.3], // low centre, under the support line's right edge
+  [1.24, 0.28, -1.6], // far right, deep
+]
 function heroSlot(i: number) {
   if (i < HERO_ANCHORS.length) {
     return new THREE.Vector3(...HERO_ANCHORS[i])
   }
-  const deepLeft = i % 5 === 4
-  const x = deepLeft ? -1.1 + prand(i + 111) * 0.7 : 0.05 + prand(i + 111) * 1.2
-  const y = -0.55 + prand(i + 131) * 1.15
-  const z = deepLeft ? -2.6 + prand(i + 151) * 0.5 : -2.2 + prand(i + 151) * 1.5
+  const m = i - HERO_ANCHORS.length
+  if (m < HERO_MIDS.length) {
+    return new THREE.Vector3(...HERO_MIDS[m])
+  }
+  /* the deep field: tiny, far — atmosphere, not actors. It stays OUT of
+     the headline block: only the right band and the far-left edge, so no
+     speck ever sits behind the letters (Ondrej: the text must stand out) */
+  const band = prand(i + 171) < 0.75
+  const x = band ? 0.55 + prand(i + 111) * 1.05 : -1.6 + prand(i + 111) * 0.5
+  const y = -0.7 + prand(i + 131) * 1.4
+  const z = -3.6 + prand(i + 151) * 1.0
   return new THREE.Vector3(x, y, z)
 }
 function slotFor(i: number, c = C_CENTER, radius = C_R) {
