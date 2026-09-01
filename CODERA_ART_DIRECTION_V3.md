@@ -314,3 +314,19 @@ field disperses into the background asteroids (scrubbed, reversible). The
 /04 bookend C assembly is untouched — the letter now lives only where the
 journey resolves. Flat mode drops the 2D mark too: typography carries /01
 everywhere.
+
+## Amendment 9 — 2026-09-01: Iterácia 0.4 — /02 as a pure index
+
+Ondrej's pass on the skills index: the rows lose their numbers and their
+support lines — ONE intro paragraph under the section heading serves the
+whole list; below it, only titles. The titles grow to display scale and a
+heavier cut (Fraunces ~520) so the index reads as typography, not as a
+table [refokus]. The portal answers the POINTER as well as scroll: a
+hovered row takes the portal immediately and keeps it until the pointer
+leaves the index. The case-study link surfaces only on the active row.
+
+The two unbuilt skills get honest provisional teaser panels inside the
+portal frame (Animácie & 3D: dark orbital sketch; Výkon: the 0,4 s metric
+with load bars) — labelled UKÁŽKA V PRÍPRAVE, never a dead link, each to
+be replaced by its real demo in its own session. The dashed placeholder
+is gone.
