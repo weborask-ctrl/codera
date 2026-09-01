@@ -47,9 +47,12 @@ function useStage(probe: boolean) {
       root.style.setProperty("--journey", stage.total.toFixed(4))
       /* the /05 signature writes itself along the scroll (Iterácia 0.6);
          PRM reads it complete — a layout, not an animation */
+      /* the last zone's progress can never reach 1 (the document stops
+         scrolling before its bottom leaves the viewport), so the signature
+         must COMPLETE well inside the reachable range on every screen */
       const written = stage.reducedMotion
         ? 1
-        : Math.min(1, Math.max(0, (stage.p.resolution - 0.2) / 0.5))
+        : Math.min(1, Math.max(0, (stage.p.resolution - 0.12) / 0.3))
       root.style.setProperty("--write", written.toFixed(4))
 
       if (probe && probeRef.current) {
@@ -830,10 +833,10 @@ function ActResolution({ world }: { world: boolean }) {
           (CODERA_STEP6_CONTENT.md §7). Three verifiable commitments. */}
       <div
         data-enter
-        className="enter relative z-10 mx-auto mb-16 w-full max-w-[64rem] px-[clamp(1.25rem,4vw,3.5rem)]"
+        className="enter relative z-10 mx-auto mb-16 w-full max-w-[74rem] px-[clamp(1.25rem,4vw,3.5rem)]"
       >
         <p
-          className="text-center text-[clamp(1.7rem,2.8vw,2.5rem)] text-[#17181d]"
+          className="text-center text-[clamp(2rem,3.6vw,3.3rem)] text-[#17181d]"
           style={{ ...DISPLAY, fontWeight: 480 }}
         >
           Čo bude nasledovať
@@ -844,11 +847,11 @@ function ActResolution({ world }: { world: boolean }) {
             ["02", "Do 72 hodín uvidíte prvý vizuálny návrh vašej stránky."],
             ["03", "Ak vás nezaujme, končíme — nič neplatíte a nič nepodpisujete."],
           ].map(([n, line]) => (
-            <li key={n} className="bg-[#F6F8FA]/85 px-7 py-8 text-left">
-              <span className="text-[2.3rem] text-[#17181d]/30" style={{ ...DISPLAY, fontWeight: 480 }}>
+            <li key={n} className="bg-[#F6F8FA]/85 px-8 py-10 text-left">
+              <span className="text-[2.7rem] text-[#17181d]/30" style={{ ...DISPLAY, fontWeight: 480 }}>
                 {n}
               </span>
-              <p className="mt-3 text-[1.08rem] leading-[1.55] text-[#17181d]/85">{line}</p>
+              <p className="mt-3 text-[1.18rem] leading-[1.55] text-[#17181d]/85">{line}</p>
             </li>
           ))}
         </ol>
