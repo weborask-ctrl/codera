@@ -661,9 +661,9 @@ main[data-experience="v3"] .offer-row[data-active] .offer-title {
    fog breathes, it does not perform. */
 .molten-field {
   background:
-    radial-gradient(58% 52% at 62% 44%, oklch(0.34 0.015 255 / 0.55) 0%, transparent 62%),
-    radial-gradient(90% 75% at 30% 90%, oklch(0.22 0.01 255 / 0.7) 0%, transparent 65%),
-    radial-gradient(140% 120% at 50% 30%, oklch(0.2 0.008 255) 0%, oklch(0.145 0.006 255) 78%);
+    radial-gradient(58% 52% at 62% 44%, oklch(0.52 0.012 255 / 0.5) 0%, transparent 62%),
+    radial-gradient(90% 75% at 30% 90%, oklch(0.3 0.01 255 / 0.6) 0%, transparent 65%),
+    radial-gradient(140% 120% at 50% 30%, oklch(0.42 0.008 255) 0%, oklch(0.34 0.006 255) 78%);
   background-size: 150% 150%, 160% 160%, 100% 100%;
   animation: fog-breathe 34s ease-in-out infinite alternate;
 }
@@ -752,8 +752,8 @@ main[data-experience="v3"][data-wipe-done] .wipe-statement {
 .rise-wrap {
   display: block;
   overflow: hidden;
-  padding-bottom: 0.14em;
-  margin-bottom: -0.14em;
+  padding-bottom: 0.24em;
+  margin-bottom: -0.24em;
 }
 .rise {
   display: block;

@@ -150,15 +150,15 @@ function ActHero({ world }: { world: boolean }) {
         className="pointer-events-none absolute inset-0 z-[5]"
         style={{ background: "radial-gradient(60% 55% at 16% 78%, rgba(8,9,12,0.72) 0%, rgba(8,9,12,0.3) 55%, transparent 78%)" }}
       />
-      <div data-enter className="enter relative z-10 mt-auto mb-[8svh] px-[clamp(1.25rem,4vw,3.5rem)]">
+      <div data-enter className="enter relative z-10 mt-auto mb-[8svh] px-[clamp(1.25rem,4vw,3.5rem)] lg:max-w-[52vw]">
         {/* Žiara display voice: LIGHT weight at scale, slightly larger than
             the v2 semibold could afford — confidence through lightness
             [exoape]. Tight but not crushed; the halo keeps it legible where
             it crosses the lit C. */}
         <h1
           data-hero-line
-          className="max-w-[10.5em] text-[clamp(2rem,10vw,5.4rem)] lg:text-[clamp(2.8rem,7.8vw,8.2rem)]"
-          style={{ ...DISPLAY, lineHeight: 1.0, letterSpacing: "-0.015em", fontWeight: 420 }}
+          className="max-w-[10.5em] text-[clamp(2rem,10vw,5.4rem)] lg:text-[clamp(2.6rem,6.4vw,6.8rem)]"
+          style={{ ...DISPLAY, lineHeight: 1.08, letterSpacing: "-0.015em", fontWeight: 420 }}
         >
           <span className="rise-wrap">
             <span className="rise">Vaša firma je lepšia,</span>
