@@ -283,3 +283,15 @@ descender room. The island slims down and loses the act pill. The headline
 separates from the C with a quiet fog scrim on the text side, never a text
 outline. Obsidians gain top-left homes; the 01→02 orbital spins calmer — one
 clean sweep, no pointer wobble mid-flight.
+
+## Amendment 7 — 2026-09-01: the asteroid C
+
+Ondrej's next hero move: the C ASSEMBLES from the meteorites themselves on
+load — smooth, staggered, 5D — on the RIGHT side, with the copy on the left
+and no overlap. On scroll the letter BREAKS APART and the stones become the
+background asteroids of the next act; the break is scrubbed by scroll, so
+reversing the wheel reassembles the letter. The hero ground lightens to a
+mid graphite-grey with black-grey stones; the ribbon GLB leaves the hero and
+survives only as the /04 bookend. The line-rise masks gain more descender
+room after the g-clip resurfaced. Flat mode (no WebGL) keeps the 2D mark —
+an assembly without the world would be a fake.
