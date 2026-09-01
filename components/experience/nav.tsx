@@ -46,8 +46,8 @@ export function ExperienceNav() {
 
   return (
     <header className="experience-nav pointer-events-none fixed inset-x-0 top-4 z-40 flex justify-center px-4">
-      <div className="nav-island pointer-events-auto flex items-center gap-1 rounded-full py-1.5 pr-1.5 pl-4 transition-all duration-500">
-        <a href="#hlavny-obsah" className="flex items-center gap-2.5 pr-2" aria-label="Codera — domov">
+      <div className="nav-island pointer-events-auto flex items-center gap-0.5 rounded-full py-1 pr-1 pl-3.5 transition-all duration-500">
+        <a href="#hlavny-obsah" className="flex items-center gap-2 pr-1.5" aria-label="Codera — domov">
           {/* biome-ignore lint/performance/noImgElement: static same-origin brand SVG; next/image adds nothing here. */}
           <img src="/brand/codera-mark-mono.svg" alt="" className="h-5 w-5" />
           <span className="text-[0.74rem] font-semibold tracking-[0.28em]">CODERA</span>
@@ -58,21 +58,12 @@ export function ExperienceNav() {
             <a
               key={href}
               href={href}
-              className="rounded-full px-3.5 py-2 text-[0.74rem] font-medium opacity-75 transition-opacity hover:opacity-100"
+              className="rounded-full px-2.5 py-2 text-[0.74rem] font-medium opacity-75 transition-opacity hover:opacity-100"
             >
               {label}
             </a>
           ))}
         </nav>
-
-        <span
-          data-act-pill
-          aria-hidden="true"
-          className="mx-1 hidden text-[0.58rem] tracking-[0.2em] opacity-55 lg:block"
-          style={{ fontFamily: "var(--font-geist-mono)" }}
-        >
-          01 / 04
-        </span>
 
         <button
           type="button"

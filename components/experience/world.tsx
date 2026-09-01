@@ -42,9 +42,11 @@ function desiredPose(): Pose {
   switch (act) {
     case "hero":
       /* board /01: the C sits right-of-centre, cropped by the frame edge */
+      /* near-frontal (Iterácia 0.2): the approved mark must read symmetric —
+         a mild offset keeps depth without skewing the letterform */
       return {
-        cam: [0.5, 0.36, 1.95],
-        target: [-0.36, 0.0, 0],
+        cam: [0.14, 0.1, 2.05],
+        target: [-0.3, 0.02, 0],
         ribbon: 1,
         molten: 1,
         ember: 0.3,
@@ -273,12 +275,19 @@ function ObsidianShards() {
         const s = big ? 0.34 + prand(i + 11) * 0.14 : 0.09 + prand(i + 11) * 0.1
         return {
           key: `shard-${i}`,
-          position: [
-            // right-and-up bias, away from the hero copy (bottom-left)
-            -0.7 + prand(i + 31) * 3.4,
-            -0.2 + prand(i + 53) * 2.1,
-            big ? -2.3 - prand(i + 71) * 0.9 : -1.4 + prand(i + 71) * 1.6,
-          ] as [number, number, number],
+          position: ((): [number, number, number] => {
+            /* Iterácia 0.2: the field frames the hero from BOTH sides — two
+               small ones take the top-left, the rest keep the right bias
+               clear of the copy (bottom-left stays empty) */
+            if (!big && i % 3 === 2) {
+              return [-1.7 + prand(i + 31) * 0.7, 0.55 + prand(i + 53) * 0.6, -1.1 + prand(i + 71) * 0.7]
+            }
+            return [
+              -0.7 + prand(i + 31) * 3.4,
+              -0.2 + prand(i + 53) * 2.1,
+              big ? -2.3 - prand(i + 71) * 0.9 : -1.4 + prand(i + 71) * 1.6,
+            ]
+          })(),
           scale: [s, s * (0.32 + prand(i + 97) * 0.25), s * (0.6 + prand(i + 13) * 0.3)] as [
             number,
             number,
@@ -453,8 +462,8 @@ function Rig() {
     const ribbon = state.scene.getObjectByName("codera-ribbon")
     if (ribbon) {
       if (!stage.reducedMotion) {
-        ribbon.rotation.y = Math.sin(moltenTime * 0.35) * 0.11 + pointerLerp.x * 0.08
-        ribbon.rotation.x = Math.sin(moltenTime * 0.27 + 1) * 0.05 - pointerLerp.y * 0.05
+        ribbon.rotation.y = Math.sin(moltenTime * 0.3) * 0.04 + pointerLerp.x * 0.04
+        ribbon.rotation.x = Math.sin(moltenTime * 0.24 + 1) * 0.02 - pointerLerp.y * 0.025
       }
       ribbon.traverse((obj) => {
         const mesh = obj as THREE.Mesh
@@ -482,7 +491,7 @@ function Rig() {
             mesh.userData.temperMaterial = true
           }
           const mat = mesh.material as THREE.MeshPhysicalMaterial
-          mat.opacity = damp(mat.opacity, stage.introHold ? 0 : pose.ribbon, 10, dt)
+          mat.opacity = damp(mat.opacity, pose.ribbon, 10, dt)
           mat.iridescence = damp(mat.iridescence, Math.max(pose.iridescence, 0.16), 5, dt)
           /* the section's own colour: cool titanium in the fog, graphite ink
              once the C stands on risen light */
@@ -558,7 +567,7 @@ function Rig() {
 
         if (act === "pass" && !still) {
           /* the orbital: angle rides SCROLL, radius tightens mid-flight */
-          const sweep = seed.phase + passT * (Math.PI * 2.2) * (i % 2 ? 1 : -1)
+          const sweep = seed.phase + passT * (Math.PI * 2.2)
           const r = 0.98 + (i % 3) * 0.09 - Math.sin(passT * Math.PI) * 0.18
           shardTarget.set(
             Math.cos(sweep) * r,
@@ -587,10 +596,10 @@ function Rig() {
           mesh.position.x = damp(mesh.position.x, shardTarget.x, chase, dt)
           mesh.position.y = damp(mesh.position.y, shardTarget.y, chase, dt)
           mesh.position.z = damp(mesh.position.z, shardTarget.z, chase, dt)
-          const spinBoost = act === "pass" ? 4 : 1
+          const spinBoost = act === "pass" ? 1.5 : 1
           mesh.rotation.x += dt * seed.spin * spinBoost
           mesh.rotation.y += dt * seed.spin * 0.7 * spinBoost
-          mesh.rotation.z = damp(mesh.rotation.z, pointerLerp.x * 0.18, 3, dt)
+          mesh.rotation.z = damp(mesh.rotation.z, act === "pass" ? 0 : pointerLerp.x * 0.18, 3, dt)
         }
 
         /* stones take the section's colour after the orbital, and the

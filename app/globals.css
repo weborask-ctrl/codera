@@ -748,7 +748,13 @@ main[data-experience="v3"][data-wipe-done] .wipe-statement {
 
 /* Line-rise reveals: statements enter line by line once their container is
    observed (the stage's IntersectionObserver sets data-entered). */
-.rise-wrap { display: block; overflow: hidden; }
+/* the mask leaves DESCENDER room — g/j/p were being clipped site-wide */
+.rise-wrap {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.14em;
+  margin-bottom: -0.14em;
+}
 .rise {
   display: block;
   transform: translateY(112%);
@@ -851,10 +857,4 @@ main[data-experience="v3"][data-wipe-done] .wipe-statement {
 @media (prefers-reduced-motion: reduce) {
   .portal-swap { animation: none; }
   .iso-f { animation: none; }
-}
-
-/* The paper intro holds the real mark back until the handoff (amendment 5). */
-html[data-intro] .hero-c-flat {
-  opacity: 0;
-  transition: opacity 0.4s ease;
 }
