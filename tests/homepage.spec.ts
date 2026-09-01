@@ -78,8 +78,10 @@ test.describe("Codera homepage", () => {
     if (!world) {
       expect(lightness(heroBg)).toBeLessThan(0.35)
     }
+    /* the display headline breaks per line (Iterácia 0.3) — assert the
+       opening line, not a cross-line phrase textContent can't see */
     await expect(page.getByRole("heading", { level: 1 })).toContainText(
-      "Vaša firma je lepšia"
+      "Vaša firma je"
     )
   })
 
@@ -156,7 +158,8 @@ test.describe("Codera homepage", () => {
     const page = await context.newPage()
     await page.goto("/")
     for (const text of [
-      "Vaša firma je lepšia",
+      "Vaša firma je",
+      "než ukazuje",
       "Neukazujeme logá klientov.",
       "Guji, 2 050 m",
       "Právo je nástroj.",

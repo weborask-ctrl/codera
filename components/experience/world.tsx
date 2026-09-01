@@ -36,9 +36,8 @@ function desiredPose(): Pose {
   const resP = stage.p.resolution
   switch (act) {
     case "hero":
-      /* board /01: the C sits right-of-centre, cropped by the frame edge */
-      /* straight-on (two-Cs pass): the stone letter must read symmetric and
-         sit WHOLE in the centre of the right half — no edge cropping */
+      /* board /01 (Iterácia 0.3): typography owns the frame; the camera
+         holds straight-on while the stones hang as a loose constellation */
       return {
         cam: [0, 0.06, 2.1],
         target: [0, 0.05, 0],
@@ -247,6 +246,27 @@ const C_R = 0.4
 const C2_CENTER = { x: 0, y: 0.38, z: 0 }
 const C2_R = 0.46
 const C_GAP = 0.62 // half-angle of the right-facing gap
+/* Iterácia 0.3 (mockup 3): the hero letter is GONE — typography owns /01
+   and the stones hang as a visible constellation instead: three large
+   anchors right of centre, the rest scattered into depth, a few deep on
+   the far left for balance. The headline spans the full width, so nothing
+   floats close to the camera over the copy zone. */
+const HERO_FOCUS = { x: 0.62, y: 0.02 }
+const HERO_ANCHORS: [number, number, number][] = [
+  [0.84, 0.38, -0.2],
+  [1.02, -0.2, -0.4],
+  [0.4, -0.52, -0.3],
+]
+function heroSlot(i: number) {
+  if (i < HERO_ANCHORS.length) {
+    return new THREE.Vector3(...HERO_ANCHORS[i])
+  }
+  const deepLeft = i % 5 === 4
+  const x = deepLeft ? -1.1 + prand(i + 111) * 0.7 : 0.05 + prand(i + 111) * 1.2
+  const y = -0.55 + prand(i + 131) * 1.15
+  const z = deepLeft ? -2.6 + prand(i + 151) * 0.5 : -2.2 + prand(i + 151) * 1.5
+  return new THREE.Vector3(x, y, z)
+}
 function slotFor(i: number, c = C_CENTER, radius = C_R) {
   const t = i / (SHARD_COUNT - 1)
   const a = C_GAP + t * (Math.PI * 2 - C_GAP * 2)
@@ -262,8 +282,10 @@ function ObsidianShards() {
   const shards = useMemo(
     () =>
       Array.from({ length: SHARD_COUNT }, (_, i) => {
-        const big = i < 2 // two slightly larger anchors in the letter
-        const s = big ? 0.17 + prand(i + 11) * 0.05 : 0.09 + prand(i + 11) * 0.07
+        /* three larger anchors — the visible hero stones (Iterácia 0.3);
+           chunkier in Y than the sliver rest so they read as boulders */
+        const big = i < 3
+        const s = big ? 0.16 + prand(i + 11) * 0.06 : 0.09 + prand(i + 11) * 0.07
         return {
           key: `shard-${i}`,
           /* birth positions: scattered across the RIGHT half, so the load
@@ -273,7 +295,7 @@ function ObsidianShards() {
             -0.9 + prand(i + 53) * 1.9,
             -1.6 + prand(i + 71) * 1.9,
           ] as [number, number, number],
-          scale: [s, s * (0.32 + prand(i + 97) * 0.25), s * (0.6 + prand(i + 13) * 0.3)] as [
+          scale: [s, s * (big ? 0.62 + prand(i + 97) * 0.2 : 0.32 + prand(i + 97) * 0.25), s * (0.6 + prand(i + 13) * 0.3)] as [
             number,
             number,
             number,
@@ -471,11 +493,11 @@ function Rig() {
       }
     }
 
-    /* Obsidian choreography (Iterácia 0.1). Four regimes, all scrubbed by
+    /* Obsidian choreography (Iterácia 0.3). Four regimes, all scrubbed by
        real scroll state — interruptible at any point by construction:
-       hero: home drift · pass: the ORBITAL — stones sweep around the C ·
-       offer: they gather bottom-left to fill the quiet corner ·
-       resolution: a calm frost-tinted circle around the standing C.
+       hero: the hanging CONSTELLATION · pass: the field disperses into the
+       background · offer: stones gather bottom-left to fill the quiet
+       corner · resolution: they assemble into the closing C bookend.
        Every move is a damp toward a target, so scrubbing backwards simply
        reverses the journey. Reduced motion: a composed still. */
     const shardsGroup = state.scene.getObjectByName("codera-shards")
@@ -514,19 +536,21 @@ function Rig() {
         mesh.scale.copy(seed.baseScale).multiplyScalar(seed.grow)
 
         if (act === "hero") {
-          /* ASSEMBLY (amendment 7): every stone chases its letter slot; the
-             per-stone chase rates make the load build staggered and smooth */
-          shardTarget.copy(slotFor(i))
+          /* CONSTELLATION (Iterácia 0.3): every stone drifts to its hanging
+             slot and breathes there; the per-stone chase rates keep the
+             load build staggered and smooth */
+          shardTarget.copy(heroSlot(i))
+          shardTarget.y += Math.sin(moltenTime * seed.bob * 0.35 + seed.phase) * 0.04
         } else if (act === "pass" && !still) {
-          /* the BREAK-UP, scrubbed: slot → background home, with a radial
-             burst that peaks mid-flight so the letter visibly shatters —
-             scroll back and it reassembles, same math in reverse */
+          /* the DISPERSAL, scrubbed: hanging slot → background home, with a
+             radial push that peaks mid-flight so the field visibly scatters —
+             scroll back and it regathers, same math in reverse */
           const k = passT * passT * (3 - 2 * passT)
-          const slot = slotFor(i)
+          const slot = heroSlot(i)
           shardTarget.lerpVectors(slot, seed.bg, k)
-          const burst = Math.sin(passT * Math.PI) * 0.38
-          const dx = slot.x - C_CENTER.x
-          const dy = slot.y - C_CENTER.y
+          const burst = Math.sin(passT * Math.PI) * 0.3
+          const dx = slot.x - HERO_FOCUS.x
+          const dy = slot.y - HERO_FOCUS.y
           const dl = Math.max(0.001, Math.hypot(dx, dy))
           shardTarget.x += (dx / dl) * burst
           shardTarget.y += (dy / dl) * burst
