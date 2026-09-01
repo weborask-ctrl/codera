@@ -247,7 +247,6 @@ test.describe("Codera homepage", () => {
 
   test("concept work stays labelled as concept work", async ({ page }) => {
     await page.goto("/")
-    await expect(page.locator("main")).toContainText(/ŽIVÁ UKÁŽKA/i)
     await expect(page.locator("footer")).toContainText(/nejde o realizácie pre klientov/i)
   })
 
@@ -266,7 +265,7 @@ test.describe("Codera homepage", () => {
     await expect(menu).toHaveAttribute("aria-hidden", "false")
     /* the audit's regression: links must physically land in the viewport —
        wait out the slide-in transition before asserting position */
-    const link = menu.getByRole("link", { name: /Práca/ })
+    const link = menu.getByRole("link", { name: /Ukážky/ })
     await expect(link).toBeVisible()
     await page.waitForFunction(
       () => {
@@ -493,7 +492,6 @@ test.describe("Concept sites", () => {
       const res = await page.goto(`/ukazky/${slug}`)
       expect(res?.status()).toBe(200)
       await expect(page.locator("body")).toContainText("DEMO · CODERA")
-      await expect(page.locator("body")).toContainText("ŠTÚDIO CODERA")
     }
     await context.close()
   })

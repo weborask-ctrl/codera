@@ -14,13 +14,10 @@
  * (react-hooks v6 immutability; the pattern proven in the v2 world).
  */
 
-import { useGLTF } from "@react-three/drei"
 import { Canvas, useFrame } from "@react-three/fiber"
 import { useEffect, useMemo } from "react"
 import * as THREE from "three"
 import { ACT_TONES, type ActName, stage } from "./stage"
-
-const RIBBON_URL = "/brand/codera-c-ribbon.glb"
 
 interface Pose {
   cam: [number, number, number]
@@ -70,14 +67,16 @@ function desiredPose(): Pose {
     case "resolution": {
       /* frontal pose, eye-line dropped so the C rides the upper half and
          the closing type owns the lower third (logo-lockup composition) */
-      const settle = 3.4 - 0.3 * resP
+      /* farther and higher than the old ribbon pose: the crystal C must be
+         seen WHOLE and must never sit over the closing line */
+      const settle = 5.0 - 0.35 * resP
       return {
-        cam: [0, -0.42, settle],
-        target: [0, -0.42, 0],
+        cam: [0, 0.04, settle],
+        target: [0, 0.16, 0],
         ribbon: resP > 0.08 ? 1 : 0,
         molten: 0.35,
         ember: 0.22,
-        shards: 0.12,
+        shards: 0.55,
         /* the metal remembers the fire: thin-film temper colors bloom
            as the C settles into its final frontal pose */
         iridescence: 0.34 * resP,
@@ -86,7 +85,7 @@ function desiredPose(): Pose {
     default:
       /* mid-journey acts: the DOM owns the frame; a few deep shards keep
          the world breathing behind it without touching the text */
-      return { cam: [0, 0, 3.4], target: [0, 0, 0], ribbon: 0, molten: 0, ember: 0, iridescence: 0, shards: 0.28 }
+      return { cam: [0, 0, 3.4], target: [0, 0, 0], ribbon: 0, molten: 0, ember: 0, iridescence: 0, shards: 0.42 }
   }
 }
 
@@ -164,6 +163,10 @@ const toneTarget = new THREE.Color()
 let envTexture: THREE.Texture | null = null
 let envApplied = false
 let moltenTime = 0
+const crystalTint = new THREE.Color("#cdd4dc")
+const shardTint = new THREE.Color()
+const mistTint = new THREE.Color("#6E7480")
+const shardTarget = new THREE.Vector3()
 
 /** Deterministic pseudo-random — keeps render pure (react-hooks v6). */
 function prand(n: number) {
@@ -175,24 +178,39 @@ function damp(current: number, target: number, lambda: number, dt: number) {
   return THREE.MathUtils.damp(current, target, lambda, dt)
 }
 
-function Ribbon() {
-  const { scene: gltfScene } = useGLTF(RIBBON_URL)
-  /* material prep happens once in Rig's frame loop via getObjectByName —
-     React never mutates the loaded scene (react-hooks/immutability). */
+/**
+ * The crystal C (Iterácia 0.1, free-form by Ondrej's licence): a faceted
+ * arc in the obsidian family — low radial segments + flat shading give it
+ * the sharp, defined edges the soft ribbon never had. One material,
+ * physical, prepped here so the Rig only ever damps its numbers.
+ */
+function CrystalC() {
+  const geometry = useMemo(() => {
+    const g = new THREE.TorusGeometry(0.46, 0.175, 7, 96, Math.PI * 1.62)
+    /* opening faces right like the mark: rotate the gap into place */
+    g.rotateZ(Math.PI * 0.19)
+    return g
+  }, [])
+  const material = useMemo(() => {
+    const m = new THREE.MeshPhysicalMaterial({
+      color: new THREE.Color("#cdd4dc"),
+      metalness: 0.85,
+      roughness: 0.22,
+      flatShading: true,
+      transparent: true,
+      opacity: 0,
+      clearcoat: 0.6,
+      clearcoatRoughness: 0.25,
+    })
+    m.envMapIntensity = 1.15
+    m.iridescence = 0
+    m.iridescenceIOR = 1.28
+    m.iridescenceThicknessRange = [120, 460]
+    return m
+  }, [])
   return (
     <group name="codera-ribbon">
-      <primitive object={gltfScene} />
-    </group>
-  )
-}
-
-/** Mirrored clone below the floor line — OHZI's wet-floor gallery. */
-function RibbonReflection() {
-  const { scene: gltfScene } = useGLTF(RIBBON_URL)
-  const clone = useMemo(() => gltfScene.clone(true), [gltfScene])
-  return (
-    <group name="codera-ribbon-reflection" position={[0, -1.06, 0]} scale={[1, -1, 1]}>
-      <primitive object={clone} />
+      <mesh geometry={geometry} material={material} userData={{ temperMaterial: true }} />
     </group>
   )
 }
@@ -310,12 +328,14 @@ function ObsidianShards() {
         >
           <icosahedronGeometry args={[1, 0]} />
           <meshPhysicalMaterial
-            color="#0a0b0e"
-            metalness={0.25}
-            roughness={0.12}
+            color="#171a20"
+            metalness={0.3}
+            roughness={0.14}
             clearcoat={1}
             clearcoatRoughness={0.08}
-            envMapIntensity={1.5}
+            envMapIntensity={1.9}
+            emissive="#232a34"
+            emissiveIntensity={0.4}
             flatShading
             transparent
             opacity={0}
@@ -474,31 +494,15 @@ function Rig() {
           const mat = mesh.material as THREE.MeshPhysicalMaterial
           mat.opacity = damp(mat.opacity, pose.ribbon, 10, dt)
           mat.iridescence = damp(mat.iridescence, pose.iridescence, 5, dt)
+          /* the section's own colour: cool titanium in the fog, graphite ink
+             once the C stands on risen light */
+          crystalTint.set(stage.act === "resolution" ? "#3b414b" : "#cdd4dc")
+          mat.color.lerp(crystalTint, 1 - Math.exp(-4 * dt))
+          /* the resolution stage is a narrow band — the C scales into it */
+          const targetScale = stage.act === "resolution" ? 0.52 : 1
+          const s = damp(mesh.scale.x, targetScale, 5, dt)
+          mesh.scale.setScalar(s)
           mesh.visible = mat.opacity > 0.02
-        }
-      })
-    }
-
-    /* floor reflection follows the ribbon at low opacity; its clone shares
-       materials with the gltf cache, so each mesh gets its own copy once
-       (userData marker survives world-mode remounts). */
-    const reflection = state.scene.getObjectByName("codera-ribbon-reflection")
-    if (reflection) {
-      reflection.traverse((obj) => {
-        const mesh = obj as THREE.Mesh
-        if (mesh.isMesh) {
-          if (!mesh.userData.reflectionMaterial) {
-            const own = (mesh.material as THREE.MeshStandardMaterial).clone()
-            own.transparent = true
-            own.opacity = 0
-            own.envMapIntensity = 0.35
-            own.color.setRGB(0.5, 0.53, 0.56)
-            mesh.material = own
-            mesh.userData.reflectionMaterial = true
-          }
-          const m = mesh.material as THREE.MeshStandardMaterial
-          m.opacity = damp(m.opacity, pose.ribbon * 0.15, 10, dt)
-          mesh.visible = m.opacity > 0.01
         }
       })
     }
@@ -523,39 +527,84 @@ function Rig() {
       }
     }
 
-    /* obsidian shards: slow drift + slow rotation + scroll parallax +
-       subtle magnetic tilt toward the pointer [lusion]. Under reduced
-       motion they freeze into the composed still — present, not moving. */
+    /* Obsidian choreography (Iterácia 0.1). Four regimes, all scrubbed by
+       real scroll state — interruptible at any point by construction:
+       hero: home drift · pass: the ORBITAL — stones sweep around the C ·
+       offer: they gather bottom-left to fill the quiet corner ·
+       resolution: a calm frost-tinted circle around the standing C.
+       Every move is a damp toward a target, so scrubbing backwards simply
+       reverses the journey. Reduced motion: a composed still. */
     const shardsGroup = state.scene.getObjectByName("codera-shards")
     if (shardsGroup) {
       const still = stage.reducedMotion
+      const act = stage.act
+      const passT = stage.p.pass
+      let i = 0
       for (const obj of shardsGroup.children) {
         const mesh = obj as THREE.Mesh
         const seed = mesh.userData.shardSeed as
-          | { spin: number; bob: number; phase: number; baseY: number; parallax: number }
+          | { spin: number; bob: number; phase: number; baseY: number; parallax: number; home?: THREE.Vector3 }
           | undefined
         if (!seed) {
           continue
         }
-        if (seed.baseY === 0) {
-          seed.baseY = mesh.position.y
+        if (!seed.home) {
+          seed.home = mesh.position.clone()
         }
         const mat = mesh.material as THREE.MeshPhysicalMaterial
         mat.opacity = damp(mat.opacity, pose.shards, 5, dt)
         mesh.visible = mat.opacity > 0.02
-        if (!mesh.visible || still) {
-          continue
+
+        if (act === "pass" && !still) {
+          /* the orbital: angle rides SCROLL, radius tightens mid-flight */
+          const sweep = seed.phase + passT * (Math.PI * 2.2) * (i % 2 ? 1 : -1)
+          const r = 0.98 + (i % 3) * 0.09 - Math.sin(passT * Math.PI) * 0.18
+          shardTarget.set(
+            Math.cos(sweep) * r,
+            Math.sin(sweep) * r * 0.42 + 0.05,
+            Math.sin(sweep + 0.7) * 0.35 - 0.4
+          )
+        } else if (act === "offer") {
+          /* the quiet corner, filled (Ondrej: dole vľavo) */
+          shardTarget.set(
+            -1.35 + (i % 3) * 0.22,
+            -0.62 + Math.floor(i / 3) * 0.24 + Math.sin(moltenTime * seed.bob * 0.3 + seed.phase) * 0.04,
+            -0.5 - (i % 2) * 0.3
+          )
+        } else if (act === "resolution") {
+          const slow = moltenTime * 0.12 * (i % 2 ? 1 : -1) + seed.phase
+          shardTarget.set(Math.cos(slow) * 1.35, Math.sin(slow) * 0.55 + 0.15, Math.sin(slow + 1.1) * 0.4 - 0.3)
+        } else {
+          shardTarget.set(
+            seed.home.x,
+            seed.home.y + Math.sin(moltenTime * seed.bob * 0.4 + seed.phase) * 0.07 + stage.total * seed.parallax * 0.9,
+            seed.home.z
+          )
         }
-        mesh.rotation.x += dt * seed.spin
-        mesh.rotation.y += dt * seed.spin * 0.7
-        /* drift: a slow bob plus scroll-linked rise — deeper shards move
-           less, so the fog gains real parallax */
-        mesh.position.y =
-          seed.baseY +
-          Math.sin(moltenTime * seed.bob * 0.4 + seed.phase) * 0.07 +
-          stage.total * seed.parallax * 0.9
-        /* magnetic tilt: the hand bends the field, barely */
-        mesh.rotation.z = damp(mesh.rotation.z, pointerLerp.x * 0.18, 3, dt)
+        const chase = act === "pass" ? 9 : 3.2
+        if (!still) {
+          mesh.position.x = damp(mesh.position.x, shardTarget.x, chase, dt)
+          mesh.position.y = damp(mesh.position.y, shardTarget.y, chase, dt)
+          mesh.position.z = damp(mesh.position.z, shardTarget.z, chase, dt)
+          const spinBoost = act === "pass" ? 4 : 1
+          mesh.rotation.x += dt * seed.spin * spinBoost
+          mesh.rotation.y += dt * seed.spin * 0.7 * spinBoost
+          mesh.rotation.z = damp(mesh.rotation.z, pointerLerp.x * 0.18, 3, dt)
+        }
+
+        /* stones take the section's colour after the orbital, and the
+           emissive floor keeps facets alive — never flat black in motion */
+        if (act === "hero") {
+          shardTint.set("#171a20")
+        } else if (act === "pass") {
+          shardTint.set("#171a20").lerp(mistTint, passT)
+        } else if (act === "resolution") {
+          shardTint.set("#aeb8c4")
+        } else {
+          shardTint.copy(mistTint)
+        }
+        mat.color.lerp(shardTint, 1 - Math.exp(-3 * dt))
+        i++
       }
     }
 
@@ -596,8 +645,7 @@ export function ExperienceWorld() {
         <MoltenField />
         <Embers />
         <ObsidianShards />
-        <Ribbon />
-        <RibbonReflection />
+        <CrystalC />
         <FloorGlow />
         <Rig />
       </Canvas>
@@ -605,4 +653,3 @@ export function ExperienceWorld() {
   )
 }
 
-useGLTF.preload(RIBBON_URL)

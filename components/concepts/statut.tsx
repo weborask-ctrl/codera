@@ -168,7 +168,7 @@ export default function StatutSite() {
               DOHODNÚŤ TERMÍN
             </span>
             <span className="text-[0.64rem] text-[#14161A]/60" style={MONO}>
-              DEMO · ŽIADNA SKUTOČNÁ KANCELÁRIA
+              ODPOVEDÁME DO 24 HODÍN
             </span>
           </div>
         </div>
@@ -177,7 +177,6 @@ export default function StatutSite() {
       <footer className="border-t border-[#14161A]/25 px-[clamp(1.25rem,4vw,4rem)] py-5 text-[0.54rem] tracking-[0.14em] text-[#14161A]/55" style={MONO}>
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <span>SLOVENSKÁ ADVOKÁTSKA KOMORA · ZAPÍSANÁ</span>
-          <span>DEMO EDITORIÁLNEHO DIZAJNU · ŠTÚDIO CODERA</span>
           <span>BRATISLAVA · KOŠICE</span>
         </div>
       </footer>

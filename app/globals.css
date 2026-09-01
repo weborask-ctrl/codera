@@ -675,25 +675,23 @@ main[data-experience="v3"] .offer-row[data-active] .offer-title {
   .molten-field { animation: none; }
 }
 
-/* Frost-glass nav after scroll (Mercury) */
-:root[data-scrolled] .experience-nav .nav-shell {
-  background: color-mix(in oklab, var(--nav-frost, #16171b) 72%, transparent);
-  backdrop-filter: blur(14px);
-  border-bottom: 1px solid rgb(255 255 255 / 0.08);
+/* The dynamic island (Iterácia 0.1). Always a glass pill; its glass follows
+   the act — dark glass over the fog acts, frost glass on risen light — and
+   it condenses slightly once the visitor scrolls. */
+.experience-nav .nav-island {
+  background: color-mix(in oklab, var(--island, #101116) 78%, transparent);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 10px 40px -18px rgb(10 11 14 / 0.5), 0 0 0 1px rgb(255 255 255 / 0.08);
 }
-/* Žiara: the sunrise means every act after the pass sits on risen light,
-   so the frost shell goes light everywhere except the two dark opening
-   acts. The retired v2 act names (forma) left with their worlds. */
-:root[data-scrolled]:not([data-act="hero"]):not([data-act="pass"])
-  .experience-nav .nav-shell {
-  --nav-frost: #eef1f4;
-  border-bottom-color: rgb(20 20 24 / 0.1);
+:root:not([data-act="hero"]):not([data-act="pass"]) .experience-nav .nav-island {
+  --island: #f2f4f6;
+  box-shadow: 0 10px 40px -18px rgb(10 11 14 / 0.35), 0 0 0 1px rgb(20 22 26 / 0.1);
 }
-@media (max-width: 1023px) {
-  :root[data-scrolled] .experience-nav .nav-shell {
-    backdrop-filter: none;
-    background: var(--nav-frost, #16171b);
-  }
+:root[data-scrolled] .experience-nav .nav-island {
+  transform: scale(0.94);
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-scrolled] .experience-nav .nav-island { transform: none; }
 }
 
 /* Patient motion curve (monopo) for entrances */
@@ -822,4 +820,35 @@ main[data-experience="v3"][data-wipe-done] .wipe-statement {
   .world-shell[data-on] .wpulse { animation: none; }
   .world-shell[data-on] .wscan { animation: none; opacity: 0.3; top: 40%; }
   .journey-line { transition: none; }
+}
+
+/* Portal content swap (Iterácia 0.1): the sticky portal changes demos as the
+   visitor scrolls — each arrival is a soft rise, scrubbed by remount. */
+.portal-swap { animation: portal-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes portal-in {
+  from { opacity: 0; transform: translateY(16px) scale(0.985); }
+}
+
+/* Isometric artifacts for the process trio — real depth, CSS 3D. */
+.iso-stage { perspective: 900px; }
+.iso {
+  position: relative;
+  transform: rotateX(55deg) rotateZ(-38deg);
+  transform-style: preserve-3d;
+}
+.iso-f {
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  transform: translateZ(var(--z, 0px));
+  animation: iso-float 7s ease-in-out infinite;
+  animation-delay: var(--fd, 0s);
+}
+@keyframes iso-float {
+  0%, 100% { transform: translateZ(var(--z, 0px)); }
+  50% { transform: translateZ(calc(var(--z, 0px) + 7px)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .portal-swap { animation: none; }
+  .iso-f { animation: none; }
 }

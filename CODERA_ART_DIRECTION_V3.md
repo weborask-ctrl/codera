@@ -224,3 +224,32 @@ V PRÍPRAVE until their sessions build them, one at a time.
 display scale, commercial one-liners, capability tags, and a live portal
 preview of the active row. The top ribbon on demo pages is deleted; a small
 corner DEMO · CODERA tag replaces it.
+
+## Amendment 4 — 2026-08-31: Iterácia 0.1 (Ondrej's full pass)
+
+The complete per-section revision, from Ondrej's list, with his four
+clarifications folded in:
+
+- **Type**: display voice moves to Fraunces — used MODERN (large, tight,
+  confident, no shadow halos), never bookish. All main headings, site-wide.
+- **The C is redesigned freely**: a crystalline faceted object in the obsidian
+  family — sharp defined edges, unmistakable at first sight. The 2D mark stays
+  for flat/brand surfaces; the 3D object is its own thing now.
+- **Micro-labels die everywhere**: act eyebrows (01 — ŽIARA, 03 REMESLO…),
+  edge rails, ghost CODERA, hero mono annotations, portal tag chips, demo-page
+  provenance strips, the Slovakia map. Honesty moves to metadata + the fixed
+  DEMO · CODERA corner tag (kept, always visible) + the footer disclaimer.
+- **Nav becomes a dynamic island**: floating pill, condenses on scroll; the
+  menu ids and a11y contract stay.
+- **Orbit choreography**: on the 01→02 pass the stones fly an orbital around
+  the C — scrubbed by scroll, interruptible at any point — then settle into
+  slow rotation tinted to the 02 atmosphere. Stones must never read flat
+  black while turning: rim/env light keeps facets alive.
+- **/02 is scroll-driven**: the sticky portal switches demos as the visitor
+  scrolls the rows (hover still previews); showcases never just scroll away.
+- **/03**: bigger heading pair, obsidian cluster bottom-left, shorter pricing
+  copy (the ", nie až v zmluve" clause goes), the process trio enlarged with
+  dimensional artifacts (Dizajn first).
+- **/04**: the crystal C fully visible in the section's own colour (dark
+  graphite variant on frost), calm orbiting frost stones, bigger next-steps,
+  and a contrasting ink footer band.

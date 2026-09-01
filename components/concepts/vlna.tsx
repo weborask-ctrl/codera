@@ -219,8 +219,7 @@ export default function VlnaSite() {
           <span className="font-extrabold text-[#123B3A]" style={{ ...BRIC, fontSize: "0.95rem", letterSpacing: "-0.01em" }}>
             ŠTÚDIO
           </span>
-          <span>DEMO REZERVAČNÉHO SYSTÉMU · ŠTÚDIO CODERA</span>
-          <span>UKÁŽKA · ŽIADNA SKUTOČNÁ FIRMA</span>
+          <span>PRVÁ LEKCIA ZA 6 €</span>
         </div>
       </footer>
     </main>

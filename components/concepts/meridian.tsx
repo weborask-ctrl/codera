@@ -254,8 +254,7 @@ export default function MeridianSite() {
       <footer className="border-t border-[#2A1D14]/15 px-[clamp(1.25rem,4vw,4rem)] py-6 text-[0.58rem] tracking-[0.14em] text-[#2A1D14]/55" style={MONO}>
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <span style={{ ...FR, fontSize: "1rem", letterSpacing: 0 }}>Pražiareň</span>
-          <span>DEMO OBJEDNÁVKOVÉHO SYSTÉMU · ŠTÚDIO CODERA</span>
-          <span>UKÁŽKA · ŽIADNA SKUTOČNÁ FIRMA</span>
+          <span>PRAŽÍME UTOROK A PIATOK</span>
         </div>
       </footer>
     </main>
