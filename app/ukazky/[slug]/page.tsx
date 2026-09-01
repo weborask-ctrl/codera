@@ -20,6 +20,13 @@ const DEMOS = {
   rezervacie: VlnaSite,
 } as const
 
+/** Each demo's design decisions live in its case study on /praca. */
+const STUDIES: Record<string, string> = {
+  dizajn: "statut",
+  objednavky: "meridian",
+  rezervacie: "vlna",
+}
+
 export function generateStaticParams() {
   return skills.filter((s) => s.ready && s.demo).map(({ slug }) => ({ slug }))
 }
@@ -55,7 +62,7 @@ export default async function UkazkaPage({
   return (
     <>
       <Site />
-      <DemoTag />
+      <DemoTag study={STUDIES[slug]} />
     </>
   )
 }

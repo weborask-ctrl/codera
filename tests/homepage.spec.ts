@@ -476,12 +476,19 @@ test.describe("Case studies", () => {
     await context.close()
   })
 
-  test("the home /03 act links to the case studies", async ({ page }) => {
-    await page.goto("/")
-    for (const slug of ["meridian", "statut", "vlna"]) {
+  test("each demo page links to its case study", async ({ page }) => {
+    /* Iterácia 0.4b: the case-study path moved off the home index — every
+       demo carries its own AKO SME TO NAVRHLI chip instead */
+    const routes: Array<[string, string]> = [
+      ["dizajn", "statut"],
+      ["objednavky", "meridian"],
+      ["rezervacie", "vlna"],
+    ]
+    for (const [demo, study] of routes) {
+      await page.goto(`/ukazky/${demo}`)
       await expect(
-        page.locator(`a[href="/praca/${slug}"]`).first(),
-        `no link to /praca/${slug}`
+        page.locator(`a[href="/praca/${study}"]`).first(),
+        `no link to /praca/${study} on /ukazky/${demo}`
       ).toHaveCount(1)
     }
   })
