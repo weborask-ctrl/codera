@@ -859,8 +859,8 @@ main[data-experience="v3"][data-wipe-done] .wipe-statement {
   .iso-f { animation: none; }
 }
 
-/* Flat-mode obsidian drift (Iterácia 0.3 final polish): the SVG stones
-   breathe like their R3F siblings; still air under reduced motion. */
+/* Flat-mode obsidian drift: the SVG stones breathe like their R3F
+   siblings; still air under reduced motion. */
 @keyframes stone-drift {
   from {
     transform: translateY(-5px) rotate(-1.2deg);
