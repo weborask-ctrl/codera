@@ -47,9 +47,9 @@ function desiredPose(): Pose {
       return {
         cam: [0.14, 0.1, 2.05],
         target: [-0.3, 0.02, 0],
-        ribbon: 1,
-        molten: 1,
-        ember: 0.3,
+        ribbon: 0,
+        molten: 0.45,
+        ember: 0.25,
         shards: 1,
         iridescence: 0,
       }
@@ -61,8 +61,8 @@ function desiredPose(): Pose {
       return {
         cam: [0.5 - 0.34 * t, 0.36 - 0.3 * t, 1.95 - 1.35 * t],
         target: [-0.36 + 0.5 * t, 0.05 * t, -1.3 * t],
-        ribbon: t < 0.85 ? 1 : 1 - (t - 0.85) / 0.15,
-        molten: 1 - t,
+        ribbon: 0,
+        molten: 0.45 * (1 - t),
         /* the foundry breathes hardest mid-pass, then lets go */
         ember: Math.max(0.25, 4 * t * (1 - t)),
         shards: Math.max(0.35, 1 - t),
@@ -265,29 +265,40 @@ function Embers() {
  * path. Non-uniform scale turns the icosahedron into a sliver; flat shading
  * gives it facets that catch the softbox like chrome.
  */
-const SHARD_COUNT = 7
+const SHARD_COUNT = 22
+
+/* The C letterform as assembly slots (amendment 7): stones line the open-C
+   arc — gap on the right, like the mark — with radial and depth jitter so
+   the letter reads as built from rock, not beads on a wire. */
+const C_CENTER = { x: 0.5, y: 0.04, z: 0 }
+const C_R = 0.44
+const C_GAP = 0.62 // half-angle of the right-facing gap
+function slotFor(i: number) {
+  const t = i / (SHARD_COUNT - 1)
+  const a = C_GAP + t * (Math.PI * 2 - C_GAP * 2)
+  const r = C_R + (prand(i + 301) - 0.5) * 0.09
+  return new THREE.Vector3(
+    C_CENTER.x + Math.cos(a) * r,
+    C_CENTER.y + Math.sin(a) * r * 1.04,
+    C_CENTER.z + (prand(i + 401) - 0.5) * 0.14
+  )
+}
 
 function ObsidianShards() {
   const shards = useMemo(
     () =>
       Array.from({ length: SHARD_COUNT }, (_, i) => {
-        const big = i < 2 // two large ones live deep, behind the ribbon
-        const s = big ? 0.34 + prand(i + 11) * 0.14 : 0.09 + prand(i + 11) * 0.1
+        const big = i < 2 // two slightly larger anchors in the letter
+        const s = big ? 0.17 + prand(i + 11) * 0.05 : 0.09 + prand(i + 11) * 0.07
         return {
           key: `shard-${i}`,
-          position: ((): [number, number, number] => {
-            /* Iterácia 0.2: the field frames the hero from BOTH sides — two
-               small ones take the top-left, the rest keep the right bias
-               clear of the copy (bottom-left stays empty) */
-            if (!big && i % 3 === 2) {
-              return [-1.7 + prand(i + 31) * 0.7, 0.55 + prand(i + 53) * 0.6, -1.1 + prand(i + 71) * 0.7]
-            }
-            return [
-              -0.7 + prand(i + 31) * 3.4,
-              -0.2 + prand(i + 53) * 2.1,
-              big ? -2.3 - prand(i + 71) * 0.9 : -1.4 + prand(i + 71) * 1.6,
-            ]
-          })(),
+          /* birth positions: scattered across the RIGHT half, so the load
+             assembly happens where the letter lives and never over the copy */
+          position: [
+            0.15 + prand(i + 31) * 1.6,
+            -0.9 + prand(i + 53) * 1.9,
+            -1.6 + prand(i + 71) * 1.9,
+          ] as [number, number, number],
           scale: [s, s * (0.32 + prand(i + 97) * 0.25), s * (0.6 + prand(i + 13) * 0.3)] as [
             number,
             number,
@@ -304,6 +315,12 @@ function ObsidianShards() {
             phase: prand(i + 83) * Math.PI * 2,
             baseY: 0,
             parallax: big ? 0.25 : 0.6 + prand(i + 29) * 0.5,
+            /* where this stone settles once the letter breaks apart */
+            bg: new THREE.Vector3(
+              i % 3 === 2 ? -1.8 + prand(i + 31) * 1.1 : -0.5 + prand(i + 31) * 3.2,
+              -0.35 + prand(i + 53) * 2.2,
+              -2.4 + prand(i + 71) * 1.9
+            ),
           },
         }
       }),
@@ -553,45 +570,51 @@ function Rig() {
       for (const obj of shardsGroup.children) {
         const mesh = obj as THREE.Mesh
         const seed = mesh.userData.shardSeed as
-          | { spin: number; bob: number; phase: number; baseY: number; parallax: number; home?: THREE.Vector3 }
+          | { spin: number; bob: number; phase: number; baseY: number; parallax: number; bg: THREE.Vector3 }
           | undefined
         if (!seed) {
           continue
-        }
-        if (!seed.home) {
-          seed.home = mesh.position.clone()
         }
         const mat = mesh.material as THREE.MeshPhysicalMaterial
         mat.opacity = damp(mat.opacity, pose.shards, 5, dt)
         mesh.visible = mat.opacity > 0.02
 
-        if (act === "pass" && !still) {
-          /* the orbital: angle rides SCROLL, radius tightens mid-flight */
-          const sweep = seed.phase + passT * (Math.PI * 2.2)
-          const r = 0.98 + (i % 3) * 0.09 - Math.sin(passT * Math.PI) * 0.18
-          shardTarget.set(
-            Math.cos(sweep) * r,
-            Math.sin(sweep) * r * 0.42 + 0.05,
-            Math.sin(sweep + 0.7) * 0.35 - 0.4
-          )
+        if (act === "hero") {
+          /* ASSEMBLY (amendment 7): every stone chases its letter slot; the
+             per-stone chase rates make the load build staggered and smooth */
+          shardTarget.copy(slotFor(i))
+        } else if (act === "pass" && !still) {
+          /* the BREAK-UP, scrubbed: slot → background home, with a radial
+             burst that peaks mid-flight so the letter visibly shatters —
+             scroll back and it reassembles, same math in reverse */
+          const k = passT * passT * (3 - 2 * passT)
+          const slot = slotFor(i)
+          shardTarget.lerpVectors(slot, seed.bg, k)
+          const burst = Math.sin(passT * Math.PI) * 0.38
+          const dx = slot.x - C_CENTER.x
+          const dy = slot.y - C_CENTER.y
+          const dl = Math.max(0.001, Math.hypot(dx, dy))
+          shardTarget.x += (dx / dl) * burst
+          shardTarget.y += (dy / dl) * burst
         } else if (act === "offer") {
           /* the quiet corner, filled (Ondrej: dole vľavo) */
           shardTarget.set(
-            -1.35 + (i % 3) * 0.22,
-            -0.62 + Math.floor(i / 3) * 0.24 + Math.sin(moltenTime * seed.bob * 0.3 + seed.phase) * 0.04,
-            -0.5 - (i % 2) * 0.3
+            -1.5 + (i % 6) * 0.19,
+            -0.72 + Math.floor(i / 6) * 0.21 + Math.sin(moltenTime * seed.bob * 0.3 + seed.phase) * 0.04,
+            -0.5 - (i % 2) * 0.35
           )
         } else if (act === "resolution") {
           const slow = moltenTime * 0.12 * (i % 2 ? 1 : -1) + seed.phase
           shardTarget.set(Math.cos(slow) * 1.5 - 0.55, Math.sin(slow) * 0.6 + 0.05, Math.sin(slow + 1.1) * 0.4 - 0.3)
         } else {
+          /* the background asteroids the letter became */
           shardTarget.set(
-            seed.home.x,
-            seed.home.y + Math.sin(moltenTime * seed.bob * 0.4 + seed.phase) * 0.07 + stage.total * seed.parallax * 0.9,
-            seed.home.z
+            seed.bg.x,
+            seed.bg.y + Math.sin(moltenTime * seed.bob * 0.4 + seed.phase) * 0.07 + stage.total * seed.parallax * 0.5,
+            seed.bg.z
           )
         }
-        const chase = act === "pass" ? 9 : 3.2
+        const chase = act === "pass" ? 9 : act === "hero" ? 2.1 + prand(i + 501) * 1.6 : 3.2
         if (!still) {
           mesh.position.x = damp(mesh.position.x, shardTarget.x, chase, dt)
           mesh.position.y = damp(mesh.position.y, shardTarget.y, chase, dt)

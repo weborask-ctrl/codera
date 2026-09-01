@@ -152,8 +152,10 @@ export function bindStage(): () => void {
  * itself [igloo, exoape]. The three /03 worlds keep their interior palettes;
  * these are the ATMOSPHERE tones around their planes, rising mist-grey. */
 export const ACT_TONES: Record<ActName, string> = {
-  hero: "#0E0F13",
-  pass: "#23252C",
+  /* amendment 7: the hero lightens to mid graphite-grey — the black-grey
+     stones need ground to read against; the sunrise still only brightens */
+  hero: "#464C57",
+  pass: "#5A606B",
   work: "#C4C9D1",
   offer: "#EDF0F3",
   resolution: "#FAFBFC",
