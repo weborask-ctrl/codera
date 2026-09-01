@@ -27,6 +27,8 @@ export interface StageState {
   pointerX: number
   pointerY: number
   reducedMotion: boolean
+  /** while the paper intro plays, the real C holds back (amendment 5) */
+  introHold: boolean
 }
 
 export const stage: StageState = {
@@ -42,6 +44,7 @@ export const stage: StageState = {
   pointerX: 0,
   pointerY: 0,
   reducedMotion: false,
+  introHold: false,
 }
 
 interface ZoneRect {

@@ -852,3 +852,9 @@ main[data-experience="v3"][data-wipe-done] .wipe-statement {
   .portal-swap { animation: none; }
   .iso-f { animation: none; }
 }
+
+/* The paper intro holds the real mark back until the handoff (amendment 5). */
+html[data-intro] .hero-c-flat {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}

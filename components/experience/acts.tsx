@@ -136,7 +136,7 @@ function ActHero({ world }: { world: boolean }) {
             src="/brand/codera-mark.svg"
             alt=""
             fetchPriority="high"
-            className="pointer-events-none absolute top-[14svh] right-[-10vmin] w-[62vmin] max-w-none opacity-95 lg:top-[46%] lg:right-[-8vmin] lg:w-[74vmin] lg:-translate-y-1/2"
+            className="hero-c-flat pointer-events-none absolute top-[14svh] right-[-10vmin] w-[62vmin] max-w-none opacity-95 lg:top-[46%] lg:right-[-8vmin] lg:w-[74vmin] lg:-translate-y-1/2"
             style={{ filter: "drop-shadow(0 0 34px rgba(220,230,238,0.28)) drop-shadow(0 46px 90px rgba(0,0,0,0.55))" }}
           />
         </>
