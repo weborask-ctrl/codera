@@ -240,9 +240,10 @@ function ActHero({ world }: { world: boolean }) {
 
 /**
  * /02 as a SKILLS INDEX (AD v3 amendment 3, refokus grammar): capabilities,
- * not invented brands. Numbered rows at display scale; the active row shows
- * its live demo in the tilted portal. Ready skills open their full demo page;
- * the rest say V PRÍPRAVE and promise nothing they cannot keep.
+ * not invented brands. Iterácia 0.4: pure title rows at display scale — no
+ * numbers, no support lines — activated by scroll AND pointer; the active
+ * row shows its demo in the tilted portal. Ready skills open their full demo
+ * page; the rest carry an honest V PRÍPRAVE teaser panel, never a dead link.
  */
 const SKILL_HEROES: Record<string, React.ComponentType<{ portal?: boolean }>> = {
   dizajn: StatutHero,
@@ -257,29 +258,107 @@ const SKILL_STUDY: Record<string, string> = {
   rezervacie: "vlna",
 }
 
-function Portal({ Hero, href }: { Hero: React.ComponentType<{ portal?: boolean }>; href: string }) {
+/* Iterácia 0.4: provisional portal panels for the two skills whose demo
+   sites are not built yet — an honest teaser in the portal frame, never a
+   dead link. Each gets replaced by its real demo in its own session. */
+function AnimTeaser() {
+  return (
+    <div className="relative flex h-full flex-col justify-between overflow-hidden bg-[#101116] p-[6cqw] text-[#f2f4f6]">
+      <div aria-hidden="true" className="absolute inset-0">
+        <div
+          className="absolute rounded-full"
+          style={{ right: "-12%", top: "-22%", width: "58%", aspectRatio: "1", background: "radial-gradient(50% 50% at 50% 50%, rgba(125,145,185,0.38), transparent 70%)" }}
+        />
+        <div className="absolute rounded-full border border-white/12" style={{ right: "6%", top: "10%", width: "36%", aspectRatio: "1", transform: "rotateX(62deg)" }} />
+        <div className="absolute rounded-full border border-white/8" style={{ right: "-1%", top: "4%", width: "50%", aspectRatio: "1", transform: "rotateX(62deg)" }} />
+        <div className="absolute h-[1.2cqw] w-[1.2cqw] rounded-full bg-[#dce6ee]" style={{ right: "22%", top: "24%" }} />
+      </div>
+      <p className="relative text-[1.35cqw] tracking-[0.22em] text-white/55" style={MONO}>
+        ANIMÁCIE & 3D · UKÁŽKA V PRÍPRAVE
+      </p>
+      <div className="relative">
+        <h3 style={{ ...DISPLAY, fontSize: "5.4cqw", lineHeight: 1.06, fontWeight: 420 }}>
+          Priestor, ktorý sa pohne,
+          <br />
+          keď sa pohnete vy.
+        </h3>
+        <p className="mt-[2cqw] max-w-[52cqw] text-[1.7cqw] leading-[1.55] text-white/65">
+          Scroll choreografia a reálna hĺbka — stavia sa na rovnakom základe ako
+          stránka, na ktorej práve ste.
+        </p>
+      </div>
+    </div>
+  )
+}
+
+function VykonTeaser() {
+  return (
+    <div className="relative flex h-full flex-col justify-between overflow-hidden bg-[#F3F5F7] p-[6cqw] text-[#17181d]">
+      <div aria-hidden="true" className="absolute right-[6cqw] bottom-[6cqw] flex items-end gap-[1.6cqw]">
+        {[26, 16, 10, 6.5, 4].map((h, j) => (
+          <div
+            // biome-ignore lint/suspicious/noArrayIndexKey: static bars, never reordered.
+            key={j}
+            className="w-[4.4cqw] rounded-t-[0.8cqw] bg-[#17181d]"
+            style={{ height: `${h}cqw`, opacity: 0.14 + j * 0.05 }}
+          />
+        ))}
+      </div>
+      <p className="relative text-[1.35cqw] tracking-[0.22em] text-[#17181d]/55" style={MONO}>
+        VÝKON · UKÁŽKA V PRÍPRAVE
+      </p>
+      <div className="relative">
+        <p className="tnum" style={{ ...DISPLAY, fontSize: "11cqw", lineHeight: 1, fontWeight: 420 }}>
+          0,4 s
+        </p>
+        <p className="mt-[1.6cqw] max-w-[40cqw] text-[1.7cqw] leading-[1.55] text-[#17181d]/65">
+          Merané, nie sľubované — rýchlosť, ktorú vidí Google aj návštevník.
+        </p>
+      </div>
+    </div>
+  )
+}
+
+const SKILL_TEASERS: Record<string, React.ComponentType<{ portal?: boolean }>> = {
+  "animacie-3d": AnimTeaser,
+  vykon: VykonTeaser,
+}
+
+function Portal({ Hero, href }: { Hero: React.ComponentType<{ portal?: boolean }>; href?: string }) {
+  const frame = {
+    aspectRatio: "16/10",
+    transform:
+      "perspective(1400px) rotateY(calc(var(--tx, 0) * 7deg)) rotateX(calc(var(--ty, 0) * -7deg))",
+    transition: "transform 0.5s cubic-bezier(0.16,1,0.3,1)",
+    boxShadow: "0 40px 90px -35px rgba(14,15,19,0.55), 0 0 0 1px rgba(23,24,29,0.1)",
+  }
+  const inner = (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute top-0 left-0 h-[200%] w-[200%] origin-top-left"
+      style={{ transform: "scale(0.5)", containerType: "inline-size" }}
+    >
+      <div className="h-full">
+        <Hero portal />
+      </div>
+    </div>
+  )
+  if (!href) {
+    /* teaser portals carry no route yet — a frame, not a dead link */
+    return (
+      <div className="relative block overflow-hidden rounded-[12px]" style={frame}>
+        {inner}
+      </div>
+    )
+  }
   return (
     <a
       href={href}
       aria-label="Otvoriť živú ukážku"
       className="group relative block overflow-hidden rounded-[12px]"
-      style={{
-        aspectRatio: "16/10",
-        transform:
-          "perspective(1400px) rotateY(calc(var(--tx, 0) * 7deg)) rotateX(calc(var(--ty, 0) * -7deg))",
-        transition: "transform 0.5s cubic-bezier(0.16,1,0.3,1)",
-        boxShadow: "0 40px 90px -35px rgba(14,15,19,0.55), 0 0 0 1px rgba(23,24,29,0.1)",
-      }}
+      style={frame}
     >
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute top-0 left-0 h-[200%] w-[200%] origin-top-left"
-        style={{ transform: "scale(0.5)", containerType: "inline-size" }}
-      >
-        <div className="h-full">
-          <Hero portal />
-        </div>
-      </div>
+      {inner}
       <span
         className="absolute right-4 bottom-4 z-10 rounded-full bg-[#17181d]/85 px-5 py-2.5 text-[0.62rem] tracking-[0.16em] text-[#f2f4f6] opacity-0 backdrop-blur-sm transition-opacity duration-300 group-hover:opacity-100"
         style={MONO}
@@ -293,12 +372,17 @@ function Portal({ Hero, href }: { Hero: React.ComponentType<{ portal?: boolean }
 function ActWork({ world }: { world: boolean }) {
   const [active, setActive] = useState(0)
   const listRef = useRef<HTMLOListElement>(null)
-  /* the portal follows SCROLL (Iterácia 0.1): the row nearest the viewport
-     centre owns the portal; hover only previews on top of that. */
+  /* the portal follows SCROLL (Iterácia 0.1), and since Iterácia 0.4 the
+     POINTER too: a hovered row takes the portal immediately and holds it
+     until the pointer leaves the index; then scroll resumes ownership. */
+  const hoverRef = useRef<number | null>(null)
   useEffect(() => {
     let frame = 0
     const pick = () => {
       frame = requestAnimationFrame(pick)
+      if (hoverRef.current !== null) {
+        return
+      }
       const rows = listRef.current?.querySelectorAll("[data-skill-row]")
       if (!rows?.length) {
         return
@@ -320,7 +404,7 @@ function ActWork({ world }: { world: boolean }) {
     return () => cancelAnimationFrame(frame)
   }, [])
   const current = skills[active]
-  const CurrentHero = current.demo ? SKILL_HEROES[current.demo] : undefined
+  const CurrentHero = current.demo ? SKILL_HEROES[current.demo] : SKILL_TEASERS[current.slug]
   return (
     <section
       data-zone="work"
@@ -361,60 +445,63 @@ function ActWork({ world }: { world: boolean }) {
           e.currentTarget.style.setProperty("--ty", "0")
         }}
       >
-        {/* the index */}
-        <ol ref={listRef}>
+        {/* the index (Iterácia 0.4): pure titles at display scale — no
+            numbers, no support lines; the one intro paragraph above serves
+            the whole list. The case-study link surfaces only on the active
+            row, so the path to /praca stays alive without row clutter. */}
+        <ol ref={listRef} onPointerLeave={() => { hoverRef.current = null }}>
           {skills.map((s, i) => (
             <li key={s.slug} data-skill-row data-enter className="border-t border-black/15 last:border-b">
               <div
-                className="group flex w-full flex-col gap-2 py-6 text-left lg:py-7"
+                className="group flex w-full flex-col py-7 text-left lg:py-8"
                 onFocusCapture={() => setActive(i)}
+                onPointerEnter={() => {
+                  hoverRef.current = i
+                  setActive(i)
+                }}
               >
-                <div className="flex items-baseline gap-5">
-                  <span className="tnum text-[0.8rem] text-[#17181d]/45" style={MONO}>
-                    0{i + 1}
-                  </span>
-                  {s.ready ? (
-                    <a
-                      href={`/ukazky/${s.slug}`}
-                      className="text-[#17181d] transition-transform duration-300 group-hover:translate-x-2"
-                      style={{ ...DISPLAY, fontSize: "clamp(2.3rem,4.8vw,4.6rem)", lineHeight: 0.98, letterSpacing: "-0.015em", fontWeight: 460 }}
-                    >
-                      {s.name}
-                      <span className={`ml-4 inline-block align-middle text-[0.5em] transition-opacity ${active === i ? "opacity-100" : "opacity-0"}`}>
-                        →
-                      </span>
-                    </a>
-                  ) : (
-                    <span
-                      className="text-[#17181d]/45"
-                      style={{ ...DISPLAY, fontSize: "clamp(2.3rem,4.8vw,4.6rem)", lineHeight: 0.98, letterSpacing: "-0.015em", fontWeight: 460 }}
-                    >
-                      {s.name}
-                      <span className="ml-5 inline-block translate-y-[-0.35em] rounded-full border border-[#17181d]/25 px-3 py-1 align-middle text-[0.16em] tracking-[0.18em] text-[#17181d]/55" style={MONO}>
-                        V PRÍPRAVE
-                      </span>
-                    </span>
-                  )}
-                </div>
-                <p className={`max-w-[34rem] pl-[2.6rem] text-[0.95rem] leading-[1.55] text-[#17181d]/70 transition-opacity duration-300 ${active === i ? "opacity-100" : "opacity-60"}`}>
-                  {s.line}
-                </p>
                 {s.ready ? (
-                  <p className="pl-[2.6rem] text-[0.88rem] text-[#17181d]/60">
+                  <a
+                    href={`/ukazky/${s.slug}`}
+                    className="text-[#17181d] transition-transform duration-300 group-hover:translate-x-2"
+                    style={{ ...DISPLAY, fontSize: "clamp(2.8rem,6.2vw,6.2rem)", lineHeight: 1, letterSpacing: "-0.018em", fontWeight: 520 }}
+                  >
+                    {s.name}
+                    <span className={`ml-4 inline-block align-middle text-[0.5em] transition-opacity ${active === i ? "opacity-100" : "opacity-0"}`}>
+                      →
+                    </span>
+                  </a>
+                ) : (
+                  <span
+                    className="text-[#17181d]/45"
+                    style={{ ...DISPLAY, fontSize: "clamp(2.8rem,6.2vw,6.2rem)", lineHeight: 1, letterSpacing: "-0.018em", fontWeight: 520 }}
+                  >
+                    {s.name}
+                    <span className="ml-5 inline-block translate-y-[-0.4em] rounded-full border border-[#17181d]/25 px-3 py-1 align-middle text-[0.13em] tracking-[0.18em] text-[#17181d]/55" style={MONO}>
+                      V PRÍPRAVE
+                    </span>
+                  </span>
+                )}
+                {s.ready ? (
+                  <p
+                    className={`mt-2 text-[0.88rem] text-[#17181d]/60 transition-opacity duration-300 ${active === i ? "opacity-100" : "opacity-0"}`}
+                  >
                     <a
                       href={`/praca/${SKILL_STUDY[s.slug]}`}
                       className="underline underline-offset-4 hover:text-[#17181d]"
+                      tabIndex={active === i ? 0 : -1}
                     >
                       Ako sme to navrhli →
                     </a>
                   </p>
                 ) : null}
                 {/* mobile: the portal rides under its own row */}
-                {s.ready && s.demo ? (
-                  <div className="mt-4 pl-[2.6rem] lg:hidden">
-                    <Portal Hero={SKILL_HEROES[s.demo]} href={`/ukazky/${s.slug}`} />
-                  </div>
-                ) : null}
+                <div className="mt-4 lg:hidden">
+                  <Portal
+                    Hero={s.demo ? SKILL_HEROES[s.demo] : SKILL_TEASERS[s.slug]}
+                    href={s.ready ? `/ukazky/${s.slug}` : undefined}
+                  />
+                </div>
               </div>
             </li>
           ))}
@@ -423,22 +510,12 @@ function ActWork({ world }: { world: boolean }) {
         {/* the live portal follows the active row (desktop) */}
         <div className="hidden lg:block">
           <div className="sticky top-[14svh]">
-            {CurrentHero ? (
-              <div key={current.slug} className="portal-swap">
-                <Portal Hero={CurrentHero} href={`/ukazky/${current.slug}`} />
-              </div>
-            ) : (
-              <div
-                key="pripravuje"
-                className="portal-swap flex items-center justify-center rounded-[12px] border border-dashed border-[#17181d]/30"
-                style={{ aspectRatio: "16/10" }}
-              >
-                <p className="max-w-[22rem] px-8 text-center text-[0.9rem] leading-[1.6] text-[#17181d]/60">
-                  Táto ukážka sa práve stavia — pribudne ako ďalšia. Zatiaľ si
-                  pozrite hotové tri.
-                </p>
-              </div>
-            )}
+            <div key={current.slug} className="portal-swap">
+              <Portal
+                Hero={CurrentHero}
+                href={current.ready ? `/ukazky/${current.slug}` : undefined}
+              />
+            </div>
           </div>
         </div>
       </div>
