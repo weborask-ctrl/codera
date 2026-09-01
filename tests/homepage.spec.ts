@@ -182,7 +182,9 @@ test.describe("Codera homepage", () => {
     for (const pkg of packages) {
       /* the act renders names uppercased — compare case-insensitively */
       await expect(page.locator("main")).toContainText(pkg.name, { ignoreCase: true })
-      await expect(page.locator("main")).toContainText(`od ${pkg.priceFrom}`)
+      /* "od" sits in its own span since Iterácia 0.5 — assert the figure,
+         the commercial fact itself */
+      await expect(page.locator("main")).toContainText(pkg.priceFrom)
       await expect(page.locator("main")).toContainText(pkg.notIncluded)
     }
     await context.close()

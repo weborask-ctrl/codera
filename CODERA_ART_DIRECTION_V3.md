@@ -330,3 +330,21 @@ portal frame (Animácie & 3D: dark orbital sketch; Výkon: the 0,4 s metric
 with load bars) — labelled UKÁŽKA V PRÍPRAVE, never a dead link, each to
 be replaced by its real demo in its own session. The dashed placeholder
 is gone.
+
+## Amendment 10 — 2026-09-01: Iterácia 0.5 — /03, the forge
+
+Ondrej's list for the services act, plus the strongest narrative beat of
+the journey: /03 is where raw capability becomes product, so the stones
+FORGE THE MARK there. Bottom-left, scrubbed by scroll: the stones line the
+C, then sink into a smooth extruded letter as it sets — a crossfade morph,
+not a vertex morph (reversible by construction, and it reads as casting,
+not melting). The set letter is FLAT INK (unlit material): the mark is
+graphic, and the studio softbox must not silver it.
+
+DOM changes: the act heading joins the display league and loses its
+support line; the three discipline rows grow heavier (Fraunces ~520) with
+slightly stronger body text; the isometric specimens answer the hand —
+plates fan apart on hover, the stack tilts with the pointer, and a quiet
+pulsing dot invites the pass-over. Pricing cards lead with the two facts a
+visitor scans for: the package name in serif and the price at display
+weight; everything else drops to footnote weight.
