@@ -257,10 +257,15 @@ const C_R = 0.4
    frames it right-of-centre and whole */
 const C2_CENTER = { x: 0, y: 0.38, z: 0 }
 const C2_R = 0.46
-/* /03 stone letter (Iterácia 0.5b): further left, right under the
-   sticky act heading */
-const C_OFFER = { x: -1.16, y: -0.34, z: -0.2 }
+/* /03 stone letter (Iterácia 0.5c): the C centres itself in the free band
+   LEFT of the steps and pricing. The DOM column is a percentage of the
+   viewport, so a fixed world-x lands differently on every screen — the
+   anchor is an NDC fraction converted per-frame with the live aspect.
+   -0.62 ndc ≈ the centre of the title column band. */
+const C_OFFER_NDC_X = -0.62
+const C_OFFER = { y: -0.36, z: -0.2 }
 const C_OFFER_R = 0.27
+let offerLetterX = -1.09
 const C_GAP = 0.62 // half-angle of the right-facing gap
 /* Iterácia 0.3 (mockup 3): the hero letter is GONE — typography owns /01
    and the stones hang as a visible constellation instead: three large
@@ -470,6 +475,11 @@ function Rig() {
       envApplied = true
     }
 
+    /* /03 letter anchor: NDC → world with the live aspect, so the C sits
+       in the centre of the left band on every screen (tan(fov/2)·d) */
+    offerLetterX =
+      C_OFFER_NDC_X * Math.tan((17 * Math.PI) / 180) * 3.6 * (state.size.width / state.size.height)
+
     const pose = desiredPose()
     const λ = stage.reducedMotion ? 100 : 9 // ≈120 ms glide, instant under PRM
 
@@ -604,7 +614,7 @@ function Rig() {
           const t = i / (SHARD_COUNT - 1)
           const a = C_GAP + t * (Math.PI * 2 - C_GAP * 2)
           shardTarget.set(
-            C_OFFER.x + Math.cos(a) * (C_OFFER_R + (prand(i + 301) - 0.5) * 0.02),
+            offerLetterX + Math.cos(a) * (C_OFFER_R + (prand(i + 301) - 0.5) * 0.02),
             C_OFFER.y +
               Math.sin(a) * C_OFFER_R * 1.04 +
               Math.sin(moltenTime * seed.bob * 0.3 + seed.phase) * 0.012,
