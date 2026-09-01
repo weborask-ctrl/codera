@@ -253,3 +253,22 @@ clarifications folded in:
 - **/04**: the crystal C fully visible in the section's own colour (dark
   graphite variant on frost), calm orbiting frost stones, bigger next-steps,
   and a contrasting ink footer band.
+
+## Amendment 5 — 2026-09-01: the paper intro
+
+Ondrej's load animation: a strip of paper travels along the top edge, and at
+the right it curls into the C — the brand story told literally, because the
+mark IS a folded strip. The formed C lifts into its 5D presence, tints a
+gentle blue, and hands off to the real ribbon beneath.
+
+Graffiti-C craft rules folded in (his reference request): the C stays OPEN on
+the right — closing it reads as an O; a bold dark OUTLINE keyline under the
+body stroke makes it read; the DROP SHADOW is a hard dark copy offset
+bottom-left (light from top-right), not a blur. Layered build: shadow →
+outline → body.
+
+Rules: plays once per session, ~2.6 s, never blocks input (pointer-events
+none, content visible beneath); reduced motion skips it entirely; the real C
+holds back (world opacity gate + flat-img CSS) until the handoff so the mark
+never doubles. GSAP timeline — the sanctioned engine — with overlapping
+tweens for the smoothness Ondrej asked for by name.

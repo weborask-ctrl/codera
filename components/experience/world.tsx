@@ -482,7 +482,7 @@ function Rig() {
             mesh.userData.temperMaterial = true
           }
           const mat = mesh.material as THREE.MeshPhysicalMaterial
-          mat.opacity = damp(mat.opacity, pose.ribbon, 10, dt)
+          mat.opacity = damp(mat.opacity, stage.introHold ? 0 : pose.ribbon, 10, dt)
           mat.iridescence = damp(mat.iridescence, Math.max(pose.iridescence, 0.16), 5, dt)
           /* the section's own colour: cool titanium in the fog, graphite ink
              once the C stands on risen light */
