@@ -78,16 +78,16 @@ export const caseStudies: readonly CaseStudy[] = [
         why: "Klient v strese hľadá jedno: „riešia môj problém?“ Odpoveď musí byť skenovateľná za pár sekúnd.",
       },
       {
-        what: "Žiadne fotografie. Vôbec.",
-        why: "Stock advokáti v oblekoch dôveru znižujú — každý ich pozná a nikto im neverí. Dokumentová typografia je úprimnejší signál kompetencie.",
+        what: "Fotografie len ako prostredie — knižnica, listiny, justícia — v jednotnom duotone atramentu a oxbloodu. Žiadne tváre.",
+        why: "Stock advokáti v oblekoch dôveru znižujú — každý ich pozná a nikto im neverí. Miesto a záznamy hovoria za inštitúciu úprimnejšie než prenajaté úsmevy.",
       },
       {
         what: "Čísla v tabuľkovom reze: rok založenia, počet advokátov, jurisdikcie. Pás komory a poistenia v päte.",
         why: "Inštitúcia sa preukazuje záznamami, nie sloganmi. Presne zarovnané číslice sú tichý dôkaz poriadku.",
       },
       {
-        what: "Na stránke sa v pokoji nič nehýbe.",
-        why: "Nehybnosť je tu dizajnové rozhodnutie: kancelária, ktorá vyzerá ako product launch, stratí klienta na prvom obraze.",
+        what: "Pohyb je viazaný výhradne na scroll a ruku — pomalý parallax, odhalenia riadkov, čísla, ktoré sa narátajú raz.",
+        why: "Kancelária, ktorá vyzerá ako product launch, stratí klienta na prvom obraze. Zdržanlivý pohyb je tu signál disciplíny, nie efekt.",
       },
     ],
     climate: {
