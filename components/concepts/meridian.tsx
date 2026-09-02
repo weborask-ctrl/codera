@@ -1,261 +1,291 @@
 "use client"
 
 /**
- * MERIDIÁN — the roastery concept as a full 5D site (AD v3 amendment 2).
+ * MERIDIÁN — the roastery concept as a full shop (AD v3 amendment 2;
+ * redesigned in the Ukážka 02 session, 2026-09-02).
  *
- * A browsable shop, not a backdrop: hero with the drawn bag as protagonist,
- * the four-bag shop grid with prices and carts, the origin band where the
- * latitude line becomes a map, the subscription close. Warm-editorial +
- * retro-craft grammar in Codera's own Meridián identity — Fraunces voice,
- * bone/umber/ember climate. The mechanic is BUY, and the frame never lets
- * you forget it. `MeridianHero` is reused by the /03 portal and the case
- * study, so the demo and the destination cannot drift.
+ * Origin-as-film over big colourful photography [onyx R1-left, Ondrej's
+ * pick] with the product-commerce grammar of cowboy [R4]: full-bleed green
+ * harvest hero, a running data ticker, big serif headlines, colour-first
+ * product cards with a WORKING cart count, the deep-green subscription
+ * band, the story split. Fraunces voice, kost/umbra warmed by terracotta
+ * and leaf green. Motion is scroll-scrubbed (Ken Burns hero, story
+ * parallax) plus the ticker; native scroll only; reduced motion reads a
+ * composed still. The mechanic is ORDER.
+ *
+ * Photos: Unsplash licence, stored locally under /demos/praziaren/.
  */
 
+import { useEffect, useRef, useState } from "react"
 import { FR, fx, MONO, Shell } from "./shell"
 
-const BONE = "#F4EFE6"
-const UMBER = "#2A1D14"
-const EMBER = "#C4531F"
+const KOST = "#F4EFE7"
+const UMBRA = "#241F18"
+const CREAM = "#FFF8EE"
+const TERRA = "#E4572E"
+const GREEN = "#274D36"
+const AMBER = "#FFC49B"
 
-const BAGS = [
-  { origin: "Guji", region: "Etiópia", code: "ET · 06", tone: "#7A3B1E", price: "14,90 €", note: "broskyňa · čierny čaj", lat: "06°12′ N" },
-  { origin: "Huila", region: "Kolumbia", code: "CO · 11", tone: "#3F4A2C", price: "13,50 €", note: "karamel · červené jablko", lat: "02°32′ N" },
-  { origin: "Chiapas", region: "Mexiko", code: "MX · 04", tone: "#8A5A2B", price: "13,50 €", note: "kakao · pražený oriešok", lat: "16°45′ N" },
-  { origin: "Kirinyaga", region: "Keňa", code: "KE · 09", tone: "#5B2733", price: "15,20 €", note: "ríbezľa · grep", lat: "00°30′ J" },
-]
+const IMG = "/demos/praziaren"
 
-function Bag({
-  origin,
-  code,
-  tone,
-  className = "",
-  style,
-}: {
-  origin: string
-  code: string
-  tone: string
-  className?: string
-  style?: React.CSSProperties
-}) {
-  return (
-    <div
-      className={`relative flex flex-col justify-between overflow-hidden rounded-[3px] ${className}`}
-      style={{ background: tone, color: BONE, aspectRatio: "0.82", ...style }}
-    >
-      <svg aria-hidden="true" viewBox="0 0 120 90" preserveAspectRatio="none" className="absolute inset-0 h-full w-full opacity-[0.5]">
-        <g stroke={BONE} strokeWidth="0.5" opacity="0.55">
-          <path d="M0 30 H120" />
-          <path d="M0 46 H120" />
-          <path d="M0 62 H120" />
-        </g>
-        <path className="wdraw" pathLength={1} d="M0 46 C30 34, 90 58, 120 46" stroke={BONE} strokeWidth="1.4" fill="none" />
-      </svg>
-      <div className="relative px-[8%] pt-[8%] text-[0.55rem] tracking-[0.2em]" style={MONO}>
-        {code}
-      </div>
-      <div className="relative px-[8%] pb-[9%]">
-        <p style={{ ...FR, fontSize: "clamp(1.1rem,2.2vw,1.9rem)", lineHeight: 0.95 }}>{origin}</p>
-      </div>
-    </div>
-  )
-}
+const BEANS = [
+  { name: "Guji", origin: "ETIÓPIA · UMYTÁ", note: "broskyňa · čierny čaj · jasná", price: "14,90 €", img: `${IMG}/zrna.jpg` },
+  { name: "Huila", origin: "KOLUMBIA · HONEY", note: "kakao · pomaranč · guľatá", price: "13,50 €", img: `${IMG}/chemex.jpg` },
+  { name: "Ranná", origin: "ZMES · ESPRESSO", note: "orech · karamel · hustá crema", price: "12,90 €", img: `${IMG}/espresso.jpg` },
+] as const
 
-/** The hero — also the /03 portal face and the case-study figure. */
+const TICKER = [
+  ["ET·06", "GUJI — BROSKYŇA · ČIERNY ČAJ"],
+  ["CO·11", "HUILA — KAKAO · POMARANČ"],
+  ["2 050 m", "NADMORSKÁ VÝŠKA ZBERU"],
+  ["UT · PIA", "PRAŽÍME DVAKRÁT DO TÝŽDŇA"],
+  ["48 h", "OD PRAŽENIA K VÁM"],
+  ["100 %", "ARABICA · PRIAMY NÁKUP"],
+] as const
+
 export function MeridianHero({ portal = false }: { portal?: boolean }) {
   return (
     <Shell
-      className={`relative flex h-full flex-col overflow-hidden ${portal ? "" : "min-h-svh"}`}
-      style={{ background: BONE, color: UMBER }}
+      className={`pz-hero relative flex h-full flex-col overflow-hidden ${portal ? "" : "min-h-svh"}`}
+      style={{ background: UMBRA, color: CREAM }}
     >
+      {/* the origin film still (R1): full-bleed green harvest, full colour */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(110% 75% at 15% 0%, rgba(255,250,240,0.9) 0%, transparent 58%), radial-gradient(85% 65% at 90% 100%, rgba(196,83,31,0.16) 0%, transparent 62%)",
-        }}
+        className="pz-heroimg absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: `url(${IMG}/farma.jpg)` }}
       />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-[0.4]"
-        style={{ backgroundImage: "radial-gradient(rgba(42,29,20,0.13) 0.7px, transparent 0.7px)", backgroundSize: "6px 6px" }}
-      />
-      {/* ghost latitude numeral, deep parallax */}
-      <span
-        aria-hidden="true"
-        className="wpar pointer-events-none absolute right-[-0.04em] bottom-[-0.14em] font-semibold select-none"
-        style={{ ...FR, fontSize: "clamp(12rem,30vh,24rem)", lineHeight: 0.8, color: "rgba(42,29,20,0.05)", ["--depth" as string]: "26" }}
-      >
-        06°
-      </span>
+      <div aria-hidden="true" className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(18,24,16,0.5) 0%, rgba(18,24,16,0.12) 42%, rgba(18,24,16,0.62) 100%)" }} />
 
-      <header className={`relative z-10 flex items-center justify-between px-[clamp(1.25rem,4vw,4rem)] ${portal ? "pt-6" : "pt-14"}`}>
-        <span style={{ ...FR, fontSize: "1.4rem" }}>Pražiareň</span>
-        <nav className="hidden items-center gap-7 text-[0.62rem] tracking-[0.2em] text-[#2A1D14]/60 md:flex" style={MONO}>
-          <span>KÁVA</span>
-          <span>PREDPLATNÉ</span>
-          <span>VEĽKOOBCHOD</span>
+      <header className="relative z-10 flex items-center justify-between px-[clamp(1.25rem,4vw,3.5rem)] pt-6 pb-4">
+        <span style={{ ...FR, fontWeight: 560, fontSize: "1.5rem" }}>Pražiareň</span>
+        <nav className="hidden gap-7 text-[0.86rem] font-medium md:flex">
+          <span className="cursor-pointer opacity-95 transition-opacity hover:opacity-100">Káva</span>
+          <span className="cursor-pointer opacity-95 transition-opacity hover:opacity-100">Predplatné</span>
+          <span className="cursor-pointer opacity-95 transition-opacity hover:opacity-100">Veľkoobchod</span>
+          <span className="cursor-pointer opacity-95 transition-opacity hover:opacity-100">Príbeh</span>
         </nav>
-        <span className="flex items-center gap-2 rounded-full px-4 py-1.5 text-[0.62rem] tracking-[0.12em]" style={{ ...MONO, background: EMBER, color: BONE }}>
-          KOŠÍK <span className="rounded-full bg-white/25 px-1.5">2</span>
+        <span data-cart className="rounded-full px-4 py-2 text-[0.8rem] font-semibold" style={{ background: CREAM, color: UMBRA }}>
+          Košík · 0
         </span>
       </header>
 
-      <div className="relative z-10 flex flex-1 flex-col justify-center gap-10 px-[clamp(1.25rem,4vw,4rem)] py-10 lg:flex-row lg:items-center lg:gap-16">
-        <div className="wpar wfx w-[46%] max-w-[300px] shrink-0 self-center lg:w-[26%] lg:max-w-none" style={{ ...fx(1), ["--depth" as string]: "-18" }}>
-          <Bag origin="Guji" code="ET · 06" tone="#7A3B1E" style={{ boxShadow: "0 40px 80px -30px rgba(42,29,20,0.5)" }} />
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="wfx text-[0.62rem] tracking-[0.28em] text-[#C4531F]" style={{ ...MONO, ...fx(2) }}>
-            ETIÓPIA · PRAŽENÉ V UTOROK
-          </p>
-          <h1 className="wfx mt-3" style={{ ...FR, fontSize: "clamp(2.6rem,7vw,6.4rem)", lineHeight: 0.96, letterSpacing: "-0.015em", ...fx(3) }}>
-            Káva s vlastnou
-            <br />
-            <em>zemepisnou šírkou.</em>
-          </h1>
-          <p className="wfx mt-5 max-w-[30rem] text-[0.95rem] leading-[1.65] text-[#2A1D14]/70" style={fx(4)}>
-            Guji, 2 050 m n. m. Umytá príprava, jasná kyselina, broskyňa a čierny
-            čaj. Pražíme malé dávky a posielame do troch dní.
-          </p>
-          <div className="wfx mt-7 flex flex-wrap items-center gap-4" style={fx(5)}>
-            <span className="rounded-full px-7 py-3 text-[0.72rem] font-medium tracking-[0.08em] whitespace-nowrap" style={{ ...MONO, background: UMBER, color: BONE }}>
-              DO KOŠÍKA — 14,90 €
+      <div className="relative z-10 flex flex-1 flex-col justify-end px-[clamp(1.25rem,4vw,3.5rem)] pb-8">
+        <h1
+          className="wfx max-w-[10em]"
+          style={{ ...FR, fontWeight: 560, fontSize: portal ? "4.4rem" : "clamp(2.8rem,8.6vw,8rem)", lineHeight: 1, letterSpacing: "-0.02em", textShadow: "0 20px 60px rgba(18,24,16,0.5)", ...fx(0) }}
+        >
+          Káva s vlastnou zemepisnou šírkou
+        </h1>
+        <p className="wfx mt-4 max-w-[38rem] text-[1.1rem] leading-[1.55]" style={{ textShadow: "0 2px 20px rgba(18,24,16,0.6)", ...fx(1) }}>
+          Guji, 2 050 m n. m. Zbierané v tieni, pražené v utorok, u vás do 48
+          hodín.
+        </p>
+        <div className="wfx mt-7 mb-2 flex flex-wrap items-center gap-4" style={fx(2)}>
+          {/* the portal wraps the hero in an <a> — no nested anchors there */}
+          {portal ? (
+            <span className="rounded-full px-8 py-4 text-[1rem] font-semibold" style={{ background: TERRA, color: CREAM }}>
+              Nakupovať kávu
             </span>
-            <span className="text-[0.66rem] tracking-[0.06em] text-[#2A1D14]/60" style={MONO}>
-              250 g · mletie na výber
-            </span>
-          </div>
+          ) : (
+            <>
+              <a href="#kava" className="rounded-full px-8 py-4 text-[1rem] font-semibold transition-transform hover:-translate-y-0.5" style={{ background: TERRA, color: CREAM }}>
+                Nakupovať kávu
+              </a>
+              <a href="#pribeh" className="rounded-full border-[1.5px] border-[#FFF8EE]/70 px-8 py-4 text-[1rem] font-medium backdrop-blur-[3px] transition-colors hover:border-[#FFF8EE]">
+                Ako pražíme →
+              </a>
+            </>
+          )}
         </div>
       </div>
 
-      <div className="relative z-10 grid grid-cols-2 gap-px border-t border-[#2A1D14]/20 bg-[#2A1D14]/20 text-[0.56rem] md:grid-cols-4" style={MONO}>
-        {[
-          ["PRAŽÍME", "utorok a piatok"],
-          ["ODOSIELAME", "do 24 h od praženia"],
-          ["DOPRAVA", "zdarma od 40 €"],
-          ["PREDPLATNÉ", "každé 2 alebo 4 týždne"],
-        ].map(([n, l], i) => (
-          <div key={n} className="wfx flex flex-col gap-0.5 px-4 py-3" style={{ background: BONE, ...fx(i + 5) }}>
-            <span className="tracking-[0.14em] text-[#C4531F]">{n}</span>
-            <span className="tracking-[0.04em] text-[#2A1D14]/60">{l}</span>
-          </div>
-        ))}
+      {/* the data ticker (onyx): origin facts on a loop */}
+      <div className="relative z-10 overflow-hidden border-t border-[#FFF8EE]/25 backdrop-blur-[8px]" style={{ background: "rgba(18,24,16,0.55)" }}>
+        <div className="pz-ticker flex w-max">
+          {[...TICKER, ...TICKER].map(([v, l], i) => (
+            <div
+              key={`${v}-${
+                // biome-ignore lint/suspicious/noArrayIndexKey: the loop is a doubled static list.
+                i
+              }`}
+              className="flex items-baseline gap-2.5 border-r border-[#FFF8EE]/15 px-6 py-3.5 text-[0.68rem] tracking-[0.08em] whitespace-nowrap"
+              style={MONO}
+            >
+              <b className="text-[0.8rem]" style={{ color: AMBER }}>{v}</b> {l}
+            </div>
+          ))}
+        </div>
       </div>
     </Shell>
   )
 }
 
-/** The full browsable site. */
 export default function MeridianSite() {
+  const [cart, setCart] = useState(0)
+  const rootRef = useRef<HTMLElement>(null)
+
+  /* scroll choreography: Ken Burns hero + story parallax. Native scroll
+     only (non-negotiable #1); reduced motion keeps the stills. */
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return
+    }
+    let ctx: { revert: () => void } | undefined
+    let alive = true
+    ;(async () => {
+      const [{ gsap }, { ScrollTrigger }] = await Promise.all([
+        import("gsap"),
+        import("gsap/ScrollTrigger"),
+      ])
+      if (!alive) {
+        return
+      }
+      gsap.registerPlugin(ScrollTrigger)
+      ctx = gsap.context(() => {
+        gsap.fromTo(
+          ".pz-heroimg",
+          { scale: 1.14, yPercent: 0 },
+          { scale: 1, yPercent: -5, ease: "none", scrollTrigger: { trigger: ".pz-hero", start: "top top", end: "bottom top", scrub: true } }
+        )
+        gsap.fromTo(
+          ".pz-storyimg",
+          { yPercent: -10 },
+          { yPercent: 10, ease: "none", scrollTrigger: { trigger: "#pribeh", start: "top bottom", end: "bottom top", scrub: true } }
+        )
+        gsap.fromTo(
+          ".pz-subimg",
+          { yPercent: -8 },
+          { yPercent: 8, ease: "none", scrollTrigger: { trigger: "#predplatne", start: "top bottom", end: "bottom top", scrub: true } }
+        )
+      }, rootRef)
+    })()
+    return () => {
+      alive = false
+      ctx?.revert()
+    }
+  }, [])
+
+  const addToCart = () => {
+    setCart((c) => c + 1)
+    const badge = document.querySelector("[data-cart]")
+    if (badge) {
+      badge.textContent = `Košík · ${cart + 1}`
+    }
+  }
+
   return (
-    <main style={{ background: BONE, color: UMBER }}>
+    <main ref={rootRef} style={{ background: KOST, color: UMBRA }}>
       <MeridianHero />
 
       {/* ---- the shop ---- */}
-      <Shell className="relative px-[clamp(1.25rem,4vw,4rem)] py-[10svh]">
-        <div className="flex items-baseline justify-between border-b border-[#2A1D14]/20 pb-4">
-          <h2 className="wfx" style={{ ...FR, fontSize: "clamp(1.8rem,3.6vw,3.2rem)", lineHeight: 1 }}>
-            Aktuálne praženie
-          </h2>
-          <span className="wfx hidden text-[0.6rem] tracking-[0.2em] text-[#2A1D14]/55 md:block" style={{ ...MONO, ...fx(1) }}>
-            04 KÁVY · VŽDY ČERSTVÉ
-          </span>
-        </div>
-        <div className="mt-8 grid grid-cols-2 gap-x-[clamp(1rem,2.5vw,2.5rem)] gap-y-10 lg:grid-cols-4">
-          {BAGS.map((b, i) => (
-            <article key={b.code} className="wfx group" style={fx(i + 1)}>
-              <div className="wpar" style={{ ["--depth" as string]: `${-6 - i * 3}` }}>
-                <Bag origin={b.origin} code={b.code} tone={b.tone} className="transition-transform duration-500 group-hover:-translate-y-2" style={{ boxShadow: "0 28px 50px -24px rgba(42,29,20,0.45)" }} />
-              </div>
-              <div className="mt-4 flex items-baseline justify-between">
-                <p style={{ ...FR, fontSize: "1.15rem" }}>{b.origin}</p>
-                <p className="tnum text-[0.8rem]" style={MONO}>
-                  {b.price}
+      <Shell id="kava" className="px-[clamp(1.25rem,4vw,3.5rem)] py-[9svh]">
+        <h2 className="wfx" style={{ ...FR, fontWeight: 560, fontSize: "clamp(2.4rem,5.4vw,4.6rem)", letterSpacing: "-0.015em", ...fx(0) }}>
+          Čerstvo upražené
+        </h2>
+        <div className="mt-10 grid gap-6 md:grid-cols-3">
+          {BEANS.map((b, i) => (
+            <article
+              key={b.name}
+              className="wfx group overflow-hidden rounded-[18px] transition-transform duration-300 hover:-translate-y-1.5"
+              style={{ background: CREAM, boxShadow: "0 24px 50px -30px rgba(60,35,15,0.35)", ...fx(i + 1) }}
+            >
+              <div
+                className="h-[300px] bg-cover bg-center transition-transform duration-500 group-hover:scale-[1.04]"
+                style={{ backgroundImage: `url(${b.img})` }}
+              />
+              <div className="px-6 pt-5 pb-6">
+                <p className="text-[0.64rem] tracking-[0.14em]" style={{ ...MONO, color: GREEN }}>
+                  {b.origin}
                 </p>
+                <h3 className="mt-1.5" style={{ ...FR, fontWeight: 560, fontSize: "1.9rem" }}>
+                  {b.name}
+                </h3>
+                <p className="mt-1 text-[0.9rem] text-[#241F18]/70">{b.note}</p>
+                <div className="mt-4 flex items-center justify-between">
+                  <span style={{ ...FR, fontWeight: 560, fontSize: "1.5rem" }}>{b.price}</span>
+                  <button
+                    type="button"
+                    onClick={addToCart}
+                    className="rounded-full px-5 py-2.5 text-[0.85rem] font-semibold transition-transform active:scale-95"
+                    style={{ background: UMBRA, color: CREAM }}
+                  >
+                    Do košíka
+                  </button>
+                </div>
               </div>
-              <p className="mt-1 text-[0.62rem] tracking-[0.1em] text-[#2A1D14]/55" style={MONO}>
-                {b.region.toUpperCase()} · {b.note}
-              </p>
-              <button
-                type="button"
-                className="mt-3 w-full rounded-full border border-[#2A1D14]/30 py-2 text-[0.62rem] tracking-[0.12em] transition-colors group-hover:border-[#2A1D14] hover:bg-[#2A1D14] hover:text-[#F4EFE6]"
-                style={MONO}
-              >
-                DO KOŠÍKA
-              </button>
             </article>
           ))}
         </div>
       </Shell>
 
-      {/* ---- origin band: the latitude line becomes a map ---- */}
-      <Shell className="relative overflow-hidden px-[clamp(1.25rem,4vw,4rem)] py-[12svh]" style={{ background: UMBER, color: BONE }}>
-        <div className="grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-center">
-          <div>
-            <p className="wfx text-[0.62rem] tracking-[0.28em] text-[#C4531F]" style={{ ...MONO, ...fx(0) }}>
-              ODKIAĽ PIJETE
-            </p>
-            <h2 className="wfx mt-3" style={{ ...FR, fontSize: "clamp(2rem,4.4vw,4rem)", lineHeight: 1.02, ...fx(1) }}>
-              Štyri farmy.
-              <br />
-              <em>Štyri rovnobežky.</em>
-            </h2>
-            <p className="wfx mt-5 max-w-[26rem] text-[0.92rem] leading-[1.7] text-[#F4EFE6]/70" style={fx(2)}>
-              Každé balenie nesie zemepisnú šírku svojej farmy. Nie je to
-              dekorácia — je to sľub, že vieme povedať, kto kávu pestoval, kedy
-              sa zberala a čo dostal farmár zaplatené.
-            </p>
-          </div>
-          <div className="wfx relative" style={fx(2)}>
-            <svg viewBox="0 0 460 240" className="w-full" aria-hidden="true">
-              <g stroke={BONE} strokeOpacity="0.18" strokeWidth="1">
-                {[40, 80, 120, 160, 200].map((y) => (
-                  <path key={y} d={`M0 ${y} H460`} />
-                ))}
-              </g>
-              {BAGS.map((b, i) => {
-                const y = 50 + i * 46
-                const x = 90 + i * 92
-                return (
-                  <g key={b.code}>
-                    <path className="wdraw" pathLength={1} d={`M0 ${y} H${x}`} stroke={EMBER} strokeWidth="1.5" fill="none" style={fx(i + 2)} />
-                    <circle cx={x} cy={y} r="4" fill={EMBER} />
-                    <text x={x + 12} y={y + 4} fill={BONE} fontSize="12" style={MONO as React.CSSProperties}>
-                      {b.origin} · {b.lat}
-                    </text>
-                  </g>
-                )
-              })}
-            </svg>
+      {/* ---- subscription — the deep-green band (viac zelene) ---- */}
+      <Shell id="predplatne" className="relative overflow-hidden px-[clamp(1.25rem,4vw,3.5rem)] py-[10svh]" style={{ background: GREEN, color: CREAM }}>
+        <div aria-hidden="true" className="absolute inset-y-0 right-0 hidden w-[42%] overflow-hidden lg:block">
+          <div className="pz-subimg absolute inset-[-10%] bg-cover bg-center" style={{ backgroundImage: `url(${IMG}/vetva.jpg)` }} />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, #274D36 0%, rgba(39,77,54,0.25) 60%, rgba(39,77,54,0.1) 100%)" }} />
+        </div>
+        <div className="relative z-10 max-w-[40rem]">
+          <h2 className="wfx" style={{ ...FR, fontWeight: 560, fontSize: "clamp(2.4rem,5.4vw,4.6rem)", lineHeight: 1.02, letterSpacing: "-0.015em", ...fx(0) }}>
+            Predplatné bez záväzkov
+          </h2>
+          <p className="wfx mt-5 max-w-[30rem] text-[1.08rem] leading-[1.6] text-[#FFF8EE]/85" style={fx(1)}>
+            Každé 2 alebo 4 týždne čerstvá dávka podľa vášho výberu. Zmeníte
+            alebo zrušíte kedykoľvek — bez poplatkov, bez otázok.
+          </p>
+          <div className="wfx mt-7 flex flex-wrap items-center gap-4" style={fx(2)}>
+            <span className="cursor-pointer rounded-full px-7 py-3.5 text-[0.95rem] font-semibold transition-transform hover:-translate-y-0.5" style={{ background: CREAM, color: GREEN }}>
+              Zostaviť predplatné
+            </span>
+            <span className="text-[0.85rem] text-[#FFF8EE]/75">od 11,90 € / dávka · doprava v cene</span>
           </div>
         </div>
       </Shell>
 
-      {/* ---- subscription close ---- */}
-      <Shell className="relative px-[clamp(1.25rem,4vw,4rem)] py-[12svh] text-center">
-        <p className="wfx text-[0.62rem] tracking-[0.28em] text-[#C4531F]" style={{ ...MONO, ...fx(0) }}>
-          PREDPLATNÉ
-        </p>
-        <h2 className="wfx mx-auto mt-3 max-w-[16em]" style={{ ...FR, fontSize: "clamp(2rem,4.6vw,4.2rem)", lineHeight: 1.02, ...fx(1) }}>
-          Čerstvá káva každé dva týždne. <em>Bez rozmýšľania.</em>
-        </h2>
-        <div className="wfx mx-auto mt-8 flex max-w-[30rem] flex-col items-center gap-4 sm:flex-row sm:justify-center" style={fx(2)}>
-          <span className="rounded-full px-8 py-3.5 text-[0.72rem] tracking-[0.1em]" style={{ ...MONO, background: EMBER, color: BONE }}>
-            ZOSTAVIŤ PREDPLATNÉ
-          </span>
-          <span className="text-[0.66rem] tracking-[0.08em] text-[#2A1D14]/60" style={MONO}>
-            od 12,90 € / dodávka · kedykoľvek zrušíte
-          </span>
+      {/* ---- the story split ---- */}
+      <Shell id="pribeh" className="grid lg:grid-cols-2">
+        <div className="relative min-h-[420px] overflow-hidden">
+          <div className="pz-storyimg absolute inset-[-12%] bg-cover bg-center" style={{ backgroundImage: `url(${IMG}/cerene.jpg)` }} />
+        </div>
+        <div className="flex flex-col justify-center px-[clamp(1.25rem,4vw,3.5rem)] py-[9svh]">
+          <h2 className="wfx max-w-[9em]" style={{ ...FR, fontWeight: 560, fontSize: "clamp(2.2rem,4.4vw,3.8rem)", lineHeight: 1.04, letterSpacing: "-0.015em", ...fx(0) }}>
+            Pražíme v utorok a piatok. Nikdy na sklad.
+          </h2>
+          <p className="wfx mt-5 max-w-[30rem] text-[1.02rem] leading-[1.65] text-[#241F18]/75" style={fx(1)}>
+            Malé dávky, profil pre každé zrno zvlášť. Balíme v deň praženia a
+            posielame do 24 hodín — káva k vám príde vo chvíli, keď začína
+            najlepšie chutiť.
+          </p>
+          <div className="wfx mt-7 grid max-w-[26rem] grid-cols-2 gap-6" style={fx(2)}>
+            <div>
+              <p style={{ ...FR, fontWeight: 560, fontSize: "2.2rem" }}>48 h</p>
+              <p className="mt-1 text-[0.85rem] text-[#241F18]/65">od praženia k vám</p>
+            </div>
+            <div>
+              <p style={{ ...FR, fontWeight: 560, fontSize: "2.2rem" }}>2×</p>
+              <p className="mt-1 text-[0.85rem] text-[#241F18]/65">pražíme do týždňa</p>
+            </div>
+          </div>
         </div>
       </Shell>
 
-      <footer className="border-t border-[#2A1D14]/15 px-[clamp(1.25rem,4vw,4rem)] py-6 text-[0.58rem] tracking-[0.14em] text-[#2A1D14]/55" style={MONO}>
-        <div className="flex flex-wrap items-baseline justify-between gap-3">
-          <span style={{ ...FR, fontSize: "1rem", letterSpacing: 0 }}>Pražiareň</span>
-          <span>PRAŽÍME UTOROK A PIATOK</span>
-        </div>
+      {/* ---- benefit band (cowboy) ---- */}
+      <Shell as="div" className="grid border-t-[1.5px] border-[#241F18]/15 sm:grid-cols-3">
+        {[
+          ["Pražíme utorok a piatok", "odosielame do 24 h od praženia"],
+          ["Doprava zdarma od 40 €", "kuriér aj balíkobox"],
+          ["Predplatné bez záväzkov", "každé 2 alebo 4 týždne, kedykoľvek zrušíte"],
+        ].map(([t, s], i) => (
+          <div key={t} className="wfx border-[#241F18]/15 px-[clamp(1.25rem,4vw,3.5rem)] py-8 not-last:border-r-[1.5px]" style={fx(i)}>
+            <b className="block text-[1.05rem] font-semibold">{t}</b>
+            <span className="mt-1 block text-[0.9rem] text-[#241F18]/65">{s}</span>
+          </div>
+        ))}
+      </Shell>
+
+      <footer className="flex flex-wrap items-baseline justify-between gap-3 border-t border-[#241F18]/15 px-[clamp(1.25rem,4vw,3.5rem)] py-5 text-[0.56rem] tracking-[0.14em] text-[#241F18]/55" style={MONO}>
+        <span>PRAŽIAREŇ · PRIAMY NÁKUP OD FARMÁROV</span>
+        <span>KOŠÍK V DEME: {cart} POLOŽIEK</span>
       </footer>
     </main>
   )

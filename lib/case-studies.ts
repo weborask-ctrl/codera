@@ -35,13 +35,13 @@ export const caseStudies: readonly CaseStudy[] = [
     sector: "Pražiareň kávy s e-shopom",
     mechanic: "Predaj — do košíka",
     thesis:
-      "Obal predáva skôr než popis — preto je balenie hrdinom stránky, nie fotka zrniek.",
+      "Pôvod predáva skôr než popis — preto je hrdinom stránky zber na farme, nie obal ani slogan.",
     brief:
       "Malá pražiareň predáva skvelú kávu, ale jej web vyzerá ako blog: fotky zrniek, dlhé texty o vášni a košík schovaný v menu. Návštevník nevie za tri sekundy povedať, čo si môže kúpiť a za koľko. Veľkoobchodní odberatelia nenachádzajú podmienky.",
     decisions: [
       {
-        what: "Balenie je nakreslené, nie odfotené — farebný blok s typografiou etikety a líniou zemepisnej šírky pôvodu.",
-        why: "Každá pražiareň má fotky zrniek a vriec; žiadna nemá rozpoznateľný obal na prvej obrazovke. Kresba navyše nestarne a nestojí nič pri každej novej káve.",
+        what: "Prvá obrazovka je plnofarebný zber na farme — zelené lístie, červené čerešne, ruky — a cez ňu veľký serifový titulok.",
+        why: "Každá pražiareň má fotky zrniek a vriec; máloktorá ukáže farmu, z ktorej káva naozaj je. Pôvod je najsilnejší dôkaz čerstvosti aj ceny.",
       },
       {
         what: "Košík s počítadlom je v hlavičke od prvého pixelu a pri hrdinskom produkte je cena aj tlačidlo Do košíka.",
@@ -57,9 +57,9 @@ export const caseStudies: readonly CaseStudy[] = [
       },
     ],
     climate: {
-      ground: "Kosť a umbra — podklad je vždy jemne pražený, nikdy biely.",
+      ground: "Kosť a umbra, prehĺbené listovou zeleňou a terakotovým CTA — podklad je vždy jemne pražený, nikdy biely.",
       type: "Editoriálna serifa pre pôvod, mono pre dáta.",
-      density: "Veľkorysá: štyri produkty na obrazovku, každý dosť veľký, aby obal niesol obraz.",
+      density: "Veľkorysá: tri kávy na obrazovku, každá s veľkou farebnou fotografiou, ktorá nesie obraz.",
     },
     proves:
       "Že vieme postaviť predajný web, kde vizuál robí obchodnú prácu — a že „iný jazyk“ neznamená rozbiť disciplínu e-shopu.",
