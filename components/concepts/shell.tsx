@@ -32,11 +32,13 @@ export function Shell({
   className = "",
   style,
   as: Tag = "section",
+  id,
 }: {
   children: React.ReactNode
   className?: string
   style?: React.CSSProperties
   as?: "section" | "div" | "header" | "footer"
+  id?: string
 }) {
   const ref = useRef<HTMLElement>(null)
   useEffect(() => {
@@ -63,6 +65,7 @@ export function Shell({
       /* biome-ignore lint/suspicious/noExplicitAny: polymorphic ref across the four allowed tags */
       ref={ref as any}
       className={`world-shell ${className}`}
+      id={id}
       style={style}
       onPointerMove={(e: React.PointerEvent<HTMLElement>) => {
         const r = e.currentTarget.getBoundingClientRect()
