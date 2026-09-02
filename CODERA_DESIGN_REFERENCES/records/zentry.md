@@ -3,8 +3,8 @@ id: zentry
 url: https://zentry.com/
 captured: 2026-08-31
 tags: [5d]
-verdict: PENDING
-verdict-note:
+verdict: LIKED
+verdict-note: 'R1 — prvé kolo 5D researchu; smer pre Ukážku Animácie & 3D, 2026-09-02'
 ---
 
 # Zentry: Human-Agentic OS Where Life, AI, and Data Converge | Zentry
@@ -22,7 +22,7 @@ shots/zentry-01.png · shots/zentry-02.png
 
 ## Why it works
 
-_Filled after calibration, LIKED records only._
+A living 3D world breathing between huge type: the object is the hero and the typography wraps it. The scroll flies through chapters; neon light on black.
 
 ## What we take / what we refuse
 

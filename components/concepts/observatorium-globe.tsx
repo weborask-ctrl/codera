@@ -1,97 +1,136 @@
 "use client"
 
 /**
- * The Observatórium globe — a REAL WebGL Earth (Ukážka Animácie & 3D).
+ * The Observatórium Saturn — a REAL WebGL Saturn (Ukážka Animácie & 3D,
+ * Iterácia 0.7). Textures: Solar System Scope (CC BY 4.0), built from
+ * NASA/JPL Cassini data.
  *
- * One sphere wearing NASA's Blue Marble texture, an additive fresnel
- * atmosphere, and a sun key light. The globe spins slowly on its own,
- * follows the scroll through `globeState.p` (set by the site's
- * ScrollTrigger) and tilts toward the pointer — all damped in the frame
- * loop, so every input is interruptible. Reduced motion: a lit, still
- * planet. Loaded client-only via next/dynamic; the page never blocks
- * on WebGL.
+ * One planet, one ring (strip texture remapped radially), one field of
+ * stars. The site's ScrollTrigger writes the choreography into
+ * `saturnState` (a: hero turn, b: ring-text sweep, c: retreat into the
+ * background) and the pointer leans it; the frame loop only damps toward
+ * those targets, so every input stays interruptible. Reduced motion: a
+ * lit, still planet. Loaded client-only via next/dynamic.
  */
 
 import { Canvas, useFrame, useLoader } from "@react-three/fiber"
-import { Suspense, useRef } from "react"
+import { Suspense, useMemo, useRef } from "react"
 import * as THREE from "three"
 
-/** Shared mutable input: scroll progress (0..1) + pointer (-0.5..0.5). */
-export const globeState = { p: 0, px: 0, py: 0 }
-
-const ATMO_VERT = /* glsl */ `
-  varying vec3 vNormal;
-  void main() {
-    vNormal = normalize(normalMatrix * normal);
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-  }
-`
-const ATMO_FRAG = /* glsl */ `
-  varying vec3 vNormal;
-  void main() {
-    float rim = pow(0.72 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.4);
-    gl_FragColor = vec4(0.42, 0.62, 1.0, 1.0) * rim * 1.35;
-  }
-`
+/** Scroll phases (0..1 each) + pointer (-0.5..0.5), written by the site. */
+export const saturnState = { a: 0, b: 0, c: 0, px: 0, py: 0 }
 
 function damp(c: number, t: number, l: number, dt: number) {
   return THREE.MathUtils.damp(c, t, l, dt)
 }
 
-function Earth() {
-  const map = useLoader(THREE.TextureLoader, "/demos/observatorium/earth.jpg")
-  map.colorSpace = THREE.SRGBColorSpace
-  map.anisotropy = 4
+function Stars() {
+  const geo = useMemo(() => {
+    const n = 1900
+    const pos = new Float32Array(n * 3)
+    for (let i = 0; i < n; i++) {
+      const r = 26 + Math.random() * 14
+      const a = Math.random() * Math.PI * 2
+      const b = Math.acos(Math.random() * 2 - 1)
+      pos[i * 3] = r * Math.sin(b) * Math.cos(a)
+      pos[i * 3 + 1] = r * Math.cos(b)
+      pos[i * 3 + 2] = r * Math.sin(b) * Math.sin(a)
+    }
+    const g = new THREE.BufferGeometry()
+    g.setAttribute("position", new THREE.BufferAttribute(pos, 3))
+    return g
+  }, [])
+  return (
+    <points geometry={geo}>
+      <pointsMaterial color="#cfe0ff" size={0.055} sizeAttenuation transparent opacity={0.85} />
+    </points>
+  )
+}
+
+function Saturn() {
+  const [bodyMap, ringMap] = useLoader(THREE.TextureLoader, [
+    "/demos/observatorium/saturn.jpg",
+    "/demos/observatorium/saturn-ring.png",
+  ])
+  bodyMap.colorSpace = THREE.SRGBColorSpace
+  ringMap.colorSpace = THREE.SRGBColorSpace
+
+  /* the ring texture is a radial strip — remap the flat RingGeometry UVs */
+  const ringGeo = useMemo(() => {
+    const g = new THREE.RingGeometry(1.32, 2.42, 220, 1)
+    const p = g.attributes.position
+    const uv = g.attributes.uv as THREE.BufferAttribute
+    const v = new THREE.Vector3()
+    for (let i = 0; i < p.count; i++) {
+      v.fromBufferAttribute(p as THREE.BufferAttribute, i)
+      uv.setXY(i, (v.length() - 1.32) / (2.42 - 1.32), 0.5)
+    }
+    return g
+  }, [])
+
   const group = useRef<THREE.Group>(null)
-  const spin = useRef({ y: 4.35, tilt: 0, lean: 0 })
+  const body = useRef<THREE.Mesh>(null)
+  const sun = useRef<THREE.DirectionalLight>(null)
+
   useFrame((_, dt) => {
     const g = group.current
     if (!g) {
       return
     }
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    const s = spin.current
-    if (!still) {
-      s.y += dt * 0.05
+    const s = saturnState
+    if (!still && body.current) {
+      body.current.rotation.y += dt * 0.03
     }
-    /* the scroll carries the revolution; the pointer leans the axis */
-    const targetY = s.y + globeState.p * 1.15 + globeState.px * 0.55
-    const targetX = 0.18 + globeState.py * 0.35
-    g.rotation.y = damp(g.rotation.y, targetY, 4, dt)
-    g.rotation.x = damp(g.rotation.x, targetX, 4, dt)
+    /* the scroll owns the pose; the pointer only leans it */
+    const rotY = s.a * 2.2 + s.b * 1.6 + s.c * 0.6 + s.px * 0.18
+    const tiltX = 0.42 - s.a * 0.3 + s.c * 0.15 + s.py * 0.12
+    g.rotation.y = damp(g.rotation.y, rotY, 4, dt)
+    g.rotation.x = damp(g.rotation.x, tiltX, 4, dt)
+    g.position.y = damp(g.position.y, -0.15 + s.a * 0.18 - s.c * 0.4, 4, dt)
+    g.position.z = damp(g.position.z, -(s.b * 1.2 + s.c * 7.5), 4, dt)
+    const sc = damp(g.scale.x, 1 + s.a * 0.12, 4, dt)
+    g.scale.setScalar(sc)
+    if (sun.current) {
+      const textDim = s.b > 0 && s.b < 1 ? 0.35 * Math.sin(Math.PI * Math.min(s.b, 1)) : 0
+      sun.current.intensity = 2.6 * (1 - s.c * 0.62) * (1 - textDim)
+    }
   })
+
   return (
-    <group ref={group} rotation={[0.18, 0, 0]}>
-      <mesh>
-        <sphereGeometry args={[1, 96, 96]} />
-        <meshStandardMaterial map={map} roughness={0.95} metalness={0} />
-      </mesh>
-      <mesh scale={1.04}>
-        <sphereGeometry args={[1, 64, 64]} />
-        <shaderMaterial
-          vertexShader={ATMO_VERT}
-          fragmentShader={ATMO_FRAG}
-          blending={THREE.AdditiveBlending}
-          side={THREE.BackSide}
-          transparent
-          depthWrite={false}
-        />
-      </mesh>
-    </group>
+    <>
+      {/* the sun stays fixed in the world — the planet turns, the light does not */}
+      <directionalLight ref={sun} position={[-4, 1.4, 3.2]} intensity={2.6} color="#fff1d8" />
+      <group ref={group} rotation={[0.42, 0, -0.26]} position={[0, -0.15, 0]}>
+        <mesh ref={body}>
+          <sphereGeometry args={[1, 96, 96]} />
+          <meshStandardMaterial map={bodyMap} roughness={1} metalness={0} />
+        </mesh>
+        <mesh geometry={ringGeo} rotation={[-Math.PI / 2, 0, 0]}>
+          <meshBasicMaterial
+            map={ringMap}
+            transparent
+            side={THREE.DoubleSide}
+            depthWrite={false}
+            opacity={0.96}
+          />
+        </mesh>
+      </group>
+    </>
   )
 }
 
-export default function GlobeCanvas() {
+export default function SaturnCanvas() {
   return (
     <Canvas
       dpr={[1, 1.75]}
-      camera={{ fov: 38, near: 0.1, far: 20, position: [0, 0, 3.25] }}
-      gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping }}
+      camera={{ fov: 36, near: 0.1, far: 80, position: [0, 0, 6.2] }}
+      gl={{ antialias: true }}
     >
-      <directionalLight position={[-1.6, 0.8, 3.4]} intensity={2.9} color="#fff3e0" />
-      <ambientLight intensity={0.28} color="#6d84a6" />
+      <ambientLight intensity={0.55} color="#30405e" />
+      <Stars />
       <Suspense fallback={null}>
-        <Earth />
+        <Saturn />
       </Suspense>
     </Canvas>
   )

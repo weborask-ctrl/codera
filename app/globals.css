@@ -959,3 +959,34 @@ main[data-experience="v3"][data-wipe-done] .wipe-statement {
 @media (prefers-reduced-motion: reduce) {
   .st-scribble { animation: none; stroke-dashoffset: 0; }
 }
+
+/* Observatórium ring passage (Ukážka Animácie & 3D, Iterácia 0.7): the
+   lines the rings carry in start invisible and are driven entirely by the
+   scrubbed GSAP timeline. Reduced motion is a layout: the sticky passage
+   collapses into a plain stacked section with every line readable. */
+.ob-line {
+  opacity: 0;
+  will-change: transform, opacity;
+  text-shadow:
+    0 2px 26px rgba(5, 7, 13, 0.95),
+    0 0 12px rgba(5, 7, 13, 0.9),
+    0 0 3px rgba(5, 7, 13, 0.9);
+}
+@media (prefers-reduced-motion: reduce) {
+  .ob-ringsec { height: auto; }
+  .ob-ringhold {
+    position: static;
+    height: auto;
+    padding: 10svh 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3.5rem;
+  }
+  .ob-line {
+    position: static;
+    opacity: 1;
+    transform: none;
+    margin-inline: auto;
+    will-change: auto;
+  }
+}
