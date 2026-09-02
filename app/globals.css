@@ -945,3 +945,17 @@ main[data-experience="v3"][data-wipe-done] .wipe-statement {
 @media (prefers-reduced-motion: reduce) {
   .pz-ticker { animation: none; }
 }
+
+/* Štúdio scribble (Ukážka 03): the citrus ellipse draws itself once on
+   entry — dash-offset over a normalised path; still under reduced motion. */
+.st-scribble {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: st-draw 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.5s forwards;
+}
+@keyframes st-draw {
+  to { stroke-dashoffset: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .st-scribble { animation: none; stroke-dashoffset: 0; }
+}
