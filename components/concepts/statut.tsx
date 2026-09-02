@@ -82,7 +82,7 @@ export function StatutHero({ portal = false }: { portal?: boolean }) {
       <div aria-hidden="true" className="absolute inset-0" style={{ background: "radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(8,8,11,0.75) 100%)" }} />
 
       <div aria-hidden="true" className={`kx-para-wrap absolute z-[6] ${portal ? "top-[4%] right-[6%]" : "top-[10%] right-[7%]"} hidden sm:block`}>
-        <Paragraph size={portal ? "10rem" : "clamp(11rem,30vh,19rem)"} />
+        <Paragraph size={portal ? "10rem" : "clamp(13rem,36vh,24rem)"} />
       </div>
 
       <header className={`relative z-10 flex items-baseline justify-between border-b border-[#EDEDEA]/25 px-[clamp(1.25rem,4vw,4rem)] ${portal ? "pt-6" : "pt-10"} pb-4`}>
@@ -112,20 +112,20 @@ export function StatutHero({ portal = false }: { portal?: boolean }) {
         {/* type as hero (R4): the word owns the frame — no trailing dot */}
         <h1
           className="kx-word wfx"
-          style={{ ...INST, fontSize: portal ? "7rem" : "clamp(3.4rem,15.4vw,14.5rem)", lineHeight: 0.98, letterSpacing: "-0.02em", textShadow: "0 30px 80px rgba(0,0,0,0.55)", ...fx(0) }}
+          style={{ ...INST, fontSize: portal ? "7rem" : "clamp(3.8rem,17vw,16.5rem)", lineHeight: 0.95, letterSpacing: "-0.02em", textShadow: "0 30px 80px rgba(0,0,0,0.55)", ...fx(0) }}
         >
           Kancelária
         </h1>
-        <p className="wfx mt-6 max-w-[40rem] text-[1.08rem] leading-[1.65] text-[#EDEDEA]/90" style={fx(1)}>
+        <p className="wfx mt-7 max-w-[46rem] text-[1.2rem] leading-[1.6] text-[#EDEDEA]/90 lg:text-[1.35rem]" style={fx(1)}>
           Právo je nástroj. Používame ho presne — obchodné a majetkové vzťahy
           od roku 1998.
         </p>
         <div className="wfx mt-8 flex flex-wrap items-center justify-center gap-4" style={fx(2)}>
-          <span className="cursor-pointer px-7 py-3.5 text-[0.66rem] tracking-[0.12em] transition-transform hover:-translate-y-0.5" style={{ ...MONO, background: STONE, color: "#14161A" }}>
+          <span className="cursor-pointer px-11 py-5 text-[0.82rem] font-semibold tracking-[0.12em] transition-transform hover:-translate-y-0.5" style={{ ...MONO, background: STONE, color: "#14161A" }}>
             NEZÁVÄZNÁ KONZULTÁCIA
           </span>
           {portal ? null : (
-            <a href="#prax" className="border border-[#EDEDEA]/55 px-7 py-3.5 text-[0.66rem] tracking-[0.12em] text-[#EDEDEA]/90 backdrop-blur-[3px] transition-colors hover:border-[#EDEDEA]" style={{ ...MONO, background: "rgba(16,17,21,0.3)" }}>
+            <a href="#prax" className="border-[1.5px] border-[#EDEDEA]/60 px-11 py-5 text-[0.82rem] font-semibold tracking-[0.12em] text-[#EDEDEA]/95 backdrop-blur-[3px] transition-colors hover:border-[#EDEDEA]" style={{ ...MONO, background: "rgba(16,17,21,0.3)" }}>
               OBLASTI PRAXE ↓
             </a>
           )}
@@ -140,7 +140,7 @@ export function StatutHero({ portal = false }: { portal?: boolean }) {
           ["SK · CZ", "", "JURISDIKCIE"],
         ].map(([v, from, l], i) => (
           <div key={l} className="wfx border-r border-[#EDEDEA]/15 px-[clamp(1rem,4vw,4rem)] py-5 last:border-r-0" style={fx(i + 2)}>
-            <p className="tnum text-[2.3rem] tracking-normal" style={INST}>
+            <p className="tnum text-[2.9rem] tracking-normal" style={INST}>
               {from ? (
                 <span data-count={v} data-from={from}>
                   {v}
