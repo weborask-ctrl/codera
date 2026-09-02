@@ -108,11 +108,11 @@ export function StatutHero({ portal = false }: { portal?: boolean }) {
         </nav>
       </header>
 
-      <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-[clamp(1.25rem,4vw,4rem)] py-10 text-center">
+      <div className="relative z-10 flex flex-1 flex-col items-start justify-end px-[clamp(1.25rem,4vw,4rem)] pt-10 pb-8 text-left">
         {/* type as hero (R4): the word owns the frame — no trailing dot */}
         <h1
           className="kx-word wfx"
-          style={{ ...INST, fontSize: portal ? "7rem" : "clamp(3.8rem,17vw,16.5rem)", lineHeight: 0.95, letterSpacing: "-0.02em", textShadow: "0 30px 80px rgba(0,0,0,0.55)", ...fx(0) }}
+          style={{ ...INST, fontSize: portal ? "7rem" : "clamp(4rem,18vw,17.5rem)", lineHeight: 0.9, marginLeft: "-0.04em", letterSpacing: "-0.02em", textShadow: "0 30px 80px rgba(0,0,0,0.55)", ...fx(0) }}
         >
           Kancelária
         </h1>
@@ -120,7 +120,7 @@ export function StatutHero({ portal = false }: { portal?: boolean }) {
           Právo je nástroj. Používame ho presne — obchodné a majetkové vzťahy
           od roku 1998.
         </p>
-        <div className="wfx mt-8 flex flex-wrap items-center justify-center gap-4" style={fx(2)}>
+        <div className="wfx mt-8 flex flex-wrap items-center gap-4" style={fx(2)}>
           <span className="cursor-pointer px-11 py-5 text-[0.82rem] font-semibold tracking-[0.12em] transition-transform hover:-translate-y-0.5" style={{ ...MONO, background: STONE, color: "#14161A" }}>
             NEZÁVÄZNÁ KONZULTÁCIA
           </span>

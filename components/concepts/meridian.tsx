@@ -49,13 +49,12 @@ export function MeridianHero({ portal = false }: { portal?: boolean }) {
       className={`pz-hero relative flex h-full flex-col overflow-hidden ${portal ? "" : "min-h-svh"}`}
       style={{ background: UMBRA, color: CREAM }}
     >
-      {/* the hero still (Ondrej's pick from the mock): dark roasted beans
-          in burlap — sharp and moody; the green lives in the subscription
-          band and the story imagery */}
+      {/* the hero still: razor-sharp dark roast macro (Ondrej: the burlap
+          shot read soft) — the green lives in the subscription band */}
       <div
         aria-hidden="true"
         className="pz-heroimg absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${IMG}/vrece.jpg)` }}
+        style={{ backgroundImage: `url(${IMG}/zrnka.jpg)` }}
       />
       <div aria-hidden="true" className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(18,24,16,0.5) 0%, rgba(18,24,16,0.12) 42%, rgba(18,24,16,0.62) 100%)" }} />
 
