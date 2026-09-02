@@ -116,7 +116,7 @@ export function StatutHero({ portal = false }: { portal?: boolean }) {
         >
           Kancelária
         </h1>
-        <p className="wfx mt-6 max-w-[38rem] text-[0.98rem] leading-[1.65] text-[#EDEDEA]/85" style={fx(1)}>
+        <p className="wfx mt-6 max-w-[40rem] text-[1.08rem] leading-[1.65] text-[#EDEDEA]/90" style={fx(1)}>
           Právo je nástroj. Používame ho presne — obchodné a majetkové vzťahy
           od roku 1998.
         </p>
@@ -140,7 +140,7 @@ export function StatutHero({ portal = false }: { portal?: boolean }) {
           ["SK · CZ", "", "JURISDIKCIE"],
         ].map(([v, from, l], i) => (
           <div key={l} className="wfx border-r border-[#EDEDEA]/15 px-[clamp(1rem,4vw,4rem)] py-5 last:border-r-0" style={fx(i + 2)}>
-            <p className="tnum text-[1.9rem] tracking-normal" style={INST}>
+            <p className="tnum text-[2.3rem] tracking-normal" style={INST}>
               {from ? (
                 <span data-count={v} data-from={from}>
                   {v}
@@ -234,7 +234,7 @@ export default function StatutSite() {
 
       {/* ---- the practice register, with photo previews [obys] ---- */}
       <Shell id="prax" className="px-[clamp(1.25rem,4vw,4rem)] py-[11svh]">
-        <h2 className="wfx" style={{ ...INST, fontSize: "clamp(2.2rem,4.6vw,4rem)", lineHeight: 1, ...fx(0) }}>
+        <h2 className="wfx" style={{ ...INST, fontSize: "clamp(2.9rem,6.2vw,5.6rem)", lineHeight: 1, ...fx(0) }}>
           Oblasti praxe
         </h2>
         <div className="mt-10 grid gap-12 lg:grid-cols-[1fr_26rem]">
@@ -253,11 +253,11 @@ export default function StatutSite() {
                   <div>
                     <p
                       className="transition-transform duration-300 group-hover:translate-x-1.5"
-                      style={{ ...INST, fontSize: "clamp(1.9rem,3.3vw,3rem)", lineHeight: 1.05, fontStyle: active === i ? "italic" : "normal" }}
+                      style={{ ...INST, fontSize: "clamp(2.2rem,3.9vw,3.6rem)", lineHeight: 1.05, fontStyle: active === i ? "italic" : "normal" }}
                     >
                       {title}
                     </p>
-                    <p className="mt-2 max-w-[30rem] text-[0.9rem] leading-[1.6] text-[#14161A]/70">{body}</p>
+                    <p className="mt-2.5 max-w-[32rem] text-[0.98rem] leading-[1.6] text-[#14161A]/80">{body}</p>
                   </div>
                   <span className="text-right text-[1.3rem] transition-colors duration-300" style={{ color: active === i ? OX : "rgba(20,22,26,0.35)" }}>
                     →
@@ -289,14 +289,14 @@ export default function StatutSite() {
           <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, #101115 0%, rgba(16,17,21,0.4) 55%, rgba(110,31,38,0.35) 100%)" }} />
         </div>
         <div className="relative z-10 max-w-[44rem]">
-          <h2 className="wfx" style={{ ...INST, fontSize: "clamp(2.2rem,4.6vw,4rem)", lineHeight: 1, ...fx(0) }}>
+          <h2 className="wfx" style={{ ...INST, fontSize: "clamp(2.9rem,6.2vw,5.6rem)", lineHeight: 1, ...fx(0) }}>
             Tím
           </h2>
           <ol className="mt-10 border-t border-[#EDEDEA]/25">
             {TEAM.map(([name, role, focus], i) => (
               <li key={name} className="wfx grid grid-cols-[1fr_auto] items-baseline gap-4 border-b border-[#EDEDEA]/15 py-6" style={fx(i + 1)}>
                 <div>
-                  <p style={{ ...INST, fontSize: "1.7rem", lineHeight: 1.1 }}>{name}</p>
+                  <p style={{ ...INST, fontSize: "2.1rem", lineHeight: 1.1 }}>{name}</p>
                   <p className="mt-1 text-[0.6rem] tracking-[0.14em] text-[#EDEDEA]/60" style={MONO}>
                     {focus.toUpperCase()}
                   </p>
@@ -316,7 +316,7 @@ export default function StatutSite() {
 
       {/* ---- publications ---- */}
       <Shell id="publikacie" className="border-y border-[#14161A]/20 px-[clamp(1.25rem,4vw,4rem)] py-[10svh]" style={{ background: "#E4E4E0" }}>
-        <h2 className="wfx" style={{ ...INST, fontSize: "clamp(2.2rem,4.6vw,4rem)", lineHeight: 1, ...fx(0) }}>
+        <h2 className="wfx" style={{ ...INST, fontSize: "clamp(2.9rem,6.2vw,5.6rem)", lineHeight: 1, ...fx(0) }}>
           Z publikácií
         </h2>
         <div className="mt-10 grid gap-px bg-[#14161A]/15 sm:grid-cols-3">
@@ -326,10 +326,10 @@ export default function StatutSite() {
             ["2025", "Rozhodcovské doložky, ktoré obstoja"],
           ].map(([y, t], i) => (
             <article key={t} className="wfx group cursor-pointer px-6 py-7 transition-transform duration-300 hover:-translate-y-1" style={{ background: "#E4E4E0", ...fx(i + 1) }}>
-              <p className="tnum" style={{ ...INST, fontSize: "1.9rem", color: OX }}>
+              <p className="tnum" style={{ ...INST, fontSize: "2.3rem", color: OX }}>
                 {y}
               </p>
-              <p className="mt-3 text-[1.02rem] leading-[1.45]" style={INST}>
+              <p className="mt-3 text-[1.18rem] leading-[1.45]" style={INST}>
                 {t}
               </p>
               <p className="mt-4 text-[0.7rem] opacity-0 transition-opacity duration-300 group-hover:opacity-60" style={MONO}>
@@ -345,7 +345,7 @@ export default function StatutSite() {
         <div aria-hidden="true" className="kx-closeimg absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${IMG}/podpis.jpg)`, filter: "grayscale(1) contrast(1.1) brightness(0.45)", transform: "scale(1.15)" }} />
         <div aria-hidden="true" className="absolute inset-0" style={{ background: "linear-gradient(160deg, rgba(16,17,21,0.85) 0%, rgba(42,20,24,0.7) 60%, rgba(110,31,38,0.5) 100%)", mixBlendMode: "multiply" }} />
         <div className="relative z-10 mx-auto max-w-[50rem] text-center">
-          <h2 className="wfx" style={{ ...INST, fontSize: "clamp(2.2rem,5vw,4.4rem)", lineHeight: 1.05, ...fx(0) }}>
+          <h2 className="wfx" style={{ ...INST, fontSize: "clamp(2.7rem,5.8vw,5.4rem)", lineHeight: 1.05, ...fx(0) }}>
             Prvá konzultácia je o vašom probléme, nie o našom cenníku.
           </h2>
           <div className="wfx mt-9 flex flex-wrap items-center justify-center gap-5" style={fx(1)}>
