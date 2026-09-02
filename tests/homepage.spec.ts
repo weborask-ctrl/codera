@@ -317,7 +317,7 @@ test.describe("Codera homepage", () => {
     /* the portal gallery replaced the swipe deck (AD v3 amendment 2):
        three portals stack vertically, each linking into its concept */
     const portals = page.locator('#praca a[href^="/ukazky/"]')
-    await expect(portals).toHaveCount(7) // name link + inline portal per ready skill + the desktop sticky portal (attached, lg-hidden)
+    await expect(portals).toHaveCount(9) // name link + inline portal per ready skill (4) + the desktop sticky portal (attached, lg-hidden)
     await portals.first().scrollIntoViewIfNeeded()
     await expect(portals.first()).toBeVisible()
     /* the page itself must not gain horizontal scroll from the portals */
@@ -500,7 +500,7 @@ test.describe("Concept sites", () => {
   test("every concept opens as a full page wearing the honest ribbon", async ({ browser }) => {
     const context = await browser.newContext({ javaScriptEnabled: false })
     const page = await context.newPage()
-    for (const slug of ["dizajn", "objednavky", "rezervacie"]) {
+    for (const slug of ["dizajn", "objednavky", "rezervacie", "animacie-3d"]) {
       const res = await page.goto(`/ukazky/${slug}`)
       expect(res?.status()).toBe(200)
       await expect(page.locator("body")).toContainText("DEMO · CODERA")

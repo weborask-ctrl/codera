@@ -12,7 +12,7 @@ export interface Skill {
   line: string
   tags: string
   /** Which demo renders it, when live. */
-  demo?: "objednavky" | "dizajn" | "rezervacie"
+  demo?: "objednavky" | "dizajn" | "rezervacie" | "animacie"
   ready: boolean
 }
 
@@ -46,7 +46,8 @@ export const skills: readonly Skill[] = [
     name: "Animácie & 3D",
     line: "Pohyb viazaný na scroll a priestor s reálnou hĺbkou — presne to, na čom stojí táto stránka.",
     tags: "WEBGL · SCROLL CHOREOGRAFIA · POINTER FYZIKA",
-    ready: false,
+    demo: "animacie",
+    ready: true,
   },
   {
     slug: "vykon",

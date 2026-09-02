@@ -11,6 +11,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { MeridianHero } from "@/components/concepts/meridian"
+import { ObservatoriumHero } from "@/components/concepts/observatorium"
 import { StatutHero } from "@/components/concepts/statut"
 import { VlnaHero } from "@/components/concepts/vlna"
 import { packages } from "@/lib/site-config"
@@ -258,41 +259,12 @@ const SKILL_HEROES: Record<string, React.ComponentType<{ portal?: boolean }>> = 
   dizajn: StatutHero,
   objednavky: MeridianHero,
   rezervacie: VlnaHero,
+  animacie: ObservatoriumHero,
 }
 
 /* Iterácia 0.4: provisional portal panels for the two skills whose demo
    sites are not built yet — an honest teaser in the portal frame, never a
    dead link. Each gets replaced by its real demo in its own session. */
-function AnimTeaser() {
-  return (
-    <div className="relative flex h-full flex-col justify-between overflow-hidden bg-[#101116] p-[6cqw] text-[#f2f4f6]">
-      <div aria-hidden="true" className="absolute inset-0">
-        <div
-          className="absolute rounded-full"
-          style={{ right: "-12%", top: "-22%", width: "58%", aspectRatio: "1", background: "radial-gradient(50% 50% at 50% 50%, rgba(125,145,185,0.38), transparent 70%)" }}
-        />
-        <div className="absolute rounded-full border border-white/12" style={{ right: "6%", top: "10%", width: "36%", aspectRatio: "1", transform: "rotateX(62deg)" }} />
-        <div className="absolute rounded-full border border-white/8" style={{ right: "-1%", top: "4%", width: "50%", aspectRatio: "1", transform: "rotateX(62deg)" }} />
-        <div className="absolute h-[1.2cqw] w-[1.2cqw] rounded-full bg-[#dce6ee]" style={{ right: "22%", top: "24%" }} />
-      </div>
-      <p className="relative text-[1.35cqw] tracking-[0.22em] text-white/55" style={MONO}>
-        ANIMÁCIE & 3D · UKÁŽKA V PRÍPRAVE
-      </p>
-      <div className="relative">
-        <h3 style={{ ...DISPLAY, fontSize: "5.4cqw", lineHeight: 1.06, fontWeight: 420 }}>
-          Priestor, ktorý sa pohne,
-          <br />
-          keď sa pohnete vy.
-        </h3>
-        <p className="mt-[2cqw] max-w-[52cqw] text-[1.7cqw] leading-[1.55] text-white/65">
-          Scroll choreografia a reálna hĺbka — stavia sa na rovnakom základe ako
-          stránka, na ktorej práve ste.
-        </p>
-      </div>
-    </div>
-  )
-}
-
 function VykonTeaser() {
   return (
     <div className="relative flex h-full flex-col justify-between overflow-hidden bg-[#F3F5F7] p-[6cqw] text-[#17181d]">
@@ -322,7 +294,6 @@ function VykonTeaser() {
 }
 
 const SKILL_TEASERS: Record<string, React.ComponentType<{ portal?: boolean }>> = {
-  "animacie-3d": AnimTeaser,
   vykon: VykonTeaser,
 }
 

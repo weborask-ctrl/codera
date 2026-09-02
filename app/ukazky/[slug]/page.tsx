@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import MeridianSite from "@/components/concepts/meridian"
+import ObservatoriumSite from "@/components/concepts/observatorium"
 import { DemoTag } from "@/components/concepts/shell"
 import StatutSite from "@/components/concepts/statut"
 import VlnaSite from "@/components/concepts/vlna"
@@ -18,6 +19,7 @@ const DEMOS = {
   dizajn: StatutSite,
   objednavky: MeridianSite,
   rezervacie: VlnaSite,
+  animacie: ObservatoriumSite,
 } as const
 
 /** Each demo's design decisions live in its case study on /praca. */
