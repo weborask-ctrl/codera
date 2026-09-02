@@ -120,13 +120,13 @@ export function VlnaHero({ portal = false }: { portal?: boolean }) {
       <div aria-hidden="true" className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(10,11,12,0.55) 0%, rgba(10,11,12,0.15) 45%, rgba(10,11,12,0.7) 100%)" }} />
 
       <header className="relative z-10 flex items-center justify-between px-[clamp(1.25rem,4vw,3.5rem)] pt-6 pb-4">
-        <span style={{ ...BRIC, fontWeight: 800, fontSize: "1.4rem", letterSpacing: "0.02em" }}>ŠTÚDIO</span>
+        <span style={{ ...BRIC, fontWeight: 800, fontSize: "1.65rem", letterSpacing: "0.02em" }}>ŠTÚDIO</span>
         <nav className="hidden gap-6 text-[0.86rem] font-medium opacity-90 md:flex">
           <span className="cursor-pointer">Rozvrh</span>
           <span className="cursor-pointer">Lektori</span>
           <span className="cursor-pointer">Členstvo</span>
         </nav>
-        <span className="rounded-full px-5 py-2.5 text-[0.8rem] font-bold" style={{ background: LIME, color: BLACK }}>
+        <span className="rounded-full px-6 py-3 text-[0.92rem] font-bold" style={{ background: LIME, color: BLACK }}>
           REZERVOVAŤ
         </span>
       </header>
@@ -135,13 +135,15 @@ export function VlnaHero({ portal = false }: { portal?: boolean }) {
         <div className="max-w-[46rem]">
           <h1
             className="wfx uppercase"
-            style={{ ...BRIC, fontWeight: 800, fontSize: portal ? "4rem" : "clamp(3rem,9.4vw,9rem)", lineHeight: 0.94, letterSpacing: "-0.025em", ...fx(0) }}
+            style={{ ...BRIC, fontWeight: 800, fontSize: portal ? "4rem" : "clamp(3.2rem,9.6vw,9.2rem)", lineHeight: 0.92, letterSpacing: "-0.025em", ...fx(0) }}
           >
             Začnite
             <br />
-            vo <Scribble>štvrtok</Scribble>.
+            <span style={{ whiteSpace: "nowrap" }}>
+              vo <Scribble>štvrtok</Scribble>.
+            </span>
           </h1>
-          <p className="wfx mt-5 max-w-[34rem] text-[1.08rem] leading-[1.5] text-[#F4F6F2]/85" style={fx(1)}>
+          <p className="wfx mt-6 max-w-[40rem] text-[1.28rem] leading-[1.5] text-[#F4F6F2]/90" style={fx(1)}>
             Žiadne PDF, žiadne písanie do správ. Vyberiete lekciu, vidíte
             voľné miesta, zaplatíte — celé to trvá menej než minútu.
           </p>
@@ -152,10 +154,10 @@ export function VlnaHero({ portal = false }: { portal?: boolean }) {
               </span>
             ) : (
               <>
-                <a href="#rozvrh" className="rounded-full px-8 py-4 text-[1rem] font-bold transition-transform hover:-translate-y-0.5" style={{ background: LIME, color: BLACK }}>
+                <a href="#rozvrh" className="rounded-full px-10 py-5 text-[1.15rem] font-bold transition-transform hover:-translate-y-0.5" style={{ background: LIME, color: BLACK }}>
                   Rezervovať lekciu
                 </a>
-                <a href="#clenstvo" className="rounded-full px-8 py-4 text-[1rem] font-bold transition-transform hover:-translate-y-0.5" style={{ background: PINK, color: BLACK }}>
+                <a href="#clenstvo" className="rounded-full px-10 py-5 text-[1.15rem] font-bold transition-transform hover:-translate-y-0.5" style={{ background: PINK, color: BLACK }}>
                   Prvá lekcia 6 €
                 </a>
               </>
@@ -164,17 +166,17 @@ export function VlnaHero({ portal = false }: { portal?: boolean }) {
         </div>
 
         {/* today, right on the first screen — the schedule IS the hero */}
-        <div className="wfx w-full max-w-[400px] rounded-[16px] border border-[#F4F6F2]/18 p-5 backdrop-blur-[10px]" style={{ background: "rgba(14,15,16,0.72)", ...fx(2) }}>
-          <p className="text-[0.68rem] tracking-[0.2em] text-[#F4F6F2]/60" style={MONO}>
-            DNES · ŠTVRTOK
+        <div className="wfx w-full max-w-[470px] rounded-[18px] border border-[#F4F6F2]/18 p-6 backdrop-blur-[10px]" style={{ background: "rgba(14,15,16,0.72)", ...fx(2) }}>
+          <p className="text-[1.05rem] font-bold" style={{ ...BRIC, color: LIME }}>
+            Dnes · štvrtok
           </p>
           <div>
             {WEEK["DNES · ŠTVRTOK"].map((l) => (
-              <div key={l.time} className="flex items-center justify-between gap-3 border-b border-[#F4F6F2]/12 py-3 last:border-b-0">
-                <span className="text-[0.8rem]" style={{ ...MONO, color: LIME }}>
+              <div key={l.time} className="flex items-center justify-between gap-3 border-b border-[#F4F6F2]/12 py-3.5 last:border-b-0">
+                <span className="text-[0.95rem]" style={{ ...MONO, color: LIME }}>
                   {l.time}
                 </span>
-                <span className="flex-1 text-[0.94rem] font-semibold">{l.name}</span>
+                <span className="flex-1 text-[1.1rem] font-semibold">{l.name}</span>
                 <SpotPill spots={l.spots} />
               </div>
             ))}
