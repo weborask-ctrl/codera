@@ -932,3 +932,16 @@ main[data-experience="v3"][data-wipe-done] .wipe-statement {
   opacity: clamp(0, calc((1 - var(--write, 1)) * var(--write, 1) * 14), 1);
   pointer-events: none;
 }
+
+/* Pražiareň data ticker (Ukážka 02): the origin facts loop — a doubled
+   list sliding half its width; still under reduced motion. */
+@keyframes pz-tick {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.pz-ticker {
+  animation: pz-tick 28s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pz-ticker { animation: none; }
+}
