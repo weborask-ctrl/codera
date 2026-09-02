@@ -125,7 +125,7 @@ export const caseStudies: readonly CaseStudy[] = [
       },
     ],
     climate: {
-      ground: "Krieda a hlboký teal, citrus nasadený sebavedomo.",
+      ground: "Čiernobiela fotografia pohybu pod neónom — citrus a ružová nasadené sebavedomo.",
       type: "Široký grotesk, tesný a hlasný.",
       density: "Vzdušná — ale rozvrh je skutočná mriežka so skutočnými časmi.",
     },
