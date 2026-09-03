@@ -177,6 +177,40 @@ bez JS — rovnaký princíp ako case-study stránky Codery.
 ktoré otvorí skutočný Matterport embed reálnej realizácie, ak ho klient
 má/objedná. Autorská prechádzka predáva, Matterport dokazuje.
 
+### 5b. Aktualizácia po fáze 0 (2. dávka screenshotov, 2026-09-03)
+
+Skutočná ponuka má 12 položiek (CONTENT_INVENTORY.md §3) a je širšia,
+než plán predpokladal: okrem domu na kľúč aj strechy, altánky, terasy,
+garáže/carporty, sadrokartóny, obklady, renovácie, maľovanie,
+zateplenie, interiéry, konzultácie a nákup materiálu. Dom to unesie —
+každá služba má v dome svoje fyzické miesto, takže **izby nesú remeslá**:
+
+| Beat | Miesto v dome | Podstránka / služby, ktoré nesie |
+| --- | --- | --- |
+| 0 | exteriér, ráno | (Drevo)domy na kľúč — prísľub; logo-hračka EKO-LOGICKÉ / EKO-NOMICKÉ ako dvojica argumentov |
+| 1 | príchod, fasáda | Obklady (rhombus, tatranský profil, thermo drevo) + Strechy — kamera prejde popri fasáde a pod strechou; anotácie: profil, krytina |
+| 2 | zádverie | O nás — „remeslo od 2007, firma od 2017" (po potvrdení), 4 hodnotové dlaždice, Konzultácie zadarmo |
+| 3 | obývačka s kozubom | Kúrenie + Interiéry („podsvietený sprchový kút, hojdačka z 2. poschodia") |
+| 4 | rez stenou | Konštrukcia (difúzne otvorená/uzatvorená — vyjasniť) + Zateplenie + Sadrokartóny — vrstvy sa otvárajú zvonku dnu: obklad → izolácia → nosná konštrukcia → sadrokartón → maľovanie |
+| 5 | kuchyňa / spálňa | Zdravé bývanie, prírodné materiály, bórax („Soľ nad zlato") + Renovácie ako „čo vieme zmeniť v existujúcom dome" |
+| 6 | terasa → záhrada | Terasy + Altánky + Garáže/carporty — kamera vyjde presklením na terasu (Bungalov v Prešove má presne túto situáciu) |
+| 7 | vtáčia perspektíva | Realizácie — feed skutočných projektov 2013→2024 s ich vlastnými textami („spáchali sme milý bungalov") |
+| 8 | večer pred domom | Kontakt — „Volajte kedykoľvek ;)", tap-to-call, Zoženieme/zobchodujeme ako posledný argument |
+
+**Hrdinský dom — odporúčanie:** *Moderný dizajnový dom (2024)* —
+smrekovcový rhombus obklad + Fundermax, drevo je na ňom VIDIEŤ, čo
+je pre drevostavbu najsilnejší argument. Záloha: *Bungalov v Prešove
+(2021)* — jednopodlažný, jednoduchšia kamera, prirodzený prechod
+terasa → záhrada. Obidva potrebujú pôdorys a interiérové fotky.
+
+**Spresnenie Design DNA (§3):** osobnosť značky nie je „inžinierska
+istota" v tóne, ale **remeselník, ktorý vie a nehrá sa na pána** —
+presnosť žije v anotačnej vrstve (kóty, skladby, U-hodnoty), ľudskosť
+a humor v texte. Copy súčasného webu sa zachová v duchu, nie prepíše
+do agentúrnej slovenčiny. Existujúca zemitá paleta loga (hnedá ·
+piesková · zelená) potvrdzuje organic-natural smer; oranžová z šablóny
+sa nepreberá.
+
 ## 6. Kľúčové technické rozhodnutie: pečený svet, nie realtime bitka
 
 Lekcia benchmarku (08 §9 — Arqitel je scroll-scrubované VIDEO z C4D;
