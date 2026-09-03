@@ -433,7 +433,7 @@ function ActWork({ world }: { world: boolean }) {
           {skills.map((s, i) => (
             <li key={s.slug} data-skill-row data-enter className="border-t border-black/15 last:border-b">
               <div
-                className="group flex w-full flex-col py-7 text-left lg:py-8"
+                className="group flex w-full flex-col text-left"
                 onFocusCapture={() => setActive(i)}
                 onPointerEnter={() => {
                   if (!canHover.current) {
@@ -446,7 +446,7 @@ function ActWork({ world }: { world: boolean }) {
                 {s.ready ? (
                   <a
                     href={`/ukazky/${s.slug}`}
-                    className="text-[#17181d] transition-transform duration-300 group-hover:translate-x-2"
+                    className="block w-full py-7 text-[#17181d] transition-transform duration-300 group-hover:translate-x-2 lg:py-8"
                     style={{ ...DISPLAY, fontSize: "clamp(2.8rem,6.2vw,6.2rem)", lineHeight: 1, letterSpacing: "-0.018em", fontWeight: 520 }}
                   >
                     {s.name}
@@ -456,7 +456,7 @@ function ActWork({ world }: { world: boolean }) {
                   </a>
                 ) : (
                   <span
-                    className="text-[#17181d]/45"
+                    className="block w-full py-7 text-[#17181d]/45 lg:py-8"
                     style={{ ...DISPLAY, fontSize: "clamp(2.8rem,6.2vw,6.2rem)", lineHeight: 1, letterSpacing: "-0.018em", fontWeight: 520 }}
                   >
                     {s.name}
@@ -466,7 +466,7 @@ function ActWork({ world }: { world: boolean }) {
                   </span>
                 )}
                 {/* mobile: the portal rides under its own row */}
-                <div className="mt-4 lg:hidden">
+                <div className="-mt-2 pb-7 lg:hidden">
                   <Portal
                     Hero={s.demo ? SKILL_HEROES[s.demo] : SKILL_TEASERS[s.slug]}
                     href={s.ready ? `/ukazky/${s.slug}` : undefined}

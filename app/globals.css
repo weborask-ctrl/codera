@@ -990,3 +990,28 @@ main[data-experience="v3"][data-wipe-done] .wipe-statement {
     will-change: auto;
   }
 }
+
+/* Štúdio lektori ride (Iterácia 0.9): a doubled strip drifting left→right;
+   hover pauses the ride and restores the colour. Reduced motion: no ride —
+   the strip becomes a plain swipeable row. */
+@keyframes st-lekt-ride {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+.st-lekt {
+  animation: st-lekt-ride 55s linear infinite;
+}
+.st-lekt-viewport:hover .st-lekt {
+  animation-play-state: paused;
+}
+.st-coach img {
+  filter: grayscale(1) contrast(1.08);
+  transition: filter 0.5s ease, transform 0.5s ease;
+}
+.st-coach:hover img {
+  filter: grayscale(0) contrast(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .st-lekt { animation: none; }
+  .st-lekt-viewport { overflow-x: auto; }
+}

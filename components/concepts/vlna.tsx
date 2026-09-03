@@ -300,33 +300,39 @@ export default function VlnaSite() {
         <h2 className="wfx uppercase" style={{ ...BRIC, fontWeight: 800, fontSize: "clamp(2.4rem,5.6vw,4.8rem)", letterSpacing: "-0.02em", ...fx(0) }}>
           9 lektorov
         </h2>
-        <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-[repeat(auto-fit,minmax(180px,1fr))]">
-          {COACHES.map(([name, focus, img], i) => (
-            <div
-              key={name}
-              className="wfx group overflow-hidden rounded-2xl border border-[#F4F6F2]/15 transition-colors hover:border-[#D8F34E]"
-              style={fx((i % 5) + 1)}
-            >
-              <div className="overflow-hidden">
-                {/* biome-ignore lint/performance/noImgElement: demo asset, fixed size, below the fold */}
-                <img
-                  src={`${IMG}/lektori/${img}.jpg`}
-                  alt={`${name} — ${focus}`}
-                  loading="lazy"
-                  className="aspect-[4/5] w-full object-cover transition-all duration-500 group-hover:scale-[1.04]"
-                  style={{ filter: "grayscale(1) contrast(1.08)" }}
-                />
+        {/* Iterácia 0.9 (Ondrej): big portraits riding left→to→right on a
+            slow loop; hover pauses the ride and returns the colour */}
+        <div className="st-lekt-viewport mt-9 overflow-hidden">
+          <div className="st-lekt flex w-max gap-5">
+            {[...COACHES, ...COACHES].map(([name, focus, img], i) => (
+              <div
+                key={`${name}-${
+                  // biome-ignore lint/suspicious/noArrayIndexKey: the loop is a doubled static list.
+                  i
+                }`}
+                className="st-coach group w-[280px] shrink-0 overflow-hidden rounded-2xl border border-[#F4F6F2]/15 transition-colors hover:border-[#D8F34E] sm:w-[330px]"
+                aria-hidden={i >= COACHES.length}
+              >
+                <div className="overflow-hidden">
+                  {/* biome-ignore lint/performance/noImgElement: demo asset, fixed size, below the fold */}
+                  <img
+                    src={`${IMG}/lektori/${img}.jpg`}
+                    alt={i < COACHES.length ? `${name} — ${focus}` : ""}
+                    loading="lazy"
+                    className="aspect-[4/5] w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                  />
+                </div>
+                <div className="flex items-baseline justify-between gap-2 px-5 py-4">
+                  <span className="text-[1.35rem] font-bold transition-colors group-hover:text-[#D8F34E]" style={BRIC}>
+                    {name}
+                  </span>
+                  <span className="text-[0.66rem] tracking-[0.08em] text-[#F4F6F2]/55" style={MONO}>
+                    {focus.toUpperCase()}
+                  </span>
+                </div>
               </div>
-              <div className="flex items-baseline justify-between gap-2 px-4 py-3.5">
-                <span className="text-[1.15rem] font-bold transition-colors group-hover:text-[#D8F34E]" style={BRIC}>
-                  {name}
-                </span>
-                <span className="text-[0.62rem] tracking-[0.08em] text-[#F4F6F2]/55" style={MONO}>
-                  {focus.toUpperCase()}
-                </span>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </Shell>
 

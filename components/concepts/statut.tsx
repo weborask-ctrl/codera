@@ -132,27 +132,36 @@ export function StatutHero({ portal = false }: { portal?: boolean }) {
         </div>
       </div>
 
-      {/* the record band — an institution proves itself with records */}
-      <div className="relative z-10 grid grid-cols-3 border-t border-[#EDEDEA]/30 text-[0.56rem] backdrop-blur-[6px]" style={{ ...MONO, background: "rgba(10,11,14,0.45)" }}>
-        {[
-          ["1998", "1900", "ZALOŽENÁ"],
-          ["14", "0", "ADVOKÁTOV"],
-          ["SK · CZ", "", "JURISDIKCIE"],
-        ].map(([v, from, l], i) => (
-          <div key={l} className="wfx border-r border-[#EDEDEA]/15 px-[clamp(1rem,4vw,4rem)] py-5 last:border-r-0" style={fx(i + 2)}>
-            <p className="tnum text-[2.9rem] tracking-normal" style={INST}>
-              {from ? (
-                <span data-count={v} data-from={from}>
-                  {v}
-                </span>
-              ) : (
-                v
-              )}
-            </p>
-            <p className="mt-1 tracking-[0.2em] text-[#EDEDEA]/60">{l}</p>
-          </div>
-        ))}
-      </div>
+    </Shell>
+  )
+}
+
+/**
+ * The record band — an institution proves itself with records. Iterácia
+ * 0.9: it moved OUT of the hero photograph (Ondrej: no numbers or text
+ * inside the image) onto its own solid ink strip right below.
+ */
+function RecordBand() {
+  return (
+    <Shell className="grid grid-cols-3 text-[0.56rem]" style={{ ...MONO, background: "#101115", color: "#EDEDEA" }}>
+      {[
+        ["1998", "1900", "ZALOŽENÁ"],
+        ["14", "0", "ADVOKÁTOV"],
+        ["SK · CZ", "", "JURISDIKCIE"],
+      ].map(([v, from, l], i) => (
+        <div key={l} className="wfx border-r border-[#EDEDEA]/15 px-[clamp(1rem,4vw,4rem)] py-6 last:border-r-0" style={fx(i)}>
+          <p className="tnum text-[2.9rem] tracking-normal" style={INST}>
+            {from ? (
+              <span data-count={v} data-from={from}>
+                {v}
+              </span>
+            ) : (
+              v
+            )}
+          </p>
+          <p className="mt-1 tracking-[0.2em] text-[#EDEDEA]/60">{l}</p>
+        </div>
+      ))}
     </Shell>
   )
 }
@@ -231,6 +240,7 @@ export default function StatutSite() {
   return (
     <main ref={rootRef} style={{ background: STONE, color: "#14161A" }}>
       <StatutHero />
+      <RecordBand />
 
       {/* ---- the practice register, with photo previews [obys] ---- */}
       <Shell id="prax" className="px-[clamp(1.25rem,4vw,4rem)] py-[11svh]">
