@@ -20,6 +20,7 @@ an output directory; keep it out of the repository.
 | --- | --- | --- |
 | `capture-devices.mjs` | `npm run capture -- <dir>` | The five acts at tablet 768×1024 and mobile 390×844. |
 | `capture-boards.mjs` | `npm run capture:boards -- <dir>` | The Step 5 composition boards from `/boards`. |
+| `clients/ecodomcek/boards/capture.mjs` | `npm run capture:ecodomcek [filter]` | The EcoDomček art direction boards (three.js maquette + DOM) → `clients/ecodomcek/boards/out/`. Serves the folder itself; no dev server, no network. |
 
 ## References
 
