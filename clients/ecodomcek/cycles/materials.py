@@ -1111,7 +1111,7 @@ def _test_scene(names_to_show, cols):
     scene.camera = cam
     aspect = 1.6
     hfov = 2 * math.atan(aspect * math.tan(math.radians(fov) / 2))
-    dist = max((width * 0.5 + 0.1) / math.tan(hfov / 2), (depth * 0.5 + 0.4) / math.tan(math.radians(fov) / 2) * 1.35)
+    dist = max((width * 0.5 + 0.25) / math.tan(hfov / 2), (depth * 0.5 + 0.6) / math.tan(math.radians(fov) / 2) * 0.95)
     elev = math.radians(42.0)
     target = (0.0, 0.0, 0.12)
     cam.location = (0.0, target[1] + dist * math.cos(elev), target[2] + dist * math.sin(elev))
