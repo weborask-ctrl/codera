@@ -40,12 +40,12 @@ function starShell(n: number) {
 function Stars() {
   const geo = useMemo(() => {
     const g = new THREE.BufferGeometry()
-    g.setAttribute("position", new THREE.BufferAttribute(starShell(1900), 3))
+    g.setAttribute("position", new THREE.BufferAttribute(starShell(2600), 3))
     return g
   }, [])
   return (
     <points geometry={geo}>
-      <pointsMaterial color="#cfe0ff" size={0.055} sizeAttenuation transparent opacity={0.85} />
+      <pointsMaterial color="#cfe0ff" size={0.075} sizeAttenuation transparent opacity={0.95} />
     </points>
   )
 }
@@ -56,7 +56,7 @@ const SPARK_VERT = /* glsl */ `
   void main() {
     vPhase = phase;
     vec4 mv = modelViewMatrix * vec4(position, 1.0);
-    gl_PointSize = 340.0 / -mv.z;
+    gl_PointSize = 430.0 / -mv.z;
     gl_Position = projectionMatrix * mv;
   }
 `
@@ -80,7 +80,7 @@ const SPARK_FRAG = /* glsl */ `
 function Sparks() {
   const mat = useRef<THREE.ShaderMaterial>(null)
   const geo = useMemo(() => {
-    const n = 70
+    const n = 160
     const g = new THREE.BufferGeometry()
     g.setAttribute("position", new THREE.BufferAttribute(starShell(n), 3))
     const phase = new Float32Array(n)
