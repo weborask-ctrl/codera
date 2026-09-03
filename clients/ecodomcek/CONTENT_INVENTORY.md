@@ -1,107 +1,151 @@
-# ECODOMCEK.SK — obsahový inventár (Fáza 0, priebežný stav)
+# ECODOMCEK.SK — obsahový inventár (Fáza 0)
 
-Stav: NEÚPLNÉ — zostavené len z verejných search výsledkov (WebSearch),
-pretože priamy prístup na `ecodomcek.sk` aj na väčšinu ostatných externých
-domén (napr. `daibau.sk`) je v tomto prostredí blokovaný network egress
-proxy (`EGRESS_BLOCKED`). Toto NIE JE plnohodnotný crawl — je to podklad
-na doplnenie, kým sa nevyrieši prístup alebo kým nedodáš obsah priamo.
+Stav: ČIASTOČNÝ — doplňovaný. Zdroje: (a) verejné search výsledky,
+(b) screenshoty súčasného webu od Ondreja (2026-09-03, iPad Safari,
+5 záberov: kontakt/pätička, blog ×2, služby + CTA pás, služby mriežka).
+Priamy crawl domény je v tomto prostredí blokovaný (`EGRESS_BLOCKED`).
 
-Vytvorené: 2026-09-03.
+Sekcie označené ✅ sú overené zo screenshotu, ⚠️ len zo search výňatkov,
+❌ zatiaľ nevidené.
+
+Vytvorené: 2026-09-03 · aktualizované: 2026-09-03 (po 1. dávke screenshotov)
 
 ---
 
-## 1. Firma — potvrdené fakty
+## 1. Firma — fakty ✅
 
-- **Názov:** Eco Domček, s.r.o.
-- **Konateľ:** Mgr. Roman Chovanec — do stavebníctva prišiel z IT, prvý
-  montovaný drevodom si postavil sám v roku 2007.
-- **Vek firmy vs. skúsenosti — NEZROVNALOSŤ v zdrojoch:**
-  - jeden zdroj: firma založená 1. 1. 2017, tím s 10-ročnou skúsenosťou
-  - iný zdroj (referencia zákazníka): „18 rokov skúseností s drevostavbami"
-  - → **potrebuje overenie priamo s klientom**, nesmie sa použiť
-    nepotvrdené číslo na dôverovej vrstve (zákon č. 3 CLAUDE.md).
-- **Sídlo/pôsobisko:** spomínaná lokalita Lúčina (z názvu projektu aj
-  z katalógového záznamu „drevostavby, drevodomy, strechy, altánky,
-  terasy, sadrokartón, Lúčina").
-- **Claim:** „ekologické a ekonomické stavby" — „nemontujeme kusy
-  materiálu, pripravujeme vysnívaný domov".
+| Položka | Hodnota |
+| --- | --- |
+| Obchodné meno | EcoDomček, s.r.o. |
+| Adresa | Lúčina 33, 082 07 Lúčina, okr. Prešov |
+| Telefón | 0908 704 281 |
+| E-mail | dobryden@ecodomcek.sk |
+| Web | www.ecodomcek.sk |
+| IČO | 50619616 |
+| IČ DPH | SK2120403648 |
+| Registrácia | Obchodný register Okresného súdu Prešov, oddiel Sro, vložka 33794/P |
+| Banka | FIO Banka · SWIFT/BIC FIOZSKBAXXX · IBAN SK92 8330 0000 0027 0113 1053 |
+| Konateľ ⚠️ | Mgr. Roman Chovanec (search; overiť na stránke O spoločnosti) |
+| Dôverový signál ✅ | Dun & Bradstreet „Hodnotenie dôveryhodnosti 2024" — rating A (badge na webe; overiť platnosť/licenciu na použitie) |
 
-## 2. Služby / produkty (potvrdené z viacerých zdrojov)
+**Rozpor v rokoch (stále otvorené):** search uvádza založenie 1. 1. 2017
+s 10-ročnou skúsenosťou tímu; zákaznícka referencia hovorí „18 rokov
+skúseností". Konateľ podľa search staval prvý drevodom 2007 → 18 rokov
+skúseností od 2007 do 2025 sedí, firma s.r.o. od 2017. Na web patrí
+formulácia rozlišujúca „skúsenosti od 2007" a „firma od 2017" — potvrdiť
+s klientom.
 
-- Montované drevodomy (nízkoenergetické až pasívne)
-- Strechy
-- Altánky
-- Terasy
-- Sadrokartón (interiérové práce)
-- Záhradné domčeky, drevníky, drobné hospodárske stavby (napr. chlievik
-  pre kozy/sliepky)
-- Kombinované objekty — príklad z portfólia: jedna stavba spájajúca tri
-  funkčné jednotky (parkovanie auta, sklad, terasa s grilom)
+## 2. Ponuka služieb — kompletná mriežka z homepage ✅
 
-## 3. Technológia (podstránky existujú, obsah len čiastočne známy)
+Súčasný web má homepage s mriežkou služieb vo formáte „otázka/uvádzač +
+NÁZOV + krátky text". Z 5 screenshotov máme 10 položiek; horný začiatok
+mriežky (pravdepodobne DOMY, STRECHY…) ❌ ešte nevidený.
 
-- `/technologia/difuzne-uzatvorena-konstrukcia/` — difúzne uzatvorená
-  konštrukcia (presný obsah/parametre neznáme — treba stiahnuť)
-- `/technologia/kurenie/` — kúrenie: kozub často stačí ako jediný zdroj;
-  alternatívy plyn/elektrina, tepelné čerpadlá, solárna energia
-- Ochrana dreva: bóraxová soľ (prírodný produkt zo soľných jazier) proti
-  škodcom — spomínané ako súčasť "prírodné materiály" pozicioningu
+| Uvádzač | Služba | Text zo stránky (doslovne) |
+| --- | --- | --- |
+| ❌ (nevidené) | ALTÁNKY | „…osobný priestor. Alebo si pozvite tých, ktorých máte radi a poriadne to roztočte. A ak by prišla búrka? Nevadí, skrytí v altánku grilujete ďalej." (začiatok chýba) |
+| ❌ (nevidené) | TERASY | „…na terase. Ideálne miesto, ktoré rozširuje obytný priestor domu. Je možné ho uzavrieť a používať aj v zime. Skvelý nápad!" (začiatok chýba) |
+| INTERIÉR: | SADROKARTÓNY | „Sadrokartón je tá najbežnejšia finálna vrstva pri suchej výstavbe. Ale skúsenosti máme aj so sadrovláknitými doskami a inými veľkoplošnými materiálmi." |
+| PEKNÉ DREVENÉ: | OBKLADY | „Či už v interiéri alebo v exteriéri, drevený obklad vždy dokáže zaujať. Klasický tatranský profil, moderný rhombus, veľkoplošné materiály alebo thermo drevo." |
+| CHCE TO ZMENU? | RENOVÁCIE | „Ak vás vzhľad vášho príbytku už omrzel, je čas na zmenu. Častokrát stačí malý detail, inokedy to treba urobiť vo veľkom. Náš cieľ ostáva rovnaký: zrealizovať váš sen." |
+| DOKONČOVANIE: | MAĽOVANIE | „Ak aj všetko ide dobre, vždy sa to dá pokaziť nevhodnou finalizáciou. A na to si dávame bacha. Skúmame detaily a keď treba, cibríme to do dokonalosti." |
+| JE VÁM ZIMA? | ZATEPLÍME | „Možnosti sú rôzne: výplň stien, obvodové steny zvonku… minerálna vata, alebo prírodné izolácie na báze drevené vlákna, keď treba, tak aj polystyrén… Odizolujeme vás od zimy, tepla či hluku." |
+| NIEČO PEKNÉ: | INTERIÉRY | „Ak je vaša predstavivosť príliš bujná, alebo váš interiérový dizajnér sa poriadne vyblaznil – zverte to nám. Máme radi výzvy. Podsvietený sprchový kút? Pochôdzna sieť nad galériou? Hojdačka z druhého poschodia? Áno, aj také sme robili…" |
+| RADI POSKYTNEME: | KONZULTÁCIE | „Keďže nie sme strohí obchodníci, ale najmä nadšenci dervostavieb [sic – preklep, má byť drevostavieb], radi poradíme a usmerníme – hoci aj zadarmo." |
+| CHCETE NIEČO? | ZOŽENIEME, ZOBCHODUJEME | „Vďaka partnerstvám a dobrým vzťahom so stavebninami a všetkými dodávateľmi, vieme zohnať naozaj aj neštandardné vychytávky a vybaviť výhodné ceny." |
 
-## 4. Portfólio / projekty (čiastočný zoznam z URL štruktúry)
+Zo search ⚠️ navyše: montované drevodomy (nízkoenergetické/pasívne),
+strechy, záhradné domčeky, drevníky, drobné hospodárske stavby.
 
-- `/projekt/2013-lucina-zahradny-domcek-drevnik-chlievik-pre-kozy-a-sliepky/`
-  — záhradný domček + drevník + chlievik, rok 2013, lokalita Lúčina
-- Ďalší nájdený príklad (bez URL): veľká terasa vo Veľkom Šariši
-  (pri Prešove)
-- Vzor kombinovanej stavby: parkovanie + sklad + terasa s grilom (presná
-  lokalita/rok neznáme)
-- **Celkový zoznam realizácií, roky, fotky vo vysokom rozlíšení —
-  chýba.** URL vzor `/projekt/<rok>-<lokalita>-<popis>/` naznačuje, že
-  portfólio je pravdepodobne rozsiahlejšie, len sme nevideli plný zoznam.
+**Dôsledok pre 5D plán:** ponuka je širšia než „staviame domy" — je to
+drevostavba + kompletné dokončovacie remeslá (sadrokartón, obklady,
+maľovanie, zateplenie, interiéry, renovácie) + konzultácie + nákup
+materiálu. Beaty v dome to unesú prirodzene: každá izba môže niesť 1–2
+remeslá (stena = zateplenie + sadrokartón, fasáda = obklady, obývačka =
+interiéry, kúpeľňa = „podsvietený sprchový kút"). Aktualizovať mapovanie
+v PLAN.md §5 po dodaní zvyšku mriežky.
 
-## 5. Navigácia / štruktúra webu (rekonštruovaná z URL, NEúplná)
+## 3. Tón komunikácie — kľúčový nález ✅
+
+Súčasný web hovorí **ľudsky, vtipne, bez korporátnej masky**:
+- „Volajte, mailujte kedykoľvek ;)"
+- „Hľadáme nových pracantov! Krásna robota, vtipný kolektív, výplata tiež
+  nie na zahodenie :)"
+- „na to si dávame bacha", „cibríme to do dokonalosti", „dizajnér sa
+  poriadne vyblaznil", „Keď už nič iné, minimálne skúsime poradiť."
+- e-mail `dobryden@` — pozdrav namiesto `info@`.
+- Uzatvárací citát: „Postavíme vám domček, vysnívaný dom, útulné miesto
+  rodinnej pohody. Domov si už z neho spravíte sami."
+
+Toto je **skutočná osobnosť značky** a musí prežiť redizajn. Design DNA
+v PLAN.md §3 sa spresňuje: nie „inžinierska istota" ako primárny tón, ale
+**„remeselník, ktorý vie a nehrá sa na pána"** — presnosť v anotáciách
+(kóty, skladby), ľudskosť v texte. Zákaz: preštylizovať copy do hladkej
+agentúrnej slovenčiny. Konzultácie zadarmo a „zoženieme čokoľvek" sú
+reálne konverzné argumenty pre rodinu, ktorá stavia prvýkrát.
+
+## 4. Blog / Novinky ✅ (názvy; obsah článkov ❌)
+
+| Kategória | Dátum | Titulok | Perex |
+| --- | --- | --- | --- |
+| DOMY | jún 2024 | Hľadáme nových pracantov! | Krásna robota, vtipný kolektív, výplata tiež nie na zahodenie :) |
+| MATERIÁLY | marec 2020 | Soľ nad zlato, alebo ochrana dreva trochu inak | Toto nie je rozprávka. Na základe skutočnej udalosti… (bórax) |
+| MATERIAL | 23. 3. 2015 | Používanie prírodných materiálov | — |
+| OFFICE | 24. 3. 2015 | Denník stavbára | — |
+
+Blog je riedky (4 články za 9 rokov) — v redizajne skôr „Zápisník"
+s pár silnými textami než aktívny blog. Rozhodnutie klienta (PLAN §14/6).
+
+## 5. Kontaktná sekcia ✅
+
+- Nadpis „Volajte, mailujte kedykoľvek ;)" + telefón v obrovskom reze +
+  e-mail; oranžová karta s adresou a hodinami (ikona hodín — otváracie
+  hodiny ❌ nevidené celé); Google Maps embed (Lúčina, medzi Tuhrinou
+  a Červenicou, pri Slovenských opálových baniach — lokálny kontext,
+  dá sa použiť v exteriérovom beate: „staviame pod Slanskými vrchmi").
+- Pásik „ECODOMČEK — NAJLEPŠIA VOĽBA" nad fotomozaikou (stock).
+
+## 6. Vizuálny stav súčasného webu (audit) ✅
+
+- WordPress téma **Constructy (max-themes)** — generická stavebná
+  šablóna: modrotlačový blueprint pattern na pozadí, čierno-biela
+  groteska v uppercase, oranžová/zelené pásiky, mriežka 4 stĺpce.
+- **Fotografie: prevažne stock / AI-vyzerajúce** (americkí robotníci
+  v reflexných vestách pred mrakodrapmi, obchodné podanie rúk, žltá
+  obývačka). Pre drevostavbu v Lúčine sú nedôveryhodné. Zákon 10 §7.
+- **Reálne fotky existujú:** aspoň jedna — dvojpodlažný drevodom
+  v lešení s drevovláknitou izoláciou fasády (blog dlaždica). Plus
+  fotky kozy/seno (autentické vidiecke, súvisia s projektom 2013 Lúčina).
+  → Pre fázu 3 potrebujeme VŠETKY reálne fotky realizácií v origináli;
+  stock sa nepreberá.
+- Preklepy/copy: „dervostavieb", miešaná lokalizácia dátumov (MARCH 23,
+  2015 vs. MAREC 2020) — vyčistiť pri migrácii.
+
+## 7. Štruktúra webu (rekonštrukcia)
 
 ```
-/                                    Úvod
-/o-spolocnosti/                      O spoločnosti
-/technologia/
-  /difuzne-uzatvorena-konstrukcia/   Technológia — konštrukcia
-  /kurenie/                          Technológia — kúrenie
-/projekt/<slug>/                     Detail realizácie (viacero, presný počet neznámy)
-/blog-novinky/                       Blog / Novinky
+/                                    Úvod (one-page: hero ❌ · služby ✅ čiastočne · CTA pás ✅ · blog ✅ · kontakt ✅)
+/o-spolocnosti/                      ❌ obsah nevidený
+/technologia/difuzne-uzatvorena-konstrukcia/   ❌
+/technologia/kurenie/                ⚠️ len výňatok (kozub, TČ, solár)
+/projekt/<rok>-<miesto>-<popis>/     ⚠️ min. 2013 Lúčina; Veľký Šariš terasa; parkovanie+sklad+terasa
+/blog-novinky/                       ✅ zoznam
+horná navigácia                      ❌ položky nečitateľné na screenshote
 ```
 
-Pravdepodobne existujú aj: Kontakt, Cenník/Ponuka, prípadne Kariéra —
-**nepotvrdené, treba overiť reálnym crawlom alebo od klienta.**
+## 8. Čo ešte potrebujem (aktualizované)
 
-## 6. Čo CHÝBA a je blokujúce pre ďalšie fázy
+Blokujúce pre uzavretie fázy 0:
+1. **Vrch homepage** — hero + prvé položky mriežky (DOMY, STRECHY, začiatok
+   ALTÁNKY/TERASY) + horná navigácia (screenshot úplne zhora).
+2. **O spoločnosti** — celý text (roky, tím, príbeh konateľa).
+3. **Technológia** — obe podstránky celé; hlavne skladba steny
+   s hrúbkami a U-hodnotou (beat „rez stenou").
+4. **Projekty** — zoznam realizácií + 3–5 detailov (text, rok, miesto,
+   fotky).
+5. **Otváracie hodiny** z oranžovej karty (odrezané).
 
-Toto potrebujem priamo od teba (skopírovať/vložiť text, poslať
-screenshoty, alebo WordPress export) — bez toho fáza 0 nemôže byť
-uzavretá a fáza 2 (statické kompozície) nemá o čo sa oprieť:
-
-1. **Plný textový obsah** stránok O spoločnosti, oboch Technológia
-   podstránok, a aspoň 5–8 detailov projektov (texty + parametre).
-2. **Kontaktné údaje** — telefón, e-mail, adresa, IČO/DIČ (na
-   LocalBusiness structured data) — WebSearch ich nenašiel.
-3. **Kompletný zoznam realizácií** s rokmi a fotografiami vo vysokom
-   rozlíšení (nie z webu — originály).
-4. **Presné číslo rokov pôsobenia / skúseností** — vyriešiť rozpor
-   2017 vs. 18 rokov.
-5. **Cenník / orientačné ceny**, ak existujú na webe.
-6. **Existencia stránky Kontakt/Ponuka** a jej presný obsah.
-7. **Skladba konštrukcie s hrúbkami vrstiev a U-hodnotou** — nutné pre
-   beat „rez stenou" v zážitkovej architektúre (PLAN.md §5, Beat 4).
-8. **Výber „hrdinského domu"** pre 3D svet — fotky zo všetkých strán +
-   interiér + pôdorys/výkresy, ak existujú (PLAN.md §14, bod 1).
-
-## 7. Ako to doplniť najrýchlejšie
-
-Odporúčané poradie:
-1. Skús znova sprístupniť `ecodomcek.sk` cez Environment → Network
-   access (zmena sa musí uložiť a prejaviť v NOVEJ session — v tejto
-   ešte nefunguje, over to najprv v novom chate/session skôr než mi
-   povieš "skús teraz").
-2. Kým to nejde: pošli mi WordPress export (Nástroje → Exportovať v
-   administrácii) alebo prilep texty jednotlivých stránok sem do chatu.
-3. Fotky/výkresy realizácie posielaj ako súbory priamo do konverzácie.
+Ne-blokujúce, ale potrebné pred fázou 3:
+6. Originály reálnych fotiek realizácií (nie z webu).
+7. Výber hrdinského domu + pôdorys/výkresy.
+8. Potvrdenie práva používať D&B badge; rozhodnutie o blogu; cenník.
