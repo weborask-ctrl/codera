@@ -83,14 +83,17 @@ X-ray.
 
 | board | device | position (x, y, z) | look-at (x, y, z) | fov |
 | --- | --- | --- | --- | --- |
-| hero | desktop 1440×900 | (16, 24, 4.6) | (−5.4, 0, 2.5) | 25 |
-| hero | mobile 780×1688 | (12, 34, 4.4) | (−1.0, 0, −2.2) | 36 |
-| living | desktop | (2.5, −3.7, 1.5) | (−1.7, 5.0, 1.15) | 47 |
-| living | mobile | (−2.4, −3.4, 1.5) | (1.4, 5.0, 0.2) | 56 |
+| hero | desktop 1440×900 | (−16, 24, 4.6) | (5.4, 0, 2.5) | 25 |
+| hero | mobile 780×1688 | (−12, 34, 4.4) | (1.0, 0, −2.2) | 36 |
+| living | desktop | (−2.5, −3.7, 1.5) | (1.7, 5.0, 1.15) | 47 |
+| living | mobile | (2.4, −3.4, 1.5) | (−1.4, 5.0, 0.2) | 56 |
 | xray | desktop | see X-ray stage below | | 30 |
-| dollhouse | desktop | (25, 25, 19) | (−3.4, 0, 1.0) | 28 |
-| dusk | desktop | (14.5, 23, 3.4) | (−3.8, 0, 2.4) | 26 |
-| dusk | mobile | (10, 29, 3.4) | (0.4, 0, −1.0) | 36 |
+| dollhouse | desktop | (−25, 25, 19) | (3.4, 0, 1.0) | 28 |
+| dusk | desktop | (−14.5, 23, 3.4) | (3.8, 0, 2.4) | 26 |
+| dusk | mobile | (−10, 29, 3.4) | (−0.4, 0, −1.0) | 36 |
+
+(Camera x was negated on 2026-09-03: Blender's handedness mirrors the
+three.js study these poses came from. `spec.CAMERAS` is authoritative.)
 
 The house must occupy the **right ~55 %** of desktop frames (copy sits in the
 left five columns) except `living`, where the copy sits right and the

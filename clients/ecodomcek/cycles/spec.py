@@ -95,8 +95,9 @@ def hex_to_rgb(h: str):
 
 # ---- light states ----------------------------------------------------------
 LIGHTS = {
-    "morning": {"elevation": 24, "rotation": 215, "intensity": 0.40, "world": 1.0, "interior": False},
-    "interior": {"elevation": 32, "rotation": 215, "intensity": 0.40, "world": 1.0, "interior": "accent"},
+    # sun from the front-RIGHT in world terms (+X, +Y) = front-left as seen by the mirrored cameras
+    "morning": {"elevation": 24, "rotation": 145, "intensity": 0.40, "world": 1.0, "interior": False},
+    "interior": {"elevation": 32, "rotation": 145, "intensity": 0.40, "world": 1.0, "interior": "accent"},
     "table": {"elevation": 45, "rotation": 200, "intensity": 0.25, "world": 1.0, "interior": False},
     "dusk": {"elevation": -2, "rotation": 30, "intensity": 0.10, "world": 0.35, "interior": "all"},
 }
@@ -105,15 +106,20 @@ BOARD_SITE = {"hero": "lawn", "living": "lawn", "xray": "lawn", "dollhouse": "st
 
 # ---- cameras (position, look-at, vertical fov°) ---------------------------
 XRAY_OFFSET = 200.0
+# NOTE (2026-09-03): Blender's camera handedness mirrors the three.js study
+# these poses were derived from, so x is negated on every house camera to keep
+# the compositions (house RIGHT of the copy on desktop exteriors, glazing LEFT
+# in the living room). From the garden the cameras now see the front (+Y) and
+# the LEFT (−X) wall; the cantilever box sits at the far right end of the front.
 CAMERAS = {
-    ("hero", "desktop"): ((16, 24, 4.6), (-5.4, 0, 2.5), 25, 8.0),
-    ("hero", "mobile"): ((12, 34, 4.4), (-1.0, 0, -2.2), 36, 8.0),
-    ("living", "desktop"): ((2.5, -3.7, 1.5), (-1.7, 5.0, 1.15), 47, 4.0),
-    ("living", "mobile"): ((-2.4, -3.4, 1.5), (1.4, 5.0, 0.2), 56, 4.0),
-    ("xray", "desktop"): ((XRAY_OFFSET + 4.6, 6.4, 3.1), (XRAY_OFFSET - 1.0, -0.1, 1.0), 30, 0.0),
-    ("dollhouse", "desktop"): ((25, 25, 19), (-3.4, 0, 1.0), 28, 11.0),
-    ("dusk", "desktop"): ((14.5, 23, 3.4), (-3.8, 0, 2.4), 26, 8.0),
-    ("dusk", "mobile"): ((10, 29, 3.4), (0.4, 0, -1.0), 36, 8.0),
+    ("hero", "desktop"): ((-16, 24, 4.6), (5.4, 0, 2.5), 25, 8.0),
+    ("hero", "mobile"): ((-12, 34, 4.4), (1.0, 0, -2.2), 36, 8.0),
+    ("living", "desktop"): ((-2.5, -3.7, 1.5), (1.7, 5.0, 1.15), 47, 4.0),
+    ("living", "mobile"): ((2.4, -3.4, 1.5), (-1.4, 5.0, 0.2), 56, 4.0),
+    ("xray", "desktop"): ((XRAY_OFFSET - 4.6, 6.4, 3.1), (XRAY_OFFSET + 1.0, -0.1, 1.0), 30, 0.0),
+    ("dollhouse", "desktop"): ((-25, 25, 19), (3.4, 0, 1.0), 28, 11.0),
+    ("dusk", "desktop"): ((-14.5, 23, 3.4), (3.8, 0, 2.4), 26, 8.0),
+    ("dusk", "mobile"): ((-10, 29, 3.4), (-0.4, 0, -1.0), 36, 8.0),
 }
 SIZES = {"desktop": (1440, 900), "mobile": (780, 1688)}
 QUALITY = {
@@ -130,8 +136,8 @@ def lens_for_fov(fov_deg: float, sensor_h: float = 24.0) -> float:
 
 # ---- annotation anchors (world coordinates) --------------------------------
 ANCHORS = {
-    "hero": {"vzorovy": (4.2, 5.2, 6.64)},
-    "dollhouse": {"vzorovy": (4.2 + 1.2, 5.2, 6.64 + 3.2), "fasada": (-4.0, 2.0, 1.6)},
+    "hero": {"vzorovy": (-4.2, 5.2, 6.64)},
+    "dollhouse": {"vzorovy": (-4.2 + 1.2, 5.2, 6.64 + 3.2), "fasada": (4.0, 2.0, 1.6)},
 }
 DOLLHOUSE_ROOF = {"dz": 3.2, "dx": 1.2, "rot_y_deg": -3.0}
 
