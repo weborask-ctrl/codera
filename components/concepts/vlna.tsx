@@ -16,7 +16,7 @@
  */
 
 import { useEffect, useRef, useState } from "react"
-import { BRIC, fx, MONO, Shell } from "./shell"
+import { BRIC, fx, KonceptLine, MONO, Shell } from "./shell"
 
 const BLACK = "#0E0F10"
 const PAPER = "#F4F6F2"
@@ -51,16 +51,18 @@ const WEEK: Record<string, Lesson[]> = {
   ],
 } as const
 
+/* portraits: studio renders supplied by Ondrej (2026-09-03) — fictional
+   people for a fictional studio, in the demo's b&w climate */
 const COACHES = [
-  ["Alica", "joga · flow"],
-  ["Marek", "mobilita"],
-  ["Nina", "pilates"],
-  ["Ema", "dych · regenerácia"],
-  ["Tomáš", "sila"],
-  ["Zoja", "flow"],
-  ["Jakub", "dych · ľad"],
-  ["Lea", "balans"],
-  ["Peter", "mobilita"],
+  ["Alica", "joga · flow", "alica"],
+  ["Marek", "mobilita", "marek"],
+  ["Nina", "pilates", "nina"],
+  ["Ema", "dych · regenerácia", "ema"],
+  ["Tomáš", "sila", "tomas"],
+  ["Zoja", "flow", "zoja"],
+  ["Jakub", "dych · ľad", "jakub"],
+  ["Lea", "balans", "lea"],
+  ["Peter", "mobilita", "peter"],
 ] as const
 
 /* the capacity pill: honest occupancy, colour-coded */
@@ -121,10 +123,10 @@ export function VlnaHero({ portal = false }: { portal?: boolean }) {
 
       <header className="relative z-10 flex items-center justify-between px-[clamp(1.25rem,4vw,3.5rem)] pt-6 pb-4">
         <span style={{ ...BRIC, fontWeight: 800, fontSize: "1.65rem", letterSpacing: "0.02em" }}>ŠTÚDIO</span>
-        <nav className="hidden gap-6 text-[0.86rem] font-medium opacity-90 md:flex">
-          <span className="cursor-pointer">Rozvrh</span>
-          <span className="cursor-pointer">Lektori</span>
-          <span className="cursor-pointer">Členstvo</span>
+        <nav className="hidden gap-6 text-[0.95rem] font-bold md:flex">
+          {portal ? <span>Rozvrh</span> : <a href="#rozvrh" className="border-b-2 border-transparent pb-0.5 transition-colors hover:border-current">Rozvrh</a>}
+          {portal ? <span>Lektori</span> : <a href="#lektori" className="border-b-2 border-transparent pb-0.5 transition-colors hover:border-current">Lektori</a>}
+          {portal ? <span>Členstvo</span> : <a href="#clenstvo" className="border-b-2 border-transparent pb-0.5 transition-colors hover:border-current">Členstvo</a>}
         </nav>
         <span className="rounded-full px-6 py-3 text-[0.92rem] font-bold" style={{ background: LIME, color: BLACK }}>
           REZERVOVAŤ
@@ -298,19 +300,31 @@ export default function VlnaSite() {
         <h2 className="wfx uppercase" style={{ ...BRIC, fontWeight: 800, fontSize: "clamp(2.4rem,5.6vw,4.8rem)", letterSpacing: "-0.02em", ...fx(0) }}>
           9 lektorov
         </h2>
-        <div className="mt-8 flex flex-wrap gap-3">
-          {COACHES.map(([name, focus], i) => (
+        <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-[repeat(auto-fit,minmax(180px,1fr))]">
+          {COACHES.map(([name, focus, img], i) => (
             <div
               key={name}
-              className="wfx group flex items-baseline gap-3 rounded-full border border-[#F4F6F2]/25 px-6 py-3.5 transition-colors hover:border-[#D8F34E]"
+              className="wfx group overflow-hidden rounded-2xl border border-[#F4F6F2]/15 transition-colors hover:border-[#D8F34E]"
               style={fx((i % 5) + 1)}
             >
-              <span className="text-[1.2rem] font-bold transition-colors group-hover:text-[#D8F34E]" style={BRIC}>
-                {name}
-              </span>
-              <span className="text-[0.72rem] tracking-[0.1em] text-[#F4F6F2]/55" style={MONO}>
-                {focus.toUpperCase()}
-              </span>
+              <div className="overflow-hidden">
+                {/* biome-ignore lint/performance/noImgElement: demo asset, fixed size, below the fold */}
+                <img
+                  src={`${IMG}/lektori/${img}.jpg`}
+                  alt={`${name} — ${focus}`}
+                  loading="lazy"
+                  className="aspect-[4/5] w-full object-cover transition-all duration-500 group-hover:scale-[1.04]"
+                  style={{ filter: "grayscale(1) contrast(1.08)" }}
+                />
+              </div>
+              <div className="flex items-baseline justify-between gap-2 px-4 py-3.5">
+                <span className="text-[1.15rem] font-bold transition-colors group-hover:text-[#D8F34E]" style={BRIC}>
+                  {name}
+                </span>
+                <span className="text-[0.62rem] tracking-[0.08em] text-[#F4F6F2]/55" style={MONO}>
+                  {focus.toUpperCase()}
+                </span>
+              </div>
             </div>
           ))}
         </div>
@@ -369,7 +383,7 @@ export default function VlnaSite() {
 
       <footer className="flex flex-wrap items-baseline justify-between gap-3 border-t border-[#F4F6F2]/12 px-[clamp(1.25rem,4vw,3.5rem)] py-5 text-[0.56rem] tracking-[0.14em] text-[#F4F6F2]/55" style={MONO}>
         <span>ŠTÚDIO · WELLNESS A POHYB · 9 LEKTOROV</span>
-        <span>PRVÁ LEKCIA ZA 6 €</span>
+        <span>PRVÁ LEKCIA ZA 6 €</span><KonceptLine />
       </footer>
     </main>
   )

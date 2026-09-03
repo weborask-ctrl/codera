@@ -17,7 +17,7 @@
  */
 
 import { useEffect, useRef, useState } from "react"
-import { FR, fx, MONO, Shell } from "./shell"
+import { FR, fx, KonceptLine, MONO, Shell } from "./shell"
 
 const KOST = "#F4EFE7"
 const UMBRA = "#241F18"
@@ -49,22 +49,22 @@ export function MeridianHero({ portal = false }: { portal?: boolean }) {
       className={`pz-hero relative flex h-full flex-col overflow-hidden ${portal ? "" : "min-h-svh"}`}
       style={{ background: UMBRA, color: CREAM }}
     >
-      {/* the hero still: razor-sharp dark roast macro (Ondrej: the burlap
-          shot read soft) — the green lives in the subscription band */}
+      {/* the hero still: the approved burlap-sack beans, resharpened with an
+          unsharp mask (Ondrej: the same picture, only sharper) */}
       <div
         aria-hidden="true"
         className="pz-heroimg absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${IMG}/zrnka.jpg)` }}
+        style={{ backgroundImage: `url(${IMG}/vrece.jpg)` }}
       />
       <div aria-hidden="true" className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(18,24,16,0.5) 0%, rgba(18,24,16,0.12) 42%, rgba(18,24,16,0.62) 100%)" }} />
 
       <header className="relative z-10 flex items-center justify-between px-[clamp(1.25rem,4vw,3.5rem)] pt-6 pb-4">
         <span style={{ ...FR, fontWeight: 560, fontSize: "1.5rem" }}>Pražiareň</span>
-        <nav className="hidden gap-7 text-[0.86rem] font-medium md:flex">
-          <span className="cursor-pointer opacity-95 transition-opacity hover:opacity-100">Káva</span>
-          <span className="cursor-pointer opacity-95 transition-opacity hover:opacity-100">Predplatné</span>
-          <span className="cursor-pointer opacity-95 transition-opacity hover:opacity-100">Veľkoobchod</span>
-          <span className="cursor-pointer opacity-95 transition-opacity hover:opacity-100">Príbeh</span>
+        <nav className="hidden gap-7 text-[0.95rem] font-semibold md:flex">
+          {portal ? <span>Káva</span> : <a href="#kava" className="border-b-2 border-transparent pb-0.5 transition-colors hover:border-current">Káva</a>}
+          {portal ? <span>Predplatné</span> : <a href="#predplatne" className="border-b-2 border-transparent pb-0.5 transition-colors hover:border-current">Predplatné</a>}
+          
+          {portal ? <span>Príbeh</span> : <a href="#pribeh" className="border-b-2 border-transparent pb-0.5 transition-colors hover:border-current">Príbeh</a>}
         </nav>
         <span data-cart className="rounded-full px-4 py-2 text-[0.8rem] font-semibold" style={{ background: CREAM, color: UMBRA }}>
           Košík · 0
@@ -146,7 +146,7 @@ export default function MeridianSite() {
       ctx = gsap.context(() => {
         gsap.fromTo(
           ".pz-heroimg",
-          { scale: 1.14, yPercent: 0 },
+          { scale: 1.05, yPercent: 0 },
           { scale: 1, yPercent: -5, ease: "none", scrollTrigger: { trigger: ".pz-hero", start: "top top", end: "bottom top", scrub: true } }
         )
         gsap.fromTo(
@@ -286,7 +286,7 @@ export default function MeridianSite() {
 
       <footer className="flex flex-wrap items-baseline justify-between gap-3 border-t border-[#241F18]/15 px-[clamp(1.25rem,4vw,3.5rem)] py-5 text-[0.56rem] tracking-[0.14em] text-[#241F18]/55" style={MONO}>
         <span>PRAŽIAREŇ · PRIAMY NÁKUP OD FARMÁROV</span>
-        <span>KOŠÍK V DEME: {cart} POLOŽIEK</span>
+        <span>KOŠÍK V DEME: {cart} POLOŽIEK</span><KonceptLine />
       </footer>
     </main>
   )

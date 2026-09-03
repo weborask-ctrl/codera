@@ -83,31 +83,14 @@ export function Shell({
 }
 
 /**
- * The honest corner tag (amendment 3: the top ribbon is deleted). A demo page
- * still must say what it is — quietly, in the corner, always tappable back to
- * the studio.
+ * The honest label (Iterácia 0.8: Ondrej removed the floating corner
+ * chips). A demo page still must say what it is — non-negotiable #3 —
+ * so every concept footer renders this one quiet line back to the studio.
  */
-export function DemoTag({ study }: { study?: string }) {
-  /* the case-study path moved off the home index (Iterácia 0.4b): each
-     demo carries its own "how we designed it" chip beside the DEMO tag */
+export function KonceptLine() {
   return (
-    <div className="fixed right-4 bottom-4 z-[80] flex items-center gap-2">
-      {study ? (
-        <a
-          href={`/praca/${study}`}
-          className="rounded-full px-4 py-2 text-[0.58rem] tracking-[0.16em] backdrop-blur-sm transition-transform hover:-translate-y-0.5"
-          style={{ ...MONO, background: "rgba(242,244,246,0.9)", color: "#17181d" }}
-        >
-          AKO SME TO NAVRHLI →
-        </a>
-      ) : null}
-      <a
-        href="/"
-        className="rounded-full px-4 py-2 text-[0.58rem] tracking-[0.16em] backdrop-blur-sm transition-transform hover:-translate-y-0.5"
-        style={{ ...MONO, background: "rgba(14,15,19,0.85)", color: "#F2F4F6" }}
-      >
-        DEMO · CODERA →
-      </a>
-    </div>
+    <a href="/" className="underline decoration-current/40 underline-offset-2 transition-opacity hover:opacity-100">
+      KONCEPT ŠTÚDIA CODERA
+    </a>
   )
 }
