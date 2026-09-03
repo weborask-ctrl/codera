@@ -219,7 +219,7 @@ the world and are readable without JS.
 
 | # | Room / camera | Route | Carries (from the inventory) | Beat |
 | --- | --- | --- | --- | --- |
-| 0 | **Príjazd** — the finished house from the garden, morning light | `/` | Headline, one promise, the primary CTA (Bezplatná konzultácia), a benefit band at the fold bottom (Cowboy grammar): *ekologické · ekonomické · na kľúč · od 2007* | 100 svh. The Lúčina house: larch Rhombus + Fundermax anthracite |
+| 0 | **Príjazd** — the finished house from the garden, morning light | `/` | Headline, one promise, the primary CTA (Bezplatná konzultácia), a benefit band at the fold bottom (Cowboy grammar): *ekologické · ekonomické · na kľúč · od 2007* | 100 svh. The model house (§5.3): the Matterport layout re-skinned in larch Rhombus + Fundermax anthracite, labelled `Vzorový dom` |
 | 1 | **Terasa** — camera lands on the deck, roof overhang above | `/terasa` | Terasy, altánky, prestrešenia. Rákoš (larch + Lexan), Chrastné (glass roof), Dúbrava (thermo-ash) as plates | 100 svh |
 | 2 | **Vstup** — the door opens; the hall | `/o-nas` | Kto sme: Roman's story (serif moment), the motto, the four values (100 % VY / 100 % MY, slušnosť, poriadok), D&B badge, DAIBAU | 100–150 svh |
 | 3 | **Obývačka** — the main room, the big window | `/drevodomy` | Drevodomy na kľúč: the offer — climate comfort, build speed (Beniakovce: exactly one year), from foundations to kolaudácia; the three house projects as plates | 100 svh |
@@ -299,11 +299,31 @@ with the room copy, and it must pass the static-frame test on its own.
 
 ### 5.3 Content production (the part that is not code)
 
-The house model is content, produced offline (Blender): geometry from the
-client's plans of the Lúčina house (or the representative house they choose,
-§11), materials from the real spec (larch Rhombus, Fundermax anthracite,
+**Decision (Ondrej, 2026-09-03): the model is built from the Matterport
+house** (`RIVERTON 4831`, §4.1). Assumption under which this is done, to be
+confirmed by the client: the Matterport house supplies the **spatial
+skeleton only** — footprint, three levels (street-level garage with the
+internal stair, living/dining/kitchen level, bedroom level), room sequence
+and proportions, reconstructed from the 16 snapshots and the dollhouse
+render (no plans exist for it; dimensions are estimated from the scans, so
+the model is a proportional study, not a survey). Everything visible is
+**re-skinned as an EcoDomček build**: larch Rhombus facade with Fundermax
+anthracite panels, spruce interiors, timber-frame details at openings, a
+larch deck added on the garden side (the LA house has none; EcoDomček builds
+terraces), the diffusion-open wall build-up for the X-ray act. The white
+drywall spec, the LA staging and the epoxy garage are not carried over.
+
+Because EcoDomček did not build this house, it is presented as **`Vzorový
+dom`** — a concept of what they would build — and never as a realised
+project; the eight real projects stay in `/realizacie` with their own
+photographs. If the client wants a real build modelled instead, the
+skeleton swaps for the Lúčina plans and nothing else in this plan changes.
+
+The house model is content, produced offline (Blender): geometry as above,
+materials from the real spec (larch Rhombus, Fundermax anthracite,
 spruce, glass), lighting baked per act (morning, interior, table, dusk),
-the wall-section as a separate, exploded asset with real layer thicknesses.
+the wall-section as a separate, exploded asset with real layer thicknesses
+from the client (§11 q. 2).
 Exported GLB + KTX2; per-room stills rendered at 2× for the tiers; the
 dollhouse pose rendered once for the /realizacie ground. This is the
 biggest single line of effort in the project and it sits **above** the 5D
@@ -399,11 +419,13 @@ documents; the rest were tiles without content).
 
 ## 11. Questions for the client (answers gate phase 2)
 
-1. **Which house do we model?** The Lúčina build (the current hero) — do we
-   have the owner's permission and the plans? Alternatives: Roman's own
-   house, or a representative "typový" house of the same construction.
-2. Floor plans / sections of that house, and the real wall build-up with
-   layer thicknesses.
+1. **Which house do we model?** — *Decided 2026-09-03: the Matterport house,
+   as a re-skinned `Vzorový dom` (§5.3).* Client to confirm they are happy
+   that the walkthrough house is a concept, not one of their builds.
+2. The real wall build-up with layer thicknesses (for the X-ray act) and,
+   if they exist, plans of any EcoDomček house — used to check that the
+   model's proportions (room heights, window sizes, wall thickness) match
+   what they actually build.
 3. Finished-interior photographs of any project, if they exist; originals
    of all job-site photos at full resolution.
 4. A portrait of Roman and the crew, taken on site (we can brief it).
