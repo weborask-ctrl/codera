@@ -197,11 +197,24 @@ každá služba má v dome svoje fyzické miesto, takže **izby nesú remeslá**
 | 7 | vtáčia perspektíva | Realizácie — feed skutočných projektov 2013→2024 s ich vlastnými textami („spáchali sme milý bungalov") |
 | 8 | večer pred domom | Kontakt — „Volajte kedykoľvek ;)", tap-to-call, Zoženieme/zobchodujeme ako posledný argument |
 
-**Hrdinský dom — odporúčanie:** *Moderný dizajnový dom (2024)* —
-smrekovcový rhombus obklad + Fundermax, drevo je na ňom VIDIEŤ, čo
-je pre drevostavbu najsilnejší argument. Záloha: *Bungalov v Prešove
-(2021)* — jednopodlažný, jednoduchšia kamera, prirodzený prechod
-terasa → záhrada. Obidva potrebujú pôdorys a interiérové fotky.
+**Hrdinský dom — návrh rozhodnutia (3. dávka):** *Rodinný dom Lúčina
+(= Moderný dizajnový dom, 2024)* — smrekovcový rhombus + Fundermax,
+drevo je na ňom VIDIEŤ; firma ho sama dala ako featured projekt na
+Úvod; a **stojí v Lúčine, v dedine firmy** — celý oblúk stránky
+(ráno pred domom → večer pred domom pod Slanskými vrchmi) je potom
+doslovný, nie metaforický. Záloha: *Bungalov v Prešove (2021)*.
+Potrebné: pôdorys, interiérové fotky, súhlas majiteľa.
+
+**Príbeh pôvodu do Beatu 2 (O nás):** „Moja prvotina: náš domček"
+(2008) — konateľ si prvý drevodom postavil sám ako „kancelárska krysa"
+podľa kníh. Rieši aj rozpor rokov: *remeslo od 2008, firma od 2017.*
+Beat 7 (Realizácie) tak dostane pravdivú časovú os 2008 → 2024, ktorá
+začína vlastným domom a končí domom v Lúčine.
+
+**Skutočné referencie:** karusel má 6 zákazníckych referencií s menami
+(napr. Peter F., Kéked HU) — reálny dôverový obsah pre Beat 8, so
+súhlasmi. Pôsobnosť je celé Slovensko + Maďarsko (Žilina, Košice,
+Prešov, Kéked) — do anotácií mapy v Beate 7.
 
 **Spresnenie Design DNA (§3):** osobnosť značky nie je „inžinierska
 istota" v tóne, ale **remeselník, ktorý vie a nehrá sa na pána** —
