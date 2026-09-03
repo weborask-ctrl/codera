@@ -29,6 +29,74 @@ if (dot && dots[board]) {
   dot.setAttribute("cy", dots[board][1])
 }
 
+const mode = params.get("render") ? "render" : "webgl"
+document.body.dataset.mode = mode
+if (mode === "render") {
+  const img = document.getElementById("render")
+  img.hidden = false
+  img.src = `render/${board}-${device}.png`
+  const labels = {
+    vzorovy: { lab: "Vzorový dom", small: "koncept, nie realizácia", signal: true, side: "auto" },
+    fasada: { lab: "Fasáda · smrekovec Rhombus", side: "left" },
+    layer1: { lab: "Smrekovcový obklad Rhombus", small: "fasáda", col: true },
+    layer2: { lab: "Odvetraná medzera", small: "laty", col: true },
+    layer3: { lab: "Drevovláknitá doska", small: "difúzne otvorená", col: true },
+    layer4: { lab: "Nosný rám + izolácia", small: "drevovlákno · konope", col: true, signal: true },
+    layer5: { lab: "Sadrovláknitá doska", small: "vzduchotesná rovina", col: true },
+    layer6: { lab: "Inštalačná vrstva", small: "ovčia vlna", col: true },
+    layer7: { lab: "Sadrovláknitá doska", small: "interiér", col: true },
+  }
+  const place = (anchors) => {
+    const host = document.getElementById("annotations")
+    host.innerHTML = ""
+    const w = innerWidth
+    const h = innerHeight
+    const list = Object.entries(anchors)
+      .filter(([id]) => labels[id])
+      .map(([id, [u, v]]) => ({ ...labels[id], x: u * w, y: v * h }))
+    const cols = list.filter((a) => a.col).sort((a, b) => a.x - b.x)
+    const rowTop = device === "mobile" ? 120 : 132
+    cols.forEach((a, i) => {
+      const y = rowTop + i * 36
+      const el = document.createElement("div")
+      el.className = `ann col${a.signal ? " signal" : ""}`
+      el.style.left = `${a.x}px`
+      el.style.top = `${y}px`
+      el.innerHTML = `<span class="lab">${a.lab}${a.small ? `<small>${a.small}</small>` : ""}</span><span class="vline"></span><span class="dot"></span>`
+      host.appendChild(el)
+      const lab = el.querySelector(".lab")
+      el.querySelector(".vline").style.height = `${Math.max(8, a.y - y - lab.offsetHeight - 5)}px`
+    })
+    for (const a of list.filter((a) => !a.col)) {
+      const side = a.side === "auto" ? (a.x > w * 0.58 ? "left" : "right") : a.side
+      const el = document.createElement("div")
+      el.className = `ann ${side}${a.signal ? " signal" : ""}`
+      el.style.left = `${a.x}px`
+      el.style.top = `${a.y}px`
+      el.innerHTML = `<span class="dot"></span><span class="line"></span><span class="lab">${a.lab}${a.small ? `<small>${a.small}</small>` : ""}</span>`
+      host.appendChild(el)
+    }
+  }
+  const ready = () => {
+    window.__boardReady = true
+  }
+  Promise.all([
+    document.fonts.ready,
+    new Promise((ok) => {
+      img.onload = ok
+      img.onerror = ok
+    }),
+    fetch(`render/${board}-${device}.anchors.json`)
+      .then((r) => (r.ok ? r.json() : {}))
+      .catch(() => ({})),
+  ]).then(([, , anchors]) => {
+    place(anchors)
+    addEventListener("resize", () => place(anchors))
+    requestAnimationFrame(ready)
+  })
+  throw new Error("render-mode: WebGL scene skipped")
+}
+
 const C = {
   paper: 0xf3ede2,
   paper2: 0xe8dfce,

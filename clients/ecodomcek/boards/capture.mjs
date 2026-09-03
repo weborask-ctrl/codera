@@ -1,7 +1,11 @@
 /**
  * Captures the EcoDomček art direction boards.
  *
- *   node clients/ecodomcek/boards/capture.mjs
+ *   node clients/ecodomcek/boards/capture.mjs [filter] [--render]
+ *
+ * --render composites the Cycles renders in boards/render/ (from
+ * clients/ecodomcek/cycles/build.py) under the DOM layer instead of the
+ * live three.js study.
  *
  * Serves clients/ecodomcek/boards over a local static server (so ES modules
  * and fonts load), opens every board × device with Playwright's Chromium and
@@ -58,7 +62,9 @@ const viewports = {
 }
 
 await new Promise((ok) => server.listen(port, "127.0.0.1", ok))
-const only = process.argv[2]
+const flags = process.argv.slice(2)
+const renderMode = flags.includes("--render")
+const only = flags.find((f) => !f.startsWith("--"))
 const executablePath = process.env.CHROMIUM_PATH ?? (await stat("/opt/pw-browsers/chromium").then(() => "/opt/pw-browsers/chromium", () => undefined))
 const browser = await chromium.launch({
   executablePath,
@@ -70,8 +76,10 @@ try {
     const vp = viewports[device]
     const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, deviceScaleFactor: vp.deviceScaleFactor })
     const page = await context.newPage()
-    page.on("pageerror", (e) => console.error(`[${board}-${device}]`, e.message))
-    await page.goto(`http://127.0.0.1:${port}/index.html?board=${board}&device=${device}`)
+    page.on("pageerror", (e) => {
+      if (!String(e.message).includes("render-mode")) console.error(`[${board}-${device}]`, e.message)
+    })
+    await page.goto(`http://127.0.0.1:${port}/index.html?board=${board}&device=${device}${renderMode ? "&render=1" : ""}`)
     await page.waitForFunction(() => window.__boardReady === true, null, { timeout: 60_000 })
     await page.waitForTimeout(300)
     const out = join(root, "out", `${board}-${device}.png`)

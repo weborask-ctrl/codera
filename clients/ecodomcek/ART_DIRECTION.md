@@ -21,9 +21,16 @@ Archetype records: `organic-natural`, `warm-editorial`,
 through it by scrolling; every room is a page; the only images are the model
 and their own job-site photographs.**
 
-The house is visibly a model — oiled larch, anthracite panels, pale spruce —
-never a render pretending to be a photograph. That is the signature
-constraint and the honesty the client's audience needs (PLAN §3).
+**Revision 2026-09-03 (Ondrej):** the house is rendered **photorealistically**
+— the "visibly a model / maquette" language of draft 1 is withdrawn; it read
+as dated, not as honest. Honesty is carried by the `Vzorový dom` label, not
+by the render style. Production imagery is offline path-traced (Blender
+Cycles) from a proper model with PBR materials, physical sky and a
+furnished interior; real-time WebGL is reserved for the interactive beats
+(the wall X-ray, the roof lift). The boards in `boards/render/` are Cycles
+renders composited under the same DOM layer (`npm run capture:ecodomcek --
+--render`); the three.js study in `scene.js` remains only as the camera/
+composition reference.
 
 ## 2. Canvas and colour
 
