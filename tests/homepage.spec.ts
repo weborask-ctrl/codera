@@ -478,32 +478,18 @@ test.describe("Case studies", () => {
     await context.close()
   })
 
-  test("each demo page links to its case study", async ({ page }) => {
-    /* Iterácia 0.4b: the case-study path moved off the home index — every
-       demo carries its own AKO SME TO NAVRHLI chip instead */
-    const routes: Array<[string, string]> = [
-      ["dizajn", "statut"],
-      ["objednavky", "meridian"],
-      ["rezervacie", "vlna"],
-    ]
-    for (const [demo, study] of routes) {
-      await page.goto(`/ukazky/${demo}`)
-      await expect(
-        page.locator(`a[href="/praca/${study}"]`).first(),
-        `no link to /praca/${study} on /ukazky/${demo}`
-      ).toHaveCount(1)
-    }
-  })
 })
 
 test.describe("Concept sites", () => {
-  test("every concept opens as a full page wearing the honest ribbon", async ({ browser }) => {
+  test("every concept opens as a full page wearing the honest label", async ({ browser }) => {
+    /* Iterácia 0.8: the floating corner chips are gone (Ondrej) — the
+       honest label lives as one quiet line in every concept footer */
     const context = await browser.newContext({ javaScriptEnabled: false })
     const page = await context.newPage()
     for (const slug of ["dizajn", "objednavky", "rezervacie", "animacie-3d"]) {
       const res = await page.goto(`/ukazky/${slug}`)
       expect(res?.status()).toBe(200)
-      await expect(page.locator("body")).toContainText("DEMO · CODERA")
+      await expect(page.locator("body")).toContainText("KONCEPT ŠTÚDIA CODERA")
     }
     await context.close()
   })

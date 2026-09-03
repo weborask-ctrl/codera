@@ -2,7 +2,6 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import MeridianSite from "@/components/concepts/meridian"
 import ObservatoriumSite from "@/components/concepts/observatorium"
-import { DemoTag } from "@/components/concepts/shell"
 import StatutSite from "@/components/concepts/statut"
 import VlnaSite from "@/components/concepts/vlna"
 import { siteConfig } from "@/lib/site-config"
@@ -21,13 +20,6 @@ const DEMOS = {
   rezervacie: VlnaSite,
   animacie: ObservatoriumSite,
 } as const
-
-/** Each demo's design decisions live in its case study on /praca. */
-const STUDIES: Record<string, string> = {
-  dizajn: "statut",
-  objednavky: "meridian",
-  rezervacie: "vlna",
-}
 
 export function generateStaticParams() {
   return skills.filter((s) => s.ready && s.demo).map(({ slug }) => ({ slug }))
@@ -61,10 +53,5 @@ export default async function UkazkaPage({
   if (!skill?.ready || !Site) {
     notFound()
   }
-  return (
-    <>
-      <Site />
-      <DemoTag study={STUDIES[slug]} />
-    </>
-  )
+  return <Site />
 }

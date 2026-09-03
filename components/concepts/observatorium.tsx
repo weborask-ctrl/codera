@@ -19,7 +19,7 @@
 import dynamic from "next/dynamic"
 import { useEffect, useRef, useState } from "react"
 import { saturnState } from "./observatorium-globe"
-import { BRIC, FR, fx, MONO, Shell } from "./shell"
+import { BRIC, FR, fx, KonceptLine, MONO, Shell } from "./shell"
 
 const SaturnCanvas = dynamic(() => import("./observatorium-globe"), { ssr: false })
 
@@ -125,10 +125,6 @@ export function ObservatoriumHero({ portal = false }: { portal?: boolean }) {
         )}
       </div>
 
-      <div className={`relative z-10 flex justify-between ${PAD} pb-6 text-[0.56rem] tracking-[0.2em] text-[#EEF2F8]/45`} style={MONO}>
-        <span>SCROLL — SATURN SA OTOČÍ</span>
-        <span>WEBGL · REÁLNE TEXTÚRY</span>
-      </div>
     </Shell>
   )
 }
@@ -335,7 +331,7 @@ export default function ObservatoriumSite() {
         style={MONO}
       >
         <span>OBSERVATÓRIUM · VEČERNÉ PROGRAMY ZA JASNÉHO NEBA</span>
-        <span>TEXTÚRY: SOLAR SYSTEM SCOPE (CC BY 4.0), NASA/JPL DATA</span>
+        <span>TEXTÚRY: SOLAR SYSTEM SCOPE (CC BY 4.0), NASA/JPL DATA</span><KonceptLine />
       </footer>
     </main>
   )

@@ -24,25 +24,89 @@ function damp(c: number, t: number, l: number, dt: number) {
   return THREE.MathUtils.damp(c, t, l, dt)
 }
 
+function starShell(n: number) {
+  const pos = new Float32Array(n * 3)
+  for (let i = 0; i < n; i++) {
+    const r = 26 + Math.random() * 14
+    const a = Math.random() * Math.PI * 2
+    const b = Math.acos(Math.random() * 2 - 1)
+    pos[i * 3] = r * Math.sin(b) * Math.cos(a)
+    pos[i * 3 + 1] = r * Math.cos(b)
+    pos[i * 3 + 2] = r * Math.sin(b) * Math.sin(a)
+  }
+  return pos
+}
+
 function Stars() {
   const geo = useMemo(() => {
-    const n = 1900
-    const pos = new Float32Array(n * 3)
-    for (let i = 0; i < n; i++) {
-      const r = 26 + Math.random() * 14
-      const a = Math.random() * Math.PI * 2
-      const b = Math.acos(Math.random() * 2 - 1)
-      pos[i * 3] = r * Math.sin(b) * Math.cos(a)
-      pos[i * 3 + 1] = r * Math.cos(b)
-      pos[i * 3 + 2] = r * Math.sin(b) * Math.sin(a)
-    }
     const g = new THREE.BufferGeometry()
-    g.setAttribute("position", new THREE.BufferAttribute(pos, 3))
+    g.setAttribute("position", new THREE.BufferAttribute(starShell(1900), 3))
     return g
   }, [])
   return (
     <points geometry={geo}>
       <pointsMaterial color="#cfe0ff" size={0.055} sizeAttenuation transparent opacity={0.85} />
+    </points>
+  )
+}
+
+const SPARK_VERT = /* glsl */ `
+  attribute float phase;
+  varying float vPhase;
+  void main() {
+    vPhase = phase;
+    vec4 mv = modelViewMatrix * vec4(position, 1.0);
+    gl_PointSize = 340.0 / -mv.z;
+    gl_Position = projectionMatrix * mv;
+  }
+`
+const SPARK_FRAG = /* glsl */ `
+  uniform float uTime;
+  varying float vPhase;
+  void main() {
+    vec2 c = gl_PointCoord - 0.5;
+    float d = length(c);
+    /* a soft core with a four-point glint */
+    float core = smoothstep(0.5, 0.05, d);
+    float cross = max(0.0, 1.0 - abs(c.x) * 14.0) + max(0.0, 1.0 - abs(c.y) * 14.0);
+    /* mostly calm, now and then a gentle flare */
+    float tw = 0.3 + 0.7 * pow(max(sin(uTime * 0.55 + vPhase * 6.2831), 0.0), 7.0);
+    float a = (core * 0.75 + cross * 0.35) * tw;
+    gl_FragColor = vec4(0.88, 0.93, 1.0, a);
+  }
+`
+
+/** The handful of brighter stars that occasionally flare (Iterácia 0.8). */
+function Sparks() {
+  const mat = useRef<THREE.ShaderMaterial>(null)
+  const geo = useMemo(() => {
+    const n = 70
+    const g = new THREE.BufferGeometry()
+    g.setAttribute("position", new THREE.BufferAttribute(starShell(n), 3))
+    const phase = new Float32Array(n)
+    for (let i = 0; i < n; i++) {
+      phase[i] = Math.random()
+    }
+    g.setAttribute("phase", new THREE.BufferAttribute(phase, 1))
+    return g
+  }, [])
+  useFrame((state) => {
+    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    if (mat.current && !still) {
+      mat.current.uniforms.uTime.value = state.clock.elapsedTime
+    }
+  })
+  return (
+    <points geometry={geo}>
+      <shaderMaterial
+        ref={mat}
+        vertexShader={SPARK_VERT}
+        fragmentShader={SPARK_FRAG}
+        uniforms={{ uTime: { value: 2 } }}
+        transparent
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+      />
     </points>
   )
 }
@@ -129,6 +193,7 @@ export default function SaturnCanvas() {
     >
       <ambientLight intensity={0.55} color="#30405e" />
       <Stars />
+      <Sparks />
       <Suspense fallback={null}>
         <Saturn />
       </Suspense>

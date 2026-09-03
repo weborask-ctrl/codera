@@ -347,8 +347,15 @@ function ActWork({ world }: { world: boolean }) {
   const listRef = useRef<HTMLOListElement>(null)
   /* the portal follows SCROLL (Iterácia 0.1), and since Iterácia 0.4 the
      POINTER too: a hovered row takes the portal immediately and holds it
-     until the pointer leaves the index; then scroll resumes ownership. */
+     until the pointer leaves the index; then scroll resumes ownership.
+     Iterácia 0.8: hover-follow only on devices that actually hover — on
+     touch the pointerenter fired on tap, re-rendered under the finger and
+     ate the click (Ondrej: rows would not open on the tablet). */
   const hoverRef = useRef<number | null>(null)
+  const canHover = useRef(false)
+  useEffect(() => {
+    canHover.current = window.matchMedia("(hover: hover) and (pointer: fine)").matches
+  }, [])
   useEffect(() => {
     let frame = 0
     const pick = () => {
@@ -429,6 +436,9 @@ function ActWork({ world }: { world: boolean }) {
                 className="group flex w-full flex-col py-7 text-left lg:py-8"
                 onFocusCapture={() => setActive(i)}
                 onPointerEnter={() => {
+                  if (!canHover.current) {
+                    return
+                  }
                   hoverRef.current = i
                   setActive(i)
                 }}

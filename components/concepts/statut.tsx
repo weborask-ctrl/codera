@@ -17,7 +17,7 @@
  */
 
 import { useEffect, useRef, useState } from "react"
-import { fx, INST, MONO, Shell } from "./shell"
+import { fx, INST, KonceptLine, MONO, Shell } from "./shell"
 
 const STONE = "#EDEDEA"
 const INK = "#101115"
@@ -89,7 +89,7 @@ export function StatutHero({ portal = false }: { portal?: boolean }) {
         <span style={{ ...INST, fontSize: "1.5rem" }}>
           Kancelária<span style={{ color: OXL }}>.</span>
         </span>
-        <nav className="hidden gap-7 text-[0.6rem] tracking-[0.18em] text-[#EDEDEA]/70 md:flex" style={MONO}>
+        <nav className="hidden gap-7 text-[0.68rem] tracking-[0.18em] text-[#EDEDEA]/90 md:flex" style={MONO}>
           {portal ? (
             <>
               <span>PRAX</span>
@@ -99,10 +99,10 @@ export function StatutHero({ portal = false }: { portal?: boolean }) {
             </>
           ) : (
             <>
-              <a href="#prax" className="transition-colors hover:text-[#EDEDEA]">PRAX</a>
-              <a href="#tim" className="transition-colors hover:text-[#EDEDEA]">TÍM</a>
-              <a href="#publikacie" className="transition-colors hover:text-[#EDEDEA]">PUBLIKÁCIE</a>
-              <a href="#kontakt" className="transition-colors hover:text-[#EDEDEA]">KONTAKT</a>
+              <a href="#prax" className="border-b border-transparent pb-1 transition-colors hover:border-[#EDEDEA] hover:text-[#EDEDEA]">PRAX</a>
+              <a href="#tim" className="border-b border-transparent pb-1 transition-colors hover:border-[#EDEDEA] hover:text-[#EDEDEA]">TÍM</a>
+              <a href="#publikacie" className="border-b border-transparent pb-1 transition-colors hover:border-[#EDEDEA] hover:text-[#EDEDEA]">PUBLIKÁCIE</a>
+              <a href="#kontakt" className="border-b border-transparent pb-1 transition-colors hover:border-[#EDEDEA] hover:text-[#EDEDEA]">KONTAKT</a>
             </>
           )}
         </nav>
@@ -362,7 +362,7 @@ export default function StatutSite() {
       <footer className="border-t border-[#14161A]/25 px-[clamp(1.25rem,4vw,4rem)] py-5 text-[0.54rem] tracking-[0.14em] text-[#14161A]/55" style={MONO}>
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <span>SLOVENSKÁ ADVOKÁTSKA KOMORA · ZAPÍSANÁ</span>
-          <span>BRATISLAVA · KOŠICE</span>
+          <span>BRATISLAVA · KOŠICE</span><KonceptLine />
         </div>
       </footer>
     </main>
