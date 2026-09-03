@@ -1004,7 +1004,7 @@ def _test_scene(names_to_show, cols):
     scene.render.threads_mode = "AUTO"
     scene.view_settings.view_transform = "AgX"
     scene.view_settings.look = "AgX - Base Contrast"
-    scene.view_settings.exposure = 0.0
+    scene.view_settings.exposure = -3.0  # sky at sun_intensity 0.4: sunlit white ≈ 12 linear
     scene.render.filter_size = 1.5
     scene.cycles.use_light_tree = True
     scene.cycles.max_bounces = 8
@@ -1014,7 +1014,8 @@ def _test_scene(names_to_show, cols):
     scene.cycles.caustics_refractive = False
     scene.cycles.sample_clamp_indirect = 8.0
 
-    # world: morning-ish sky (sun front-left of a +Y camera)
+    # world: morning-ish sky. Blender's sun_rotation is 0 = sun at +Y, 90 = +X (clockwise),
+    # so front-left of a +Y camera (sun from -X, +Y) is 180 - spec rotation.
     world = bpy.data.worlds.new("test_world")
     scene.world = world
     wn = world.node_tree.nodes
@@ -1025,7 +1026,7 @@ def _test_scene(names_to_show, cols):
     sky.sky_type = "MULTIPLE_SCATTERING"
     sky.sun_disc = True
     sky.sun_elevation = math.radians(38.0)
-    sky.sun_rotation = math.radians(spec.LIGHTS["morning"]["rotation"])
+    sky.sun_rotation = math.radians(180.0 - spec.LIGHTS["morning"]["rotation"])
     sky.sun_intensity = 0.4
     sky.altitude = 300.0
     sky.air_density = 1.0
@@ -1088,7 +1089,7 @@ def _test_scene(names_to_show, cols):
         # label, lying flat, readable from the +Y camera
         cu = bpy.data.curves.new(f"lbl_{name}", "FONT")
         cu.body = f"{i + 1:02d} {name}"
-        cu.size = 0.09
+        cu.size = 0.11
         cu.align_x = "CENTER"
         cu.extrude = 0.001
         tob = bpy.data.objects.new(cu.name, cu)
@@ -1110,8 +1111,8 @@ def _test_scene(names_to_show, cols):
     scene.camera = cam
     aspect = 1.6
     hfov = 2 * math.atan(aspect * math.tan(math.radians(fov) / 2))
-    dist = max((width * 0.55) / math.tan(hfov / 2), (depth * 0.85) / math.tan(math.radians(fov) / 2))
-    elev = math.radians(40.0)
+    dist = max((width * 0.5 + 0.1) / math.tan(hfov / 2), (depth * 0.5 + 0.4) / math.tan(math.radians(fov) / 2) * 1.35)
+    elev = math.radians(42.0)
     target = (0.0, 0.0, 0.12)
     cam.location = (0.0, target[1] + dist * math.cos(elev), target[2] + dist * math.sin(elev))
     direction = (target[0] - cam.location[0], target[1] - cam.location[1], target[2] - cam.location[2])
