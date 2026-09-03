@@ -143,11 +143,64 @@ majiteľa s digitálnym dvojčaťom.
 vlastným domom konateľa („Moja prvotina") a končí domom v Lúčine —
 oblúk „od kancelárskej krysy k dizajnovému domu" je pravdivý a silný.
 
-## 6. O nás — koniec stránky ✅, hlavný text ❌
+## 6. O nás ✅ — KOMPLETNÝ text
 
-4 dlaždice-odkazy: „…s čím pracujeme…" (dom v šále — teplo/izolácia) ·
-„…s čím pracujeme…" (kopy soli — bórax) · „…správame sa tak…" (smajlíky)
-· „…naše hodnoty…" (helma). Hlavný text O nás ❌.
+Nadpis: **KTO SME / ČO NÁM IDE NAJLEPŠIE**. Foto: stoh hranolov (stock).
+Text doslovne:
+
+> Spoločnosť EcoDomček, s.r.o., ktorej konateľom je Mgr. Roman Chovanec,
+> vznikla 1.1.2017, avšak osobne máme za sebou už 17 rokov skúseností so
+> stavbou montovaných drevodomov, striech, altánkov a iných drevených
+> konštrukcií. „Kariéra" staviteľa sa začala písať v roku 2007, keď som
+> si svojpomocne postavil montovaný drevodom. Práca s drevom ma veľmi
+> zaujala, napĺňala a aj mi tak nejako prirodzene išla od ruky (hoci do
+> vtedy som pracoval v IT oblasti). Následne ma zavolal jeden, druhý, …
+> piaty, … desiaty,… kamarát urobiť strechu, altánok, či celý dom. Keďže
+> som sa venoval aj iným činnostiam, trvalo mi desať rokov, kým som sa
+> odhodlal pretaviť svoje zručnosti aj komerčne. Zameriavame sa teda
+> hlavne na montované drevodomy, stavbu striech, altánkov a iných
+> drevených konštrukcií, pretože je to materiál a technológia, ktorej
+> veríme. Naším mottom je:
+>
+> **„Čo je ekologické, je aj ekonomické"**
+>
+> O tomto nás neustále presviedčajú stavby, ktoré sme už zrealizovali –
+> a teda aj môj vlastný dom(ček). Investícia do tohto typu technológie sa
+> reálne vypláca tak v komforte bývania, zo zdravotného hľadiska, ako aj
+> finančne. Aj keď je to u nás ešte stále pomerne nová technológia, a my,
+> konzervatívni Slováci jej veľmi nedôverujeme, v USA a Kanade je
+> osvedčená už viac ako 200 rokov a preverená náročnejšími klimatickými
+> podmienkami, ako u nás.
+>
+> V dnešnej dobe je moderné byť „eko", aj keď mnohokrát sa skutočný
+> význam tohto slova stráca. Budeme radi, keď Vás naša práca presvedčí
+> o tom, že to nie je iba prázdna fráza. Že správať sa a žiť EKOlogicky
+> je správne a rozmýšľať EKOnomicky výhodné. A postaviť rodinný dom pre
+> nás neznamená pozbíjať dokopy kusy materiálu, ale pripraviť Vám domček
+> – vysnívaný domov – útulné miesto rodinnej pohody. Vitajte teda vo
+> svete, kde vonia drevo, kde sa k Vám správajú ako slušní ľudia, kde
+> ekonomické záujmy idú v súlade s prírodou… Vitajte v EcoDomček.
+>
+> Spoznajte nás:
+
+Potom 4 dlaždice-odkazy (obsah po kliknutí ❌): „…s čím pracujeme…" (dom
+v šále — teplo/izolácia) · „…s čím pracujeme…" (kopy soli — bórax) ·
+„…správame sa tak…" (smajlíky) · „…naše hodnoty…" (helma).
+
+**Tri nálezy pre dizajn:**
+1. **Motto „Čo je ekologické, je aj ekonomické"** — hotová téza webu,
+   sedí k logu EKO-LOGICKÉ / EKO-NOMICKÉ. Beat 0 headline kandidát.
+2. **Pomenovaná bariéra: „my, konzervatívni Slováci jej veľmi
+   nedôverujeme"** — firma sama hovorí, že jej problém je NEDÔVERA
+   v drevostavbu. Presne to rieši 5D prechádzka: ukázať dom zvnútra,
+   otvoriť stenu, ukázať vrstvy. Rez stenou (Beat 4) nie je efekt, je
+   to odpoveď na hlavnú obchodnú prekážku.
+3. **„Vitajte vo svete, kde vonia drevo"** — vstupná veta pre prah domu
+   (Beat 2) alebo pre celý svet; zmyslová, autentická, vlastná.
+
+Roky definitívne: kariéra od **2007** (svojpomocný dom), bývanie v ňom
+od 2008, firma od **2017**. „17 rokov" je stav textu k 2024 — v redizajne
+počítať dynamicky alebo písať „od roku 2007".
 
 ## 7. Tón komunikácie — potvrdený trikrát ✅
 
@@ -198,11 +251,12 @@ kontakt                 ✅
 ## 12. Čo ešte chýba na uzavretie fázy 0
 
 Blokujúce:
-1. **O nás** — hlavný text + 4 dlaždice po kliknutí.
-2. **Tech** — celé (otvorená vs. uzatvorená; skladba steny s hrúbkami
+1. **Tech** — celé (otvorená vs. uzatvorená; skladba steny s hrúbkami
    a U-hodnotou; kúrenie).
-3. **Detail projektu** — klik na „KUK PROJEKT!" pri dome v Lúčine: sú
+2. **Detail projektu** — klik na „KUK PROJEKT!" pri dome v Lúčine: sú
    tam ďalšie fotky (interiér?) a text?
+3. **4 dlaždice O nás** po kliknutí (s čím pracujeme ×2, správame sa
+   tak, naše hodnoty) — hodnoty a správanie sú obsah pre Beat 2.
 
 Ne-blokujúce (pred fázou 2–3):
 4. Zvyšné 4 referencie z karuselu + súhlasy s publikovaním mien.

@@ -211,6 +211,14 @@ podľa kníh. Rieši aj rozpor rokov: *remeslo od 2008, firma od 2017.*
 Beat 7 (Realizácie) tak dostane pravdivú časovú os 2008 → 2024, ktorá
 začína vlastným domom a končí domom v Lúčine.
 
+**Téza webu (z O nás):** motto **„Čo je ekologické, je aj ekonomické"**
++ firma sama pomenúva svoju obchodnú bariéru: *„my, konzervatívni
+Slováci, drevostavbe nedôverujeme"*. To mení hierarchiu beatov — 5D
+prechádzka nie je show, je to **demystifikácia**: ukázať dom zvnútra,
+otvoriť stenu, pomenovať každú vrstvu. Beat 4 (rez stenou) je preto
+jadro stránky, nie efekt; a „Vitajte vo svete, kde vonia drevo" je
+vstupná veta pre prah domu.
+
 **Skutočné referencie:** karusel má 6 zákazníckych referencií s menami
 (napr. Peter F., Kéked HU) — reálny dôverový obsah pre Beat 8, so
 súhlasmi. Pôsobnosť je celé Slovensko + Maďarsko (Žilina, Košice,
