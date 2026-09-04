@@ -271,6 +271,30 @@ def _tufts(coll, seed=9, count=520):
                 bm.faces.new((v0, v1, v2, v3))
                 bm.faces.new((v3, v2, v4))
                 n += 1
+    # and a thin scatter across the open meadow the camera looks over
+    for _ in range(int(count * 1.1)):
+        bx = rnd.uniform(-14.0, 20.0)
+        by = rnd.uniform(5.0, 34.0)
+        if -5.4 < bx < 5.4 and -5.6 < by < 9.2:
+            continue  # not on the deck or the drive apron
+        for _ in range(rnd.randint(2, 4)):
+            h = rnd.uniform(0.10, 0.26)
+            a = rnd.uniform(0, 6.283)
+            lean = rnd.uniform(0.10, 0.45)
+            w = rnd.uniform(0.005, 0.009)
+            px, py = bx + rnd.uniform(-0.12, 0.12), by + rnd.uniform(-0.12, 0.12)
+            tipx, tipy = px + math.cos(a) * lean * h, py + math.sin(a) * lean * h
+            midx, midy = px + math.cos(a) * lean * h * 0.35, py + math.sin(a) * lean * h * 0.35
+            nx, ny = -math.sin(a) * w, math.cos(a) * w
+            z0 = _undulation(px, py)
+            v0 = bm.verts.new((px - nx, py - ny, z0))
+            v1 = bm.verts.new((px + nx, py + ny, z0))
+            v2 = bm.verts.new((midx + nx * 0.6, midy + ny * 0.6, z0 + h * 0.55))
+            v3 = bm.verts.new((midx - nx * 0.6, midy - ny * 0.6, z0 + h * 0.55))
+            v4 = bm.verts.new((tipx, tipy, z0 + h))
+            bm.faces.new((v0, v1, v2, v3))
+            bm.faces.new((v3, v2, v4))
+            n += 1
     ob = _obj("grass_tufts", bm, coll, smooth=False)
     ob.data.materials.append(_grass_material())
     for p in ob.data.polygons:
@@ -607,7 +631,7 @@ def _clouds(nt, sky, state):
     return mix.outputs[2]
 
 
-SUN_ENERGY = {"morning": 34.0, "interior": 34.0, "table": 9.0, "dusk": 0.0}
+SUN_ENERGY = {"morning": 42.0, "interior": 34.0, "table": 9.0, "dusk": 0.0}
 SUN_ANGLE_DEG = {"morning": 0.9, "interior": 0.9, "table": 6.0, "dusk": 2.0}
 
 
@@ -666,7 +690,10 @@ def _cloud_shadow(coll, state):
         nt.nodes.remove(n)
     co = nt.nodes.new("ShaderNodeTexCoord")
     map_ = nt.nodes.new("ShaderNodeMapping")
-    k = cfg["scale"] / z * 1.9  # roughly the angular scale of the world layer
+    # One noise cell used to cover the whole site, so the plane simply dimmed the
+    # sun everywhere and the scene lost its key. At this scale a couple of soft
+    # bands cross the meadow instead, which is what cloud shadow does.
+    k = cfg["scale"] / z * 12.0
     map_.inputs["Scale"].default_value = (k, k, k)
     nt.links.new(co.outputs["Object"], map_.inputs["Vector"])
     noise = nt.nodes.new("ShaderNodeTexNoise")
@@ -677,7 +704,7 @@ def _cloud_shadow(coll, state):
     dens = nt.nodes.new("ShaderNodeMapRange")
     dens.inputs["From Min"].default_value = cfg["cover"] + 0.02
     dens.inputs["From Max"].default_value = cfg["cover"] + cfg["soft"] + 0.12
-    dens.inputs["To Max"].default_value = 0.55  # thin cloud: never a hard black shadow
+    dens.inputs["To Max"].default_value = 0.45  # thin cloud: never a hard black shadow
     dens.clamp = True
     nt.links.new(noise.outputs["Fac"], dens.inputs["Value"])
     tr = nt.nodes.new("ShaderNodeBsdfTransparent")
@@ -695,6 +722,57 @@ def _cloud_shadow(coll, state):
     ob.visible_glossy = False
     ob.visible_transmission = False
     ob.visible_volume_scatter = False
+    return ob
+
+
+def _shadow_tree(coll, state, land=(0.0, 9.0), height=11.0):
+    """An off-frame tree whose shadow rakes across the near meadow.
+
+    With the camera and the sun both on the garden side, the house's own shadow
+    always falls behind it: physics, not a bug. A tree standing outside the
+    frame on the sun's side puts dappled shadow into the empty foreground the
+    copy sits on, which is what a photographer would wait for. The tree itself
+    is never rendered — only what it blocks.
+    """
+    v = sun_vector(state)
+    if v.z <= 0.05:
+        return None
+    # the crown's centre, not its top, is what casts onto `land`
+    reach = height * 0.78 / math.tan(math.asin(min(1.0, v.z)))
+    bx = land[0] + v.x / math.hypot(v.x, v.y) * reach
+    by = land[1] + v.y / math.hypot(v.x, v.y) * reach
+    rnd = random.Random(31)
+    bm = bmesh.new()
+    _box(bm, (bx - 0.24, bx + 0.24, by - 0.24, by + 0.24, 0.0, height * 0.55))
+    for _ in range(9):  # a crown of overlapping lobes: the silhouette is all that matters
+        cx = bx + rnd.uniform(-2.4, 2.4)
+        cy = by + rnd.uniform(-2.4, 2.4)
+        cz = height * rnd.uniform(0.60, 0.98)
+        r = rnd.uniform(1.5, 2.6)
+        rows, segs = 5, 8
+        grid = []
+        for i in range(rows + 1):
+            a = math.pi * i / rows
+            ring = []
+            for j in range(segs):
+                t = 2 * math.pi * j / segs
+                ring.append(bm.verts.new((
+                    cx + r * math.sin(a) * math.cos(t) * rnd.uniform(0.8, 1.2),
+                    cy + r * math.sin(a) * math.sin(t) * rnd.uniform(0.8, 1.2),
+                    cz + r * 0.85 * math.cos(a),
+                )))
+            grid.append(ring)
+        for i in range(rows):
+            for j in range(segs):
+                try:
+                    bm.faces.new((grid[i][j], grid[i][(j + 1) % segs],
+                                  grid[i + 1][(j + 1) % segs], grid[i + 1][j]))
+                except ValueError:
+                    pass
+    ob = _obj("shadow_tree", bm, coll, smooth=False)
+    ob.data.materials.append(_foliage_material("foliage_shadow", "#33452A"))
+    ob.visible_camera = False
+    ob.visible_glossy = False
     return ob
 
 
@@ -737,6 +815,8 @@ def set_light(state):
         bpy.data.objects.remove(ob, do_unlink=True)
     _sun(coll, state)
     _cloud_shadow(coll, state)
+    if state in ("morning", "interior"):
+        _shadow_tree(coll, state)
 
     if state == "table":
         # dollhouse: one big soft key so the model reads as an object on a table

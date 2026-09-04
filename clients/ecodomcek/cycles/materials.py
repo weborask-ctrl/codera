@@ -853,9 +853,14 @@ def _lawn(b: _B):
     straw = b.maxv(straw_a, straw_b)
     edge = b.voronoi(co, 380.0, "DISTANCE_TO_EDGE")
     thin = b.smooth(edge.outputs["Distance"], 0.0, 0.025, 1.0, 0.0)  # 1 on the cell edges
+    wide = b.noisef(b.vmath("ADD", co, (31.0, 17.0, 0.0)), 0.075, detail=4.0, rough=0.6)
     color = b.mixc(b.smooth(patch, 0.3, 0.7), rgb("lawn_a"), rgb("lawn_b"))
     color = b.scale_color(color, b.madd(clump, 0.5, 0.75))
     color = b.scale_color(color, b.add(1.0, b.centred(mid, 0.15)))
+    # metre-scale sward variation: without it the meadow reads as one flat sheet
+    # of green at any distance the exterior cameras look over
+    color = b.scale_color(color, b.add(1.0, b.centred(wide, 0.30)))
+    color = b.mixc(b.mul(b.smooth(wide, 0.62, 0.86), 0.35), color, rgb("#6E7A38"))
     color = b.mixc(b.smooth(dry_n, 0.6, 0.85, 0.0, 0.45), color, rgb("#A29A55"))
     soil = b.smooth(blade, 0.15, 0.35, 0.7, 0.0)
     color = b.mixc(soil, color, rgb("#2E2A16"))
