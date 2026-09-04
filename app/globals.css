@@ -960,35 +960,40 @@ main[data-experience="v3"][data-wipe-done] .wipe-statement {
   .st-scribble { animation: none; stroke-dashoffset: 0; }
 }
 
-/* Observatórium ring passage (Ukážka Animácie & 3D, Iterácia 0.7): the
-   lines the rings carry in start invisible and are driven entirely by the
-   scrubbed GSAP timeline. Reduced motion is a layout: the sticky passage
-   collapses into a plain stacked section with every line readable. */
-.ob-line {
+/* Observatórium journey (Ukážka Animácie & 3D, Iterácia 1.0): the copy
+   chapters start invisible and are driven entirely by the scrubbed GSAP
+   timeline; the veil keeps text calm over the vivid sky. Reduced motion is
+   a layout: the 900vh flight collapses, the hero frame holds, and every
+   chapter reads as a plain stacked block. */
+.ob-veil {
+  pointer-events: none;
+  background:
+    radial-gradient(120% 90% at 50% 45%, rgba(4, 5, 12, 0) 40%, rgba(4, 5, 12, 0.55) 100%),
+    linear-gradient(180deg, rgba(4, 5, 12, 0.35) 0%, rgba(4, 5, 12, 0) 22%, rgba(4, 5, 12, 0) 70%, rgba(4, 5, 12, 0.5) 100%);
+}
+.ob-chap {
   opacity: 0;
   will-change: transform, opacity;
   text-shadow:
-    0 2px 26px rgba(5, 7, 13, 0.95),
-    0 0 12px rgba(5, 7, 13, 0.9),
-    0 0 3px rgba(5, 7, 13, 0.9);
+    0 2px 26px rgba(4, 5, 12, 0.95),
+    0 0 12px rgba(4, 5, 12, 0.9);
 }
+.ob-chap-left { left: 6vw; top: 50%; transform: translateY(-50%); width: min(560px, 86vw); text-align: left; }
+.ob-chap-right { right: 6vw; top: 50%; transform: translateY(-50%); width: min(560px, 86vw); text-align: right; }
+.ob-chap-low { left: 50%; top: 74%; transform: translate(-50%, -50%); width: min(820px, 90vw); text-align: center; }
 @media (prefers-reduced-motion: reduce) {
-  .ob-ringsec { height: auto; }
-  .ob-ringhold {
-    position: static;
-    height: auto;
-    padding: 10svh 0;
-    display: flex;
-    flex-direction: column;
-    gap: 3.5rem;
-  }
-  .ob-line {
+  .ob-journey { height: auto; padding-bottom: 8svh; }
+  .ob-heroFix { position: relative; inset: auto; }
+  .ob-chap {
     position: static;
     opacity: 1;
     transform: none;
-    margin-inline: auto;
+    width: min(760px, 90vw);
+    margin: 3rem auto 0;
+    text-align: left;
     will-change: auto;
   }
+  .ob-progWrap { display: none; }
 }
 
 /* Štúdio lektori ride (Iterácia 0.9): a doubled strip drifting left→right;
