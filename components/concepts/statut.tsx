@@ -16,8 +16,10 @@
  * Photos: Unsplash licence, stored locally under /demos/kancelaria/.
  */
 
+import dynamic from "next/dynamic"
 import { useEffect, useRef, useState } from "react"
 import { fx, INST, KonceptLine, MONO, Shell } from "./shell"
+import { paraState } from "./statut-paragraph"
 
 const STONE = "#EDEDEA"
 const INK = "#101115"
@@ -25,12 +27,13 @@ const OX = "#6E1F26"
 const OXL = "#C9646C"
 
 const IMG = "/demos/kancelaria"
+const ParagraphCanvas = dynamic(() => import("./statut-paragraph"), { ssr: false })
 
 const PRACTICE = [
   ["01", "Obchodné právo", "Od zakladateľskej zmluvy po predaj firmy. Vedieme transakcie tak, aby ste podpisovali s pokojom.", `${IMG}/podpis.jpg`],
   ["02", "Nehnuteľnosti", "Kúpa, predaj a výstavba bez skrytých vád — právnych aj tých v katastri.", `${IMG}/mesto.jpg`],
   ["03", "Pracovné právo", "Poriadok vo vzťahoch so zamestnancami skôr, než ho bude vymáhať súd.", `${IMG}/kniznica.jpg`],
-  ["04", "Súdne spory", "Keď rokovanie skončilo. Pripravení, vecní, bez divadla.", `${IMG}/stlpy.jpg`],
+  ["04", "Súdne spory", "Keď rokovanie skončilo. Pripravení, vecní, bez divadla.", `${IMG}/mramor.jpg`],
   ["05", "Insolvencia", "Aj koniec sa dá urobiť poriadne — pre veriteľov aj pre dlžníka.", `${IMG}/hero.jpg`],
 ] as const
 
@@ -75,15 +78,15 @@ export function StatutHero({ portal = false }: { portal?: boolean }) {
       <div
         aria-hidden="true"
         className="kx-heroimg absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${IMG}/hero.jpg)`, filter: "grayscale(1) contrast(1.12) brightness(0.6)" }}
+        style={{ backgroundImage: `url(${IMG}/hero.jpg)`, filter: "contrast(1.06) brightness(0.78) saturate(1.12)" }}
       />
-      <div aria-hidden="true" className="absolute inset-0" style={{ background: "linear-gradient(160deg, rgba(16,17,21,0.82) 0%, rgba(42,20,24,0.72) 55%, rgba(110,31,38,0.55) 100%)", mixBlendMode: "multiply" }} />
+      <div aria-hidden="true" className="absolute inset-0" style={{ background: "linear-gradient(160deg, rgba(16,17,21,0.7) 0%, rgba(42,20,24,0.35) 55%, rgba(110,31,38,0.25) 100%)", mixBlendMode: "multiply" }} />
       <div aria-hidden="true" className="absolute inset-0" style={{ background: "radial-gradient(70% 55% at 78% 82%, rgba(196,120,70,0.38) 0%, transparent 60%)" }} />
       <div aria-hidden="true" className="absolute inset-0" style={{ background: "radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(8,8,11,0.75) 100%)" }} />
 
-      <div aria-hidden="true" className={`kx-para-wrap absolute z-[6] ${portal ? "top-[4%] right-[6%]" : "top-[10%] right-[7%]"} hidden sm:block`}>
-        <Paragraph size={portal ? "10rem" : "clamp(13rem,36vh,24rem)"} />
-      </div>
+      {portal ? (<div aria-hidden="true" className="kx-para-wrap absolute top-[4%] right-[6%] z-[6] hidden sm:block">
+        <Paragraph size="10rem" /></div>) : (<div aria-hidden="true" className="kx-para-wrap absolute top-[4%] right-[2%] z-[6] hidden h-[min(66vh,680px)] w-[min(44vw,620px)] sm:block"><ParagraphCanvas />
+      </div>)}
 
       <header className={`relative z-10 flex items-baseline justify-between border-b border-[#EDEDEA]/25 px-[clamp(1.25rem,4vw,4rem)] ${portal ? "pt-6" : "pt-10"} pb-4`}>
         <span style={{ ...INST, fontSize: "1.5rem" }}>
@@ -196,9 +199,10 @@ export default function StatutSite() {
           { scale: 1, yPercent: -6, ease: "none", scrollTrigger: { trigger: ".kx-hero", start: "top top", end: "bottom top", scrub: true } }
         )
         /* the bronze § sinks and turns with the scroll */
+        ScrollTrigger.create({ trigger: ".kx-hero", start: "top top", end: "bottom top", scrub: true, onUpdate: (self) => { paraState.p = self.progress } })
         gsap.to(".kx-para-wrap", {
-          yPercent: 85,
-          rotation: 14,
+          yPercent: 30,
+          rotation: 0,
           ease: "none",
           scrollTrigger: { trigger: ".kx-hero", start: "top top", end: "bottom top", scrub: true },
         })
@@ -295,7 +299,7 @@ export default function StatutSite() {
       {/* ---- the roster — records, not stock suits ---- */}
       <Shell id="tim" className="relative overflow-hidden px-[clamp(1.25rem,4vw,4rem)] py-[11svh]" style={{ background: INK, color: STONE }}>
         <div aria-hidden="true" className="absolute inset-y-0 right-0 hidden w-[44%] lg:block">
-          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${IMG}/stlpy.jpg)`, filter: "grayscale(1) contrast(1.1) brightness(0.5)" }} />
+          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${IMG}/mesto.jpg)`, filter: "contrast(1.05) brightness(0.55) saturate(0.9)" }} />
           <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, #101115 0%, rgba(16,17,21,0.4) 55%, rgba(110,31,38,0.35) 100%)" }} />
         </div>
         <div className="relative z-10 max-w-[44rem]">
@@ -352,7 +356,7 @@ export default function StatutSite() {
 
       {/* ---- close ---- */}
       <Shell id="kontakt" className="relative overflow-hidden px-[clamp(1.25rem,4vw,4rem)] py-[13svh]" style={{ background: INK, color: STONE }}>
-        <div aria-hidden="true" className="kx-closeimg absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${IMG}/podpis.jpg)`, filter: "grayscale(1) contrast(1.1) brightness(0.45)", transform: "scale(1.15)" }} />
+        <div aria-hidden="true" className="kx-closeimg absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${IMG}/podpis.jpg)`, filter: "contrast(1.05) brightness(0.5) saturate(1.05)", transform: "scale(1.15)" }} />
         <div aria-hidden="true" className="absolute inset-0" style={{ background: "linear-gradient(160deg, rgba(16,17,21,0.85) 0%, rgba(42,20,24,0.7) 60%, rgba(110,31,38,0.5) 100%)", mixBlendMode: "multiply" }} />
         <div className="relative z-10 mx-auto max-w-[50rem] text-center">
           <h2 className="wfx" style={{ ...INST, fontSize: "clamp(2.7rem,5.8vw,5.4rem)", lineHeight: 1.05, ...fx(0) }}>
