@@ -119,6 +119,18 @@ export function VlnaHero({ portal = false }: { portal?: boolean }) {
         className="st-heroimg absolute inset-0 bg-cover bg-[center_30%]"
         style={{ backgroundImage: `url(${IMG}/hero.jpg)`, filter: "grayscale(1) contrast(1.15) brightness(0.55)" }}
       />
+      {portal ? null : (
+        <video
+          className="st-herovid absolute inset-0 h-full w-full object-cover object-[center_30%]"
+          style={{ filter: "grayscale(1) contrast(1.15) brightness(0.55)" }}
+          src={`${IMG}/hero.mp4`}
+          poster={`${IMG}/hero.jpg`}
+          autoPlay
+          muted
+          loop
+          playsInline
+        />
+      )}
       <div aria-hidden="true" className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(10,11,12,0.55) 0%, rgba(10,11,12,0.15) 45%, rgba(10,11,12,0.7) 100%)" }} />
 
       <header className="relative z-10 flex items-center justify-between px-[clamp(1.25rem,4vw,3.5rem)] pt-6 pb-4">
@@ -214,6 +226,11 @@ export default function VlnaSite() {
           ".st-heroimg",
           { scale: 1.14, yPercent: 0 },
           { scale: 1, yPercent: -5, ease: "none", scrollTrigger: { trigger: ".st-hero", start: "top top", end: "bottom top", scrub: true } }
+        )
+        gsap.fromTo(
+          ".st-neonimg",
+          { yPercent: -6 },
+          { yPercent: 6, ease: "none", scrollTrigger: { trigger: "#clenstvo", start: "top bottom", end: "bottom top", scrub: true } }
         )
         gsap.fromTo(
           ".st-closeimg",
@@ -337,11 +354,13 @@ export default function VlnaSite() {
       </Shell>
 
       {/* ---- membership: three tiers, single entry first ---- */}
-      <Shell id="clenstvo" className="px-[clamp(1.25rem,4vw,3.5rem)] py-[9svh]">
-        <h2 className="wfx uppercase" style={{ ...BRIC, fontWeight: 800, fontSize: "clamp(2.4rem,5.6vw,4.8rem)", letterSpacing: "-0.02em", ...fx(0) }}>
+      <Shell id="clenstvo" className="relative overflow-hidden px-[clamp(1.25rem,4vw,3.5rem)] py-[9svh]">
+        <div aria-hidden="true" className="st-neonimg absolute inset-[-8%] bg-cover bg-center" style={{ backgroundImage: `url(${IMG}/neon.jpg)`, filter: "contrast(1.1) brightness(0.32) saturate(1.3)" }} />
+        <div aria-hidden="true" className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(10,11,12,0.85) 0%, rgba(10,11,12,0.45) 50%, rgba(10,11,12,0.9) 100%)" }} />
+        <h2 className="wfx relative z-10 uppercase" style={{ ...BRIC, fontWeight: 800, fontSize: "clamp(2.4rem,5.6vw,4.8rem)", letterSpacing: "-0.02em", ...fx(0) }}>
           Členstvo
         </h2>
-        <div className="mt-8 grid gap-4 md:grid-cols-3">
+        <div className="relative z-10 mt-8 grid gap-4 md:grid-cols-3">
           {[
             ["Jednorazový vstup", "9 €", "prídete, zacvičíte, odídete", false],
             ["10 vstupov", "79 €", "platnosť 3 mesiace · prenosné", true],
@@ -373,7 +392,7 @@ export default function VlnaSite() {
 
       {/* ---- close ---- */}
       <Shell id="st-zaver" className="relative overflow-hidden px-[clamp(1.25rem,4vw,3.5rem)] py-[12svh]">
-        <div aria-hidden="true" className="st-closeimg absolute inset-[-10%] bg-cover bg-center" style={{ backgroundImage: `url(${IMG}/pohyb.jpg)`, filter: "grayscale(1) contrast(1.1) brightness(0.35)" }} />
+        <div aria-hidden="true" className="st-closeimg absolute inset-[-10%] bg-cover bg-center" style={{ backgroundImage: `url(${IMG}/kruhy.jpg)`, filter: "grayscale(1) contrast(1.15) brightness(0.4)" }} />
         <div className="relative z-10 mx-auto max-w-[52rem] text-center">
           <h2 className="wfx uppercase" style={{ ...BRIC, fontWeight: 800, fontSize: "clamp(2.4rem,6vw,5.2rem)", lineHeight: 0.98, letterSpacing: "-0.02em", ...fx(0) }}>
             Telo si pamätá, kedy ste začali.
