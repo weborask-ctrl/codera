@@ -95,11 +95,15 @@ def hex_to_rgb(h: str):
 
 # ---- light states ----------------------------------------------------------
 LIGHTS = {
-    # sun from the front-RIGHT in world terms (+X, +Y) = front-left as seen by the mirrored cameras
-    "morning": {"elevation": 24, "rotation": 145, "intensity": 0.40, "world": 1.0, "interior": False},
-    "interior": {"elevation": 32, "rotation": 145, "intensity": 0.40, "world": 1.0, "interior": "accent"},
-    "table": {"elevation": 45, "rotation": 200, "intensity": 0.25, "world": 1.0, "interior": False},
-    "dusk": {"elevation": -2, "rotation": 30, "intensity": 0.10, "world": 0.35, "interior": "all"},
+    # The exterior cameras look at the front (+Y) and left (−X) walls. A sun in
+    # that same quadrant lights both flatly and hides its own shadow behind the
+    # house (rendered 2026-09-04), so the sun sits well round to +X: the front
+    # facade takes a raking light that reveals the Rhombus relief, the left wall
+    # falls into shade, and the cantilever box casts onto the facade below it.
+    "morning": {"elevation": 24, "rotation": -70, "intensity": 1.0, "world": 0.55, "interior": False},
+    "interior": {"elevation": 26, "rotation": -158, "intensity": 1.0, "world": 0.8, "interior": "accent"},
+    "table": {"elevation": 45, "rotation": 200, "intensity": 0.55, "world": 1.0, "interior": False},
+    "dusk": {"elevation": -4, "rotation": 30, "intensity": 0.0, "world": 2.3, "interior": "all"},
 }
 BOARD_LIGHT = {"hero": "morning", "living": "interior", "xray": "morning", "dollhouse": "table", "dusk": "dusk"}
 BOARD_SITE = {"hero": "lawn", "living": "lawn", "xray": "lawn", "dollhouse": "studio", "dusk": "lawn"}
@@ -112,16 +116,17 @@ XRAY_OFFSET = 200.0
 # in the living room). From the garden the cameras now see the front (+Y) and
 # the LEFT (−X) wall; the cantilever box sits at the far right end of the front.
 CAMERAS = {
-    ("hero", "desktop"): ((-16, 24, 4.6), (5.4, 0, 2.5), 25, 8.0),
-    ("hero", "mobile"): ((-12, 34, 4.4), (1.0, 0, -2.2), 36, 8.0),
+    ("hero", "desktop"): ((-20, 30, 4.4), (6.6, 0, 3.3), 25, 8.0),
+    ("hero", "mobile"): ((-19, 34, 5.6), (4.6, 0, -3.4), 38, 8.0),
     ("living", "desktop"): ((-2.5, -3.7, 1.5), (1.7, 5.0, 1.15), 47, 4.0),
     ("living", "mobile"): ((2.4, -3.4, 1.5), (-1.4, 5.0, 0.2), 56, 4.0),
-    ("xray", "desktop"): ((XRAY_OFFSET - 4.6, 6.4, 3.1), (XRAY_OFFSET + 1.0, -0.1, 1.0), 30, 0.0),
+    ("xray", "desktop"): ((XRAY_OFFSET - 4.9, 4.3, 2.45), (XRAY_OFFSET + 0.2, -0.35, 1.35), 33, 0.0),
     ("dollhouse", "desktop"): ((-25, 25, 19), (3.4, 0, 1.0), 28, 11.0),
     ("dusk", "desktop"): ((-14.5, 23, 3.4), (3.8, 0, 2.4), 26, 8.0),
     ("dusk", "mobile"): ((-10, 29, 3.4), (-0.4, 0, -1.0), 36, 8.0),
 }
 SIZES = {"desktop": (1440, 900), "mobile": (780, 1688)}
+EXPOSURE = {"hero": -2.05, "living": -0.35, "xray": -2.85, "dollhouse": -2.1, "dusk": -0.15}
 QUALITY = {
     "test": {"scale": 25, "samples": 32},
     "preview": {"scale": 50, "samples": 96},

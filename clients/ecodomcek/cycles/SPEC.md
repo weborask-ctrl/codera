@@ -65,7 +65,7 @@ realism cue.
 
 | state | Sky (ShaderNodeTexSky, `sky_type = 'MULTIPLE_SCATTERING'` in Blender 5) | Sun | Interior lights |
 | --- | --- | --- | --- |
-| `morning` | elevation 24°, rotation so the sun is front-left (from −X, +Y), intensity 0.35–0.45, air 1.0, dust 1.5 | via the sky (sun_disc on) | off |
+| `morning` | elevation 24°, rotation so the sun is front-left (from −X, +Y), intensity 1.0, air 1.0, dust 1.5 | via the sky (sun_disc on) | off |
 | `interior` | same sky, elevation 32° | via sky | a warm 2700 K area light in the pendant (40 W) as accent; daylight dominates |
 | `table` (dollhouse) | soft overcast-ish sky, elevation 45°, lower saturation | via sky | off |
 | `dusk` | elevation −2° (just below), rotation behind the house, deep blue sky; world strength 0.35 | none direct | every room lit: warm 2700 K area lights, living room 4× 25 W, box window 1× 15 W, upper windows 2× 15 W; glass shows the warm interior; the deck lit by the living room only |

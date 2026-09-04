@@ -61,6 +61,7 @@ import bpy  # noqa: E402  (bpy must load before bmesh/mathutils resolve)
 import bmesh  # noqa: E402
 from mathutils import Matrix, Vector  # noqa: E402
 
+import meshutil  # noqa: E402
 import spec  # noqa: E402
 
 # ---------------------------------------------------------------------------
@@ -194,6 +195,7 @@ def _mesh_object(name, bm, coll, origin=(0.0, 0.0, 0.0)):
     if any(origin):
         bmesh.ops.translate(bm, verts=bm.verts, vec=(-origin[0], -origin[1], -origin[2]))
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    meshutil.smooth_by_angle(bm)
     me = bpy.data.meshes.new(name)
     bm.to_mesh(me)
     bm.free()

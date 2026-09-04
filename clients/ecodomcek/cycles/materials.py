@@ -596,8 +596,8 @@ def _larch(b: _B):
     color, rough, height = _wood(
         b, along, across, depth, b.rand(),
         base="larch", dark=0.55, light=1.18, ring_period=0.0055, ring_distort=4.0, ring_weight=0.7,
-        fine_weight=0.4, knot_prob=0.12, rough=(0.45, 0.60), hue_var=0.03, val_var=0.06, row=row, row_var=0.05,
-        sat=1.2, value=0.88,
+        fine_weight=0.35, knot_prob=0.10, rough=(0.48, 0.62), hue_var=0.010, val_var=0.035, row=row, row_var=0.022,
+        sat=1.0, value=0.85,
     )
     n = b.bump(height, 0.25, 0.003)
     n = b.bevel(n, 0.003)
@@ -612,8 +612,8 @@ def _larch_deck(b: _B):
     color, rough, height = _wood(
         b, along, across, depth, b.rand(),
         base="larch_deck", dark=0.55, light=1.16, ring_period=0.006, ring_distort=4.5, ring_weight=0.7,
-        fine_weight=0.4, knot_prob=0.10, rough=(0.62, 0.78), hue_var=0.02, val_var=0.06, row=row, row_var=0.05,
-        sat=1.1, value=0.88,
+        fine_weight=0.35, knot_prob=0.09, rough=(0.62, 0.78), hue_var=0.010, val_var=0.035, row=row, row_var=0.025,
+        sat=0.98, value=0.86,
     )
     # weathering: patchy silver-grey bloom, stronger on some boards
     wx = b.noisef(b.combine(b.mul(x, 0.6), b.mul(y, 2.0), z), 1.6, detail=3.0, rough=0.6)

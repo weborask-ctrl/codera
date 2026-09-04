@@ -45,3 +45,10 @@ node_modules/
 
 # Playwright MCP session logs
 .playwright-mcp/
+
+# python bytecode
+__pycache__/
+*.pyc
+
+# Cycles module self-test renders (regenerate with `python3 <module>.py`)
+clients/ecodomcek/cycles/_test/
