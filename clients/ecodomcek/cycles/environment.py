@@ -993,7 +993,7 @@ def build_xray(materials):
 
     bm = bmesh.new()
     _box(bm, (x - 150, x + 150, cursor - 150, XRAY_Y_START + 150, -0.4, 0.0))
-    _obj("xray_floor", bm, coll, materials, "concrete")
+    _obj("xray_floor", bm, coll, materials, "studio_floor")
     print(f"[environment] x-ray stage ({len(spec.XRAY_LAYERS)} layers) in {time.time() - t0:.2f} s")
     return anchors
 

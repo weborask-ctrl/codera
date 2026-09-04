@@ -69,6 +69,7 @@ if (mode === "render") {
     })
     for (const a of list.filter((a) => !a.col)) {
       const side = a.side === "auto" ? (a.x > w * 0.58 ? "left" : "right") : a.side
+      a.y = Math.max(a.y, device === "mobile" ? 148 : 96)  // never under the nav
       const el = document.createElement("div")
       el.className = `ann ${side}${a.signal ? " signal" : ""}`
       el.style.left = `${a.x}px`

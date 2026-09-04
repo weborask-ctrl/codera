@@ -249,6 +249,25 @@ Reference traceability for the new decisions, all from records read in full:
 | The paper veil behind copy that lands on the render | `aspelin-reitan`, `raus` | cream-on-cream layering as the depth device, never a drop shadow | a gradient of the page's own paper with a hairline where it starts, used on the living board and on mobile |
 | The dusk act | `exoape` | warm photographic dark, type over the world, never flat black | one board only; the house goes to silhouette, the windows carry 2700 K practicals, the contact panel is snow |
 
+Static-frame test on the eight composited boards (1440×900 / 780×1688,
+plates at 384 spp, interiors and dusk at 512):
+
+| Board | Reads as | Verdict |
+| --- | --- | --- |
+| 01 Príjazd desktop | headline on the sky, house in the right five columns, drive entering bottom-left, one concept label at the roofline, benefit band on the meadow | **passes** |
+| 01 Príjazd mobile | house above the horizon, copy on the paper veil over the meadow, call in the thumb zone | passes |
+| 03 Obývačka desktop | room left, copy on a paper veil right, sun on the oak floor, the deck and meadow visible through the glazing | passes |
+| 03 Obývačka mobile | sofa and glazing top, the sun patch as the copy field | passes |
+| 04 Technológia | seven layers on a bone ground, mono labels on paper chips cascading with leaders, one green on the load-bearing layer | **passes** — this is the board draft 1 failed twice |
+| 07 Realizácie | model as an object on a warm ground, roof lifted, one concept label, three real projects as plates | passes |
+| 08 Kontakt desktop/mobile | house in silhouette with warm rooms, snow panel, register line | **passes** |
+
+Weakest surfaces, named rather than hidden: the meadow is still the least
+convincing material in every exterior; the woodland band is a distant mass,
+not trees; the model is cleaner than any built house (no weathering, no
+dirt, no downpipe stains); and the interior's window view is a stop or two
+brighter than a photograph would hold.
+
 Not validated: every plate is a headless CPU render and every board is a
 headless Chromium capture. No real device has seen these frames. Class: LOCAL.
 

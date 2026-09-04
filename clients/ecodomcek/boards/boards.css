@@ -186,10 +186,25 @@ body[data-board="dusk"] .ann .dot, body[data-board="dusk"] .ann .line { backgrou
   content: ""; position: absolute; z-index: 0; inset: -44px -56px -44px -64px;
   background: linear-gradient(100deg, rgba(243,237,226,0) 0%, rgba(243,237,226,0.82) 16%, rgba(243,237,226,0.94) 46%, rgba(243,237,226,0.96) 100%);
 }
+[data-for="xray"] .cell::before {
+  content: ""; position: absolute; z-index: 0; inset: -44px -72px -44px -64px;
+  background: linear-gradient(280deg, rgba(243,237,226,0) 0%, rgba(243,237,226,0.80) 18%, rgba(243,237,226,0.93) 48%, rgba(243,237,226,0.96) 100%);
+}
+[data-for="xray"] .cell::after { display: none; }
+[data-for="xray"] .cell::after,
 [data-for="living"] .cell::after {
   content: ""; position: absolute; z-index: 0; left: -64px; top: -44px; bottom: -44px; width: 1px;
   background: linear-gradient(180deg, rgba(217,205,184,0) 0%, rgba(217,205,184,0.9) 22%, rgba(217,205,184,0.9) 78%, rgba(217,205,184,0) 100%);
 }
+
+/* The dollhouse and technology plates have no sky to write on: their labels get
+   the page's paper under them — the same veil device at label scale. The board
+   id lives on <body>, not on the section, because #annotations is its own host. */
+body[data-board="dollhouse"] .ann .lab,
+body[data-board="xray"] .ann .lab {
+  background: rgba(243,237,226,0.92); padding: 5px 9px 6px; margin: -5px 0 -6px;
+}
+body[data-board="xray"] .ann.col .lab { padding: 5px 9px 7px; }
 
 /* ---- mobile ---- */
 body[data-device="mobile"] { --edge: 20px; --gutter: 16px; }
@@ -215,8 +230,8 @@ body[data-device="mobile"] .cell .plates { margin-top: 24px; }
 body[data-device="mobile"] .cell .body { display: none; }
 body[data-device="mobile"] [data-for="hero"] .cell::before,
 body[data-device="mobile"] [data-for="living"] .cell::before {
-  content: ""; position: absolute; z-index: 0; inset: -30px -20px -140px -20px;
-  background: linear-gradient(180deg, rgba(243,237,226,0) 0%, rgba(243,237,226,0.88) 20%, rgba(243,237,226,0.97) 52%, rgba(243,237,226,0.99) 100%);
+  content: ""; position: absolute; z-index: 0; inset: -52px -20px -140px -20px;
+  background: linear-gradient(180deg, rgba(243,237,226,0) 0%, rgba(243,237,226,0.80) 14%, rgba(243,237,226,0.96) 34%, rgba(243,237,226,0.99) 100%);
 }
 body[data-device="mobile"] [data-for="living"] .cell::after { display: none; }
 body[data-device="mobile"] .cta-row { flex-direction: column; align-items: flex-start; gap: 12px; }

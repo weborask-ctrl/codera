@@ -105,7 +105,10 @@ LIGHTS = {
     "table": {"elevation": 45, "rotation": 200, "intensity": 0.55, "world": 1.5, "interior": False},
     "dusk": {"elevation": -7, "rotation": 30, "intensity": 0.0, "world": 1.15, "interior": "all"},
 }
-BOARD_LIGHT = {"hero": "morning", "living": "interior", "xray": "morning", "dollhouse": "table", "dusk": "dusk"}
+# The x-ray sample is a spec sheet, not a building on a site: on the concrete
+# floor under a morning sky its plate came back mid-grey and the mono labels
+# and the copy were both unreadable on it. It shares the dollhouse's studio.
+BOARD_LIGHT = {"hero": "morning", "living": "interior", "xray": "table", "dollhouse": "table", "dusk": "dusk"}
 BOARD_SITE = {"hero": "lawn", "living": "lawn", "xray": "lawn", "dollhouse": "studio", "dusk": "lawn"}
 
 # ---- cameras (position, look-at, vertical fov°) ---------------------------
@@ -136,7 +139,7 @@ SHIFT = {
     ("dusk", "mobile"): 0.10,
 }
 SIZES = {"desktop": (1440, 900), "mobile": (780, 1688)}
-EXPOSURE = {"hero": -1.55, "living": -0.35, "xray": -3.25, "dollhouse": -1.85, "dusk": -0.35}
+EXPOSURE = {"hero": -1.55, "living": -0.35, "xray": -1.35, "dollhouse": -1.3, "dusk": -0.35}
 QUALITY = {
     "test": {"scale": 25, "samples": 32},
     "preview": {"scale": 50, "samples": 96},
@@ -152,7 +155,9 @@ def lens_for_fov(fov_deg: float, sensor_h: float = 24.0) -> float:
 # ---- annotation anchors (world coordinates) --------------------------------
 ANCHORS = {
     "hero": {"vzorovy": (-4.2, 5.2, 6.64)},
-    "dollhouse": {"vzorovy": (-4.2 + 1.2, 5.2, 6.64 + 3.2), "fasada": (4.0, 2.0, 1.6)},
+    # one label per board: the facade note crossed the model and repeats the
+    # technology board, so the dollhouse keeps only the concept disclosure
+    "dollhouse": {"vzorovy": (-4.2 + 1.2, 5.2, 6.64 + 3.2)},
 }
 DOLLHOUSE_ROOF = {"dz": 3.2, "dx": 1.2, "rot_y_deg": -3.0}
 
