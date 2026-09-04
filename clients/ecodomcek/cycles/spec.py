@@ -102,7 +102,7 @@ LIGHTS = {
     # falls into shade, and the cantilever box casts onto the facade below it.
     "morning": {"elevation": 17, "rotation": -62, "intensity": 1.0, "world": 0.40, "interior": False},
     "interior": {"elevation": 26, "rotation": -158, "intensity": 1.0, "world": 0.8, "interior": "accent"},
-    "table": {"elevation": 45, "rotation": 200, "intensity": 0.55, "world": 1.0, "interior": False},
+    "table": {"elevation": 45, "rotation": 200, "intensity": 0.55, "world": 1.5, "interior": False},
     "dusk": {"elevation": -7, "rotation": 30, "intensity": 0.0, "world": 1.15, "interior": "all"},
 }
 BOARD_LIGHT = {"hero": "morning", "living": "interior", "xray": "morning", "dollhouse": "table", "dusk": "dusk"}
@@ -136,7 +136,7 @@ SHIFT = {
     ("dusk", "mobile"): 0.10,
 }
 SIZES = {"desktop": (1440, 900), "mobile": (780, 1688)}
-EXPOSURE = {"hero": -1.55, "living": -0.35, "xray": -3.25, "dollhouse": -2.1, "dusk": -0.35}
+EXPOSURE = {"hero": -1.55, "living": -0.35, "xray": -3.25, "dollhouse": -1.85, "dusk": -0.35}
 QUALITY = {
     "test": {"scale": 25, "samples": 32},
     "preview": {"scale": 50, "samples": 96},

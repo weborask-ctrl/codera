@@ -528,6 +528,30 @@ def _sky(state):
     sky.air_density = 1.0
     sky.aerosol_density = 4.0 if state == "table" else 1.5
     sky.ozone_density = 1.0
+    if state == "table":
+        # The dollhouse is an object on a table, not a building under a sky:
+        # the blue of the sky node cooled the bone floor into grey. A warm
+        # gradient stands in for a lit room, which is what the AD asks for.
+        grad = nt.nodes.new("ShaderNodeTexGradient")
+        grad.gradient_type = "EASING"
+        geo = nt.nodes.new("ShaderNodeNewGeometry")
+        sep = nt.nodes.new("ShaderNodeSeparateXYZ")
+        nt.links.new(geo.outputs["Incoming"], sep.inputs[0])
+        rng = nt.nodes.new("ShaderNodeMapRange")
+        rng.inputs["From Min"].default_value = -0.6
+        rng.inputs["From Max"].default_value = 0.5
+        rng.clamp = True
+        nt.links.new(sep.outputs["Z"], rng.inputs["Value"])
+        ramp = nt.nodes.new("ShaderNodeValToRGB")
+        ramp.color_ramp.elements[0].color = spec.hex_to_rgb("#E4DBC9")
+        ramp.color_ramp.elements[1].color = spec.hex_to_rgb("#FBF6EC")
+        nt.links.new(rng.outputs[0], ramp.inputs["Fac"])
+        bg = nt.nodes.new("ShaderNodeBackground")
+        bg.inputs["Strength"].default_value = cfg["world"]
+        out = nt.nodes.new("ShaderNodeOutputWorld")
+        nt.links.new(ramp.outputs["Color"], bg.inputs[0])
+        nt.links.new(bg.outputs[0], out.inputs[0])
+        return sky
     color = _clouds(nt, sky, state)
     bg = nt.nodes.new("ShaderNodeBackground")
     bg.inputs["Strength"].default_value = cfg["world"]
@@ -837,14 +861,16 @@ def set_light(state):
         # the pendant's own bulb is an emissive mesh (interior.set_pendant); a
         # second lamp inside the shade rendered as a glowing ball
         _point(coll, "hall_ground", (2.85, 3.2, 2.95), 90.0, radius=0.30)
-        # big soft sources well away from the window walls: small ones close to
-        # a wall render as a bright ball through the glass
-        # just under the ceiling, like a real fitting: a source at mid-height
-        # throws a disc onto the wall that reads as a ball through the window
-        _point(coll, "box_room", (2.9, 4.9, 6.05), 45.0, radius=0.12)
-        _point(coll, "upper_a", (-1.6, 2.0, 6.10), 45.0, radius=0.12)
-        _point(coll, "upper_b", (-1.6, -2.4, 6.10), 45.0, radius=0.12)
-        _point(coll, "hall_upper", (2.8, 0.0, 6.05), 45.0, radius=0.30)
+        # Practicals sit just under the ceiling, like real fittings, and keep a
+        # metre away from any wall: a source close to plaster burns a disc that
+        # reads through the window as a glowing orb. The upper-hall lamp did
+        # exactly that (traced by ray-casting the blob: it was a hotspot on the
+        # far wall, not the lamp itself). Their own radius stays under a pixel
+        # because object.visible_camera is ignored for lamps in this build.
+        _point(coll, "box_room", (2.7, 4.7, 5.95), 40.0, radius=0.02)
+        _point(coll, "upper_a", (-1.6, 2.0, 6.00), 45.0, radius=0.02)
+        _point(coll, "upper_b", (-1.6, -2.4, 6.00), 45.0, radius=0.02)
+        _point(coll, "hall_upper", (2.2, 0.6, 5.70), 22.0, radius=0.02)
         return coll
 
     return coll  # "morning": the sky is the whole rig
