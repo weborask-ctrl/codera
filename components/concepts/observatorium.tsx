@@ -1,39 +1,43 @@
 "use client"
 
 /**
- * OBSERVATÓRIUM — the Animácie & 3D concept as a full site (Iterácia 0.7,
- * Ondrej's brief 2026-09-02: the beautiful planet view, Saturn turns with
- * the scroll, the rings carry the copy in, then the planet retreats into
- * the background under a real page).
+ * OBSERVATÓRIUM — the Animácie & 3D concept as a full site (Iterácia 1.0,
+ * Ondrej's brief 2026-09-04: full 5D wow — zoom in and out, transitions
+ * through space, a dynamic planet surface, vivid saturated colour; the
+ * Higgsfield ring-dive video as the guide).
  *
- * References: zentry.com (a living 3D world between huge type),
- * kprverse.com (type layered before/behind the central figure — here the
- * VYŠŠIE line reads as sitting behind the planet), noomoagency.com (the
- * object woven through the headline). A REAL WebGL Saturn — Solar System
- * Scope textures (CC BY 4.0, from NASA/JPL Cassini data) — scrubbed by
- * ScrollTrigger through `saturnState`; R3F only renders. Native scroll,
- * no smoothing layer; reduced motion is a composed stacked layout. The
- * mechanic is BOOK-an-evening (each row's seats genuinely count down).
+ * The page is a flight: a 900vh journey over one fixed WebGL scene
+ * (`observatorium-globe.tsx`) whose camera rides a spline scrubbed by
+ * ScrollTrigger through `journeyState`. Copy chapters ride in and out on
+ * the same scrub. After the flight the planet rests under a real page —
+ * the bookable programme, the dome records, the close. References:
+ * zentry.com (a living 3D world between huge type), kprverse.com (type
+ * layered before/behind the central figure), noomoagency.com. Native
+ * scroll, no smoothing layer; reduced motion is a stacked layout with the
+ * hero frame held. Mechanic: BOOK-an-evening (seats genuinely count down).
  */
 
 import dynamic from "next/dynamic"
 import { useEffect, useRef, useState } from "react"
-import { saturnState } from "./observatorium-globe"
+import { journeyState } from "./observatorium-globe"
 import { BRIC, FR, fx, KonceptLine, MONO, Shell } from "./shell"
 
 const SaturnCanvas = dynamic(() => import("./observatorium-globe"), { ssr: false })
 
-const SPACE = "#05070D"
+const SPACE = "#04050C"
 const PAPER = "#EEF2F8"
-const GOLD = "#D9B57C"
-const COOL = "#8FC3FF"
+const GOLD = "#F2C46B"
+const PINK = "#FF5EC4"
+const CYAN = "#57E6FF"
 
 const PAD = "px-[clamp(1.25rem,4vw,3.5rem)]"
 
-const RING_LINES = [
-  ["PRSTENCE — ĽAD A PRACH", "Šírka 282 000 km, hrúbka len pár metrov. Dnes ich máš v okulári."],
-  ["SATURN V OPOZÍCII", "Najbližšie k Zemi za celý rok — 1,20 mld. km. Vidno aj Cassiniho delenie."],
-  ["SOBOTA 21:30", "Kupola sa otvára o deviatej. Ďalekohľad 400 mm čaká na teba."],
+/* [in-start, in-end, out-start, out-end] on the journey's 0..1 */
+const CHAPTERS = [
+  { tag: "01 — PRSTENCE", color: GOLD, side: "left", k: [0.14, 0.2, 0.27, 0.31], line: "Široké 282 000 km, hrubé len pár metrov. Z diaľky celistvý disk." },
+  { tag: "02 — VNÚTRI PRSTENCA", color: CYAN, side: "right", k: [0.36, 0.42, 0.5, 0.55], line: "Zblízka milióny kúskov ľadu a kameňa. Teraz letíš pomedzi ne." },
+  { tag: "03 — ATMOSFÉRA", color: PINK, side: "left", k: [0.6, 0.66, 0.74, 0.79], line: "Búrky väčšie ako Zem, vietor 1 800 km/h. Povrch, ktorý nikdy nestojí." },
+  { tag: "SOBOTA 21:30", color: GOLD, side: "low", k: [0.84, 0.89, 0.96, 1.0], line: "Toto všetko uvidíš v okulári. Kupola sa otvára o deviatej." },
 ] as const
 
 const PROGRAM = [
@@ -95,7 +99,7 @@ export function ObservatoriumHero({ portal = false }: { portal?: boolean }) {
         ) : (
           <a
             href="#program"
-            className="rounded-full border border-[#EEF2F8]/30 px-5 py-2.5 text-[0.62rem] tracking-[0.2em] transition-colors hover:border-[#EEF2F8]"
+            className="pointer-events-auto rounded-full border border-[#EEF2F8]/30 px-5 py-2.5 text-[0.62rem] tracking-[0.2em] transition-colors hover:border-[#EEF2F8]"
             style={MONO}
           >
             PROGRAM
@@ -105,10 +109,10 @@ export function ObservatoriumHero({ portal = false }: { portal?: boolean }) {
 
       <HeroStack portal={portal} />
 
-      <div className="relative z-10 mt-auto flex flex-col items-center gap-6 pb-[5svh]">
+      <div className="relative z-10 mt-auto flex flex-col items-center gap-6 pb-[6svh]">
         <p className="wfx max-w-[34rem] px-6 text-center text-[1.08rem] leading-[1.55] text-[#EEF2F8]/80" style={fx(3)}>
-          Saturn je práve nad kupolou. Scrolluj — planéta sa otočí a prstence
-          ti prinesú program noci.
+          Saturn je práve nad kupolou. Scrolluj — kamera ťa vezme až medzi
+          kamienky jeho prstencov.
         </p>
         {portal ? (
           <span className="wfx rounded-full px-8 py-4 text-[0.85rem] font-bold tracking-[0.12em]" style={{ ...fx(4), background: PAPER, color: SPACE }}>
@@ -117,14 +121,13 @@ export function ObservatoriumHero({ portal = false }: { portal?: boolean }) {
         ) : (
           <a
             href="#program"
-            className="wfx rounded-full px-8 py-4 text-[0.85rem] font-bold tracking-[0.12em] transition-transform hover:-translate-y-0.5"
+            className="wfx pointer-events-auto rounded-full px-8 py-4 text-[0.85rem] font-bold tracking-[0.12em] transition-transform hover:-translate-y-0.5"
             style={{ ...fx(4), background: PAPER, color: SPACE }}
           >
             POZRI PROGRAM ↓
           </a>
         )}
       </div>
-
     </Shell>
   )
 }
@@ -149,64 +152,36 @@ export default function ObservatoriumSite() {
       }
       gsap.registerPlugin(ScrollTrigger)
       ctx = gsap.context(() => {
-        /* phase A: the hero exit turns the planet */
+        /* the flight: one progress value, the scene does the rest */
         ScrollTrigger.create({
-          trigger: ".ob-hero",
-          start: "top top",
-          end: "bottom top",
-          scrub: true,
-          onUpdate: (self) => {
-            saturnState.a = self.progress
-          },
-        })
-        /* phase B: the sticky ring passage */
-        ScrollTrigger.create({
-          trigger: "#prstence",
+          trigger: ".ob-journey",
           start: "top top",
           end: "bottom bottom",
           scrub: true,
           onUpdate: (self) => {
-            saturnState.b = self.progress
+            journeyState.p = self.progress
           },
         })
-        /* phase C: the planet retreats under the programme */
-        ScrollTrigger.create({
-          trigger: "#program",
-          start: "top bottom",
-          end: "top 15%",
-          scrub: true,
-          onUpdate: (self) => {
-            saturnState.c = self.progress
-          },
-        })
-        /* the rings carry the copy in — one scrubbed timeline, line by line */
+        /* the copy rides the same scrub: hero out, chapters in and out, the progress line */
         const tl = gsap.timeline({
-          scrollTrigger: { trigger: "#prstence", start: "top top", end: "bottom bottom", scrub: true },
+          scrollTrigger: { trigger: ".ob-journey", start: "top top", end: "bottom bottom", scrub: true },
         })
-        gsap.utils.toArray<HTMLElement>(".ob-line").forEach((el, i, all) => {
-          const dir = i % 2 ? -1 : 1
-          tl.fromTo(
-            el,
-            { xPercent: -50, x: () => dir * window.innerWidth * 0.55, rotation: dir * 9, opacity: 0 },
-            { xPercent: -50, x: 0, rotation: 0, opacity: 1, duration: 0.24, ease: "power2.out" },
-            i * 0.36
-          )
-          if (i < all.length - 1) {
-            tl.to(
-              el,
-              { x: () => -dir * window.innerWidth * 0.18, rotation: dir * -4, opacity: 0, duration: 0.1, ease: "power1.in" },
-              i * 0.36 + 0.28
-            )
-          }
+        tl.to(".ob-heroFix", { opacity: 0, duration: 0.08, ease: "none" }, 0.02)
+        tl.fromTo(".ob-prog", { scaleX: 0 }, { scaleX: 1, duration: 1, ease: "none" }, 0)
+        tl.to(".ob-progWrap", { opacity: 0, duration: 0.04, ease: "none" }, 0.96)
+        gsap.utils.toArray<HTMLElement>(".ob-chap").forEach((el) => {
+          const [a, b, c, d] = (el.dataset.k ?? "").split(",").map(Number)
+          const dir = el.dataset.side === "right" ? 30 : el.dataset.side === "left" ? -30 : 0
+          const dy = el.dataset.side === "low" ? 24 : 0
+          tl.fromTo(el, { opacity: 0, x: dir, y: dy }, { opacity: 1, x: 0, y: 0, duration: b - a, ease: "power2.out" }, a)
+          tl.to(el, { opacity: 0, duration: d - c, ease: "power1.in" }, c)
         })
       }, rootRef)
     })()
     return () => {
       alive = false
       ctx?.revert()
-      saturnState.a = 0
-      saturnState.b = 0
-      saturnState.c = 0
+      journeyState.p = 0
     }
   }, [])
 
@@ -215,36 +190,43 @@ export default function ObservatoriumSite() {
       ref={rootRef}
       style={{ background: SPACE, color: PAPER }}
       onPointerMove={(e) => {
-        saturnState.px = e.clientX / window.innerWidth - 0.5
-        saturnState.py = e.clientY / window.innerHeight - 0.5
+        journeyState.px = e.clientX / window.innerWidth - 0.5
+        journeyState.py = e.clientY / window.innerHeight - 0.5
       }}
       onPointerLeave={() => {
-        saturnState.px = 0
-        saturnState.py = 0
+        journeyState.px = 0
+        journeyState.py = 0
       }}
     >
-      {/* the sky is one fixed scene; the page scrolls over it */}
+      {/* one fixed scene; the page flies over it */}
       <div aria-hidden="true" className="fixed inset-0 z-0">
         <SaturnCanvas />
       </div>
+      {/* a quiet vignette so copy always sits on something calm */}
+      <div aria-hidden="true" className="ob-veil fixed inset-0 z-[1]" />
 
-      <ObservatoriumHero />
-
-      {/* ---- the rings bring the copy in ---- */}
-      <section id="prstence" className="ob-ringsec relative z-10 h-[260vh]">
-        <div className="ob-ringhold sticky top-0 h-svh overflow-hidden">
-          {RING_LINES.map(([tag, line]) => (
-            <div key={tag} className="ob-line absolute top-[33vh] left-1/2 w-[min(760px,90vw)] text-center">
-              <p className="mb-3 text-[0.6rem] tracking-[0.26em]" style={{ ...MONO, color: GOLD }}>
-                {tag}
-              </p>
-              <p style={{ ...FR, fontStyle: "italic", fontWeight: 400, fontSize: "clamp(1.7rem,3.4vw,3.1rem)", lineHeight: 1.22 }}>
-                {line}
-              </p>
-            </div>
-          ))}
+      {/* ---- the flight ---- */}
+      <div className="ob-journey relative z-10 h-[900vh]">
+        <div className="ob-heroFix pointer-events-none fixed inset-0">
+          <ObservatoriumHero />
         </div>
-      </section>
+        {CHAPTERS.map((c) => (
+          <div
+            key={c.tag}
+            className={`ob-chap ob-chap-${c.side} pointer-events-none fixed z-10`}
+            data-k={c.k.join(",")}
+            data-side={c.side}
+          >
+            <p className="mb-4 text-[0.62rem] tracking-[0.28em]" style={{ ...MONO, color: c.color }}>
+              {c.tag}
+            </p>
+            <p style={{ ...FR, fontStyle: "italic", fontWeight: 400, fontSize: "clamp(1.9rem,3.8vw,3.4rem)", lineHeight: 1.18 }}>{c.line}</p>
+          </div>
+        ))}
+        <div aria-hidden="true" className="ob-progWrap fixed bottom-[4.5vh] left-1/2 z-10 h-[2px] w-[180px] -translate-x-1/2 bg-[#EEF2F8]/18">
+          <div className="ob-prog h-full w-full origin-left" style={{ background: GOLD }} />
+        </div>
+      </div>
 
       {/* ---- the evening programme: bookings that genuinely count ---- */}
       <Shell id="program" className={`relative z-10 ${PAD} py-[14svh]`}>
@@ -255,10 +237,10 @@ export default function ObservatoriumSite() {
           {PROGRAM.map(([d, name, desc], i) => (
             <div
               key={d}
-              className="wfx grid items-center gap-x-7 gap-y-3 rounded-2xl border border-[#EEF2F8]/12 px-7 py-6 backdrop-blur-[6px] md:grid-cols-[7.5rem_1fr_auto_auto]"
-              style={{ ...fx(i + 1), background: "rgba(11,16,29,0.82)" }}
+              className="wfx grid items-center gap-x-7 gap-y-3 rounded-2xl border border-[#EEF2F8]/12 px-7 py-6 backdrop-blur-[8px] md:grid-cols-[7.5rem_1fr_auto_auto]"
+              style={{ ...fx(i + 1), background: "rgba(8,10,22,0.8)" }}
             >
-              <span className="text-[0.72rem] tracking-[0.18em]" style={{ ...MONO, color: COOL }}>
+              <span className="text-[0.72rem] tracking-[0.18em]" style={{ ...MONO, color: CYAN }}>
                 {d}
               </span>
               <div>
@@ -289,7 +271,7 @@ export default function ObservatoriumSite() {
           ["400 mm", "PRIEMER ZRKADLA"],
           ["96 %", "VIDITEĽNOSŤ DNES"],
         ].map(([v, l], i) => (
-          <div key={l} className={`wfx ${PAD} py-10`} style={{ background: SPACE, ...fx(i) }}>
+          <div key={l} className={`wfx ${PAD} py-10`} style={{ background: "rgba(4,5,12,0.82)", ...fx(i) }}>
             <p className="tnum" style={{ ...BRIC, fontWeight: 800, fontSize: "3rem", lineHeight: 1 }}>
               {v}
             </p>
@@ -306,10 +288,10 @@ export default function ObservatoriumSite() {
           className="wfx max-w-[64rem]"
           style={{ ...BRIC, fontWeight: 800, fontSize: "clamp(2.6rem,7vw,6.2rem)", lineHeight: 1.04, letterSpacing: "-0.01em", textTransform: "uppercase", ...fx(0) }}
         >
-          <span style={{ color: "rgba(238,242,248,0.25)" }}>Vesmír sa nedá stiahnuť.</span>
+          <span style={{ color: "rgba(238,242,248,0.28)" }}>Vesmír sa nedá stiahnuť.</span>
           <br />
           Dá sa{" "}
-          <em style={{ ...FR, fontStyle: "italic", fontWeight: 400, textTransform: "none", color: GOLD }}>zažiť.</em>
+          <em style={{ ...FR, fontStyle: "italic", fontWeight: 400, textTransform: "none", color: PINK }}>zažiť.</em>
         </h2>
         <div className="mt-14 flex flex-wrap items-end justify-between gap-9">
           <p className="wfx max-w-[27rem] text-[0.95rem] leading-[1.6] text-[#EEF2F8]/60" style={fx(1)}>
@@ -331,7 +313,8 @@ export default function ObservatoriumSite() {
         style={MONO}
       >
         <span>OBSERVATÓRIUM · VEČERNÉ PROGRAMY ZA JASNÉHO NEBA</span>
-        <span>TEXTÚRY: SOLAR SYSTEM SCOPE (CC BY 4.0), NASA/JPL DATA</span><KonceptLine />
+        <span>TEXTÚRY: GENEROVANÉ PRE TENTO KONCEPT (HIGGSFIELD)</span>
+        <KonceptLine />
       </footer>
     </main>
   )
