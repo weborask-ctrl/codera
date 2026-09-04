@@ -4,6 +4,7 @@ import MeridianSite from "@/components/concepts/meridian"
 import ObservatoriumSite from "@/components/concepts/observatorium"
 import StatutSite from "@/components/concepts/statut"
 import VlnaSite from "@/components/concepts/vlna"
+import WordpressSite from "@/components/concepts/wordpress"
 import { siteConfig } from "@/lib/site-config"
 import { getSkill, skills } from "@/lib/skills"
 
@@ -19,6 +20,7 @@ const DEMOS = {
   objednavky: MeridianSite,
   rezervacie: VlnaSite,
   animacie: ObservatoriumSite,
+  wordpress: WordpressSite,
 } as const
 
 export function generateStaticParams() {
