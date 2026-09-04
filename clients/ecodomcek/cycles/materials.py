@@ -352,8 +352,12 @@ class _B:
         self.set(n, "Distortion", distortion)
         return n
 
-    def noisef(self, *a, **k):
-        return self.noise(*a, **k).outputs["Factor"]
+    def noisef(self, *a, spread=0.22, **k):
+        """Noise Factor stretched to 0..1 (raw fBm hugs 0.5 ± ~0.15); spread=None for raw."""
+        f = self.noise(*a, **k).outputs["Factor"]
+        if spread is None:
+            return f
+        return self.mapr(f, 0.5 - spread, 0.5 + spread, 0.0, 1.0)
 
     def voronoi(self, vec, scale, feature="F1", dims="3D", randomness=1.0, smoothness=0.0, detail=0.0):
         n = self.node("ShaderNodeTexVoronoi", voronoi_dimensions=dims, feature=feature, normalize=False)
@@ -498,6 +502,8 @@ def _wood(
     val_var=0.06,
     row=None,
     row_var=0.04,
+    sat=1.0,
+    value=1.0,
 ):
     """Generic wood: returns (color, roughness, height) sockets.
 
@@ -534,19 +540,27 @@ def _wood(
         bend = b.mul(present, b.smooth(d, radius, b.mul(radius, 5.0), 1.0, 0.0))
         ac_w = b.madd(bend, 0.02, ac)
 
+    # cathedral figure: the ring coordinate drifts slowly along the board, so
+    # the latewood lines form the long arches of flat-sawn timber
+    drift = b.noisef(b.combine(b.mul(al, 0.25), b.mul(ac, 2.0), dp), 1.5, detail=2.0)
+    ac_w = b.madd(b.centred(drift, 1.0), 0.03, ac_w)
     wv = b.combine(b.mul(al, 0.12), ac_w, b.mul(dp, 0.5))
     rings = b.wave(wv, 1.0 / ring_period, distortion=ring_distort, detail=3.0, dscale=0.06, drough=0.6, direction="Y", profile="SAW")
-    ring_l = b.ramp(rings.outputs["Factor"], [(0.0, (0.92,) * 3), (0.55, (0.8,) * 3), (0.82, (0.25,) * 3), (1.0, (0.1,) * 3)])
+    ring_l = b.ramp(rings.outputs["Factor"], [(0.0, (0.95,) * 3), (0.5, (0.85,) * 3), (0.78, (0.35,) * 3), (1.0, (0.12,) * 3)])
     ring_l = b.separate(ring_l)[0]
 
+    # colour zones (heartwood streaks): 60 cm along × 6 cm across
+    figure = b.noisef(b.combine(b.mul(al, 0.4), b.mul(ac, 4.0), b.mul(dp, 1.5)), 3.0, detail=3.0, rough=0.5, spread=0.2)
+    # fine streaks stretched along the board
     fv = b.combine(al, b.mul(ac, fine_stretch), b.mul(dp, fine_stretch * 0.35))
-    fine = b.noisef(fv, fine_scale, detail=4.0, rough=0.55)
-    pores = b.noisef(b.combine(al, ac, dp), 900.0, detail=1.0)
+    fine = b.noisef(fv, fine_scale, detail=3.0, rough=0.55, spread=0.2)
+    pores = b.noisef(b.combine(al, ac, dp), 900.0, detail=1.0, spread=0.3)
 
     grain = b.add(0.5, b.centred(ring_l, ring_weight * 0.5))
-    grain = b.add(grain, b.centred(fine, fine_weight * 1.25))
+    grain = b.add(grain, b.centred(figure, 0.22))
+    grain = b.add(grain, b.centred(fine, fine_weight * 0.6))
     grain = b.clamp01(b.add(grain, b.centred(pores, 0.05)))
-    color = b.ramp(grain, [(0.0, rgb(base, dark)), (0.5, rgb(base)), (1.0, rgb(base, light))])
+    color = b.ramp(grain, [(0.0, rgb(base, dark, (1.0, 0.86, 0.72))), (0.5, rgb(base)), (1.0, rgb(base, light, (1.0, 1.02, 1.04)))])
     if knot is not None:
         kc = knot_color if knot_color is not None else rgb(base, 0.32, (1.0, 0.85, 0.7))
         color = b.mixc(knot, color, kc)
@@ -556,7 +570,9 @@ def _wood(
     if row is not None:
         rr = b.whitenoise1(b.floor(row))
         val = b.mul(val, b.add(1.0, b.centred(rr, row_var)))
-    color = b.hsv(color, hue, 1.0, val)
+    # tone compensation: AgX desaturates sunlit values, so the albedo sits a
+    # little darker and more saturated than the spec's appearance colour
+    color = b.hsv(color, hue, sat, b.mul(val, value))
 
     lo, hi = rough
     roughness = b.madd(ring_l, hi - lo, lo)  # earlywood (light) rougher, latewood shinier
@@ -564,7 +580,7 @@ def _wood(
     if knot is not None:
         roughness = b.madd(knot, 0.15, roughness)
 
-    height = b.add(b.mul(ring_l, 0.5), b.mul(fine, 0.35))
+    height = b.add(b.mul(ring_l, 0.55), b.mul(fine, 0.3))
     height = b.add(height, b.mul(pores, 0.15))
     if knot is not None:
         height = b.sub(height, b.mul(knot, 0.4))
@@ -579,10 +595,11 @@ def _larch(b: _B):
     row = b.math("DIVIDE", across, SLAT_PITCH)
     color, rough, height = _wood(
         b, along, across, depth, b.rand(),
-        base="larch", dark=0.62, light=1.16, ring_period=0.0055, ring_distort=4.0,
-        knot_prob=0.12, rough=(0.45, 0.60), hue_var=0.03, val_var=0.06, row=row, row_var=0.05,
+        base="larch", dark=0.55, light=1.18, ring_period=0.0055, ring_distort=4.0, ring_weight=0.7,
+        fine_weight=0.4, knot_prob=0.12, rough=(0.45, 0.60), hue_var=0.03, val_var=0.06, row=row, row_var=0.05,
+        sat=1.2, value=0.88,
     )
-    n = b.bump(height, 0.15, 0.004)
+    n = b.bump(height, 0.25, 0.003)
     n = b.bevel(n, 0.003)
     tangent = b.node("ShaderNodeTangent", direction_type="RADIAL", axis="Z")
     p = b.principled(color, rough, n, spec_level=0.5, coat=0.18, coat_rough=0.35, aniso=0.1, tangent=tangent.outputs[0])
@@ -594,8 +611,9 @@ def _larch_deck(b: _B):
     row = b.math("DIVIDE", across, DECK_PITCH)
     color, rough, height = _wood(
         b, along, across, depth, b.rand(),
-        base="larch_deck", dark=0.6, light=1.15, ring_period=0.006, ring_distort=4.5,
-        knot_prob=0.10, rough=(0.62, 0.78), hue_var=0.02, val_var=0.06, row=row, row_var=0.05,
+        base="larch_deck", dark=0.55, light=1.16, ring_period=0.006, ring_distort=4.5, ring_weight=0.7,
+        fine_weight=0.4, knot_prob=0.10, rough=(0.62, 0.78), hue_var=0.02, val_var=0.06, row=row, row_var=0.05,
+        sat=1.1, value=0.88,
     )
     # weathering: patchy silver-grey bloom, stronger on some boards
     wx = b.noisef(b.combine(b.mul(x, 0.6), b.mul(y, 2.0), z), 1.6, detail=3.0, rough=0.6)
@@ -615,8 +633,8 @@ def _spruce_common(b: _B, orientation: str):
     along, across, depth, _ = _axes(b, orientation)
     color, rough, height = _wood(
         b, along, across, depth, b.rand(),
-        base="spruce", dark=0.8, light=1.1, ring_period=0.0045, ring_distort=3.0, ring_weight=0.45,
-        fine_weight=0.25, knot_prob=0.05, knot_color=rgb("spruce", 0.5, (1.0, 0.8, 0.62)),
+        base="spruce", dark=0.72, light=1.1, ring_period=0.0045, ring_distort=3.0, ring_weight=0.5,
+        fine_weight=0.3, knot_prob=0.05, knot_color=rgb("spruce", 0.5, (1.0, 0.8, 0.62)),
         rough=(0.5, 0.6), hue_var=0.012, val_var=0.04, row=None,
     )
     n = b.bump(height, 0.08, 0.003)
@@ -646,9 +664,9 @@ def _oak_floor(b: _B):
     prand = b.frac(b.add(prand, b.mul(b.rand(), 0.37)))
     color, rough, height = _wood(
         b, along, across, depth, prand,
-        base="oak_floor", dark=0.62, light=1.15, ring_period=0.0045, ring_distort=5.0, ring_weight=0.5,
-        fine_weight=0.4, fine_scale=5.0, fine_stretch=16.0, knot_prob=0.05, rough=(0.30, 0.40),
-        hue_var=0.02, val_var=0.09,
+        base="oak_floor", dark=0.58, light=1.15, ring_period=0.0045, ring_distort=5.0, ring_weight=0.6,
+        fine_weight=0.45, fine_scale=5.0, fine_stretch=16.0, knot_prob=0.05, rough=(0.30, 0.40),
+        hue_var=0.02, val_var=0.10, sat=1.15, value=0.9,
     )
     color = b.mixc(gap, color, (0.012, 0.009, 0.006, 1.0))
     rough = b.mixf(gap, rough, 0.75)
@@ -664,7 +682,7 @@ def _oak(b: _B):
         b, along, across, depth, b.rand(),
         base="oak_floor", dark=0.65, light=1.14, ring_period=0.0045, ring_distort=5.0, ring_weight=0.5,
         fine_weight=0.4, fine_scale=5.0, fine_stretch=16.0, knot_prob=0.03, rough=(0.32, 0.42),
-        hue_var=0.015, val_var=0.05,
+        hue_var=0.015, val_var=0.05, sat=1.15, value=0.9,
     )
     n = b.bump(height, 0.1, 0.003)
     n = b.bevel(n, 0.003)
@@ -691,7 +709,7 @@ def _anthracite(b: _B):
     co = b.obj_co()
     pa, pc = PANEL_FORMAT
 
-    def seam(t, period, half_w=0.0015, soft=0.001):
+    def seam(t, period, half_w=0.002, soft=0.001):
         u = b.frac(b.math("DIVIDE", t, period))
         dist = b.mul(b.sub(0.5, b.absv(b.sub(u, 0.5))), period)
         return b.smooth(dist, half_w, half_w + soft, 1.0, 0.0)
@@ -701,7 +719,7 @@ def _anthracite(b: _B):
     wavy = b.noisef(co, 1.3, detail=2.0)
     smudge = b.noisef(co, 5.0, detail=3.0, rough=0.6)
     color = b.scale_color(rgb("anthracite"), b.add(1.0, b.centred(wavy, 0.05)))
-    color = b.mixc(s, color, rgb("anthracite", 0.35))
+    color = b.mixc(s, color, rgb("anthracite", 0.5))
     rough = b.add(0.28, b.centred(micro, 0.03))
     rough = b.add(rough, b.centred(smudge, 0.025))
     rough = b.madd(s, 0.25, rough)
@@ -765,20 +783,27 @@ def _plaster(b: _B):
 def _concrete(b: _B):
     co = b.obj_co()
     low = b.noisef(co, 0.9, detail=3.0)
+    mottle = b.noisef(b.vmath("ADD", co, (3.1, 7.7, 0.0)), 7.0, detail=3.0, rough=0.6)
     stain_n = b.noisef(co, 2.2, detail=4.0, rough=0.7)
-    stain = b.smooth(stain_n, 0.52, 0.72, 0.0, 0.6)
+    stain = b.smooth(stain_n, 0.48, 0.74, 0.0, 0.7)
     speck = b.noisef(co, 500.0, detail=3.0, rough=0.6)
     pores_v = b.voronoi(co, 220.0, "F1")
     pr, _, _ = b.separate(pores_v.outputs["Color"])
     pores = b.mul(b.gt(pr, 0.72), b.smooth(pores_v.outputs["Distance"], 0.07, 0.16, 1.0, 0.0))
+    agg_v = b.voronoi(b.vmath("ADD", co, (0.5, 0.2, 0.9)), 400.0, "F1")
+    ar, _, _ = b.separate(agg_v.outputs["Color"])
+    agg = b.mul(b.gt(ar, 0.8), b.smooth(agg_v.outputs["Distance"], 0.2, 0.35, 1.0, 0.0))
     color = b.scale_color(rgb("concrete"), b.add(1.0, b.centred(low, 0.06)))
-    color = b.mixc(stain, color, rgb("concrete", 0.78, (1.0, 0.96, 0.9)))
-    color = b.scale_color(color, b.add(1.0, b.centred(speck, 0.07)))
-    color = b.mixc(pores, color, rgb("concrete", 0.45))
+    color = b.scale_color(color, b.add(1.0, b.centred(mottle, 0.09)))
+    color = b.mixc(stain, color, rgb("concrete", 0.68, (1.0, 0.95, 0.88)))
+    color = b.scale_color(color, b.add(1.0, b.centred(speck, 0.08)))
+    color = b.mixc(b.mul(agg, 0.5), color, rgb("concrete", 0.75, (0.95, 0.95, 1.0)))
+    color = b.mixc(pores, color, rgb("concrete", 0.4))
     rough = b.add(0.9, b.centred(speck, 0.05))
     rough = b.sub(rough, b.mul(stain, 0.08))
-    height = b.sub(b.add(b.mul(speck, 0.6), b.mul(low, 0.2)), b.mul(pores, 0.6))
-    n = b.bump(height, 0.3, 0.003)
+    height = b.sub(b.add(b.mul(speck, 0.5), b.mul(mottle, 0.3)), b.mul(pores, 0.7))
+    height = b.add(height, b.mul(agg, 0.15))
+    n = b.bump(height, 0.45, 0.004)
     n = b.bevel(n, 0.006)
     p = b.principled(color, rough, n, spec_level=0.35)
     b.finish(p)
@@ -793,12 +818,14 @@ def _gravel(b: _B):
     crack = b.smooth(e1.outputs["Distance"], 0.0, 0.05, 0.0, 1.0)
     dome2 = b.mapr(v2.outputs["Distance"], 0.0, 0.6, 1.0, 0.0)
     cr, cg, cb = b.separate(v1.outputs["Color"])
-    stone = b.ramp(cr, [(0.0, rgb("#6E6A63")), (0.45, rgb("gravel")), (0.8, rgb("#B9B4AC")), (1.0, rgb("#CFC9BF"))])
-    stone = b.hsv(stone, b.add(0.5, b.centred(cg, 0.03)), 1.0, 1.0)
+    stone = b.ramp(cr, [(0.0, rgb("#726E67")), (0.5, rgb("gravel")), (0.85, rgb("#AEA9A1")), (1.0, rgb("#C4BFB6"))])
+    stone = b.hsv(stone, b.add(0.5, b.centred(cg, 0.03)), b.add(1.0, b.centred(cb, 0.15)), 1.0)
+    c2r, _, _ = b.separate(v2.outputs["Color"])
+    stone = b.mixc(b.mul(b.smooth(dome2, 0.6, 0.85), 0.5), stone, b.ramp(c2r, [(0.0, rgb("#7A756E")), (1.0, rgb("#B7B2AA"))]))
     speck = b.noisef(co, 900.0, detail=2.0)
     dust = b.noisef(co, 1.5, detail=3.0)
-    shade = b.madd(crack, 0.5, 0.5)
-    shade = b.mul(shade, b.madd(dome, 0.25, 0.8))
+    shade = b.madd(crack, 0.4, 0.6)
+    shade = b.mul(shade, b.madd(dome, 0.2, 0.85))
     shade = b.mul(shade, b.add(1.0, b.centred(speck, 0.06)))
     shade = b.mul(shade, b.add(1.0, b.centred(dust, 0.06)))
     color = b.scale_color(stone, shade)
@@ -815,22 +842,34 @@ def _lawn(b: _B):
     co = b.obj_co()
     patch = b.noisef(co, 0.35, detail=3.0, rough=0.6)
     clump = b.noisef(co, 5.0, detail=3.0, rough=0.55)
+    mid = b.noisef(b.vmath("ADD", co, (5.0, 9.0, 0.0)), 22.0, detail=3.0, rough=0.6)
     dry_n = b.noisef(b.vmath("ADD", co, (11.0, 3.0, 0.0)), 1.3, detail=3.0)
-    blade = b.noisef(co, 260.0, detail=5.0, rough=0.65, lac=2.3)
+    blade = b.noisef(co, 260.0, detail=5.0, rough=0.65, lac=2.3, spread=0.3)
+    blade_m = b.noisef(b.vmath("ADD", co, (1.0, 2.0, 0.0)), 110.0, detail=3.0, rough=0.6)
+    # lying blades: noise stretched along two directions, max = straw-like strokes
+    x, y, z = b.separate(co)
+    straw_a = b.noisef(b.combine(b.mul(x, 1.0), b.mul(y, 7.0), z), 90.0, detail=2.0, spread=0.18)
+    straw_b = b.noisef(b.combine(b.mul(x, 7.0), b.mul(y, 1.0), b.add(z, 3.0)), 90.0, detail=2.0, spread=0.18)
+    straw = b.maxv(straw_a, straw_b)
     edge = b.voronoi(co, 380.0, "DISTANCE_TO_EDGE")
     thin = b.smooth(edge.outputs["Distance"], 0.0, 0.025, 1.0, 0.0)  # 1 on the cell edges
-    color = b.mixc(b.smooth(patch, 0.35, 0.65), rgb("lawn_a"), rgb("lawn_b"))
-    color = b.scale_color(color, b.madd(clump, 0.3, 0.85))
-    color = b.mixc(b.smooth(dry_n, 0.58, 0.78, 0.0, 0.4), color, rgb("#A29A55"))
-    soil = b.smooth(blade, 0.30, 0.48, 0.6, 0.0)
-    color = b.mixc(soil, color, rgb("#34301A"))
+    color = b.mixc(b.smooth(patch, 0.3, 0.7), rgb("lawn_a"), rgb("lawn_b"))
+    color = b.scale_color(color, b.madd(clump, 0.5, 0.75))
+    color = b.scale_color(color, b.add(1.0, b.centred(mid, 0.15)))
+    color = b.mixc(b.smooth(dry_n, 0.6, 0.85, 0.0, 0.45), color, rgb("#A29A55"))
+    soil = b.smooth(blade, 0.15, 0.35, 0.7, 0.0)
+    color = b.mixc(soil, color, rgb("#2E2A16"))
     color = b.mixc(b.mul(thin, 0.35), color, rgb("#2C2C16"))
-    color = b.scale_color(color, b.add(1.0, b.centred(blade, 0.18)))
-    rough = b.sub(0.9, b.mul(b.smooth(blade, 0.5, 0.8), 0.15))
-    height = b.add(b.mul(blade, 0.85), b.mul(clump, 0.25))
+    color = b.scale_color(color, b.add(1.0, b.centred(blade, 0.2)))
+    color = b.scale_color(color, b.add(1.0, b.centred(blade_m, 0.12)))
+    color = b.scale_color(color, b.madd(straw, 0.35, 0.85))
+    rough = b.sub(0.9, b.mul(b.smooth(blade, 0.6, 0.9), 0.15))
+    height = b.add(b.mul(blade, 0.55), b.mul(blade_m, 0.25))
+    height = b.add(height, b.mul(straw, 0.45))
+    height = b.add(height, b.mul(clump, 0.3))
     height = b.sub(height, b.mul(thin, 0.4))
-    n = b.bump(height, 0.9, 0.006)
-    p = b.principled(color, rough, n, spec_level=0.3, sheen=0.35, sheen_rough=0.6, sheen_tint=(0.75, 0.85, 0.5, 1.0))
+    n = b.bump(height, 1.0, 0.012)
+    p = b.principled(color, rough, n, spec_level=0.3, sheen=0.25, sheen_rough=0.6, sheen_tint=(0.75, 0.85, 0.5, 1.0))
     b.finish(p)
 
 
@@ -841,10 +880,14 @@ def _fabric(b: _B, base, sheen, weave_scale, wrinkle_scale, wrinkle_dist, rough_
     w3 = b.wave(co, weave_scale, direction="Z").outputs["Factor"]
     weave = b.mul(b.add(b.add(w1, w2), w3), 0.333)
     heather = b.noisef(co, 25.0, detail=3.0)
+    mottle = b.noisef(b.vmath("ADD", co, (2.0, 5.0, 1.0)), 4.0, detail=2.0)
     wrinkle = b.noisef(co, wrinkle_scale, detail=3.0, rough=0.55, distortion=0.8)
+    folds = b.noisef(b.vmath("ADD", co, (7.0, 1.0, 3.0)), 1.6, detail=2.0, distortion=1.0)
     color = b.scale_color(rgb(base), b.add(1.0, b.centred(heather, var)))
+    color = b.scale_color(color, b.add(1.0, b.centred(mottle, var * 0.8)))
     rough = b.add(rough_base, b.centred(heather, 0.03))
-    n = b.bump(wrinkle, 0.35, wrinkle_dist)
+    n = b.bump(folds, 0.6, wrinkle_dist * 8.0)
+    n = b.bump(wrinkle, 0.4, wrinkle_dist, normal=n)
     n = b.bump(weave, 0.25, 0.0008, normal=n)
     p = b.principled(color, rough, n, spec_level=0.25, sheen=sheen, sheen_rough=0.55, sheen_tint=(1.0, 1.0, 1.0, 1.0))
     b.finish(p)
@@ -877,12 +920,15 @@ def _roof_membrane(b: _B):
     cr, _, _ = b.separate(v.outputs["Color"])
     puddle = b.noisef(co, 0.8, detail=3.0)
     speck = b.noisef(co, 700.0, detail=2.0)
-    color = b.scale_color(rgb("roof_membrane"), b.madd(cr, 0.2, 0.9))
-    color = b.scale_color(color, b.add(1.0, b.centred(puddle, 0.06)))
-    color = b.scale_color(color, b.add(1.0, b.centred(speck, 0.05)))
+    mottle = b.noisef(b.vmath("ADD", co, (4.0, 2.0, 0.0)), 6.0, detail=3.0)
+    color = b.scale_color(rgb("roof_membrane"), b.madd(cr, 0.35, 0.8))
+    color = b.scale_color(color, b.add(1.0, b.centred(puddle, 0.08)))
+    color = b.scale_color(color, b.add(1.0, b.centred(mottle, 0.1)))
+    color = b.scale_color(color, b.add(1.0, b.centred(speck, 0.06)))
+    color = b.scale_color(color, b.madd(dome, 0.25, 0.85))
     rough = b.add(0.9, b.centred(cr, 0.05))
     height = b.add(b.mul(dome, 0.8), b.mul(speck, 0.2))
-    n = b.bump(height, 0.4, 0.003)
+    n = b.bump(height, 0.6, 0.004)
     p = b.principled(color, rough, n, spec_level=0.3)
     b.finish(p)
 
@@ -903,13 +949,16 @@ def _wood_fibre(b: _B):
     x, y, z = b.separate(co)
     fibre = b.noisef(b.combine(b.mul(x, 8.0), b.mul(y, 8.0), b.mul(z, 1.0)), 60.0, detail=5.0, rough=0.65)
     fluff = b.noisef(co, 350.0, detail=4.0, rough=0.6)
+    mottle = b.noisef(b.vmath("ADD", co, (1.0, 4.0, 2.0)), 12.0, detail=3.0, rough=0.6)
     low = b.noisef(co, 3.0, detail=3.0)
-    color = b.scale_color(rgb("wood_fibre"), b.add(1.0, b.centred(low, 0.1)))
-    color = b.scale_color(color, b.add(1.0, b.centred(fibre, 0.16)))
-    color = b.scale_color(color, b.add(1.0, b.centred(fluff, 0.08)))
+    color = b.scale_color(rgb("wood_fibre"), b.add(1.0, b.centred(low, 0.12)))
+    color = b.scale_color(color, b.add(1.0, b.centred(mottle, 0.14)))
+    color = b.scale_color(color, b.add(1.0, b.centred(fibre, 0.18)))
+    color = b.scale_color(color, b.add(1.0, b.centred(fluff, 0.1)))
     rough = b.add(0.92, b.centred(fluff, 0.05))
-    height = b.add(b.mul(fibre, 0.6), b.mul(fluff, 0.4))
-    n = b.bump(height, 0.5, 0.003)
+    height = b.add(b.mul(fibre, 0.5), b.mul(fluff, 0.3))
+    height = b.add(height, b.mul(mottle, 0.3))
+    n = b.bump(height, 0.6, 0.005)
     n = b.bevel(n, 0.004)
     p = b.principled(color, rough, n, spec_level=0.3, sheen=0.2)
     b.finish(p)
@@ -919,18 +968,21 @@ def _fibrous(b: _B, base, var, tint):
     co = b.obj_co()
     x, y, z = b.separate(co)
     fluff = b.noisef(co, 45.0, detail=6.0, rough=0.7, distortion=1.5)
+    tufts = b.noisef(b.vmath("ADD", co, (3.0, 1.0, 5.0)), 12.0, detail=4.0, rough=0.65, distortion=1.0)
     strands = b.noisef(b.combine(b.mul(x, 1.0), b.mul(y, 1.0), b.mul(z, 18.0)), 30.0, detail=4.0, rough=0.6)
     curl = b.voronoi(co, 420.0, "DISTANCE_TO_EDGE")
     curl_l = b.smooth(curl.outputs["Distance"], 0.0, 0.03, 1.0, 0.0)
     low = b.noisef(co, 2.0, detail=3.0)
     color = b.scale_color(rgb(base), b.add(1.0, b.centred(low, var)))
     color = b.mixc(b.smooth(low, 0.55, 0.75, 0.0, 0.35), color, rgb(base, 0.9, tint))
-    color = b.scale_color(color, b.add(1.0, b.centred(fluff, 0.14)))
+    color = b.scale_color(color, b.add(1.0, b.centred(tufts, 0.2)))
+    color = b.scale_color(color, b.add(1.0, b.centred(fluff, 0.16)))
     color = b.scale_color(color, b.sub(1.0, b.mul(curl_l, 0.12)))
     rough = 0.95
-    height = b.add(b.mul(fluff, 0.7), b.mul(strands, 0.3))
+    height = b.add(b.mul(fluff, 0.45), b.mul(strands, 0.2))
+    height = b.add(height, b.mul(tufts, 0.5))
     height = b.sub(height, b.mul(curl_l, 0.15))
-    n = b.bump(height, 0.8, 0.012)
+    n = b.bump(height, 1.0, 0.02)
     p = b.principled(color, rough, n, spec_level=0.2, sheen=0.8, sheen_rough=0.6)
     b.finish(p)
 
@@ -948,10 +1000,12 @@ def _gypsum_fibre(b: _B):
     x, y, z = b.separate(co)
     speck = b.noisef(co, 600.0, detail=3.0)
     fibre = b.noisef(b.combine(b.mul(x, 6.0), b.mul(y, 6.0), z), 80.0, detail=3.0)
+    mottle = b.noisef(b.vmath("ADD", co, (2.0, 1.0, 4.0)), 9.0, detail=3.0)
     low = b.noisef(co, 2.0, detail=2.0)
-    color = b.scale_color(rgb("gypsum_fibre"), b.add(1.0, b.centred(low, 0.03)))
-    color = b.scale_color(color, b.add(1.0, b.centred(speck, 0.06)))
-    color = b.scale_color(color, b.add(1.0, b.centred(fibre, 0.04)))
+    color = b.scale_color(rgb("gypsum_fibre"), b.add(1.0, b.centred(low, 0.04)))
+    color = b.scale_color(color, b.add(1.0, b.centred(mottle, 0.07)))
+    color = b.scale_color(color, b.add(1.0, b.centred(speck, 0.07)))
+    color = b.scale_color(color, b.add(1.0, b.centred(fibre, 0.05)))
     rough = b.add(0.85, b.centred(speck, 0.04))
     height = b.add(b.mul(speck, 0.7), b.mul(fibre, 0.3))
     n = b.bump(height, 0.15, 0.001)
@@ -1110,9 +1164,10 @@ def _test_scene(names_to_show, cols):
     scene.collection.objects.link(cam)
     scene.camera = cam
     aspect = 1.6
+    elev = math.radians(42.0 if len(names_to_show) > 2 else 36.0)
     hfov = 2 * math.atan(aspect * math.tan(math.radians(fov) / 2))
-    dist = max((width * 0.5 + 0.25) / math.tan(hfov / 2), (depth * 0.5 + 0.6) / math.tan(math.radians(fov) / 2) * 0.95)
-    elev = math.radians(42.0)
+    v_extent = depth * math.sin(elev) + 0.55 * math.cos(elev) + 0.35
+    dist = max((width * 0.5 + 0.25) / math.tan(hfov / 2), (v_extent * 0.5) / math.tan(math.radians(fov) / 2))
     target = (0.0, 0.0, 0.12)
     cam.location = (0.0, target[1] + dist * math.cos(elev), target[2] + dist * math.sin(elev))
     direction = (target[0] - cam.location[0], target[1] - cam.location[1], target[2] - cam.location[2])
@@ -1153,7 +1208,12 @@ if __name__ == "__main__":
         out = os.path.join(_TEST_DIR, "materials_sheet.png")
     else:
         out = os.path.join(_TEST_DIR, "materials_" + "_".join(show)[:60] + ".png")
-    scale = 25 if len(show) > 8 else 25
-    base = (4096, 2560) if len(show) > 8 else (3200, 2000)
+    # sheet: 25 % of 4096×2560; subsets: 25 % of 3200×2000; 1–2 materials: a 50 % close-up
+    if len(show) > 8:
+        base, scale = (4096, 2560), 25
+    elif len(show) > 2:
+        base, scale = (3200, 2000), 25
+    else:
+        base, scale = (2400, 1500), 50
     seconds = _render(scene, out, base=base, scale=scale)
     print(f"materials test render: {out}  ({seconds:.1f} s, {len(show)} materials)")

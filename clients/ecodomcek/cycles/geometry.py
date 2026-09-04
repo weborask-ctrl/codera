@@ -34,7 +34,7 @@ openings  the cutter objects (hide_render=True, display WIRE), named
 slabs     slab_ground (concrete screed, top at 0.13 so a 20 mm oak finish by
           interior.py lands at 0.15; the top face already carries 'oak_floor'),
           slab_first (2.85 → 3.15, top 'oak_floor', ceiling 'plaster', with a
-          stairwell hole x 2.68 → 3.70, y −0.85 → 2.34).
+          stairwell hole x 2.69 → 3.70, y −0.85 → 2.34).
 stair     stair_treads (15 spruce treads 0.27 going, 0.1875 rise so the run
           actually lands on the 3.15 slab), stair_stringers (two closed
           spruce strings), stair_handrail (black steel: posts, top rail, mid
@@ -73,6 +73,7 @@ Z_TOP = spec.Z_TOP
 
 EPS = 0.002  # overlap between touching solids so no two faces are ever coincident
 CUT = 0.06  # how far every cutter reaches beyond the faces it cuts
+SILL_DROP = 0.003  # wall stub under the glazing/door sits this much below the plinth top (no coplanar faces)
 BEVEL_W = 0.004
 BEVEL_SEGS = 2
 
@@ -292,7 +293,7 @@ def _make_cutters(coll):
 
     g = spec.GLAZING
     cutters["glazing"] = _cutter(
-        "cutter_glazing", (g["x"][0], g["x"][1], fy[0], fy[1], g["z"][0], g["z"][1]), coll,
+        "cutter_glazing", (g["x"][0], g["x"][1], fy[0], fy[1], g["z"][0] - SILL_DROP, g["z"][1]), coll,
         opening="glazing", wall="front", kind="glazing",
         bounds=(g["x"][0], g["x"][1], Y1I, Y1, g["z"][0], g["z"][1]),
     )
@@ -310,10 +311,20 @@ def _make_cutters(coll):
         )
     d = spec.DOOR
     cutters["door"] = _cutter(
-        "cutter_door", (d["x"][0], d["x"][1], fy[0], fy[1], d["z"][0], d["z"][1]), coll,
+        "cutter_door", (d["x"][0], d["x"][1], fy[0], fy[1], d["z"][0] - SILL_DROP, d["z"][1]), coll,
         opening="door", wall="front", kind="door",
         bounds=(d["x"][0], d["x"][1], Y1I, Y1, d["z"][0], d["z"][1]),
     )
+    # the plinth is cut at the true sill height (0.15); the wall stub under it sits SILL_DROP lower so the two
+    # top faces are never coplanar (coplanar faces shadow each other in Cycles)
+    bm = bmesh.new()
+    for o in (g, d):  # SILL_DROP wider on each side too: the plinth's cut faces must not share the reveal plane
+        _add_box(bm, (o["x"][0] - SILL_DROP, o["x"][1] + SILL_DROP, fy[0], fy[1], o["z"][0], spec.PLINTH_H + CUT))
+    pc = _mesh_object("cutter_plinth_openings", bm, coll)
+    pc["opening"], pc["wall"], pc["kind"] = "plinth_openings", "front", "internal"
+    pc["bounds"] = [0.0] * 6
+    pc.display_type = "WIRE"
+    cutters["plinth_openings"] = pc
     bw, bx = spec.BOX_WINDOW, spec.BOX
     cutters["box_window"] = _cutter(
         "cutter_box_window",
@@ -325,12 +336,12 @@ def _make_cutters(coll):
     cutters["box_cavity"] = _cutter("cutter_box_cavity", BOX_CAVITY, coll, wall="box", kind="internal")
     cutters["house_core"] = _cutter(
         "cutter_house_core",
-        (X0 - CUT, X1 - EPS, Y0 - CUT, Y1 - EPS, bx["z"][0] - CUT, bx["z"][1] + CUT), coll, kind="internal",
+        (X0 - CUT, X1, Y0 - CUT, Y1, bx["z"][0] - CUT, bx["z"][1] + CUT), coll, kind="internal",
     )
     cutters["stairwell"] = _cutter(
         "cutter_stairwell",
-        (STAIR_X[0], X1I + CUT, STAIRWELL_Y[0], STAIRWELL_Y[1], CEILING_Z - CUT, spec.Z_SLAB1 + CUT), coll,
-        kind="internal", bounds=(STAIR_X[0], X1I, STAIRWELL_Y[0], STAIRWELL_Y[1], CEILING_Z, spec.Z_SLAB1),
+        (STAIR_X[0] + 0.01, X1I + CUT, STAIRWELL_Y[0], STAIRWELL_Y[1], CEILING_Z - CUT, spec.Z_SLAB1 + CUT), coll,
+        kind="internal", bounds=(STAIR_X[0] + 0.01, X1I, STAIRWELL_Y[0], STAIRWELL_Y[1], CEILING_Z, spec.Z_SLAB1),
     )
     return cutters
 
@@ -339,7 +350,10 @@ def _hide_cutters(coll):
     for ob in coll.objects:
         ob.hide_render = True
         ob.hide_viewport = True
-        ob.hide_set(True) if hasattr(ob, "hide_set") and bpy.context.view_layer else None
+        try:
+            ob.hide_set(True)
+        except RuntimeError:
+            pass
     coll.hide_render = True
 
 
@@ -348,7 +362,7 @@ def _hide_cutters(coll):
 # ---------------------------------------------------------------------------
 def _build_walls(coll, materials, cutters):
     bm = bmesh.new()
-    _add_ring(bm, (X0, X1, Y0, Y1), (X0I, X1I, Y0I, Y1I), 0.0, Z_TOP)
+    _add_ring(bm, (X0, X1, Y0, Y1), (X0I, X1I, Y0I, Y1I), -0.02, Z_TOP)  # 2 cm into the ground: no face on z = 0
     ring = _mesh_object("wall_ring", bm, coll)
     holes = [cutters[k] for k in cutters if cutters[k]["kind"] in ("glazing", "window", "door")]
     _boolean_subtract(ring, holes + [cutters["box_cavity"]])
@@ -358,7 +372,7 @@ def _build_walls(coll, materials, cutters):
             return "spruce"  # timber top plate, visible in the dollhouse
         if n.z > 0.9 and c.z < 0.2:
             return "concrete"  # sills under the glazing / door threshold
-        if n.z < -0.9 and c.z < 0.01:
+        if n.z < -0.9 and c.z < 0.0:
             return "concrete"
         if _inside(c, BOX_CAVITY, 0.01):
             return "spruce"
@@ -388,7 +402,7 @@ def _build_walls(coll, materials, cutters):
 def _build_partition(coll, materials):
     ob = _box(
         "partition_upper",
-        (-PARTITION_T / 2, PARTITION_T / 2, PARTITION_Y[0], PARTITION_Y[1], spec.Z_SLAB1 - EPS, Z_TOP - 0.01), coll,
+        (-PARTITION_T / 2, PARTITION_T / 2, PARTITION_Y[0], PARTITION_Y[1], spec.Z_SLAB1 - EPS, Z_TOP + 0.005), coll,
     )
     materials.apply(ob, "plaster")
     _finish(ob)
@@ -400,8 +414,7 @@ def _build_plinth(coll, materials, cutters):
     p = PLINTH_PROUD
     _add_ring(bm, (X0 - p, X1 + p, Y0 - p, Y1 + p), (X0 + PLINTH_BAND, X1 - PLINTH_BAND, Y0 + PLINTH_BAND, Y1 - PLINTH_BAND), -0.05, spec.PLINTH_H)
     ob = _mesh_object("plinth", bm, coll)
-    low = [c for c in cutters.values() if c["kind"] in ("glazing", "door") and c["bounds"][4] < spec.PLINTH_H]
-    _boolean_subtract(ob, low)
+    _boolean_subtract(ob, [cutters["plinth_openings"]])
     materials.apply(ob, "concrete")
     _finish(ob)
     return ob
@@ -496,12 +509,13 @@ def _build_stair(coll, materials):
     slope = STAIR_RISE / STAIR_GOING
     drop = STRINGER_D / math.cos(math.atan(slope))
     y_end = STAIR_Y_START + NOSING + 0.02
-    y_floor = STAIR_Y_START - (spec.Z_FLOOR + drop - _z_nose(STAIR_Y_START)) / slope
+    z_foot = FLOOR_SLAB_TOP - 0.005  # stands on the screed (the oak finish is laid around it)
+    y_floor = STAIR_Y_START - (z_foot + drop - _z_nose(STAIR_Y_START)) / slope
     y_top = STAIR_Y_TOP - 0.005  # 5 mm into the slab edge
     pts = [
         (y_end, _z_nose(y_end)),
-        (y_end, spec.Z_FLOOR - 0.01),
-        (y_floor, spec.Z_FLOOR - 0.01),
+        (y_end, z_foot),
+        (y_floor, z_foot),
         (y_top, _z_nose(y_top) - drop),
         (y_top, _z_nose(y_top)),
     ]
@@ -521,7 +535,7 @@ def _build_stair(coll, materials):
         a = (xr, y_end, _z_nose(y_end) + h)
         c = (xr, STAIR_Y_TOP, _z_nose(STAIR_Y_TOP) + h)
         d = (xr, y_g1, spec.Z_SLAB1 + h)
-        e = (x1, y_g1, spec.Z_SLAB1 + h)
+        e = (x1 + 0.01, y_g1, spec.Z_SLAB1 + h)  # rail fixed into the wall
         _add_tube(bm, a, c, r)
         _add_tube(bm, c, d, r)
         _add_tube(bm, d, e, r)
@@ -605,7 +619,7 @@ def _look_at(ob, target):
     ob.rotation_euler = d.to_track_quat("-Z", "Y").to_euler()
 
 
-def _test_scene(view, scale, samples):
+def _test_scene(view, scale, samples, custom=None, facade=None):
     bpy.ops.wm.read_factory_settings(use_empty=True)
     sc = bpy.context.scene
     sc.render.engine = "CYCLES"
@@ -619,6 +633,10 @@ def _test_scene(view, scale, samples):
     house = build_house(mats)
     for k, c in house.items():
         print(f"  {k:9s} {len(c.objects)} objects")
+    if facade:  # legibility aid only: tint the (black) facade membrane like the named material
+        p = mats.get("membrane").node_tree.nodes["Principled BSDF"]
+        p.inputs["Base Color"].default_value = spec.hex_to_rgb(spec.COLORS[facade])
+        p.inputs["Roughness"].default_value = 0.55
 
     ground = _box("test_ground", (-60, 60, -60, 60, -0.2, 0.0), sc.collection)
     mats.apply(ground, "lawn")
@@ -651,7 +669,9 @@ def _test_scene(view, scale, samples):
         "stair": ((-1.5, 3.8, 1.6), (3.2, -0.2, 1.6), 50, (1440, 900)),
         "top": ((25, 25, 19), (-3.4, 0, 1.0), 28, (1440, 900)),
     }
-    pos, tgt, fov, size = views[view]
+    pos, tgt, fov, size = views.get(view, views["hero"])
+    if custom:  # ad-hoc inspection camera: (pos, target, fov)
+        pos, tgt, fov = custom
     co.location = pos
     _look_at(co, tgt)
     cam.lens = spec.lens_for_fov(fov)
@@ -682,15 +702,27 @@ if __name__ == "__main__":
     import argparse
 
     ap = argparse.ArgumentParser(description="geometry.py standalone test render")
-    ap.add_argument("--view", default="hero", choices=["hero", "interior", "stair", "top"])
+    ap.add_argument("--view", default="hero", choices=["hero", "interior", "stair", "top", "custom"])
+    ap.add_argument("--cam", default=None, help="x,y,z of an ad-hoc camera (view=custom)")
+    ap.add_argument("--target", default=None, help="x,y,z look-at for the ad-hoc camera")
+    ap.add_argument("--fov", type=float, default=30.0, help="vertical fov for the ad-hoc camera")
+    ap.add_argument("--name", default=None, help="output name suffix (default: the view)")
+    ap.add_argument("--facade", default=None, help="tint the facade membrane with this spec colour (e.g. larch)")
     ap.add_argument("--scale", type=int, default=25)
     ap.add_argument("--samples", type=int, default=32)
     args = ap.parse_args()
 
-    scene = _test_scene(args.view, args.scale, args.samples)
+    custom = None
+    if args.view == "custom":
+        custom = (
+            tuple(float(v) for v in args.cam.split(",")),
+            tuple(float(v) for v in args.target.split(",")),
+            args.fov,
+        )
+    scene = _test_scene(args.view, args.scale, args.samples, custom, args.facade)
     out_dir = os.path.join(_HERE, "_test")
     os.makedirs(out_dir, exist_ok=True)
-    out = os.path.join(out_dir, f"geometry_{args.view}.png")
+    out = os.path.join(out_dir, f"geometry_{args.name or args.view}.png")
     scene.render.filepath = out
     scene.render.image_settings.file_format = "PNG"
     t0 = time.time()
