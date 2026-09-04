@@ -169,8 +169,8 @@ three states. No WebGL on touch in v1.
 
 ## 9. Held frames (the boards)
 
-`boards/` renders the world with three.js and the tokens above, and
-captures:
+`boards/` composites the DOM layer (the tokens above) over a Cycles plate from
+`cycles/`, and captures:
 
 | Board | Device | What it must prove |
 | --- | --- | --- |
@@ -217,14 +217,50 @@ to build from.
 Not validated: every capture is a headless SwiftShader render of a
 procedural stand-in; no real device has seen these frames. Class: LOCAL.
 
-### 9.2 What Ondrej decides
+### 9.2 Draft 2 — the plates are rendered, not modelled (2026-09-04)
+
+Draft 1's verdict from Ondrej was blunt and correct: *"prečo to vyzerá ako z
+roku 2010? malo ostré, málo realistické."* The maquette language was withdrawn
+(§ revision note above) and the boards' world is now a **Blender Cycles scene**
+(`cycles/`, `cycles/SPEC.md`): the same house, built from the same dimensions,
+rendered offline at 1440×900 / 384 samples and composited under the identical
+DOM layer. The annotation subsystem is unchanged — it now reads its anchors
+from `world_to_camera_view` instead of a three.js projection.
+
+What the switch actually changed, beyond the renderer:
+
+| Draft 1 (three.js) | Draft 2 (Cycles) | Why |
+| --- | --- | --- |
+| flat-shaded blocks, no GI | path-traced, 8 bounces, real bevels | the Rhombus profile now casts its own shadow line, which is the whole point of that cladding |
+| one hemisphere light | a SUN lamp on the sky node's own vector, sky as ambient, a procedural cumulus layer and a shadow-only cloud plane | a clean sky gradient and a shadowless facade were the two loudest CG cues |
+| camera at 4.4 m looking down | **eye level, level camera, lens shift** (`spec.SHIFT`) | parallel verticals: how architecture is photographed. A camera that looks down reads as a model on a table |
+| bare lawn plane to the horizon | meadow → hazed far field → two woodland bands at 330 m and 470 m; grass tufts where the ground meets built things | discrete trees were tried twice and read as low-poly lollipops; a distant mass with aerial perspective does not |
+| empty facade | downpipe, gravel drive, gravel skirt, threshold | a building with no familiar object on it has no scale |
+
+Reference traceability for the new decisions, all from records read in full:
+
+| Decision | Records | What was taken | How it was adapted |
+| --- | --- | --- | --- |
+| Photoreal plate under a paper DOM, not a stylised world | `manna`, `aspelin-reitan` | full-bleed photography carrying the page while the UI stays hairlines and captions | our "photograph" is a render, and it is labelled `Vzorový dom · koncept, nie realizácia` wherever it appears |
+| Eye-level, level, shifted camera | `manna`, `lightship` | the product/building sits *in* a landscape at human height, not above it | a 25° lens at 37 m, house in the right five columns, drive entering bottom-left |
+| Morning key from behind-left, one facade lit, one in shade | `aspelin-reitan` | photographic light doing the modelling, no fill flattening | the sun sits round to the west so the raking light reveals the Rhombus relief and the shadow rakes into the copy field |
+| Mono annotation over the render | `igloo`, `planpoint`, `moving-parts` | mono type as technical annotation — leaders, one signal colour, an engineer's drawing over a rendered world | one green, labels in the sky above the model, leaders dropped to projected anchors |
+| The X-ray layer cascade | `planpoint`, `70materia` | one ink, one pen, one highlighter; image-then-text | seven real material layers, each with its own procedural material, labels cascading in the clear third of the frame |
+| The paper veil behind copy that lands on the render | `aspelin-reitan`, `raus` | cream-on-cream layering as the depth device, never a drop shadow | a gradient of the page's own paper with a hairline where it starts, used on the living board and on mobile |
+| The dusk act | `exoape` | warm photographic dark, type over the world, never flat black | one board only; the house goes to silhouette, the windows carry 2700 K practicals, the contact panel is snow |
+
+Not validated: every plate is a headless CPU render and every board is a
+headless Chromium capture. No real device has seen these frames. Class: LOCAL.
+
+### 9.3 What Ondrej decides
 
 1. The direction itself — bone paper, larch and moss, whisper display,
    mono annotation, dusk close — against the LIKED bar.
 2. The eight PENDING records (verdicts in `CODERA_DESIGN_REFERENCES/records/`).
-3. Whether the maquette language is the right honesty, or whether the
-   production model should push further toward realism (the plan argues
-   against).
+3. Whether the photoreal plate is now at the level the reference set sets —
+   and where it still is not (the honest list is in §9.2 and in the delivery
+   note: the meadow is the weakest surface, the interior's window view blows
+   out, and the model is cleaner than any built house ever is).
 4. The room set: nine rooms is the ceiling; Terasa, O nás and Strechy have
    no boards yet and may merge.
 

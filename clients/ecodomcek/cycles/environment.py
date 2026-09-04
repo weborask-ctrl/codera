@@ -171,11 +171,111 @@ def _ground(coll, materials, mat, undulate=True, n=90):
 
 
 def _gravel_apron(coll, materials):
-    """The arrival surface in front of the entrance; slightly proud of the lawn."""
+    """The arrival surface: a gravel drive that runs off the plot rather than a
+    rectangle laid on the lawn (which is what the first renders looked like).
+
+    The edge is a noisy polygon and the surface sits 20 mm below the grass, so
+    the grass laps over it instead of meeting it on a drawn line.
+    """
+    rnd = random.Random(4242)
     g = GRAVEL
+    x0, x1 = g["x"]
+    y0, y1 = g["y"][0], 46.0  # runs off the plot towards the road
+    steps = 26
+    left, right = [], []
+    for i in range(steps + 1):
+        t = i / steps
+        y = y0 + (y1 - y0) * t ** 1.35
+        widen = 1.0 + 1.30 * t ** 1.7  # the drive fans out towards the road
+        wob = 0.16 * math.sin(t * 11.0) + rnd.uniform(-0.10, 0.10)
+        left.append((x0 - (widen - 1.0) * 1.1 + wob, y))
+        right.append((x1 + (widen - 1.0) * 1.6 - wob, y))
     bm = bmesh.new()
-    _box(bm, (g["x"][0], g["x"][1], g["y"][0], g["y"][1], -0.06, g["z"]))
-    return _obj("gravel_apron", bm, coll, materials, "gravel")
+    prev = None
+    for (lx, ly), (rx, ry) in zip(left, right):
+        col = (bm.verts.new((lx, ly, 0.012)), bm.verts.new((rx, ry, 0.012)))
+        if prev is not None:
+            bm.faces.new((prev[0], prev[1], col[1], col[0]))
+        prev = col
+    ob = _obj("gravel_drive", bm, coll, materials, "gravel")
+    # a shallow bed under it so the edge has a thickness where the grass laps
+    bm2 = bmesh.new()
+    _box(bm2, (x0 - 0.35, x1 + 0.45, y0 - 0.3, y0 + 3.4, -0.10, 0.006))
+    _obj("gravel_bed", bm2, coll, materials, "gravel")
+    return ob
+
+
+def _grass_material():
+    """Blade colour for the tufts: darker and less yellow than the mown lawn."""
+    m = bpy.data.materials.get("grass_tuft")
+    if m is not None:
+        return m
+    m = bpy.data.materials.new("grass_tuft")
+    m.use_nodes = True
+    nt = m.node_tree
+    p = nt.nodes["Principled BSDF"]
+    p.inputs["Roughness"].default_value = 0.62
+    p.inputs["Sheen Weight"].default_value = 0.4
+    co = nt.nodes.new("ShaderNodeTexCoord")
+    noise = nt.nodes.new("ShaderNodeTexNoise")
+    noise.inputs["Scale"].default_value = 2.5
+    ramp = nt.nodes.new("ShaderNodeValToRGB")
+    ramp.color_ramp.elements[0].color = spec.hex_to_rgb("#3B5322")
+    ramp.color_ramp.elements[1].color = spec.hex_to_rgb("#77903C")
+    nt.links.new(co.outputs["Object"], noise.inputs["Vector"])
+    nt.links.new(noise.outputs["Fac"], ramp.inputs["Fac"])
+    nt.links.new(ramp.outputs["Color"], p.inputs["Base Color"])
+    p.inputs["Transmission Weight"].default_value = 0.10  # blades glow when backlit
+    return m
+
+
+def _tufts(coll, seed=9, count=520):
+    """Blades along the deck, the drive and the plinth.
+
+    A mown plane meeting a building on a hard line is the giveaway of an empty
+    site; a scatter of blades where the ground meets something built is cheap
+    (two triangles each) and does most of the work.
+    """
+    rnd = random.Random(seed)
+    bands = [  # (x0, x1, y0, y1, density weight)
+        (-5.0, 2.4, 8.6, 9.4, 1.0),   # along the far edge of the deck
+        (-5.2, -4.4, 4.6, 9.0, 0.7),  # the deck's left flank
+        (1.4, 2.6, 4.4, 12.0, 0.9),   # the drive's inner edge
+        (7.2, 8.6, 4.6, 14.0, 0.9),   # the drive's outer edge
+        (-5.2, -4.4, -5.6, 4.6, 0.6), # along the plinth, left wall
+        (4.6, 5.4, -5.6, 3.4, 0.5),
+    ]
+    total = sum(b[4] for b in bands)
+    bm = bmesh.new()
+    n = 0
+    for x0, x1, y0, y1, wgt in bands:
+        for _ in range(int(count * wgt / total)):
+            bx = rnd.uniform(x0, x1)
+            by = rnd.uniform(y0, y1)
+            for _ in range(rnd.randint(3, 6)):  # a few blades per tuft
+                h = rnd.uniform(0.16, 0.38)
+                a = rnd.uniform(0, 6.283)
+                lean = rnd.uniform(0.10, 0.42)
+                w = rnd.uniform(0.006, 0.011)
+                px, py = bx + rnd.uniform(-0.09, 0.09), by + rnd.uniform(-0.09, 0.09)
+                tipx = px + math.cos(a) * lean * h
+                tipy = py + math.sin(a) * lean * h
+                midx = px + math.cos(a) * lean * h * 0.35
+                midy = py + math.sin(a) * lean * h * 0.35
+                nx, ny = -math.sin(a) * w, math.cos(a) * w
+                v0 = bm.verts.new((px - nx, py - ny, 0.0))
+                v1 = bm.verts.new((px + nx, py + ny, 0.0))
+                v2 = bm.verts.new((midx + nx * 0.6, midy + ny * 0.6, h * 0.55))
+                v3 = bm.verts.new((midx - nx * 0.6, midy - ny * 0.6, h * 0.55))
+                v4 = bm.verts.new((tipx, tipy, h))
+                bm.faces.new((v0, v1, v2, v3))
+                bm.faces.new((v3, v2, v4))
+                n += 1
+    ob = _obj("grass_tufts", bm, coll, smooth=False)
+    ob.data.materials.append(_grass_material())
+    for p in ob.data.polygons:
+        p.use_smooth = False
+    return n
 
 
 def _foliage_material(name, hex_color, rough=0.82, haze=0.0):
@@ -337,13 +437,13 @@ def _far_ground(coll):
 def _tree_line(coll):
     """Two woodland bands behind the plot: the horizon, and the depth cue."""
     near = bmesh.new()
-    _ridge(near, 20260904, r0=330.0, depth=60.0, h_lo=13.0, h_hi=22.0)
+    _ridge(near, 20260904, r0=330.0, depth=55.0, h_lo=6.0, h_hi=11.0)
     ob = _obj("tree_line_near", near, coll, smooth=True)
-    ob.data.materials.append(_foliage_material("foliage_near_band", "#3D4F30", haze=0.46))
+    ob.data.materials.append(_foliage_material("foliage_near_band", "#33452A", haze=0.30))
     far = bmesh.new()
-    _ridge(far, 771, r0=470.0, depth=70.0, h_lo=14.0, h_hi=24.0, a0=120.0, a1=420.0)
+    _ridge(far, 771, r0=470.0, depth=70.0, h_lo=6.0, h_hi=10.0, a0=120.0, a1=420.0)
     ob2 = _obj("tree_line_far", far, coll, smooth=True)
-    ob2.data.materials.append(_foliage_material("foliage_far_band", "#4A5A42", haze=0.72))
+    ob2.data.materials.append(_foliage_material("foliage_far_band", "#3E5038", haze=0.52))
     return 2
 
 
@@ -374,8 +474,9 @@ def build_site(materials, mode="lawn"):
     _far_ground(coll)
     _gravel_apron(coll, materials)
     _gravel_skirt(coll, materials)
+    blades = _tufts(coll)
     n = _tree_line(coll)
-    print(f"[environment] lawn site ({n} woodland bands) in {time.time() - t0:.2f} s")
+    print(f"[environment] lawn site ({n} woodland bands, {blades} blades) in {time.time() - t0:.2f} s")
     return coll
 
 
@@ -415,8 +516,8 @@ def _sky(state):
 
 
 CLOUD = {
-    "morning": {"scale": 0.55, "cover": 0.50, "soft": 0.26, "gain": 3.2},
-    "interior": {"scale": 0.55, "cover": 0.50, "soft": 0.26, "gain": 3.2},
+    "morning": {"scale": 0.30, "cover": 0.50, "soft": 0.22, "gain": 9.0},
+    "interior": {"scale": 0.30, "cover": 0.50, "soft": 0.22, "gain": 9.0},
     "table": {"scale": 1.2, "cover": 0.30, "soft": 0.55, "gain": 1.6},
     "dusk": {"scale": 0.45, "cover": 0.44, "soft": 0.30, "gain": 2.2},
 }
@@ -433,8 +534,15 @@ def _clouds(nt, sky, state):
     """
     cfg = CLOUD[state]
     geo = nt.nodes.new("ShaderNodeNewGeometry")
+    # Geometry > Incoming points from the shading point back to the camera, so
+    # for a world shader it is the negated ray direction: looking up gives a
+    # negative Z and the whole layer clamped to nothing (first attempt).
+    ray = nt.nodes.new("ShaderNodeVectorMath")
+    ray.operation = "SCALE"
+    ray.inputs["Scale"].default_value = -1.0
+    nt.links.new(geo.outputs["Incoming"], ray.inputs[0])
     sep = nt.nodes.new("ShaderNodeSeparateXYZ")
-    nt.links.new(geo.outputs["Incoming"], sep.inputs[0])
+    nt.links.new(ray.outputs[0], sep.inputs[0])
     # scale = 1 / max(z, 0.06): project the view ray onto the cloud plane
     zc = nt.nodes.new("ShaderNodeMath")
     zc.operation = "MAXIMUM"
@@ -446,14 +554,14 @@ def _clouds(nt, sky, state):
     nt.links.new(zc.outputs[0], inv.inputs[1])
     proj = nt.nodes.new("ShaderNodeVectorMath")
     proj.operation = "SCALE"
-    nt.links.new(geo.outputs["Incoming"], proj.inputs[0])
+    nt.links.new(ray.outputs[0], proj.inputs[0])
     nt.links.new(inv.outputs[0], proj.inputs["Scale"])
     map_ = nt.nodes.new("ShaderNodeMapping")
     map_.inputs["Scale"].default_value = (cfg["scale"], cfg["scale"], cfg["scale"])
     map_.inputs["Location"].default_value = (3.2, -1.4, 0.0)
     nt.links.new(proj.outputs[0], map_.inputs["Vector"])
     noise = nt.nodes.new("ShaderNodeTexNoise")
-    noise.inputs["Scale"].default_value = 1.6
+    noise.inputs["Scale"].default_value = 1.05
     noise.inputs["Detail"].default_value = 9.0
     noise.inputs["Roughness"].default_value = 0.58
     noise.inputs["Lacunarity"].default_value = 2.1
@@ -483,8 +591,8 @@ def _clouds(nt, sky, state):
     shade = nt.nodes.new("ShaderNodeMapRange")
     shade.inputs["From Min"].default_value = 0.25
     shade.inputs["From Max"].default_value = 0.80
-    shade.inputs["To Min"].default_value = 0.45 * cfg["gain"]
-    shade.inputs["To Max"].default_value = 1.15 * cfg["gain"]
+    shade.inputs["To Min"].default_value = 0.75 * cfg["gain"]
+    shade.inputs["To Max"].default_value = 1.45 * cfg["gain"]
     shade.clamp = True
     nt.links.new(noise.outputs["Fac"], shade.inputs["Value"])
     lit = nt.nodes.new("ShaderNodeVectorMath")
@@ -528,6 +636,68 @@ def _sun(coll, state):
     return ob
 
 
+def _cloud_shadow(coll, state):
+    """A shadow-only plane high above the site.
+
+    The world cloud layer is shading, so it never blocks the sun and the meadow
+    renders as one flat sheet of light. This plane is invisible to camera and to
+    every ray except shadow rays: it lays the same noise over the ground as soft
+    cloud shadow, which is what breaks a large lawn up in a real photograph.
+    """
+    cfg = CLOUD[state]
+    if SUN_ENERGY[state] <= 0.0:
+        return None
+    z = 340.0
+    v = sun_vector(state)
+    # centre it on where the sun's rays cross the cloud deck above the house
+    cx, cy = v.x / max(v.z, 0.2) * z, v.y / max(v.z, 0.2) * z
+    size = 2600.0
+    bm = bmesh.new()
+    for a, b in (((-1, -1), (1, -1)),):
+        pass
+    verts = [bm.verts.new((cx + sx * size / 2, cy + sy * size / 2, z))
+             for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+    bm.faces.new(verts)
+    ob = _obj("cloud_shadow", bm, coll, smooth=False)
+    m = bpy.data.materials.get("cloud_shadow") or bpy.data.materials.new("cloud_shadow")
+    m.use_nodes = True
+    nt = m.node_tree
+    for n in list(nt.nodes):
+        nt.nodes.remove(n)
+    co = nt.nodes.new("ShaderNodeTexCoord")
+    map_ = nt.nodes.new("ShaderNodeMapping")
+    k = cfg["scale"] / z * 1.9  # roughly the angular scale of the world layer
+    map_.inputs["Scale"].default_value = (k, k, k)
+    nt.links.new(co.outputs["Object"], map_.inputs["Vector"])
+    noise = nt.nodes.new("ShaderNodeTexNoise")
+    noise.inputs["Scale"].default_value = 1.05
+    noise.inputs["Detail"].default_value = 6.0
+    noise.inputs["Roughness"].default_value = 0.58
+    nt.links.new(map_.outputs[0], noise.inputs["Vector"])
+    dens = nt.nodes.new("ShaderNodeMapRange")
+    dens.inputs["From Min"].default_value = cfg["cover"] + 0.02
+    dens.inputs["From Max"].default_value = cfg["cover"] + cfg["soft"] + 0.12
+    dens.inputs["To Max"].default_value = 0.55  # thin cloud: never a hard black shadow
+    dens.clamp = True
+    nt.links.new(noise.outputs["Fac"], dens.inputs["Value"])
+    tr = nt.nodes.new("ShaderNodeBsdfTransparent")
+    blk = nt.nodes.new("ShaderNodeBsdfDiffuse")
+    blk.inputs["Color"].default_value = (0, 0, 0, 1)
+    mix = nt.nodes.new("ShaderNodeMixShader")
+    nt.links.new(dens.outputs[0], mix.inputs[0])
+    nt.links.new(tr.outputs[0], mix.inputs[1])
+    nt.links.new(blk.outputs[0], mix.inputs[2])
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
+    nt.links.new(mix.outputs[0], out.inputs[0])
+    ob.data.materials.append(m)
+    ob.visible_camera = False
+    ob.visible_diffuse = False
+    ob.visible_glossy = False
+    ob.visible_transmission = False
+    ob.visible_volume_scatter = False
+    return ob
+
+
 def _area(coll, name, loc, target, energy, size, color=WARM, shape="SQUARE", size_y=None):
     d = bpy.data.lights.new(name, "AREA")
     d.energy = energy
@@ -566,6 +736,7 @@ def set_light(state):
     for ob in list(coll.objects):
         bpy.data.objects.remove(ob, do_unlink=True)
     _sun(coll, state)
+    _cloud_shadow(coll, state)
 
     if state == "table":
         # dollhouse: one big soft key so the model reads as an object on a table
@@ -583,14 +754,18 @@ def set_light(state):
     if state == "dusk":
         # every room lit; the deck is lit by the living room only
         for i, (x, y) in enumerate(((-2.6, 3.3), (-2.6, -1.4), (0.9, 3.3), (0.9, -1.4), (-3.0, -4.0))):
-            _point(coll, f"living_{i}", (x, y, 2.55), 160.0)
+            _point(coll, f"living_{i}", (x, y, 2.98), 190.0, radius=0.30)
         # the pendant's own bulb is an emissive mesh (interior.set_pendant); a
         # second lamp inside the shade rendered as a glowing ball
-        _point(coll, "hall_ground", (2.85, 3.2, 2.4), 90.0)
-        _point(coll, "box_room", (3.0, 5.0, 5.0), 80.0, radius=0.45)
-        _point(coll, "upper_a", (-1.9, 1.6, 5.0), 80.0, radius=0.45)
-        _point(coll, "upper_b", (-1.9, -2.6, 5.0), 80.0, radius=0.45)
-        _point(coll, "hall_upper", (2.8, 0.0, 5.2), 45.0)
+        _point(coll, "hall_ground", (2.85, 3.2, 2.95), 90.0, radius=0.30)
+        # big soft sources well away from the window walls: small ones close to
+        # a wall render as a bright ball through the glass
+        # just under the ceiling, like a real fitting: a source at mid-height
+        # throws a disc onto the wall that reads as a ball through the window
+        _point(coll, "box_room", (2.9, 4.9, 6.05), 45.0, radius=0.12)
+        _point(coll, "upper_a", (-1.6, 2.0, 6.10), 45.0, radius=0.12)
+        _point(coll, "upper_b", (-1.6, -2.4, 6.10), 45.0, radius=0.12)
+        _point(coll, "hall_upper", (2.8, 0.0, 6.05), 45.0, radius=0.30)
         return coll
 
     return coll  # "morning": the sky is the whole rig
@@ -613,7 +788,13 @@ def set_camera(board, device):
     cam.lens = spec.lens_for_fov(fov)
     cam.clip_end = 600.0
     ob.location = pos
-    _look_at(ob, tgt)
+    shift = spec.SHIFT.get((board, device))
+    if shift is None:
+        cam.shift_y = 0.0
+        _look_at(ob, tgt)
+    else:  # level camera + lens shift: parallel verticals, as an architectural photograph
+        cam.shift_y = shift
+        _look_at(ob, (tgt[0], tgt[1], pos[2]))
     focus = (Vector(tgt) - Vector(pos)).length
     cam.dof.use_dof = fstop > 0
     cam.dof.focus_distance = focus

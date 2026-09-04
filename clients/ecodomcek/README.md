@@ -10,7 +10,8 @@ direction and its boards; the build lives in its own repository from
 | `PLAN.md` | Design DNA, decision-engine run, the concept (rooms → routes), Matterport translation, engine and rendering tiers, reference map, phases, risks, client questions |
 | `CONTENT_INVENTORY.md` | Every page of the live site, verbatim Slovak copy, facts, assets, issues |
 | `ART_DIRECTION.md` | Tokens (canvas, materials, type, spacing, radius), components, imagery, motion, mobile, the held frames and their review |
-| `boards/` | The held frames: a three.js wooden-model study of the vzorový dom + the DOM layer, captured to `boards/out/*.png` with `npm run capture:ecodomcek` |
+| `boards/` | The held frames: the DOM layer over a rendered plate, captured to `boards/out/*.png` with `npm run capture:ecodomcek -- --render` |
+| `cycles/` | The Blender scene that renders those plates: `SPEC.md` is the contract, `python3 build.py --all --quality final` writes `boards/render/<board>-<device>.png` and its annotation anchors |
 
 Reference records harvested for this brief (verdict PENDING until Ondrej
 calibrates them): `CODERA_DESIGN_REFERENCES/records/{raus, aspelin-reitan,
@@ -28,3 +29,24 @@ manna, 70materia, planpoint, moving-parts, scale, lightship}.md`.
 
 Open `boards/index.html?board=<hero|living|xray|dollhouse|dusk>&device=<desktop|mobile>`
 over any static server (the capture script starts one) to view a board live.
+Add `&render=1` to composite the Cycles plate under the DOM instead of the
+three.js study, which is what the captures do.
+
+## Making the plates
+
+```
+cd clients/ecodomcek/cycles
+python3 build.py --board hero --device desktop --quality test     # ~8 s, 360×225
+python3 build.py --all --quality final                            # the eight plates
+python3 _stats.py ../boards/render/hero-desktop.png               # exposure read-out
+node ../boards/capture.mjs --render                               # composite the boards
+```
+
+Blender runs as a Python module (`pip install bpy`, 5.0.1), CPU only, no
+external assets — every material and every plant is procedural. The scene
+modules (`materials`, `geometry`, `cladding`, `interior`, `environment`) each
+run standalone and write their own test render to `cycles/_test/`.
+
+The house is the **Vzorový dom**: the spatial skeleton of the Matterport tour
+EcoDomček published, re-skinned in EcoDomček's own materials. It is a concept,
+never a realised project, and every board that shows it says so.

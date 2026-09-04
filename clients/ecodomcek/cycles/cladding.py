@@ -541,13 +541,34 @@ def _build_threshold(materials, coll):
     _mesh_object("threshold", bm, coll, materials, "concrete", bevel=0.006)
 
 
+def _build_rainwater(materials, coll):
+    """One downpipe on the left wall with brackets and a shoe.
+
+    Nothing on the facade gave the eye a familiar object to size the house by;
+    a 80 mm downpipe is the cheapest scale cue a building has.
+    """
+    face = spec.X0 - SLAT_W1  # outside face of the cladding on the left wall
+    y = -4.35
+    r = 0.041
+    z0, z1 = 0.20, spec.Z_TOP + spec.ROOF_T - 0.10
+    bm = bmesh.new()
+    _add_tube(bm, (face - r - 0.035, y, z0 + 0.28), (face - r - 0.035, y, z1), r, segments=20)
+    # the shoe: a short angled length spilling towards the gravel
+    _add_tube(bm, (face - r - 0.035, y, z0 + 0.34), (face - r - 0.30, y, z0), r, segments=16)
+    _mesh_object("downpipe", bm, coll, materials, "anthracite", bevel=0)
+    bm = bmesh.new()
+    for z in (1.15, 3.05, 5.05):
+        _add_box(bm, (face - 0.11, face, y - 0.035, y + 0.035, z, z + 0.05))
+    _mesh_object("downpipe_brackets", bm, coll, materials, "anthracite", bevel=0.004)
+
+
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
 def clad(house, materials):
     """Clad the house: slats, battens, reveals, frames, glass, door, deck, threshold (see module doc)."""
     t0 = time.time()
-    cols = {k: _collection(k) for k in ("slats", "battens", "reveals", "frames", "glass", "door", "deck", "threshold")}
+    cols = {k: _collection(k) for k in ("slats", "battens", "reveals", "frames", "glass", "door", "deck", "threshold", "rainwater")}
     openings = _openings(house)
     rows = _rows()
     n_slats, n_meshes = _build_slats(openings, rows, materials, cols["slats"])
@@ -555,6 +576,7 @@ def clad(house, materials):
     _build_openings(openings, rows, materials, cols)
     n_boards, n_rows, gap = _build_deck(materials, cols["deck"])
     _build_threshold(materials, cols["threshold"])
+    _build_rainwater(materials, cols["rainwater"])
     print(
         f"[cladding] {n_slats} slats ({n_meshes} shared meshes, {len(rows)} rows, pitch {PITCH:.4f}), "
         f"{len(openings)} openings, deck {n_boards} boards in {n_rows} rows (gap {gap * 1000:.2f} mm), "

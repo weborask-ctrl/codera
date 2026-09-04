@@ -34,7 +34,7 @@ requirement; a "maquette" or "clay" look is explicitly rejected.
 | Cladding | **larch Rhombus profile**: horizontal slats 0.070 high × 0.021 thick with a rhomboid section (front face tilted 15°), 0.010 open gap between slats, on 0.03 vertical battens over a black facade membrane (visible in the gaps). Slats cover every larch wall face, cut cleanly around openings with anthracite reveal boards 0.08 wide. Per-slat colour variation ±6 % lightness, ±3 % hue via Object Info Random |
 | Interior, ground floor | open living/dining/kitchen: oak plank floor (0.14 × 1.6 planks, 2 mm gaps); walls and ceiling white plaster (subtle roughness noise); the back wall (y = −5) inside has a full-height spruce plank cladding; kitchen block along the back wall x ∈ [−3.4, −0.2], depth 0.65, height 0.90, white-oak fronts + anthracite worktop, a tall column at x ∈ [−0.2, 0.4]; dining table 1.9 × 0.9 (oak top, black steel legs) at x ∈ [−2.3, −0.4], y ∈ [−1.3, −0.4] with six chairs; a low grey-fabric sofa 2.3 × 0.95 facing the glazing at y ≈ 2.3; coffee table; a wool rug; one black pendant lamp over the table; a spruce open stair along the right wall (x ∈ [2.7, 3.7]) rising toward the back, 15 treads of 0.27 × 0.18; a slim black steel handrail |
 | Interior, upper floor | partition wall at x = 0 from y = −5 to 0.4; two bedrooms with beds (mattress + linen, wood base); plaster walls; this floor is seen mainly in the dollhouse board |
-| Ground / site | a gently undulating lawn (real-looking short grass: procedural colour + bump, mild clumps; **no hair particles** — CPU budget), a gravel apron 1.2 m wide around the house (fine grey gravel), a concrete path 1.2 wide from the deck toward +Y; a low background treeline/hedge as dark-green soft mass 30–40 m away (heavily out of focus, optional); horizon fades into light haze |
+| Ground / site | a gently undulating lawn, flat within 15 m of the house (procedural colour + bump, no hair particles — CPU budget); a hazed outer field from 110 m to 430 m; a gravel drive that fans out from the entrance and runs off the plot; a 0.55 m gravel skirt around the plinth; ~2 300 grass blades in tufts where the ground meets the deck, the drive and the plinth; two woodland bands at 330 m and 470 m carrying aerial perspective. Discrete trees were tried and rejected (they read as low-poly lollipops at any distance the camera sees them) |
 
 ## Materials (procedural, PBR, Principled BSDF)
 
@@ -63,16 +63,39 @@ realism cue.
 
 ## Light states (environment.set_light(state))
 
-| state | Sky (ShaderNodeTexSky, `sky_type = 'MULTIPLE_SCATTERING'` in Blender 5) | Sun | Interior lights |
-| --- | --- | --- | --- |
-| `morning` | elevation 24°, rotation so the sun is front-left (from −X, +Y), intensity 1.0, air 1.0, dust 1.5 | via the sky (sun_disc on) | off |
-| `interior` | same sky, elevation 32° | via sky | a warm 2700 K area light in the pendant (40 W) as accent; daylight dominates |
-| `table` (dollhouse) | soft overcast-ish sky, elevation 45°, lower saturation | via sky | off |
-| `dusk` | elevation −2° (just below), rotation behind the house, deep blue sky; world strength 0.35 | none direct | every room lit: warm 2700 K area lights, living room 4× 25 W, box window 1× 15 W, upper windows 2× 15 W; glass shows the warm interior; the deck lit by the living room only |
+The sky texture's own sun disc is **off** in every state: a bright disc in
+the world is sampled too poorly to cast, and the first integrated renders
+had no shadows at all. Direct light is a SUN lamp placed on the sky node's
+own vector (`environment.sun_vector`), so sky and sun always agree.
 
-View transform **AgX**, look "AgX - Base Contrast" or "Medium Contrast";
-exposure so that white plaster in sun reads ≈ 0.85 and the sky is not
-blown out. Film filter 1.5 px.
+`spec.LIGHTS[state]["rotation"]` is the pre-mirror azimuth of the study the
+cameras came from; the Blender sky node measures `sun_rotation` clockwise
+from +Y, so the conversion is `blender = 180 − spec`, applied once in
+`environment.SUN_ROT`.
+
+| state | Sky | Sun lamp | Practicals |
+| --- | --- | --- | --- |
+| `morning` | elevation 24°, spec rotation −70° (Blender 250°: the sun is behind-left of the house), world strength 0.55, aerosol 1.5 | SUN 34 W/m², angle 0.9° | none |
+| `interior` | elevation 26°, spec rotation −158° (Blender 338°: through the front glazing), world 0.8 | SUN 34 W/m² | pendant bulb 40 W, a bounce fill 70 W and a wall wash 40 W standing in for the room's own bounce |
+| `table` (dollhouse) | elevation 45°, hazy (aerosol 4.0), world 1.0 | SUN 9 W/m², angle 6° + a 14 m key at 6 000 W | none |
+| `dusk` | elevation −7°, world 1.15 | none | ceiling practicals: living 5× 190 W, hall 90 W, box and both bedrooms 45 W each, hall upper 45 W, pendant on. Mid-height sources were tried first and read as glowing balls through the windows |
+
+Both daylight states also carry:
+
+- a **cumulus layer** in the world shader (`environment._clouds`) — noise
+  projected onto a cloud plane along the view ray, brightened toward white
+  and faded out in the last few degrees above the horizon. The clean sky
+  gradient of the bare sky node is the loudest "this is CG" cue in an
+  exterior;
+- a **cloud-shadow plane** 340 m up (`environment._cloud_shadow`), visible to
+  shadow rays only, so the same noise breaks the meadow up the way cloud
+  shadow does in a photograph.
+
+View transform **AgX**, look **"AgX - Punchy"**. Base Contrast measured at
+p1 luma 0.29 and mean saturation 0.08 on the first exterior — milky and
+almost monochrome. Exposure is per board (`spec.EXPOSURE`), because a sunlit
+exterior, a room lit through one wall and a dusk shot whose subject is the
+light inside cannot share one stop. Film filter 1.5 px.
 
 ## Cameras (environment.set_camera(board, device))
 
@@ -81,19 +104,24 @@ field of view in degrees: lens = 12 / tan(fov/2). Slight depth of field
 (f/8, focus on the house) on exteriors; f/4 on the interior; none on the
 X-ray.
 
-| board | device | position (x, y, z) | look-at (x, y, z) | fov |
-| --- | --- | --- | --- | --- |
-| hero | desktop 1440×900 | (−16, 24, 4.6) | (5.4, 0, 2.5) | 25 |
-| hero | mobile 780×1688 | (−12, 34, 4.4) | (1.0, 0, −2.2) | 36 |
-| living | desktop | (−2.5, −3.7, 1.5) | (1.7, 5.0, 1.15) | 47 |
-| living | mobile | (2.4, −3.4, 1.5) | (−1.4, 5.0, 0.2) | 56 |
-| xray | desktop | see X-ray stage below | | 30 |
-| dollhouse | desktop | (−25, 25, 19) | (3.4, 0, 1.0) | 28 |
-| dusk | desktop | (−14.5, 23, 3.4) | (3.8, 0, 2.4) | 26 |
-| dusk | mobile | (−10, 29, 3.4) | (−0.4, 0, −1.0) | 36 |
+`spec.CAMERAS` is authoritative; the table is the reading of it. Camera x was
+negated on 2026-09-03 (Blender's handedness mirrors the three.js study the
+poses came from), and the exteriors were rebuilt on 2026-09-04 at **eye
+level with a lens shift** (`spec.SHIFT`): a level camera keeps verticals
+parallel, which is how architecture is photographed, and a camera at 4.4 m
+looking down reads as a model on a table. Where a board appears in
+`spec.SHIFT`, `set_camera` aims level and the look-at z is ignored.
 
-(Camera x was negated on 2026-09-03: Blender's handedness mirrors the
-three.js study these poses came from. `spec.CAMERAS` is authoritative.)
+| board | device | position (x, y, z) | look-at | fov | shift |
+| --- | --- | --- | --- | --- | --- |
+| hero | desktop 1440×900 | (−18.5, 28.5, 1.85) | (6.2, 0, ·) | 25 | 0.17 |
+| hero | mobile 780×1688 | (−15.5, 23.5, 1.70) | (4.4, 0, ·) | 42 | 0.06 |
+| living | desktop | (−2.5, −3.7, 1.5) | (1.7, 5.0, 1.15) | 47 | — |
+| living | mobile | (2.7, −4.0, 1.55) | (−1.5, 5.0, 1.05) | 52 | — |
+| xray | desktop | (195.1, 4.3, 2.45) | (200.2, −0.35, 1.35) | 33 | — |
+| dollhouse | desktop | (−25, 25, 19) | (7.4, −1.2, 1.6) | 27 | — |
+| dusk | desktop | (−14.5, 23, 1.8) | (3.8, 0, ·) | 26 | 0.17 |
+| dusk | mobile | (−16, 29, 1.75) | (4.4, 0, ·) | 40 | 0.10 |
 
 The house must occupy the **right ~55 %** of desktop frames (copy sits in the
 left five columns) except `living`, where the copy sits right and the
@@ -136,13 +164,18 @@ Anchors: `hero`: `vzorovy` at (4.2, 5.2, 6.64) [roof top front-right corner];
 | `preview` | 50 % | 96 | OIDN |
 | `final` | 100 % | 384 (exteriors) / 512 (interior, dusk) | OIDN, adaptive sampling on |
 
+Exposure comes from `spec.EXPOSURE[board]`, applied by `set_camera`.
+
 Cycles CPU, light tree on, path guiding off, max bounces 8 / glossy 4 /
 transmission 8, caustics off, clamp indirect 8. Print the render time.
 
 ## Module interfaces (all files in this folder; `import spec` for the constants)
 
 - `spec.py` — the numbers above as Python constants (dimensions, colours,
-  cameras dict, light states). Written by the integrator; modules may add.
+  cameras, shifts, exposures, light states). Written by the integrator.
+- `meshutil.py` — `smooth_by_angle(bm, deg)`. Blender's blanket
+  `mesh.shade_smooth()` interpolates normals across every edge, which turned
+  each glass pane into a chrome dome; every module shades by angle instead.
 - `materials.py` — `get(name) -> bpy.types.Material` (creates on first use,
   cached by name); `apply(obj, name)`.
 - `geometry.py` — `build_house(materials) -> dict` of collections
@@ -153,9 +186,13 @@ transmission 8, caustics off, clamp indirect 8. Print the render time.
   window/door frames and glass, the deck, the concrete threshold.
 - `interior.py` — `furnish(house, materials)`: everything in the interior
   rows above, plus the upper-floor beds and partition.
-- `environment.py` — `build_site(materials, mode)` (mode `lawn` | `studio`),
-  `set_light(state)`, `set_camera(board, device)`, `export_anchors(...)`,
-  `render(board, device, quality, out_path)`, `build_xray(materials)`.
+- `environment.py` — `new_scene()`, `build_site(materials, mode)` (mode
+  `lawn` | `studio`), `set_light(state)`, `set_camera(board, device)`,
+  `export_anchors(board, device, path, extra=None)`,
+  `render(board, device, quality, out_path)`, `build_xray(materials)`
+  (returns the layer anchors). `export_anchors` updates the view layer first:
+  the camera's `matrix_world` is stale straight after `set_camera` and every
+  projection lands off-frame without it.
 - `build.py` — CLI: `python3 build.py --board hero --device desktop
   --quality preview [--out path]`; assembles everything, renders, exports
   anchors next to the PNG. Also `--all` to loop all eight boards.

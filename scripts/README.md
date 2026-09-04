@@ -20,7 +20,8 @@ an output directory; keep it out of the repository.
 | --- | --- | --- |
 | `capture-devices.mjs` | `npm run capture -- <dir>` | The five acts at tablet 768×1024 and mobile 390×844. |
 | `capture-boards.mjs` | `npm run capture:boards -- <dir>` | The Step 5 composition boards from `/boards`. |
-| `clients/ecodomcek/boards/capture.mjs` | `npm run capture:ecodomcek [filter]` | The EcoDomček art direction boards (three.js maquette + DOM) → `clients/ecodomcek/boards/out/`. Serves the folder itself; no dev server, no network. |
+| `clients/ecodomcek/boards/capture.mjs` | `npm run capture:ecodomcek [filter] [-- --render]` | The EcoDomček art direction boards → `clients/ecodomcek/boards/out/`. `--render` composites the Cycles plates from `boards/render/` under the DOM (this is the current form); without it the three.js study is used. Serves the folder itself; no dev server, no network. |
+| `clients/ecodomcek/cycles/build.py` | `python3 clients/ecodomcek/cycles/build.py --all --quality final` | Renders the eight board plates with Blender-as-a-module (Cycles, CPU) into `clients/ecodomcek/boards/render/`, with an `.anchors.json` of projected annotation points beside each. `--quality test` (25 %, ~8 s) for iteration. See `cycles/SPEC.md`. |
 
 ## References
 

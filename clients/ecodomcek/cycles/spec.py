@@ -103,7 +103,7 @@ LIGHTS = {
     "morning": {"elevation": 24, "rotation": -70, "intensity": 1.0, "world": 0.55, "interior": False},
     "interior": {"elevation": 26, "rotation": -158, "intensity": 1.0, "world": 0.8, "interior": "accent"},
     "table": {"elevation": 45, "rotation": 200, "intensity": 0.55, "world": 1.0, "interior": False},
-    "dusk": {"elevation": -4, "rotation": 30, "intensity": 0.0, "world": 2.3, "interior": "all"},
+    "dusk": {"elevation": -7, "rotation": 30, "intensity": 0.0, "world": 1.15, "interior": "all"},
 }
 BOARD_LIGHT = {"hero": "morning", "living": "interior", "xray": "morning", "dollhouse": "table", "dusk": "dusk"}
 BOARD_SITE = {"hero": "lawn", "living": "lawn", "xray": "lawn", "dollhouse": "studio", "dusk": "lawn"}
@@ -116,17 +116,27 @@ XRAY_OFFSET = 200.0
 # in the living room). From the garden the cameras now see the front (+Y) and
 # the LEFT (−X) wall; the cantilever box sits at the far right end of the front.
 CAMERAS = {
-    ("hero", "desktop"): ((-20, 30, 4.4), (6.6, 0, 3.3), 25, 8.0),
-    ("hero", "mobile"): ((-19, 34, 5.6), (4.6, 0, -3.4), 38, 8.0),
+    ("hero", "desktop"): ((-18.5, 28.5, 1.85), (6.2, 0, 0), 25, 8.0),
+    ("hero", "mobile"): ((-15.5, 23.5, 1.70), (4.4, 0, 0), 42, 8.0),
     ("living", "desktop"): ((-2.5, -3.7, 1.5), (1.7, 5.0, 1.15), 47, 4.0),
-    ("living", "mobile"): ((2.4, -3.4, 1.5), (-1.4, 5.0, 0.2), 56, 4.0),
-    ("xray", "desktop"): ((XRAY_OFFSET - 4.9, 4.3, 2.45), (XRAY_OFFSET + 0.2, -0.35, 1.35), 33, 0.0),
-    ("dollhouse", "desktop"): ((-25, 25, 19), (3.4, 0, 1.0), 28, 11.0),
-    ("dusk", "desktop"): ((-14.5, 23, 3.4), (3.8, 0, 2.4), 26, 8.0),
-    ("dusk", "mobile"): ((-10, 29, 3.4), (-0.4, 0, -1.0), 36, 8.0),
+    ("living", "mobile"): ((2.7, -4.0, 1.55), (-1.5, 5.0, 1.05), 52, 4.0),
+    ("xray", "desktop"): ((XRAY_OFFSET - 5.6, 5.4, 3.15), (XRAY_OFFSET + 0.5, -0.55, 0.55), 31, 0.0),
+    ("dollhouse", "desktop"): ((-31, 31, 23), (8.6, -1.6, 0.4), 25, 11.0),
+    ("dusk", "desktop"): ((-14.5, 23, 1.8), (3.8, 0, 0), 26, 8.0),
+    ("dusk", "mobile"): ((-16, 29, 1.75), (4.4, 0, 0), 40, 8.0),
+}
+# Architectural photography keeps verticals parallel: for these boards the
+# camera is level and the frame is raised with a lens shift instead of being
+# tilted up. shift_y is in sensor units; the look-at z is ignored when a board
+# appears here (environment.set_camera aims level).
+SHIFT = {
+    ("hero", "desktop"): 0.17,
+    ("hero", "mobile"): -0.15,
+    ("dusk", "desktop"): 0.17,
+    ("dusk", "mobile"): 0.10,
 }
 SIZES = {"desktop": (1440, 900), "mobile": (780, 1688)}
-EXPOSURE = {"hero": -2.05, "living": -0.35, "xray": -2.85, "dollhouse": -2.1, "dusk": -0.15}
+EXPOSURE = {"hero": -2.05, "living": -0.35, "xray": -3.25, "dollhouse": -2.1, "dusk": -0.35}
 QUALITY = {
     "test": {"scale": 25, "samples": 32},
     "preview": {"scale": 50, "samples": 96},
