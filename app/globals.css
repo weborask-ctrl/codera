@@ -971,6 +971,18 @@ main[data-experience="v3"][data-wipe-done] .wipe-statement {
     radial-gradient(120% 90% at 50% 45%, rgba(4, 5, 12, 0) 40%, rgba(4, 5, 12, 0.55) 100%),
     linear-gradient(180deg, rgba(4, 5, 12, 0.35) 0%, rgba(4, 5, 12, 0) 22%, rgba(4, 5, 12, 0) 70%, rgba(4, 5, 12, 0.5) 100%);
 }
+/* the copy sits on glass: a whisper of blur and ink under every text block,
+   so it reads over the vivid sky and gains a HUD depth of its own */
+.ob-stack, .ob-chap {
+  background: rgba(4, 5, 12, 0.22);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(238, 242, 248, 0.09);
+  border-radius: 22px;
+  box-shadow: 0 30px 80px rgba(4, 5, 12, 0.45);
+}
+.ob-stack h1 { text-shadow: 0 2px 30px rgba(4, 5, 12, 0.9); }
+.ob-close { background: linear-gradient(180deg, rgba(4, 5, 12, 0) 0%, rgba(4, 5, 12, 0.72) 22%, rgba(4, 5, 12, 0.86) 100%); }
 .ob-chap {
   opacity: 0;
   will-change: transform, opacity;

@@ -49,7 +49,7 @@ const PROGRAM = [
 function HeroStack({ portal }: { portal: boolean }) {
   const size = portal ? "6.2rem" : "clamp(4rem,11vw,10.2rem)"
   return (
-    <div className="pointer-events-none relative z-10 pt-[10svh] text-center">
+    <div className="ob-stack pointer-events-none relative z-10 mx-auto w-fit px-[clamp(1.5rem,5vw,4rem)] pt-[9svh] pb-4 text-center">
       <h1 style={{ ...BRIC, fontWeight: 800, fontSize: size, lineHeight: 0.95, letterSpacing: "-0.015em", textTransform: "uppercase" }}>
         <span className="wfx block" style={fx(0)}>
           Pozri sa
@@ -57,7 +57,7 @@ function HeroStack({ portal }: { portal: boolean }) {
         <span
           aria-hidden="true"
           className="wfx block"
-          style={{ ...fx(1), color: "transparent", WebkitTextStroke: "1.5px rgba(238,242,248,0.75)" }}
+          style={{ ...fx(1), color: "transparent", WebkitTextStroke: "2px rgba(238,242,248,0.9)", filter: "drop-shadow(0 0 18px rgba(242,196,107,0.35))" }}
         >
           vyššie
         </span>
@@ -213,7 +213,7 @@ export default function ObservatoriumSite() {
         {CHAPTERS.map((c) => (
           <div
             key={c.tag}
-            className={`ob-chap ob-chap-${c.side} pointer-events-none fixed z-10`}
+            className={`ob-chap ob-chap-${c.side} pointer-events-none fixed z-10 rounded-2xl px-7 py-6`}
             data-k={c.k.join(",")}
             data-side={c.side}
           >
@@ -283,12 +283,12 @@ export default function ObservatoriumSite() {
       </Shell>
 
       {/* ---- close ---- */}
-      <Shell className={`relative z-10 ${PAD} py-[16svh]`}>
+      <Shell className={`ob-close relative z-10 ${PAD} py-[16svh]`}>
         <h2
           className="wfx max-w-[64rem]"
           style={{ ...BRIC, fontWeight: 800, fontSize: "clamp(2.6rem,7vw,6.2rem)", lineHeight: 1.04, letterSpacing: "-0.01em", textTransform: "uppercase", ...fx(0) }}
         >
-          <span style={{ color: "rgba(238,242,248,0.28)" }}>Vesmír sa nedá stiahnuť.</span>
+          <span style={{ color: "rgba(238,242,248,0.55)" }}>Vesmír sa nedá stiahnuť.</span>
           <br />
           Dá sa{" "}
           <em style={{ ...FR, fontStyle: "italic", fontWeight: 400, textTransform: "none", color: PINK }}>zažiť.</em>
