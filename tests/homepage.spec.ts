@@ -317,7 +317,7 @@ test.describe("Codera homepage", () => {
     /* the portal gallery replaced the swipe deck (AD v3 amendment 2):
        three portals stack vertically, each linking into its concept */
     const portals = page.locator('#praca a[href^="/ukazky/"]')
-    await expect(portals).toHaveCount(9) // name link + inline portal per ready skill (4) + the desktop sticky portal (attached, lg-hidden)
+    await expect(portals).toHaveCount(11) // name link + inline portal per ready skill (5) + the desktop sticky portal (attached, lg-hidden)
     await portals.first().scrollIntoViewIfNeeded()
     await expect(portals.first()).toBeVisible()
     /* the page itself must not gain horizontal scroll from the portals */
@@ -486,7 +486,7 @@ test.describe("Concept sites", () => {
        honest label lives as one quiet line in every concept footer */
     const context = await browser.newContext({ javaScriptEnabled: false })
     const page = await context.newPage()
-    for (const slug of ["dizajn", "objednavky", "rezervacie", "animacie-3d"]) {
+    for (const slug of ["dizajn", "objednavky", "rezervacie", "animacie-3d", "wordpress"]) {
       const res = await page.goto(`/ukazky/${slug}`)
       expect(res?.status()).toBe(200)
       await expect(page.locator("body")).toContainText("KONCEPT ŠTÚDIA CODERA")
@@ -496,7 +496,7 @@ test.describe("Concept sites", () => {
 
   test("the portal gallery links into the concepts", async ({ page }) => {
     await page.goto("/")
-    for (const slug of ["dizajn", "objednavky", "rezervacie"]) {
+    for (const slug of ["dizajn", "objednavky", "rezervacie", "wordpress"]) {
       await expect(
         page.locator(`a[href="/ukazky/${slug}"]`).first(),
         `no portal link to /ukazky/${slug}`
