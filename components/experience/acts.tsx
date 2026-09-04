@@ -14,6 +14,7 @@ import { MeridianHero } from "@/components/concepts/meridian"
 import { ObservatoriumHero } from "@/components/concepts/observatorium"
 import { StatutHero } from "@/components/concepts/statut"
 import { VlnaHero } from "@/components/concepts/vlna"
+import { WordpressHero } from "@/components/concepts/wordpress"
 import { packages } from "@/lib/site-config"
 import { skills } from "@/lib/skills"
 import { openEnquiry } from "./enquiry-bus"
@@ -260,42 +261,12 @@ const SKILL_HEROES: Record<string, React.ComponentType<{ portal?: boolean }>> = 
   objednavky: MeridianHero,
   rezervacie: VlnaHero,
   animacie: ObservatoriumHero,
+  wordpress: WordpressHero,
 }
 
-/* Iterácia 0.4: provisional portal panels for the two skills whose demo
-   sites are not built yet — an honest teaser in the portal frame, never a
-   dead link. Each gets replaced by its real demo in its own session. */
-function VykonTeaser() {
-  return (
-    <div className="relative flex h-full flex-col justify-between overflow-hidden bg-[#F3F5F7] p-[6cqw] text-[#17181d]">
-      <div aria-hidden="true" className="absolute right-[6cqw] bottom-[6cqw] flex items-end gap-[1.6cqw]">
-        {[26, 16, 10, 6.5, 4].map((h, j) => (
-          <div
-            // biome-ignore lint/suspicious/noArrayIndexKey: static bars, never reordered.
-            key={j}
-            className="w-[4.4cqw] rounded-t-[0.8cqw] bg-[#17181d]"
-            style={{ height: `${h}cqw`, opacity: 0.14 + j * 0.05 }}
-          />
-        ))}
-      </div>
-      <p className="relative text-[1.35cqw] tracking-[0.22em] text-[#17181d]/55" style={MONO}>
-        VÝKON · UKÁŽKA V PRÍPRAVE
-      </p>
-      <div className="relative">
-        <p className="tnum" style={{ ...DISPLAY, fontSize: "11cqw", lineHeight: 1, fontWeight: 420 }}>
-          0,4 s
-        </p>
-        <p className="mt-[1.6cqw] max-w-[40cqw] text-[1.7cqw] leading-[1.55] text-[#17181d]/65">
-          Merané, nie sľubované — rýchlosť, ktorú vidí Google aj návštevník.
-        </p>
-      </div>
-    </div>
-  )
-}
-
-const SKILL_TEASERS: Record<string, React.ComponentType<{ portal?: boolean }>> = {
-  vykon: VykonTeaser,
-}
+/* Iterácia 1.2: every skill has its demo now; the map stays for the day a
+   new capability is announced before its site is built. */
+const SKILL_TEASERS: Record<string, React.ComponentType<{ portal?: boolean }>> = {}
 
 function Portal({ Hero, href }: { Hero: React.ComponentType<{ portal?: boolean }>; href?: string }) {
   const frame = {

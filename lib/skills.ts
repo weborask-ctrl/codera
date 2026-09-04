@@ -12,7 +12,7 @@ export interface Skill {
   line: string
   tags: string
   /** Which demo renders it, when live. */
-  demo?: "objednavky" | "dizajn" | "rezervacie" | "animacie"
+  demo?: "objednavky" | "dizajn" | "rezervacie" | "animacie" | "wordpress"
   ready: boolean
 }
 
@@ -50,11 +50,12 @@ export const skills: readonly Skill[] = [
     ready: true,
   },
   {
-    slug: "vykon",
-    name: "Výkon",
-    line: "Rýchlosť sa nedá tvrdiť, dá sa len namerať — stránky, ktoré sa načítajú skôr, než návštevník stihne odísť.",
-    tags: "CORE WEB VITALS · SEO · MERANÉ, NIE SĽUBOVANÉ",
-    ready: false,
+    slug: "wordpress",
+    name: "WordPress",
+    line: "Stránka, ktorú si klient upraví sám — texty, fotky, novinky aj e-shop cez WooCommerce, bez volania vývojárovi.",
+    tags: "WORDPRESS · EDITOR BLOKOV · WOOCOMMERCE",
+    demo: "wordpress",
+    ready: true,
   },
 ] as const
 
