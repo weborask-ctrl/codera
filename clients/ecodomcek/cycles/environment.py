@@ -214,18 +214,17 @@ def _grass_material():
     m.use_nodes = True
     nt = m.node_tree
     p = nt.nodes["Principled BSDF"]
-    p.inputs["Roughness"].default_value = 0.62
-    p.inputs["Sheen Weight"].default_value = 0.4
+    p.inputs["Roughness"].default_value = 0.78
     co = nt.nodes.new("ShaderNodeTexCoord")
     noise = nt.nodes.new("ShaderNodeTexNoise")
     noise.inputs["Scale"].default_value = 2.5
     ramp = nt.nodes.new("ShaderNodeValToRGB")
-    ramp.color_ramp.elements[0].color = spec.hex_to_rgb("#3B5322")
-    ramp.color_ramp.elements[1].color = spec.hex_to_rgb("#77903C")
+    ramp.color_ramp.elements[0].color = spec.hex_to_rgb("#2C4119")
+    ramp.color_ramp.elements[1].color = spec.hex_to_rgb("#55702A")
     nt.links.new(co.outputs["Object"], noise.inputs["Vector"])
     nt.links.new(noise.outputs["Fac"], ramp.inputs["Fac"])
     nt.links.new(ramp.outputs["Color"], p.inputs["Base Color"])
-    p.inputs["Transmission Weight"].default_value = 0.10  # blades glow when backlit
+    p.inputs["Sheen Weight"].default_value = 0.12
     return m
 
 
@@ -272,15 +271,15 @@ def _tufts(coll, seed=9, count=520):
                 bm.faces.new((v3, v2, v4))
                 n += 1
     # and a thin scatter across the open meadow the camera looks over
-    for _ in range(int(count * 1.1)):
+    for _ in range(int(count * 0.8)):
         bx = rnd.uniform(-14.0, 20.0)
         by = rnd.uniform(5.0, 34.0)
         if -5.4 < bx < 5.4 and -5.6 < by < 9.2:
             continue  # not on the deck or the drive apron
         for _ in range(rnd.randint(2, 4)):
-            h = rnd.uniform(0.10, 0.26)
+            h = rnd.uniform(0.07, 0.16)
             a = rnd.uniform(0, 6.283)
-            lean = rnd.uniform(0.10, 0.45)
+            lean = rnd.uniform(0.20, 0.60)
             w = rnd.uniform(0.005, 0.009)
             px, py = bx + rnd.uniform(-0.12, 0.12), by + rnd.uniform(-0.12, 0.12)
             tipx, tipy = px + math.cos(a) * lean * h, py + math.sin(a) * lean * h
@@ -359,7 +358,7 @@ def _foliage_material(name, hex_color, rough=0.82, haze=0.0):
     return m
 
 
-def _ridge(bm, seed, r0, depth, h_lo, h_hi, a0=140.0, a1=400.0, steps=300, rows=5):
+def _ridge(bm, seed, r0, depth, h_lo, h_hi, a0=140.0, a1=400.0, steps=460, rows=8):
     """One band of woodland.
 
     A three-vertex section (2026-09-04) rendered as a folded paper mountain —
@@ -395,8 +394,8 @@ def _ridge(bm, seed, r0, depth, h_lo, h_hi, a0=140.0, a1=400.0, steps=300, rows=
             jitter = rnd.uniform(-0.09, 0.09)
             rr *= 1.0 + jitter * 0.06
             x, y = rr * ca, rr * sa
-            x += rnd.uniform(-1.2, 1.2)
-            y += rnd.uniform(-1.2, 1.2)
+            x += rnd.uniform(-2.6, 2.6)
+            y += rnd.uniform(-2.6, 2.6)
             z = _undulation(x, y) + z * rnd.uniform(0.86, 1.14) - (0.4 if k in (0, rows) else 0.0)
             col.append(bm.verts.new((x, y, z)))
         if prev is not None:
@@ -461,11 +460,11 @@ def _far_ground(coll):
 def _tree_line(coll):
     """Two woodland bands behind the plot: the horizon, and the depth cue."""
     near = bmesh.new()
-    _ridge(near, 20260904, r0=330.0, depth=55.0, h_lo=6.0, h_hi=11.0)
+    _ridge(near, 20260904, r0=400.0, depth=62.0, h_lo=6.0, h_hi=11.0)
     ob = _obj("tree_line_near", near, coll, smooth=True)
     ob.data.materials.append(_foliage_material("foliage_near_band", "#33452A", haze=0.30))
     far = bmesh.new()
-    _ridge(far, 771, r0=470.0, depth=70.0, h_lo=6.0, h_hi=10.0, a0=120.0, a1=420.0)
+    _ridge(far, 771, r0=560.0, depth=80.0, h_lo=6.0, h_hi=10.0, a0=120.0, a1=420.0)
     ob2 = _obj("tree_line_far", far, coll, smooth=True)
     ob2.data.materials.append(_foliage_material("foliage_far_band", "#3E5038", haze=0.52))
     return 2
