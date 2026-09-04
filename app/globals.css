@@ -1032,3 +1032,9 @@ main[data-experience="v3"][data-wipe-done] .wipe-statement {
   .st-lekt { animation: none; }
   .st-lekt-viewport { overflow-x: auto; }
 }
+
+/* Štúdio hero loop (Iterácia 1.4): the generated slow-motion clip rides over
+   the still; reduced motion keeps the still only. */
+@media (prefers-reduced-motion: reduce) {
+  .st-herovid { display: none; }
+}
