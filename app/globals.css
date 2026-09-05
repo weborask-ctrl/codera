@@ -590,19 +590,19 @@
 
 /* ---- Step 5 experience: entrance choreography (settle-once, never
    scrubbed; instant under prefers-reduced-motion) ---- */
-main[data-experience="v3"] .enter {
+main[data-experience="v4"] .enter {
   opacity: 0;
   transform: translateY(26px);
   transition:
     opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
     transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 }
-main[data-experience="v3"] .enter[data-entered] {
+main[data-experience="v4"] .enter[data-entered] {
   opacity: 1;
   transform: none;
 }
 @media (prefers-reduced-motion: reduce) {
-  main[data-experience="v3"] .enter {
+  main[data-experience="v4"] .enter {
     opacity: 1;
     transform: none;
     transition: none;
@@ -614,38 +614,38 @@ main[data-experience="v3"] .enter[data-entered] {
   color: #16171b;
   transition: color 0.45s ease;
 }
-/* Žiara: only the two dark opening acts carry light nav ink — the sunrise
-   never returns to dark, so /05 now reads as a light act. */
-:root[data-act="hero"] .experience-nav,
-:root[data-act="pass"] .experience-nav {
+/* Codera City: the day scenes (hero, street, platforms) take dark ink; the
+   dusk bridge and the night hall take light ink. */
+:root[data-act="process"] .experience-nav,
+:root[data-act="resolution"] .experience-nav {
   color: #f2f4f6;
 }
 .experience-nav .experience-cta {
-  background: #16171b;
+  background: #0b1a4a;
   color: #fafbfc;
   transition: background 0.45s ease, color 0.45s ease;
 }
-:root[data-act="hero"] .experience-nav .experience-cta,
-:root[data-act="pass"] .experience-nav .experience-cta {
+:root[data-act="process"] .experience-nav .experience-cta,
+:root[data-act="resolution"] .experience-nav .experience-cta {
   background: #f2f4f6;
-  color: #16171b;
+  color: #0b1a4a;
 }
 
 /* ---- Step 5 experience: /04 rows — active emphasis, never dimming ---- */
-main[data-experience="v3"] .offer-row {
+main[data-experience="v4"] .offer-row {
   opacity: 1;
 }
-main[data-experience="v3"] .offer-row {
+main[data-experience="v4"] .offer-row {
   transition: background-color 0.35s ease;
 }
-main[data-experience="v3"] .offer-row:hover {
+main[data-experience="v4"] .offer-row:hover {
   background-color: rgb(27 28 32 / 0.045);
 }
-main[data-experience="v3"] .offer-row .offer-title {
+main[data-experience="v4"] .offer-row .offer-title {
   color: rgb(27 28 32 / 0.62);
   transition: color 0.35s ease;
 }
-main[data-experience="v3"] .offer-row[data-active] .offer-title {
+main[data-experience="v4"] .offer-row[data-active] .offer-title {
   color: rgb(27 28 32);
 }
 
@@ -679,13 +679,14 @@ main[data-experience="v3"] .offer-row[data-active] .offer-title {
    the act — dark glass over the fog acts, frost glass on risen light — and
    it condenses slightly once the visitor scrolls. */
 .experience-nav .nav-island {
-  background: color-mix(in oklab, var(--island, #101116) 78%, transparent);
+  background: color-mix(in oklab, var(--island, #ffffff) 62%, transparent);
   backdrop-filter: blur(16px);
   box-shadow: 0 10px 40px -18px rgb(10 11 14 / 0.5), 0 0 0 1px rgb(255 255 255 / 0.08);
 }
-:root:not([data-act="hero"]):not([data-act="pass"]) .experience-nav .nav-island {
-  --island: #f2f4f6;
-  box-shadow: 0 10px 40px -18px rgb(10 11 14 / 0.35), 0 0 0 1px rgb(20 22 26 / 0.1);
+:root[data-act="process"] .experience-nav .nav-island,
+:root[data-act="resolution"] .experience-nav .nav-island {
+  --island: #0b1a4a;
+  box-shadow: 0 10px 40px -18px rgb(0 0 0 / 0.6), 0 0 0 1px rgb(255 255 255 / 0.14);
 }
 :root[data-scrolled] .experience-nav .nav-island {
   transform: scale(0.94);
@@ -695,7 +696,7 @@ main[data-experience="v3"] .offer-row[data-active] .offer-title {
 }
 
 /* Patient motion curve (monopo) for entrances */
-main[data-experience="v3"] .enter {
+main[data-experience="v4"] .enter {
   transition:
     opacity 0.95s cubic-bezier(0.19, 1, 0.22, 1),
     transform 0.95s cubic-bezier(0.19, 1, 0.22, 1);
@@ -710,19 +711,19 @@ main[data-experience="v3"] .enter {
 .act-rule { border-top: 1px solid rgb(20 20 24 / 0.16); }
 
 /* /02 statement enters once the wipe completes (never scrubbed) */
-main[data-experience="v3"] .wipe-statement {
+main[data-experience="v4"] .wipe-statement {
   opacity: 0;
   transform: translateY(26px);
   transition:
     opacity 0.95s cubic-bezier(0.19, 1, 0.22, 1),
     transform 0.95s cubic-bezier(0.19, 1, 0.22, 1);
 }
-main[data-experience="v3"][data-wipe-done] .wipe-statement {
+main[data-experience="v4"][data-wipe-done] .wipe-statement {
   opacity: 1;
   transform: none;
 }
 @media (prefers-reduced-motion: reduce) {
-  main[data-experience="v3"] .wipe-statement {
+  main[data-experience="v4"] .wipe-statement {
     opacity: 1;
     transform: none;
     transition: none;

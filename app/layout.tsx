@@ -9,6 +9,7 @@ import {
 } from "next/font/google"
 
 import "./globals.css"
+import "./city.css"
 import { siteConfig } from "@/lib/site-config"
 import { cn } from "@/lib/utils"
 

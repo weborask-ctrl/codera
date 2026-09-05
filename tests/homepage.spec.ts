@@ -4,17 +4,16 @@ import { commercial, packages } from "../lib/site-config"
 /**
  * Step 5 experience suite.
  *
- * The homepage is the /01–/05 acts experience: native scroll, ZERO
- * ScrollTrigger pins, a fixed world canvas on capable wide viewports
- * (world mode) and per-act grounds everywhere else (flat mode — the SSR
- * default, mobile/tablet edit, no-WebGL and reduced-motion fallback).
- * World-only assertions branch on the same capability probe the page
- * uses; CI's Linux Firefox has no WebGL and exercises flat mode.
+ * The homepage is Codera City (Iterácia 2.0): native scroll, ZERO
+ * ScrollTrigger pins, a fixed world stage with a flight canvas on wide
+ * viewports (city mode) and per-act plates of the same world everywhere
+ * else (flat mode — the SSR default, mobile/tablet edit, reduced motion).
+ * City-only assertions branch on the same probe the page uses.
  */
 
 async function waitForHydration(page: Page) {
   await page.waitForFunction(
-    () => document.querySelector("main[data-experience='v3'][data-hydrated]") !== null,
+    () => document.querySelector("main[data-experience='v4'][data-hydrated]") !== null,
     undefined,
     { timeout: 20_000 }
   )
@@ -26,15 +25,7 @@ async function worldPossible(page: Page): Promise<boolean> {
     if (window.innerWidth < 1024) {
       return false
     }
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      return false
-    }
-    try {
-      const canvas = document.createElement("canvas")
-      return Boolean(canvas.getContext("webgl2") ?? canvas.getContext("webgl"))
-    } catch {
-      return false
-    }
+    return !window.matchMedia("(prefers-reduced-motion: reduce)").matches
   })
 }
 
@@ -66,18 +57,15 @@ test.describe("Codera homepage", () => {
     expect(real, real.join("\n")).toHaveLength(0)
   })
 
-  test("serves a Slovak document opening on the graphite act", async ({ page }) => {
+  test("serves a Slovak document opening above the city at dawn", async ({ page }) => {
     await page.goto("/")
     await expect(page.locator("html")).toHaveAttribute("lang", "sk")
-    const heroBg = await page
-      .locator("[data-zone='hero']")
-      .evaluate((el) => getComputedStyle(el).backgroundColor)
-    /* flat mode paints the hero itself; world mode paints the canvas —
-       either way the first act must read dark. */
-    const world = await worldPossible(page)
-    if (!world) {
-      expect(lightness(heroBg)).toBeLessThan(0.35)
-    }
+    /* Codera City opens LIGHT: the flat edit paints the sky on main, the
+       city edit on the stage — the ink is dark either way */
+    const ink = await page
+      .locator("main[data-experience='v4']")
+      .evaluate((el) => getComputedStyle(el).color)
+    expect(lightness(ink)).toBeLessThan(0.35)
     /* the display headline breaks per line (Iterácia 0.3) — assert the
        opening line, not a cross-line phrase textContent can't see */
     await expect(page.getByRole("heading", { level: 1 })).toContainText(
@@ -107,7 +95,7 @@ test.describe("Codera homepage", () => {
     for (const id of ["praca", "sluzby", "kontakt"]) {
       await expect(page.locator(`#${id}`)).toHaveCount(1)
     }
-    await expect(page.locator("main[data-experience='v3']")).toHaveCount(1)
+    await expect(page.locator("main[data-experience='v4']")).toHaveCount(1)
   })
 
   test("every navigation link resolves to a real target", async ({ page }) => {
@@ -161,10 +149,11 @@ test.describe("Codera homepage", () => {
       "Vaša firma je",
       "než ukazuje",
       "Neukazujeme logá klientov.",
-      "Guji, 2 050 m",
-      "Právo je nástroj.",
-      "vo štvrtok.",
-      "STRATÉGIA",
+      "Observatórium",
+      "Kancelária",
+      "Pražiareň",
+      "Stratégia",
+      "Čo bude",
       "Váš ďalší web nemusí",
     ]) {
       await expect(page.locator("main")).toContainText(text)
@@ -307,17 +296,17 @@ test.describe("Codera homepage", () => {
     await expect(menu).toHaveAttribute("aria-hidden", "true")
   })
 
-  test("mobile is a touch edit: no pins, portal gallery stacks", async ({ page }) => {
+  test("mobile is a touch edit: no pins, the facade rail", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto("/")
     await waitForHydration(page)
     await expect(page.locator(".pin-spacer")).toHaveCount(0)
     await expect(page.locator("canvas")).toHaveCount(0)
 
-    /* the portal gallery replaced the swipe deck (AD v3 amendment 2):
-       three portals stack vertically, each linking into its concept */
+    /* the street becomes a rail of complete demo facades, one link per
+       demo — the whole card opens the concept */
     const portals = page.locator('#praca a[href^="/ukazky/"]')
-    await expect(portals).toHaveCount(11) // name link + inline portal per ready skill (5) + the desktop sticky portal (attached, lg-hidden)
+    await expect(portals).toHaveCount(5)
     await portals.first().scrollIntoViewIfNeeded()
     await expect(portals.first()).toBeVisible()
     /* the page itself must not gain horizontal scroll from the portals */
@@ -351,14 +340,12 @@ test.describe("Codera homepage", () => {
     await context.close()
   })
 
-  test("the world mounts and the acts sequence on scroll", async ({ page }) => {
+  test("the city stage mounts and the acts sequence on scroll", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 })
     await page.goto("/")
-    test.skip(
-      !(await worldPossible(page)),
-      "world mode unavailable here (no WebGL / reduced motion)"
-    )
+    test.skip(!(await worldPossible(page)), "city mode unavailable here (reduced motion)")
     await waitForHydration(page)
+    /* the flight canvas is the only canvas on the page */
     await expect(page.locator("canvas")).toHaveCount(1, { timeout: 20_000 })
     await expect(page.locator(".pin-spacer")).toHaveCount(0)
 
@@ -380,7 +367,13 @@ test.describe("Codera homepage", () => {
     }
     expect(acts[0]).toBe("hero")
     expect(acts).toContain("work")
-    expect(acts[acts.length - 1]).toBe("resolution")
+    /* the last act is read from the live attribute — a loaded WebKit can
+       deliver the final scroll event after the fixed wait above */
+    await expect
+      .poll(() => page.evaluate(() => document.documentElement.getAttribute("data-act")), {
+        timeout: 5_000,
+      })
+      .toBe("resolution")
   })
 
   test("scroll cannot be trapped: End reaches the footer immediately", async ({ page }) => {
@@ -433,7 +426,7 @@ test.describe("Codera homepage", () => {
     expect(text).toContain("Začať projekt")
     if (browserName !== "webkit") {
       /* WebKit excludes links from the Tab order by platform convention */
-      expect(text).toContain("Práca")
+      expect(text).toContain("Ukážky")
     }
   })
 
@@ -441,18 +434,24 @@ test.describe("Codera homepage", () => {
     await page.goto("/")
     await waitForHydration(page)
     await page.locator("#sluzby").scrollIntoViewIfNeeded()
-    await page.waitForTimeout(900)
+    /* the entrance settles once (0.7 s) after the observer fires; poll the
+       resting state rather than racing a fixed wait on loaded CI hardware */
     for (const row of await page.locator("[data-offer-row]").all()) {
-      const opacity = await row.evaluate((el) => {
-        let node: HTMLElement | null = el as HTMLElement
-        let total = 1
-        while (node && node !== document.body) {
-          total *= Number.parseFloat(getComputedStyle(node).opacity)
-          node = node.parentElement
-        }
-        return total
-      })
-      expect(opacity, "offer row parked below legibility").toBeGreaterThan(0.85)
+      await expect
+        .poll(
+          () =>
+            row.evaluate((el) => {
+              let node: HTMLElement | null = el as HTMLElement
+              let total = 1
+              while (node && node !== document.body) {
+                total *= Number.parseFloat(getComputedStyle(node).opacity)
+                node = node.parentElement
+              }
+              return total
+            }),
+          { message: "offer row parked below legibility", timeout: 6_000 }
+        )
+        .toBeGreaterThan(0.85)
     }
   })
 

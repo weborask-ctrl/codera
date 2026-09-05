@@ -3,12 +3,34 @@
 What is live, what was decided, and what must not be relearned. One file, kept
 short. Open work does **not** live here — it lives in GitHub Issues.
 
-Last reviewed: 2026-08-31 (evening) · Production: `https://www.codera.sk` ·
+Last reviewed: 2026-09-05 (Codera City) · Production: `https://www.codera.sk` ·
 Open backlog: see Issues.
 
 ---
 
 ## What is live
+
+**Homepage — „Codera City" (Iterácia 2.0, 2026-09-05).** Ondrej approved a
+static concept, then the build: one continuous 5D world — a pastel floating
+city at dawn (/01) → the street of demo facades at noon (/02, a sticky walk
+past five complete production screenshots) → glass platforms at golden hour
+(/03 services + packages) → a dusk skyway with three stations (/04 process:
+24 h · 72 h · 0 €) → the night landing hall (/05 contact). On ≥1024px with
+motion allowed the world is a fixed stage (`components/city/stage.tsx`): the
+seams between acts scrub Seedance camera flights rendered as 32-frame WebP
+strips (`public/home/flight`), clouds sweep the seams, the hero and the night
+hall are seamless video loops. Under 1024px or reduced motion every act carries
+its own plate of the same world with a cloud band. Type: Bricolage Grotesque
+800 + Fraunces italic accent; palette ink #0b1a4a, coral, tangerine, mint.
+References: activetheory, lusion, zentry, refokus. The Žiara acts, the R3F
+world and `ACT_TONES` were removed with it — git remembers.
+
+**Concept demos (unchanged by 2.0):** Observatórium (Animácie & 3D),
+Kancelária (Dizajn), Pražiareň (Objednávky), Štúdio (Rezervácie), WordPress.
+
+---
+
+### Previous line — Art Direction v3 „Žiara" (retired from the homepage 2026-09-05)
 
 **Art Direction v3 — „Žiara"** (`CODERA_ART_DIRECTION_V3.md`), derived from the
 calibrated reference library (`CODERA_DESIGN_REFERENCES/`, six LIKED records).
