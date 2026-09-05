@@ -14,7 +14,7 @@ await page.addStyleTag({ content: "html{scroll-behavior:auto!important}" })
 await page.waitForTimeout(2600)
 console.log(
   "hydrated:",
-  await page.evaluate(() => document.querySelector("main[data-experience=v3]")?.hasAttribute("data-hydrated"))
+  await page.evaluate(() => document.querySelector("main[data-experience=v4]")?.hasAttribute("data-hydrated"))
 )
 console.log("canvas:", await page.locator("canvas").count())
 
