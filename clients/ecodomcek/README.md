@@ -11,11 +11,23 @@ direction and its boards; the build lives in its own repository from
 | `CONTENT_INVENTORY.md` | Every page of the live site, verbatim Slovak copy, facts, assets, issues |
 | `ART_DIRECTION.md` | Tokens (canvas, materials, type, spacing, radius), components, imagery, motion, mobile, the held frames and their review |
 | `boards/` | The held frames: the DOM layer over a rendered plate, captured to `boards/out/*.png` with `npm run capture:ecodomcek -- --render` |
+| `HIGGSFIELD.md` | The generation log: which Higgsfield model lifted which Cycles plate to a photograph, and which camera move came from which still |
+| `frames.py` | Cuts the camera-move clips into the frame sequences `/ecodomcek` scrubs |
 | `cycles/` | The Blender scene that renders those plates: `SPEC.md` is the contract, `python3 build.py --all --quality final` writes `boards/render/<board>-<device>.png` and its annotation anchors |
 
 Reference records harvested for this brief (verdict PENDING until Ondrej
 calibrates them): `CODERA_DESIGN_REFERENCES/records/{raus, aspelin-reitan,
 manna, 70materia, planpoint, moving-parts, scale, lightship}.md`.
+
+## The live page — `/ecodomcek`
+
+`app/ecodomcek/page.tsx` → `components/concepts/ecodomcek.tsx`: the walk
+through the house as a real route in the studio site (noindex until the
+client signs it off). Six rooms, each a sticky stage that draws one frame of
+a camera move for the scroll position; the copy enters, holds fully
+readable, and leaves. Plates and sequences live in `public/demos/ecodomcek/`
+and come from the Cycles scene via Higgsfield (`HIGGSFIELD.md`). The
+boards below are the art-direction stage that preceded it.
 
 ## Boards
 

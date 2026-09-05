@@ -36,6 +36,17 @@ the /04 act, the structured data and the tests — drift fails CI.
 enquire) · Vlna (wellness — book). Each owns its interior palette; the shell
 is monochrome frost. All labelled `UKÁŽKOVÝ KONCEPT`, enforced by tests.
 
+**Client concept — `/ecodomcek`** (2026-09-05, noindex until the client
+signs off): the EcoDomček Vzorový dom as a walk through the house — six
+rooms, each a sticky stage drawing one frame of a photoreal camera move for
+the scroll position (`components/concepts/ecodomcek.tsx`). Plates are the
+Cycles scene (`clients/ecodomcek/cycles`) lifted to photograph level through
+Higgsfield and cut into frame sequences (`clients/ecodomcek/HIGGSFIELD.md`,
+`frames.py`). Every plate says `koncept, nie realizácia`; every business
+fact comes from the client's live site. Route-scoped fonts (Instrument
+Sans, IBM Plex Mono, Instrument Serif italic). ~23 MB of media under
+`public/demos/ecodomcek/`, loaded per room as it nears the viewport.
+
 The v2 experience (components/world, components/mobile, v2 scenes, retired
 previews, /textures) was deleted 2026-08-31 — git remembers.
 
