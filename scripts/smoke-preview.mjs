@@ -31,12 +31,15 @@ const stops = await page.evaluate(() => {
     }
   }
   const at = (z, p) => Math.round(zones[z].start + (zones[z].end - zones[z].start) * p)
+  /* Codera City (Iterácia 2.0): the street walk in /02 at three depths,
+     then one stop per act — every zone here exists in both edits */
   return [
     ["p-hero", 0],
-    ["p-premena-hold", at("premena", 0.98)],
-    ["p-konstrukt", at("work", 0.08)],
-    ["p-vitalis", at("work", 0.46)],
-    ["p-forma", at("work", 0.95)],
+    ["p-street-first", at("work", 0.32)],
+    ["p-street-middle", at("work", 0.6)],
+    ["p-street-last", at("work", 0.98)],
+    ["p-offer", at("offer", 0.55)],
+    ["p-process", at("process", 0.55)],
     ["p-resolution", at("resolution", 0.9)],
   ]
 })
