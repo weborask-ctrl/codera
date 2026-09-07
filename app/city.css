@@ -826,77 +826,73 @@ main[data-city] {
   background-position: center;
   will-change: transform;
 }
-/* Each plate ships a JPEG url first (the floor) and an image-set that
+/* The JPEG url is the floor every browser understands; the @supports block
    upgrades to AVIF and to the 2x file where the screen earns it. */
 .city-plate-hero {
   background-image: url("/home/m/hero-720.jpg");
-  background-image: image-set(url("/home/m/hero-720.avif") type("image/avif") 1x, url("/home/m/hero-1080.avif") type("image/avif") 2x, url("/home/m/hero-720.jpg") 1x, url("/home/m/hero-1080.jpg") 2x);
   background-position: center top;
 }
 .city-plate-street {
   background-image: url("/home/m/street-720.jpg");
-  background-image: image-set(url("/home/m/street-720.avif") type("image/avif") 1x, url("/home/m/street-1080.avif") type("image/avif") 2x, url("/home/m/street-720.jpg") 1x, url("/home/m/street-1080.jpg") 2x);
 }
 .city-plate-services {
   background-image: url("/home/m/services-720.jpg");
-  background-image: image-set(url("/home/m/services-720.avif") type("image/avif") 1x, url("/home/m/services-1080.avif") type("image/avif") 2x, url("/home/m/services-720.jpg") 1x, url("/home/m/services-1080.jpg") 2x);
 }
 .city-plate-bridge {
   background-image: url("/home/m/bridge-720.jpg");
-  background-image: image-set(url("/home/m/bridge-720.avif") type("image/avif") 1x, url("/home/m/bridge-1080.avif") type("image/avif") 2x, url("/home/m/bridge-720.jpg") 1x, url("/home/m/bridge-1080.jpg") 2x);
 }
 .city-plate-night {
   background-image: url("/home/m/night-720.jpg");
-  background-image: image-set(url("/home/m/night-720.avif") type("image/avif") 1x, url("/home/m/night-1080.avif") type("image/avif") 2x, url("/home/m/night-720.jpg") 1x, url("/home/m/night-1080.jpg") 2x);
   background-position: center top;
 }
 @media (min-width: 768px) {
   .city-plate-hero {
     background-image: url("/home/hero-1280.jpg");
-    background-image: image-set(url("/home/hero-1280.avif") type("image/avif") 1x, url("/home/hero-2560.avif") type("image/avif") 2x, url("/home/hero-1280.jpg") 1x, url("/home/hero-2560.jpg") 2x);
     background-position: center 40%;
   }
   .city-plate-street {
     background-image: url("/home/street-1280.jpg");
-    background-image: image-set(url("/home/street-1280.avif") type("image/avif") 1x, url("/home/street-2560.avif") type("image/avif") 2x, url("/home/street-1280.jpg") 1x, url("/home/street-2560.jpg") 2x);
     background-position: center;
   }
   .city-plate-services {
     background-image: url("/home/services-1280.jpg");
-    background-image: image-set(url("/home/services-1280.avif") type("image/avif") 1x, url("/home/services-2560.avif") type("image/avif") 2x, url("/home/services-1280.jpg") 1x, url("/home/services-2560.jpg") 2x);
     background-position: center;
   }
   .city-plate-bridge {
     background-image: url("/home/bridge-1280.jpg");
-    background-image: image-set(url("/home/bridge-1280.avif") type("image/avif") 1x, url("/home/bridge-2560.avif") type("image/avif") 2x, url("/home/bridge-1280.jpg") 1x, url("/home/bridge-2560.jpg") 2x);
     background-position: center;
   }
   .city-plate-night {
     background-image: url("/home/night-1280.jpg");
-    background-image: image-set(url("/home/night-1280.avif") type("image/avif") 1x, url("/home/night-2560.avif") type("image/avif") 2x, url("/home/night-1280.jpg") 1x, url("/home/night-2560.jpg") 2x);
     background-position: center;
   }
 }
 @media (min-width: 1921px) {
-  .city-plate-hero {
-    background-image: url("/home/hero-1920.jpg");
-    background-image: image-set(url("/home/hero-1920.avif") type("image/avif") 1x, url("/home/hero-3840.avif") type("image/avif") 2x, url("/home/hero-1920.jpg") 1x, url("/home/hero-3840.jpg") 2x);
+  .city-plate-hero { background-image: url("/home/hero-1920.jpg"); }
+  .city-plate-street { background-image: url("/home/street-1920.jpg"); }
+  .city-plate-services { background-image: url("/home/services-1920.jpg"); }
+  .city-plate-bridge { background-image: url("/home/bridge-1920.jpg"); }
+  .city-plate-night { background-image: url("/home/night-1920.jpg"); }
+}
+@supports (background-image: image-set(url("/home/m/hero-720.avif") type("image/avif") 1x)) {
+  .city-plate-hero { background-image: image-set(url("/home/m/hero-720.avif") type("image/avif") 1x, url("/home/m/hero-1080.avif") type("image/avif") 2x, url("/home/m/hero-720.jpg") 1x, url("/home/m/hero-1080.jpg") 2x); }
+  .city-plate-street { background-image: image-set(url("/home/m/street-720.avif") type("image/avif") 1x, url("/home/m/street-1080.avif") type("image/avif") 2x, url("/home/m/street-720.jpg") 1x, url("/home/m/street-1080.jpg") 2x); }
+  .city-plate-services { background-image: image-set(url("/home/m/services-720.avif") type("image/avif") 1x, url("/home/m/services-1080.avif") type("image/avif") 2x, url("/home/m/services-720.jpg") 1x, url("/home/m/services-1080.jpg") 2x); }
+  .city-plate-bridge { background-image: image-set(url("/home/m/bridge-720.avif") type("image/avif") 1x, url("/home/m/bridge-1080.avif") type("image/avif") 2x, url("/home/m/bridge-720.jpg") 1x, url("/home/m/bridge-1080.jpg") 2x); }
+  .city-plate-night { background-image: image-set(url("/home/m/night-720.avif") type("image/avif") 1x, url("/home/m/night-1080.avif") type("image/avif") 2x, url("/home/m/night-720.jpg") 1x, url("/home/m/night-1080.jpg") 2x); }
+  @media (min-width: 768px) {
+    .city-plate-hero { background-image: image-set(url("/home/hero-1280.avif") type("image/avif") 1x, url("/home/hero-2560.avif") type("image/avif") 2x, url("/home/hero-1280.jpg") 1x, url("/home/hero-2560.jpg") 2x); }
+    .city-plate-street { background-image: image-set(url("/home/street-1280.avif") type("image/avif") 1x, url("/home/street-2560.avif") type("image/avif") 2x, url("/home/street-1280.jpg") 1x, url("/home/street-2560.jpg") 2x); }
+    .city-plate-services { background-image: image-set(url("/home/services-1280.avif") type("image/avif") 1x, url("/home/services-2560.avif") type("image/avif") 2x, url("/home/services-1280.jpg") 1x, url("/home/services-2560.jpg") 2x); }
+    .city-plate-bridge { background-image: image-set(url("/home/bridge-1280.avif") type("image/avif") 1x, url("/home/bridge-2560.avif") type("image/avif") 2x, url("/home/bridge-1280.jpg") 1x, url("/home/bridge-2560.jpg") 2x); }
+    .city-plate-night { background-image: image-set(url("/home/night-1280.avif") type("image/avif") 1x, url("/home/night-2560.avif") type("image/avif") 2x, url("/home/night-1280.jpg") 1x, url("/home/night-2560.jpg") 2x); }
   }
-  .city-plate-street {
-    background-image: url("/home/street-1920.jpg");
-    background-image: image-set(url("/home/street-1920.avif") type("image/avif") 1x, url("/home/street-3840.avif") type("image/avif") 2x, url("/home/street-1920.jpg") 1x, url("/home/street-3840.jpg") 2x);
-  }
-  .city-plate-services {
-    background-image: url("/home/services-1920.jpg");
-    background-image: image-set(url("/home/services-1920.avif") type("image/avif") 1x, url("/home/services-3840.avif") type("image/avif") 2x, url("/home/services-1920.jpg") 1x, url("/home/services-3840.jpg") 2x);
-  }
-  .city-plate-bridge {
-    background-image: url("/home/bridge-1920.jpg");
-    background-image: image-set(url("/home/bridge-1920.avif") type("image/avif") 1x, url("/home/bridge-3840.avif") type("image/avif") 2x, url("/home/bridge-1920.jpg") 1x, url("/home/bridge-3840.jpg") 2x);
-  }
-  .city-plate-night {
-    background-image: url("/home/night-1920.jpg");
-    background-image: image-set(url("/home/night-1920.avif") type("image/avif") 1x, url("/home/night-3840.avif") type("image/avif") 2x, url("/home/night-1920.jpg") 1x, url("/home/night-3840.jpg") 2x);
+  @media (min-width: 1921px) {
+    .city-plate-hero { background-image: image-set(url("/home/hero-1920.avif") type("image/avif") 1x, url("/home/hero-3840.avif") type("image/avif") 2x, url("/home/hero-1920.jpg") 1x, url("/home/hero-3840.jpg") 2x); }
+    .city-plate-street { background-image: image-set(url("/home/street-1920.avif") type("image/avif") 1x, url("/home/street-3840.avif") type("image/avif") 2x, url("/home/street-1920.jpg") 1x, url("/home/street-3840.jpg") 2x); }
+    .city-plate-services { background-image: image-set(url("/home/services-1920.avif") type("image/avif") 1x, url("/home/services-3840.avif") type("image/avif") 2x, url("/home/services-1920.jpg") 1x, url("/home/services-3840.jpg") 2x); }
+    .city-plate-bridge { background-image: image-set(url("/home/bridge-1920.avif") type("image/avif") 1x, url("/home/bridge-3840.avif") type("image/avif") 2x, url("/home/bridge-1920.jpg") 1x, url("/home/bridge-3840.jpg") 2x); }
+    .city-plate-night { background-image: image-set(url("/home/night-1920.avif") type("image/avif") 1x, url("/home/night-3840.avif") type("image/avif") 2x, url("/home/night-1920.jpg") 1x, url("/home/night-3840.jpg") 2x); }
   }
 }
 .city-band {

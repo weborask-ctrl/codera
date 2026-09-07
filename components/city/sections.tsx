@@ -136,7 +136,6 @@ function DemoCard({
         </span>
         <picture>
           <source type="image/avif" srcSet={demoSrcSet(slug, "avif")} sizes={DEMO_SIZES} />
-          {/* biome-ignore lint/performance/noImgElement: a complete production screenshot of the demo, fixed aspect, sized by CSS. */}
           <img
             src={`/home/demos/${slug}-1000.jpg`}
             srcSet={demoSrcSet(slug, "jpg")}
