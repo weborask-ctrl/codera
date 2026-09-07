@@ -987,6 +987,8 @@ main[data-experience] .city-hero-copy .rise {
   transform: translate(-50%, -50%);
   overflow: hidden;
   display: none;
+  perspective: 1600px;
+  perspective-origin: 50% 60%;
 }
 .city-asm-base,
 .city-asm-layer,
@@ -1009,20 +1011,30 @@ main[data-experience] .city-hero-copy .rise {
     }
   }
 }
-.city-asm-layer {
-  height: auto;
+/* every element sits in the 16:9 frame by percent; the wrapper turns and
+   settles (smooth), the picture inside is revealed floor by floor (stepped) */
+.city-asm-el {
+  position: absolute;
   display: block;
   will-change: transform, opacity;
   transform-origin: 50% 100%;
-  animation: city-asm-rise 1.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.city-asm-img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+/* 1. the rock bases rise out of the cloud floor and settle, gently turning */
+.city-asm-rock {
+  animation: city-asm-rock 1.15s cubic-bezier(0.16, 1, 0.3, 1) both;
   animation-delay: calc(var(--asm-t0, 0ms) + var(--d, 0s));
 }
-@keyframes city-asm-rise {
+@keyframes city-asm-rock {
   from {
-    transform: translate3d(0, 26%, 0) scale(0.92);
+    transform: translate3d(0, 28%, 0) rotateY(-12deg) scale(0.94);
     opacity: 0;
   }
-  45% {
+  40% {
     opacity: 1;
   }
   to {
@@ -1030,7 +1042,51 @@ main[data-experience] .city-hero-copy .rise {
     opacity: 1;
   }
 }
+/* 2. buildings: the wrapper turns a few degrees into place while the picture
+      is revealed from the ground up in as many steps as the building has
+      floors — construction, not a fade */
+.city-asm-building {
+  animation: city-asm-turn 1.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--asm-t0, 0ms) + var(--d, 0s));
+}
+.city-asm-building .city-asm-img {
+  clip-path: inset(100% 0 0 0);
+  animation: city-asm-floors 0.95s steps(var(--n, 8), end) both;
+  animation-delay: calc(var(--asm-t0, 0ms) + var(--d, 0s));
+}
+@keyframes city-asm-turn {
+  from {
+    transform: translate3d(0, 3%, 0) rotateY(9deg);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes city-asm-floors {
+  from {
+    clip-path: inset(100% 0 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+/* 3. the bridges grow out from their middles and connect the islands */
+.city-asm-bridge .city-asm-img {
+  clip-path: inset(0 50% 0 50%);
+  animation: city-asm-connect 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--asm-t0, 0ms) + var(--d, 0s));
+}
+@keyframes city-asm-connect {
+  from {
+    clip-path: inset(0 50% 0 50%);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+/* 4. a cloud puff settles in front of the feet, last */
 .city-asm-cloud {
+  position: absolute;
   left: 26%;
   bottom: -14%;
   width: 52%;
@@ -1038,7 +1094,7 @@ main[data-experience] .city-hero-copy .rise {
   opacity: 0;
   mix-blend-mode: normal;
   animation: city-asm-cloud 1.4s ease-out both;
-  animation-delay: calc(var(--asm-t0, 0ms) + 0.9s);
+  animation-delay: calc(var(--asm-t0, 0ms) + 2.4s);
 }
 @keyframes city-asm-cloud {
   from {
@@ -1062,11 +1118,13 @@ main[data-experience] .city-hero-copy .rise {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .city-asm-layer,
+  .city-asm-el,
+  .city-asm-img,
   .city-asm-cloud {
     animation: none;
     opacity: 1;
     transform: none;
+    clip-path: none;
   }
   .city-asm-cloud {
     opacity: 0.9;
