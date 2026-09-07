@@ -21,7 +21,7 @@ import { openEnquiry } from "@/components/experience/enquiry-bus"
 import { bindStage } from "@/components/experience/stage"
 import { commercial, packages, siteConfig, wordpressService } from "@/lib/site-config"
 import { skills } from "@/lib/skills"
-import { demoShot, HOME_DEMOS } from "./demos"
+import { DEMO_SIZES, demoSrcSet, HOME_DEMOS } from "./demos"
 
 const DISPLAY = { fontFamily: "var(--font-bricolage), var(--font-geist-sans), sans-serif" }
 const ACCENT = {
@@ -110,13 +110,11 @@ function DemoCard({
   slug,
   title,
   line,
-  index,
   rail,
 }: {
   slug: string
   title: string
   line: string
-  index: number
   rail: boolean
 }) {
   const skill = skills.find((s) => s.slug === slug)?.name ?? ""
@@ -136,15 +134,21 @@ function DemoCard({
             codera.sk/ukazky/{slug}
           </span>
         </span>
-        {/* biome-ignore lint/performance/noImgElement: a complete production screenshot of the demo, fixed aspect, sized by CSS. */}
-        <img
-          src={demoShot(slug, "d")}
-          alt={`${title} — ${skill}`}
-          width={1600}
-          height={1000}
-          loading={index === 0 ? "eager" : "lazy"}
-          decoding="async"
-        />
+        <picture>
+          <source type="image/avif" srcSet={demoSrcSet(slug, "avif")} sizes={DEMO_SIZES} />
+          {/* biome-ignore lint/performance/noImgElement: a complete production screenshot of the demo, fixed aspect, sized by CSS. */}
+          <img
+            src={`/home/demos/${slug}-1000.jpg`}
+            srcSet={demoSrcSet(slug, "jpg")}
+            sizes={DEMO_SIZES}
+            alt={`${title} — ${skill}`}
+            width={1600}
+            height={1000}
+            /* the street and the rail both sit below the fold in every edit */
+            loading="lazy"
+            decoding="async"
+          />
+        </picture>
       </span>
       <span data-cap={rail ? undefined : ""} className="city-cap">
         <span className="city-cap-row">
@@ -252,8 +256,8 @@ function Work({ city }: { city: boolean }) {
         <div className="city-walk-sticky">
           <WorkHead />
           <div className="city-street">
-            {HOME_DEMOS.map((d, i) => (
-              <DemoCard key={d.slug} slug={d.slug} title={d.title} line={d.line} index={i} rail={false} />
+            {HOME_DEMOS.map((d) => (
+              <DemoCard key={d.slug} slug={d.slug} title={d.title} line={d.line} rail={false} />
             ))}
           </div>
         </div>
@@ -267,8 +271,8 @@ function Work({ city }: { city: boolean }) {
         <WorkHead />
       </div>
       <div className="city-rail">
-        {HOME_DEMOS.map((d, i) => (
-          <DemoCard key={d.slug} slug={d.slug} title={d.title} line={d.line} index={i} rail />
+        {HOME_DEMOS.map((d) => (
+          <DemoCard key={d.slug} slug={d.slug} title={d.title} line={d.line} rail />
         ))}
       </div>
     </section>
