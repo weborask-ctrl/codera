@@ -297,7 +297,7 @@ function Offer({ city }: { city: boolean }) {
               key={n}
               data-enter
               data-offer-row
-              data-depth={(0.2 + i * 0.16).toFixed(2)}
+              data-depth={(0.12 + i * 0.1).toFixed(2)}
               className="enter city-glass city-sign"
             >
               <span className="city-sign-n" style={MONO}>

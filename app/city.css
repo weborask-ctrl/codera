@@ -99,21 +99,21 @@ main[data-city] {
   font-weight: 800;
   letter-spacing: -0.035em;
   line-height: 0.96;
-  font-size: clamp(2.9rem, 7.4vw, 7rem);
+  font-size: clamp(3.1rem, 8.2vw, 8.2rem);
 }
 .city-h2 {
   font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 0.98;
-  font-size: clamp(2.2rem, 5.4vw, 5rem);
-  max-width: 15em;
+  font-size: clamp(2.5rem, 6.2vw, 6rem);
+  max-width: 14em;
 }
 .city-h2-xl {
-  font-size: clamp(2.6rem, 6.6vw, 6.4rem);
-  max-width: 11em;
+  font-size: clamp(2.9rem, 7.4vw, 7.4rem);
+  max-width: 10em;
 }
 .city-process .city-h2 {
-  font-size: clamp(2.4rem, 6vw, 5.6rem);
+  font-size: clamp(2.7rem, 6.8vw, 6.6rem);
 }
 .city-process p.city-sub,
 .city-resolution p.city-sub {
@@ -286,8 +286,8 @@ main[data-city] {
   background: radial-gradient(70% 100% at 30% 50%, rgb(223 241 255 / 0.86) 0%, rgb(223 241 255 / 0.5) 48%, rgb(223 241 255 / 0) 80%);
 }
 .city-walk .city-h2 {
-  font-size: clamp(1.9rem, 3.4vw, 3.2rem);
-  max-width: 24em;
+  font-size: clamp(2.1rem, 4vw, 3.8rem);
+  max-width: 22em;
 }
 .city-walk .city-sub {
   margin-top: 0.5rem;
@@ -451,7 +451,9 @@ main[data-city] {
 
 /* /03 */
 .city-signs {
-  margin-top: 2.6rem;
+  /* the headline is two lines at display scale and the depth parallax lifts
+     this row — it needs real clearance, not a nominal gap */
+  margin-top: clamp(3.4rem, 6vw, 5.6rem);
   display: grid;
   gap: 1rem;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -889,4 +891,10 @@ main[data-city] {
   .city-station[data-lit] .city-station-dot { animation: none; }
   .city-btn { transition: none; }
   .city-btn:hover { transform: none; }
+}
+
+/* the offer accent must break as one phrase — "a za / koľko." is a bad line
+   break for a studio that sells typography */
+.city-offer .city-h2 em {
+  white-space: nowrap;
 }
