@@ -186,6 +186,32 @@ main[data-city] {
   margin: 0 auto;
 }
 .city-seam { height: 110svh; }
+.city-seam-flat { height: 52svh; }
+/* the flat edit's cloud veil: fixed over the page, clouds only during a seam */
+/* the veil must NOT form a stacking context of its own: screen-blended
+   clouds only blend with what shares their context, so each plate is fixed
+   straight in the root and the wrapper is display: contents */
+.city-veil {
+  display: contents;
+}
+.city-veil .city-cloud {
+  position: fixed;
+  top: 0;
+  /* tall enough to fill a portrait viewport at the passage's midpoint */
+  width: max(180vw, 213vh);
+  left: calc(50vw - max(90vw, 106.5vh));
+  z-index: 20;
+}
+@media (min-width: 768px) {
+  .city-veil .city-cloud {
+    width: max(130vw, 178vh);
+    left: calc(50vw - max(65vw, 89vh));
+  }
+}
+/* the seam itself is sky with a haze in the middle, never an empty gap */
+.city-seam-flat {
+  background: linear-gradient(180deg, rgb(223 241 255 / 0) 0%, rgb(255 255 255 / 0.32) 50%, rgb(223 241 255 / 0) 100%);
+}
 
 /* /01 */
 .city-hero {
