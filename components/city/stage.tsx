@@ -215,14 +215,18 @@ function placeClouds(clouds: HTMLElement[], name: string, e: number, px = 0, py 
   }
 }
 
-function lightClouds(clouds: HTMLElement[], name: string) {
+function lightClouds(clouds: HTMLElement[], name: string, extra = "") {
   for (const m of FLIGHT_CLOUDS[name] ?? []) {
     const el = clouds[m.el]
     if (el) {
-      el.style.filter = m.f
+      el.style.filter = `${m.f} ${extra}`.trim()
     }
   }
 }
+
+/* the flat passages draw alpha cutouts on a pale sky: a touch of contrast
+   keeps their volume readable (cheap — no blur, no shadow) */
+const FLAT_CLOUD_LIGHT = "contrast(1.12) saturate(1.05)"
 
 function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => void {
   const main = document.querySelector<HTMLElement>("main[data-experience]")
@@ -679,8 +683,8 @@ export function CityFlatMotion() {
             trigger: el,
             start: "top bottom",
             end: "bottom top",
-            onEnter: () => lightClouds(clouds, name),
-            onEnterBack: () => lightClouds(clouds, name),
+            onEnter: () => lightClouds(clouds, name, FLAT_CLOUD_LIGHT),
+            onEnterBack: () => lightClouds(clouds, name, FLAT_CLOUD_LIGHT),
             onUpdate: (self) => {
               const p = self.progress
               placeClouds(clouds, name, p * 0.35 + smooth(p) * 0.65)
@@ -710,10 +714,12 @@ export function CityFlatMotion() {
   }, [])
   return (
     <div ref={veilRef} aria-hidden="true" className="city-veil">
-      {/* biome-ignore lint/performance/noImgElement: screen-blended cloud plates moved by the passage. */}
-      <img data-cloud="bank" className="city-cloud" src={`${HOME}/cloud-bank.webp`} alt="" decoding="async" />
-      {/* biome-ignore lint/performance/noImgElement: screen-blended cloud plates moved by the passage. */}
-      <img data-cloud="one" className="city-cloud" src={`${HOME}/cloud-one.webp`} alt="" decoding="async" />
+      {/* cutouts with real alpha, drawn normally: on the flat edit's pale sky a
+          screen-blended white cloud has nothing to lighten, so it vanished */}
+      {/* biome-ignore lint/performance/noImgElement: alpha cloud plates moved by the passage. */}
+      <img data-cloud="bank" className="city-cloud" src={`${HOME}/cloud-bank-a.webp`} alt="" decoding="async" />
+      {/* biome-ignore lint/performance/noImgElement: alpha cloud plates moved by the passage. */}
+      <img data-cloud="one" className="city-cloud" src={`${HOME}/cloud-one-a.webp`} alt="" decoding="async" />
     </div>
   )
 }
