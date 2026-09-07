@@ -82,7 +82,7 @@ export function Experience() {
       {mode === "flat" ? <CityFlatMotion /> : null}
       {/* keyed on the edit: the city edit is different DOM (the street walk,
           the seams), so the acts remount and bind their observers once */}
-      <CitySections key={mode} city={city} />
+      <CitySections key={mode} city={city} seams={mode !== "still"} />
       <ContactDrawer />
     </div>
   )

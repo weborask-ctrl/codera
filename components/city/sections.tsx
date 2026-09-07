@@ -211,8 +211,18 @@ function Hero() {
 
 /* ------------------------------------------------------------ seam --- */
 
-function Seam({ name, from, to }: { name: string; from: string; to: string }) {
-  return <div data-seam={name} data-from={from} data-to={to} aria-hidden="true" className="city-seam" />
+/** A seam is scroll room between two acts. In the city edit the stage flies
+ *  through it; in the flat edit clouds pass over it (CityFlatMotion). */
+function Seam({ name, from, to, flat }: { name: string; from: string; to: string; flat: boolean }) {
+  return (
+    <div
+      data-seam={name}
+      data-from={from}
+      data-to={to}
+      aria-hidden="true"
+      className={flat ? "city-seam city-seam-flat" : "city-seam"}
+    />
+  )
 }
 
 /* ------------------------------------------------------------ /02 --- */
@@ -470,8 +480,9 @@ function Resolution({ city }: { city: boolean }) {
 
 /* ------------------------------------------------------------ export --- */
 
-export function CitySections({ city }: { city: boolean }) {
+export function CitySections({ city, seams }: { city: boolean; seams: boolean }) {
   useCityStage()
+  const flat = !city
   return (
     <main
       id="hlavny-obsah"
@@ -481,13 +492,13 @@ export function CitySections({ city }: { city: boolean }) {
       className="city-main relative z-10 outline-none"
     >
       <Hero />
-      {city ? <Seam name="t1" from="hero" to="work" /> : null}
+      {seams ? <Seam name="t1" from="hero" to="work" flat={flat} /> : null}
       <Work city={city} />
-      {city ? <Seam name="t2" from="work" to="offer" /> : null}
+      {seams ? <Seam name="t2" from="work" to="offer" flat={flat} /> : null}
       <Offer city={city} />
-      {city ? <Seam name="t3" from="offer" to="process" /> : null}
+      {seams ? <Seam name="t3" from="offer" to="process" flat={flat} /> : null}
       <Process city={city} />
-      {city ? <Seam name="t4" from="process" to="resolution" /> : null}
+      {seams ? <Seam name="t4" from="process" to="resolution" flat={flat} /> : null}
       <Resolution city={city} />
     </main>
   )

@@ -183,6 +183,47 @@ function bindDepth(gsap: Gsap, main: HTMLElement, amount: number) {
   }
 }
 
+const cloudAt = (el: HTMLElement, x: number, y: number, s: number, o: number) => {
+  el.style.transform = `translate3d(${x.toFixed(2)}vw, ${y.toFixed(2)}vh, 0) scale(${s.toFixed(3)})`
+  el.style.opacity = o.toFixed(3)
+}
+
+/** Places the two cloud plates for a flight at eased progress e. */
+function placeClouds(clouds: HTMLElement[], name: string, e: number, px = 0, py = 0) {
+  const moves = FLIGHT_CLOUDS[name] ?? []
+  const used = new Set<number>()
+  for (const m of moves) {
+    const el = clouds[m.el]
+    if (!el) {
+      continue
+    }
+    used.add(m.el)
+    const t = smooth(span(e, m.win[0], m.win[1]))
+    const env = Math.min(1, span(e, m.win[0], m.win[0] + 0.14), span(1 - e, 0, 0.1))
+    cloudAt(
+      el,
+      lerp(m.x[0], m.x[1], t) + px * 2.2,
+      lerp(m.y[0], m.y[1], t) + py * 1.2,
+      lerp(m.s[0], m.s[1], t),
+      m.o * env
+    )
+  }
+  for (let i = 0; i < 2; i++) {
+    if (!used.has(i) && clouds[i]) {
+      clouds[i].style.opacity = "0"
+    }
+  }
+}
+
+function lightClouds(clouds: HTMLElement[], name: string) {
+  for (const m of FLIGHT_CLOUDS[name] ?? []) {
+    const el = clouds[m.el]
+    if (el) {
+      el.style.filter = m.f
+    }
+  }
+}
+
 function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => void {
   const main = document.querySelector<HTMLElement>("main[data-experience]")
   const canvas = root.querySelector<HTMLCanvasElement>("canvas")
@@ -351,10 +392,6 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
 
   /* ---------------------------------------------------------- clouds --- */
   const clouds = Array.from(root.querySelectorAll<HTMLElement>("[data-cloud]"))
-  const cloudAt = (el: HTMLElement, x: number, y: number, s: number, o: number) => {
-    el.style.transform = `translate3d(${x.toFixed(2)}vw, ${y.toFixed(2)}vh, 0) scale(${s.toFixed(3)})`
-    el.style.opacity = o.toFixed(3)
-  }
 
   /* ---------------------------------------------------------- pointer --- */
   let tx = 0
@@ -417,13 +454,7 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
         dest.preload = "auto"
         dest.load()
       }
-      const moves = FLIGHT_CLOUDS[cur.name] ?? []
-      for (const m of moves) {
-        const el = clouds[m.el]
-        if (el) {
-          el.style.filter = m.f
-        }
-      }
+      lightClouds(clouds, cur.name)
     }
     const target = cur ? cur.p : 0
     sp += (target - sp) * (1 - Math.exp(-dt / 240))
@@ -484,28 +515,10 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
     world.style.transform = `translate3d(${(-px * 1.1).toFixed(3)}%, ${(-py * 0.7).toFixed(3)}%, 0) scale(1.035)`
 
     /* clouds: the seam's own choreography */
-    const moves = cur && flying ? (FLIGHT_CLOUDS[cur.name] ?? []) : []
-    const used = new Set<number>()
-    for (const m of moves) {
-      const el = clouds[m.el]
-      if (!el) {
-        continue
-      }
-      used.add(m.el)
-      const t = smooth(span(e, m.win[0], m.win[1]))
-      const env = Math.min(1, span(e, m.win[0], m.win[0] + 0.14), span(1 - e, 0, 0.1))
-      cloudAt(
-        el,
-        lerp(m.x[0], m.x[1], t) + px * 2.2,
-        lerp(m.y[0], m.y[1], t) + py * 1.2,
-        lerp(m.s[0], m.s[1], t),
-        m.o * env
-      )
-    }
-    for (let i = 0; i < 2; i++) {
-      if (!used.has(i) && clouds[i]) {
-        clouds[i].style.opacity = "0"
-      }
+    if (cur && flying) {
+      placeClouds(clouds, cur.name, e, px, py)
+    } else {
+      placeClouds(clouds, "", 0)
     }
     if (clouds[2]) {
       /* the wisps ride the whole journey — thin, slow, always there */
@@ -592,12 +605,17 @@ export function CityStage() {
 }
 
 /**
- * Flat edit motion (under 1024px): the same world as per-act plates that
- * ARRIVE — each plate settles from a wider shot as its act enters and the
- * cloud band lifts away — plus depth parallax and the stations lighting up.
- * A layout that moves, never a fallback. Reduced motion mounts nothing here.
+ * Flat edit motion (phones and touch tablets): the same world as per-act
+ * plates that ARRIVE — each plate settles from a wider shot as its act enters
+ * and the cloud band lifts away — and the seams are CLOUD PASSAGES: a fixed
+ * veil of two cloud plates sweeps the viewport while the seam scrolls
+ * through it, with the same four choreographies as the desktop flights
+ * (Ondrej, 2026-09-07: "prechody stále s oblakmi"). Transform-only, no
+ * canvas, no video — light enough for a tablet GPU. Depth parallax and the
+ * stations lighting up as on the desktop. Reduced motion mounts nothing here.
  */
 export function CityFlatMotion() {
+  const veilRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     let alive = true
     let cleanup: () => void = () => {}
@@ -652,6 +670,25 @@ export function CityFlatMotion() {
             )
           }
         }
+        /* the cloud passages */
+        const veil = veilRef.current
+        const clouds = veil ? Array.from(veil.querySelectorAll<HTMLElement>("[data-cloud]")) : []
+        for (const el of main.querySelectorAll<HTMLElement>("[data-seam]")) {
+          const name = el.dataset.seam ?? ""
+          ScrollTrigger.create({
+            trigger: el,
+            start: "top bottom",
+            end: "bottom top",
+            onEnter: () => lightClouds(clouds, name),
+            onEnterBack: () => lightClouds(clouds, name),
+            onUpdate: (self) => {
+              const p = self.progress
+              placeClouds(clouds, name, p * 0.35 + smooth(p) * 0.65)
+            },
+            onLeave: () => placeClouds(clouds, "", 0),
+            onLeaveBack: () => placeClouds(clouds, "", 0),
+          })
+        }
         bindDepth(gsap, main, 36)
         const stations = bindStations(ScrollTrigger, main)
         const rail = bindRail(main)
@@ -671,5 +708,12 @@ export function CityFlatMotion() {
       cleanup()
     }
   }, [])
-  return null
+  return (
+    <div ref={veilRef} aria-hidden="true" className="city-veil">
+      {/* biome-ignore lint/performance/noImgElement: screen-blended cloud plates moved by the passage. */}
+      <img data-cloud="bank" className="city-cloud" src={`${HOME}/cloud-bank.webp`} alt="" decoding="async" />
+      {/* biome-ignore lint/performance/noImgElement: screen-blended cloud plates moved by the passage. */}
+      <img data-cloud="one" className="city-cloud" src={`${HOME}/cloud-one.webp`} alt="" decoding="async" />
+    </div>
+  )
 }
