@@ -50,9 +50,8 @@ main[data-city] {
 .city-media {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  background-size: cover;
+  background-position: center;
   will-change: transform;
 }
 .city-plate-img::after {
@@ -453,7 +452,7 @@ main[data-city] {
 .city-signs {
   /* the headline is two lines at display scale and the depth parallax lifts
      this row — it needs real clearance, not a nominal gap */
-  margin-top: clamp(3.4rem, 6vw, 5.6rem);
+  margin-top: clamp(4.6rem, 8vw, 7.2rem);
   display: grid;
   gap: 1rem;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -827,24 +826,74 @@ main[data-city] {
   background-position: center;
   will-change: transform;
 }
-.city-plate-hero { background-image: url("/home/m/hero.jpg"); background-position: center top; }
-.city-plate-street { background-image: url("/home/m/street.jpg"); }
-.city-plate-services { background-image: url("/home/m/services.jpg"); }
-.city-plate-bridge { background-image: url("/home/m/bridge.jpg"); }
-.city-plate-night { background-image: url("/home/m/night.jpg"); background-position: center top; }
-@media (min-width: 1921px) {
-  .city-plate-hero { background-image: url("/home/hero-4k.jpg"); }
-  .city-plate-street { background-image: url("/home/street-4k.jpg"); }
-  .city-plate-services { background-image: url("/home/services-4k.jpg"); }
-  .city-plate-bridge { background-image: url("/home/bridge-4k.jpg"); }
-  .city-plate-night { background-image: url("/home/night-4k.jpg"); }
+/* The JPEG url is the floor every browser understands; the @supports block
+   upgrades to AVIF and to the 2x file where the screen earns it. */
+.city-plate-hero {
+  background-image: url("/home/m/hero-720.jpg");
+  background-position: center top;
+}
+.city-plate-street {
+  background-image: url("/home/m/street-720.jpg");
+}
+.city-plate-services {
+  background-image: url("/home/m/services-720.jpg");
+}
+.city-plate-bridge {
+  background-image: url("/home/m/bridge-720.jpg");
+}
+.city-plate-night {
+  background-image: url("/home/m/night-720.jpg");
+  background-position: center top;
 }
 @media (min-width: 768px) {
-  .city-plate-hero { background-image: url("/home/hero.jpg"); background-position: center 40%; }
-  .city-plate-street { background-image: url("/home/street.jpg"); }
-  .city-plate-services { background-image: url("/home/services.jpg"); }
-  .city-plate-bridge { background-image: url("/home/bridge.jpg"); }
-  .city-plate-night { background-image: url("/home/night.jpg"); background-position: center; }
+  .city-plate-hero {
+    background-image: url("/home/hero-1280.jpg");
+    background-position: center 40%;
+  }
+  .city-plate-street {
+    background-image: url("/home/street-1280.jpg");
+    background-position: center;
+  }
+  .city-plate-services {
+    background-image: url("/home/services-1280.jpg");
+    background-position: center;
+  }
+  .city-plate-bridge {
+    background-image: url("/home/bridge-1280.jpg");
+    background-position: center;
+  }
+  .city-plate-night {
+    background-image: url("/home/night-1280.jpg");
+    background-position: center;
+  }
+}
+@media (min-width: 1921px) {
+  .city-plate-hero { background-image: url("/home/hero-1920.jpg"); }
+  .city-plate-street { background-image: url("/home/street-1920.jpg"); }
+  .city-plate-services { background-image: url("/home/services-1920.jpg"); }
+  .city-plate-bridge { background-image: url("/home/bridge-1920.jpg"); }
+  .city-plate-night { background-image: url("/home/night-1920.jpg"); }
+}
+@supports (background-image: image-set(url("/home/m/hero-720.avif") type("image/avif") 1x)) {
+  .city-plate-hero { background-image: image-set(url("/home/m/hero-720.avif") type("image/avif") 1x, url("/home/m/hero-1080.avif") type("image/avif") 2x, url("/home/m/hero-720.jpg") 1x, url("/home/m/hero-1080.jpg") 2x); }
+  .city-plate-street { background-image: image-set(url("/home/m/street-720.avif") type("image/avif") 1x, url("/home/m/street-1080.avif") type("image/avif") 2x, url("/home/m/street-720.jpg") 1x, url("/home/m/street-1080.jpg") 2x); }
+  .city-plate-services { background-image: image-set(url("/home/m/services-720.avif") type("image/avif") 1x, url("/home/m/services-1080.avif") type("image/avif") 2x, url("/home/m/services-720.jpg") 1x, url("/home/m/services-1080.jpg") 2x); }
+  .city-plate-bridge { background-image: image-set(url("/home/m/bridge-720.avif") type("image/avif") 1x, url("/home/m/bridge-1080.avif") type("image/avif") 2x, url("/home/m/bridge-720.jpg") 1x, url("/home/m/bridge-1080.jpg") 2x); }
+  .city-plate-night { background-image: image-set(url("/home/m/night-720.avif") type("image/avif") 1x, url("/home/m/night-1080.avif") type("image/avif") 2x, url("/home/m/night-720.jpg") 1x, url("/home/m/night-1080.jpg") 2x); }
+  @media (min-width: 768px) {
+    .city-plate-hero { background-image: image-set(url("/home/hero-1280.avif") type("image/avif") 1x, url("/home/hero-2560.avif") type("image/avif") 2x, url("/home/hero-1280.jpg") 1x, url("/home/hero-2560.jpg") 2x); }
+    .city-plate-street { background-image: image-set(url("/home/street-1280.avif") type("image/avif") 1x, url("/home/street-2560.avif") type("image/avif") 2x, url("/home/street-1280.jpg") 1x, url("/home/street-2560.jpg") 2x); }
+    .city-plate-services { background-image: image-set(url("/home/services-1280.avif") type("image/avif") 1x, url("/home/services-2560.avif") type("image/avif") 2x, url("/home/services-1280.jpg") 1x, url("/home/services-2560.jpg") 2x); }
+    .city-plate-bridge { background-image: image-set(url("/home/bridge-1280.avif") type("image/avif") 1x, url("/home/bridge-2560.avif") type("image/avif") 2x, url("/home/bridge-1280.jpg") 1x, url("/home/bridge-2560.jpg") 2x); }
+    .city-plate-night { background-image: image-set(url("/home/night-1280.avif") type("image/avif") 1x, url("/home/night-2560.avif") type("image/avif") 2x, url("/home/night-1280.jpg") 1x, url("/home/night-2560.jpg") 2x); }
+  }
+  @media (min-width: 1921px) {
+    .city-plate-hero { background-image: image-set(url("/home/hero-1920.avif") type("image/avif") 1x, url("/home/hero-3840.avif") type("image/avif") 2x, url("/home/hero-1920.jpg") 1x, url("/home/hero-3840.jpg") 2x); }
+    .city-plate-street { background-image: image-set(url("/home/street-1920.avif") type("image/avif") 1x, url("/home/street-3840.avif") type("image/avif") 2x, url("/home/street-1920.jpg") 1x, url("/home/street-3840.jpg") 2x); }
+    .city-plate-services { background-image: image-set(url("/home/services-1920.avif") type("image/avif") 1x, url("/home/services-3840.avif") type("image/avif") 2x, url("/home/services-1920.jpg") 1x, url("/home/services-3840.jpg") 2x); }
+    .city-plate-bridge { background-image: image-set(url("/home/bridge-1920.avif") type("image/avif") 1x, url("/home/bridge-3840.avif") type("image/avif") 2x, url("/home/bridge-1920.jpg") 1x, url("/home/bridge-3840.jpg") 2x); }
+    .city-plate-night { background-image: image-set(url("/home/night-1920.avif") type("image/avif") 1x, url("/home/night-3840.avif") type("image/avif") 2x, url("/home/night-1920.jpg") 1x, url("/home/night-3840.jpg") 2x); }
+  }
 }
 .city-band {
   position: absolute;
@@ -897,4 +946,31 @@ main[data-city] {
    break for a studio that sells typography */
 .city-offer .city-h2 em {
   white-space: nowrap;
+}
+
+/* The hero copy is the first thing on screen, so its entrance must not wait
+   for hydration. Below the fold the reveal stays observer-driven; here it is
+   a plain CSS animation, so the headline paints with the document (on a
+   throttled phone that moved LCP from ~10 s to the first frames). */
+@keyframes city-rise {
+  from { transform: translateY(112%); }
+  to { transform: none; }
+}
+main[data-experience] .city-hero-copy.enter {
+  opacity: 1;
+  transform: none;
+}
+main[data-experience] .city-hero-copy .rise {
+  animation: city-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--rise-delay, 0s) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  main[data-experience] .city-hero-copy .rise {
+    animation: none;
+    transform: none;
+  }
+}
+
+/* Fraunces italic descends deeply; the offer headline needs room under it */
+.city-offer .city-h2 {
+  padding-bottom: 0.16em;
 }

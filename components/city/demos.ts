@@ -41,3 +41,10 @@ export const HOME_DEMOS: readonly HomeDemo[] = [
 ] as const
 
 export const demoShot = (slug: string, edit: "d" | "m") => `/home/demos/${slug}-${edit}.jpg`
+
+/** A phone must never download the 1600 px desktop screenshot: the browser
+ *  picks by width, and the card is at most 84vw on a phone, 58vw on the street. */
+const DEMO_WIDTHS = [600, 1000, 1600]
+export const demoSrcSet = (slug: string, ext: "avif" | "jpg") =>
+  DEMO_WIDTHS.map((w) => `/home/demos/${slug}-${w}.${ext} ${w}w`).join(", ")
+export const DEMO_SIZES = "(max-width: 767px) 88vw, 58vw"

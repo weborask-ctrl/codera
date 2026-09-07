@@ -38,14 +38,17 @@ type ST = typeof ScrollTriggerType
 
 const HOME = "/home"
 
-/** The five scenes in journey order. 4K stills: a still is sharper than any
- *  video of the same frame, and it can never stutter on decode. */
+/** The five scenes in journey order. Stills, not video: a still is sharper
+ *  than any encode of the same frame and cannot stutter on decode. Each ships
+ *  an AVIF/JPEG ladder so a 1920 screen never downloads the 4K plate. */
+/* act name -> the plate the flat edit already paints, so both edits share one
+   file per scene per device class */
 const SCENES = [
-  { name: "hero", src: `${HOME}/hero-4k.jpg` },
-  { name: "work", src: `${HOME}/street-4k.jpg` },
-  { name: "offer", src: `${HOME}/services-4k.jpg` },
-  { name: "process", src: `${HOME}/bridge-4k.jpg` },
-  { name: "resolution", src: `${HOME}/night-4k.jpg` },
+  ["hero", "hero"],
+  ["work", "street"],
+  ["offer", "services"],
+  ["process", "bridge"],
+  ["resolution", "night"],
 ] as const
 
 interface CloudMove {
@@ -244,12 +247,34 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
   for (const el of root.querySelectorAll<HTMLElement>("[data-scene]")) {
     const scene: Scene = {
       el,
-      media: el.querySelector("img"),
+      media: el.querySelector<HTMLElement>(".city-media"),
       tint: root.querySelector<HTMLElement>(`[data-tint="${el.dataset.scene}"]`),
     }
     scenes.push(scene)
     byName.set(el.dataset.scene ?? "", scene)
   }
+
+  /* The plates are the same backgrounds the flat edit paints, so the hero is
+     one file the browser already has. Only the hero is attached at mount; the
+     rest join once the page is idle, in journey order, so the first paint
+     never queues five plates behind itself. */
+  const attach = (scene: Scene | undefined) => {
+    const el = scene?.media
+    const plate = el?.dataset.scenePlate
+    if (!el || !plate) {
+      return
+    }
+    el.classList.add(`city-plate-${plate}`)
+    el.removeAttribute("data-scene-plate")
+  }
+  const warmRest = () => {
+    for (const scene of scenes) {
+      attach(scene)
+    }
+  }
+  const idleWarm = window.requestIdleCallback
+    ? window.requestIdleCallback(warmRest, { timeout: 4000 })
+    : window.setTimeout(warmRest, 1500)
 
   /* -------------------------------------------------------- passages --- */
   const passages: Passage[] = []
@@ -393,6 +418,8 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
     if (cur && lit !== cur.name) {
       lit = cur.name
       lightClouds(clouds, cur.name)
+      /* whatever the idle queue has not reached yet, the passage needs now */
+      attach(byName.get(cur.to))
     }
 
     /* which act is on screen when no passage is running */
@@ -436,6 +463,11 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
 
   return () => {
     gsap.ticker.remove(render)
+    if (window.cancelIdleCallback) {
+      window.cancelIdleCallback(idleWarm)
+    } else {
+      window.clearTimeout(idleWarm)
+    }
     window.removeEventListener("pointermove", onPointer)
     document.removeEventListener("pointerleave", onPointerLeave)
     for (const t of triggers) {
@@ -475,22 +507,17 @@ export function CityStage() {
   return (
     <div ref={rootRef} aria-hidden="true" className="city-stage">
       <div className="city-world">
-        {SCENES.map((s, i) => (
-          <div key={s.name} data-scene={s.name} className="city-scene">
-            {/* biome-ignore lint/performance/noImgElement: full-bleed 4K world plate, sized by CSS; next/image adds nothing here. */}
-            <img
-              className="city-media"
-              src={s.src}
-              alt=""
-              decoding="async"
-              loading={i === 0 ? "eager" : "lazy"}
-              fetchPriority={i === 0 ? "high" : "low"}
+        {SCENES.map(([name, plate], i) => (
+          <div key={name} data-scene={name} className="city-scene">
+            <div
+              className={i === 0 ? `city-media city-plate-${plate}` : "city-media"}
+              {...(i === 0 ? {} : { "data-scene-plate": plate })}
             />
           </div>
         ))}
       </div>
-      {SCENES.map((s) => (
-        <div key={s.name} data-tint={s.name} className={`city-tint city-tint-${s.name}`} />
+      {SCENES.map(([name]) => (
+        <div key={name} data-tint={name} className={`city-tint city-tint-${name}`} />
       ))}
       {/* biome-ignore lint/performance/noImgElement: screen-blended cloud plates moved by the passage. */}
       <img data-cloud="bank" className="city-cloud" src={`${HOME}/cloud-bank.webp`} alt="" decoding="async" />

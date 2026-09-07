@@ -5,7 +5,6 @@ import {
   Geist,
   Geist_Mono,
   Instrument_Serif,
-  Sacramento,
 } from "next/font/google"
 
 import "./globals.css"
@@ -52,24 +51,21 @@ const fraunces = Fraunces({
    typographic range, not only palette range. Instrument Serif is Štatút's
    institutional voice; Bricolage is Vlna's loud wide grotesque. The +2
    families are a conscious spend against issue #5 — range wins. */
+/* demo pages only (Štatút): not preloaded, so the homepage never pays for a
+   face it does not render */
 const instrument = Instrument_Serif({
   subsets: ["latin", "latin-ext"],
   weight: "400",
+  preload: false,
   variable: "--font-instrument",
   display: "swap",
 })
 
-/* Iterácia 0.6: the written mark — a thin monoline script (ETA gesture,
-   Ondrej's pick C). One weight, display-only, the /05 signature. */
-const sacramento = Sacramento({
-  subsets: ["latin", "latin-ext"],
-  weight: "400",
-  variable: "--font-sacramento",
-  display: "swap",
-})
-
+/* every surface sets Bricolage at 800 — a single static weight instead of the
+   whole variable range */
 const bricolage = Bricolage_Grotesque({
   subsets: ["latin", "latin-ext"],
+  weight: "800",
   variable: "--font-bricolage",
   display: "swap",
 })
@@ -144,13 +140,31 @@ export default function RootLayout({
         geistMono.variable,
         fraunces.variable,
         instrument.variable,
-        bricolage.variable,
-        sacramento.variable
+        bricolage.variable
       )}
     >
       <head>
-        {/* the flat-mode hero C is the mobile LCP element — fetch it first */}
-        <link rel="preload" href="/brand/codera-mark.svg" as="image" fetchPriority="high" />
+        {/* The hero plate is the LCP element in every edit. Preload the file
+            the viewport will actually pick, so it is in flight with the CSS
+            instead of after it. */}
+        <link
+          rel="preload"
+          as="image"
+          type="image/avif"
+          href="/home/m/hero-720.avif"
+          imageSrcSet="/home/m/hero-720.avif 1x, /home/m/hero-1080.avif 2x"
+          media="(max-width: 767px)"
+          fetchPriority="high"
+        />
+        <link
+          rel="preload"
+          as="image"
+          type="image/avif"
+          href="/home/hero-1280.avif"
+          imageSrcSet="/home/hero-1280.avif 1x, /home/hero-2560.avif 2x"
+          media="(min-width: 768px)"
+          fetchPriority="high"
+        />
       </head>
       <body>
         <a
