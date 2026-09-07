@@ -25,6 +25,9 @@ async function worldPossible(page: Page): Promise<boolean> {
     if (window.innerWidth < 1024) {
       return false
     }
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+      return false
+    }
     return !window.matchMedia("(prefers-reduced-motion: reduce)").matches
   })
 }
