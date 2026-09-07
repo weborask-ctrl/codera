@@ -21,6 +21,7 @@ import { openEnquiry } from "@/components/experience/enquiry-bus"
 import { bindStage } from "@/components/experience/stage"
 import { commercial, packages, siteConfig, wordpressService } from "@/lib/site-config"
 import { skills } from "@/lib/skills"
+import { HeroAssembly } from "./assembly"
 import { DEMO_SIZES, demoSrcSet, HOME_DEMOS } from "./demos"
 
 const DISPLAY = { fontFamily: "var(--font-bricolage), var(--font-geist-sans), sans-serif" }
@@ -97,7 +98,10 @@ function Cta({ children, className }: { children: React.ReactNode; className: st
 function Plate({ name, band = true }: { name: string; band?: boolean }) {
   return (
     <div aria-hidden="true" className="city-plate">
-      <div data-plate className={`city-plate-img city-plate-${name}`} />
+      <div data-plate className={`city-plate-img city-plate-${name}`}>
+        {/* the hero builds itself from 768 px up; phones keep the portrait plate */}
+        {name === "hero" ? <HeroAssembly /> : null}
+      </div>
       {band ? (
         /* biome-ignore lint/performance/noImgElement: screen-blended cloud plate, decorative. */
         <img className="city-band" src="/home/cloud-bank.webp" alt="" decoding="async" loading="lazy" />
