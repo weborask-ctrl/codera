@@ -1,15 +1,20 @@
 "use client"
 
 /**
- * Codera City — the world behind the page.
+ * Codera City — the world behind the page (Iterácia 2.1).
  *
  * One fixed stage under the naturally scrolling DOM. Five scenes (one per
- * act) and four flights between them: each seam element in the document is
- * a scroll range during which the stage scrubs a rendered camera flight from
- * the scene above to the scene below, with cloud layers sweeping across the
- * seam. Scroll input is native; the world alone interpolates (a ≤100 ms
- * critically-damped follow on the flight progress, so frames never jitter).
+ * act), each an ambient video loop over its still, and four flights between
+ * them: every seam element in the document is a scroll range during which
+ * the stage scrubs a rendered camera flight from the scene above to the
+ * scene below. The flight is eased (slow out of the scene, fast through the
+ * clouds, slow into the next), adjacent frames are cross-blended so slow
+ * scrolling never steps, the light of the destination fades in over the
+ * flight, and each seam has its own cloud choreography — descent, forward
+ * passage, ascent, night fall — so no two transitions read the same.
  *
+ * Scroll input is native; the world alone interpolates (a ≤120 ms
+ * critically-damped follow on the flight progress and on the pointer).
  * GSAP + ScrollTrigger is the only motion engine; the canvas only draws.
  * Nothing here pins — every sticky region is CSS sticky, so the document
  * never gains a pin-spacer and End always reaches the footer.
@@ -23,7 +28,7 @@
 import type { gsap as GsapType } from "gsap"
 import type { ScrollTrigger as ScrollTriggerType } from "gsap/ScrollTrigger"
 import { useEffect, useRef } from "react"
-import { drawCover, FLIGHT_FRAMES, loadedFlight, warmFlight } from "./frames"
+import { drawBlend, FLIGHT_FRAMES, loadedFlight, warmFlight } from "./frames"
 
 type Gsap = typeof GsapType
 type ST = typeof ScrollTriggerType
@@ -33,11 +38,49 @@ const HOME = "/home"
 /** the five scenes in journey order — the stills are the seams' end frames */
 const SCENES = [
   { name: "hero", still: `${HOME}/hero.jpg`, video: `${HOME}/hero.mp4` },
-  { name: "work", still: `${HOME}/street.jpg` },
-  { name: "offer", still: `${HOME}/services.jpg` },
-  { name: "process", still: `${HOME}/bridge.jpg` },
+  { name: "work", still: `${HOME}/street.jpg`, video: `${HOME}/street.mp4` },
+  { name: "offer", still: `${HOME}/services.jpg`, video: `${HOME}/services.mp4` },
+  { name: "process", still: `${HOME}/bridge.jpg`, video: `${HOME}/bridge.mp4` },
   { name: "resolution", still: `${HOME}/night.jpg`, video: `${HOME}/night.mp4` },
 ] as const
+
+interface CloudMove {
+  /** which cloud plate: 0 bank, 1 single cumulus */
+  el: 0 | 1
+  x: [number, number] // vw
+  y: [number, number] // vh
+  s: [number, number]
+  /** progress window over which the plate travels */
+  win: [number, number]
+  /** peak opacity */
+  o: number
+  /** colour of the light on the cloud, per seam */
+  f: string
+}
+
+/**
+ * Cloud choreography per flight. t1 descends (banks rise past the camera),
+ * t2 moves forward (clouds part sideways), t3 climbs (clouds sink below in
+ * golden-to-violet light), t4 falls into night (dim blue banks rise).
+ */
+const FLIGHT_CLOUDS: Record<string, CloudMove[]> = {
+  t1: [
+    { el: 0, x: [-8, -4], y: [120, -150], s: [1.25, 1.7], win: [0.04, 0.9], o: 1, f: "" },
+    { el: 1, x: [30, 12], y: [135, -160], s: [1.0, 1.55], win: [0.28, 1], o: 0.95, f: "" },
+  ],
+  t2: [
+    { el: 0, x: [-40, -135], y: [34, 6], s: [1.35, 2.1], win: [0.08, 0.96], o: 0.95, f: "" },
+    { el: 1, x: [30, 125], y: [26, -12], s: [1.1, 2.0], win: [0.18, 1], o: 0.9, f: "sepia(0.2) saturate(1.15)" },
+  ],
+  t3: [
+    { el: 0, x: [-10, -6], y: [-130, 140], s: [1.55, 1.2], win: [0.04, 0.9], o: 0.92, f: "sepia(0.55) saturate(1.5) hue-rotate(-14deg)" },
+    { el: 1, x: [26, 14], y: [-150, 130], s: [1.45, 1.1], win: [0.26, 1], o: 0.88, f: "sepia(0.45) saturate(1.6) hue-rotate(228deg)" },
+  ],
+  t4: [
+    { el: 0, x: [-8, -2], y: [120, -150], s: [1.25, 1.6], win: [0.04, 0.9], o: 0.72, f: "brightness(0.55) sepia(0.6) hue-rotate(178deg) saturate(1.5)" },
+    { el: 1, x: [28, 12], y: [135, -160], s: [1.0, 1.5], win: [0.28, 1], o: 0.62, f: "brightness(0.45) sepia(0.6) hue-rotate(190deg) saturate(1.5)" },
+  ],
+}
 
 interface Seam {
   name: string
@@ -50,25 +93,108 @@ interface Scene {
   el: HTMLElement
   media: HTMLElement | null
   video: HTMLVideoElement | null
+  tint: HTMLElement | null
   shown: boolean
+}
+
+const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v)
+const smooth = (t: number) => t * t * (3 - 2 * t)
+const span = (p: number, a: number, b: number) => clamp01((p - a) / (b - a))
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t
+
+/** Stations light up one after another as the visitor reaches them — the
+ *  same in both edits. */
+function bindStations(ScrollTrigger: ST, main: HTMLElement): ScrollTriggerType[] {
+  const out: ScrollTriggerType[] = []
+  for (const st of main.querySelectorAll<HTMLElement>("[data-station]")) {
+    out.push(
+      ScrollTrigger.create({
+        trigger: st,
+        start: "top 74%",
+        onEnter: () => st.setAttribute("data-lit", ""),
+        onLeaveBack: () => st.removeAttribute("data-lit"),
+      })
+    )
+  }
+  return out
+}
+
+/** The flat rail of facades: cards turn toward the visitor as they pass the
+ *  centre — the facades of the street, on a thumb. */
+function bindRail(main: HTMLElement): () => void {
+  const rail = main.querySelector<HTMLElement>(".city-rail")
+  if (!rail) {
+    return () => {}
+  }
+  const cards = Array.from(rail.querySelectorAll<HTMLElement>(".city-railcard"))
+  let frame = 0
+  const place = () => {
+    frame = 0
+    const mid = window.innerWidth / 2
+    for (const card of cards) {
+      const r = card.getBoundingClientRect()
+      const d = (r.left + r.width / 2 - mid) / window.innerWidth
+      const tilt = (-d * 22).toFixed(2)
+      const shrink = (1 - Math.min(0.5, Math.abs(d)) * 0.12).toFixed(3)
+      card.style.transform = `perspective(1100px) rotateY(${tilt}deg) scale(${shrink})`
+    }
+  }
+  const onScroll = () => {
+    if (!frame) {
+      frame = requestAnimationFrame(place)
+    }
+  }
+  place()
+  rail.addEventListener("scroll", onScroll, { passive: true })
+  window.addEventListener("resize", onScroll)
+  return () => {
+    rail.removeEventListener("scroll", onScroll)
+    window.removeEventListener("resize", onScroll)
+    if (frame) {
+      cancelAnimationFrame(frame)
+    }
+  }
+}
+
+/** Depth parallax on the glass: each panel rides at its own speed. */
+function bindDepth(gsap: Gsap, main: HTMLElement, amount: number) {
+  for (const el of main.querySelectorAll<HTMLElement>("[data-depth]")) {
+    const d = Number(el.dataset.depth ?? "1")
+    gsap.fromTo(
+      el,
+      { y: amount * d },
+      {
+        y: -amount * d,
+        ease: "none",
+        scrollTrigger: {
+          trigger: el.closest("section") ?? el,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 0.3,
+        },
+      }
+    )
+  }
 }
 
 function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => void {
   const main = document.querySelector<HTMLElement>("main[data-experience]")
   const canvas = root.querySelector<HTMLCanvasElement>("canvas")
   const ctx = canvas?.getContext("2d", { alpha: false })
-  if (!main || !canvas || !ctx) {
+  const world = root.querySelector<HTMLElement>(".city-world")
+  if (!main || !canvas || !ctx || !world) {
     return () => {}
   }
 
   /* ---------------------------------------------------------- scenes --- */
   const scenes = new Map<string, Scene>()
   for (const el of root.querySelectorAll<HTMLElement>("[data-scene]")) {
-    const video = el.querySelector("video")
-    scenes.set(el.dataset.scene ?? "", {
+    const name = el.dataset.scene ?? ""
+    scenes.set(name, {
       el,
       media: el.querySelector("img, video"),
-      video,
+      video: el.querySelector("video"),
+      tint: root.querySelector<HTMLElement>(`[data-tint="${name}"]`),
       shown: false,
     })
   }
@@ -94,14 +220,14 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
   /* ---------------------------------------------------------- canvas --- */
   let cw = 0
   let ch = 0
-  let lastIdx = -1
+  let lastF = -1
   const sizeCanvas = () => {
     const dpr = Math.min(window.devicePixelRatio || 1, 1.5)
     cw = Math.round(window.innerWidth * dpr)
     ch = Math.round(window.innerHeight * dpr)
     canvas.width = cw
     canvas.height = ch
-    lastIdx = -1
+    lastF = -1
   }
   sizeCanvas()
 
@@ -119,25 +245,25 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
     triggers.push(
       ScrollTrigger.create({
         trigger: el,
-        start: "top 88%",
-        end: "bottom 12%",
+        start: "top 90%",
+        end: "bottom 10%",
         onUpdate: (self) => {
           seam.p = self.progress
         },
       }),
-      /* the strip streams in a viewport and a half before it is needed */
+      /* the strip streams in two viewports before it is needed */
       ScrollTrigger.create({
         trigger: el,
-        start: "top 250%",
+        start: "top 300%",
         once: true,
         onEnter: () => warmFlight(seam.name),
       })
     )
   }
+  let idle = 0
   if (seams[0]) {
     /* the first flight starts right under the fold — warm it at idle */
-    const idle = window.setTimeout(() => warmFlight(seams[0].name), 1200)
-    triggers.push(ScrollTrigger.create({ onKill: () => window.clearTimeout(idle) } as never))
+    idle = window.setTimeout(() => warmFlight(seams[0].name), 1200)
   }
 
   /* ---------------------------------------------- scene drift on scroll --- */
@@ -172,22 +298,27 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
     const cards = Array.from(walk.querySelectorAll<HTMLElement>("[data-card]"))
     const tl = gsap.timeline({
       defaults: { ease: "none" },
-      scrollTrigger: { trigger: walk, start: "top top", end: "bottom bottom", scrub: 0.35 },
+      scrollTrigger: { trigger: walk, start: "top top", end: "bottom bottom", scrub: 0.4 },
     })
     cards.forEach((card, i) => {
       const cap = card.querySelector<HTMLElement>("[data-cap]")
       const at = i
+      /* far and soft, then sharp and readable in front of the visitor */
       tl.fromTo(
         card,
-        { z: -2600, opacity: 0, yPercent: -10 },
-        { z: 0, opacity: 1, yPercent: 0, duration: 0.72, ease: "power2.out" },
+        { z: -2800, opacity: 0, yPercent: -12, filter: "blur(9px)" },
+        { z: 0, opacity: 1, yPercent: 0, filter: "blur(0px)", duration: 0.86, ease: "power2.out" },
         at
       )
       if (cap) {
-        tl.fromTo(cap, { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.18 }, at + 0.56)
+        tl.fromTo(cap, { opacity: 0, y: 28 }, { opacity: 1, y: 0, duration: 0.22 }, at + 0.6)
       }
       if (i < cards.length - 1) {
-        tl.to(card, { z: 760, opacity: 0, duration: 0.36, ease: "power2.in" }, at + 1.02)
+        tl.to(
+          card,
+          { z: 820, opacity: 0, filter: "blur(7px)", duration: 0.4, ease: "power2.in" },
+          at + 1.08
+        )
       }
     })
     const street = scenes.get("work")?.media
@@ -204,33 +335,31 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
     }
   }
 
-  /* ------------------------------------------------ depth parallax (DOM) --- */
-  for (const el of main.querySelectorAll<HTMLElement>("[data-depth]")) {
-    const d = Number(el.dataset.depth ?? "1")
-    gsap.fromTo(
-      el,
-      { y: 70 * d },
-      {
-        y: -70 * d,
-        ease: "none",
-        scrollTrigger: {
-          trigger: el.closest("section") ?? el,
-          start: "top bottom",
-          end: "bottom top",
-          scrub: 0.3,
-        },
-      }
-    )
-  }
+  bindDepth(gsap, main, 70)
+  triggers.push(...bindStations(ScrollTrigger, main))
 
   /* ---------------------------------------------------------- clouds --- */
   const clouds = Array.from(root.querySelectorAll<HTMLElement>("[data-cloud]"))
   const cloudAt = (el: HTMLElement, x: number, y: number, s: number, o: number) => {
-    el.style.transform = `translate3d(${x}vw, ${y}vh, 0) scale(${s})`
+    el.style.transform = `translate3d(${x.toFixed(2)}vw, ${y.toFixed(2)}vh, 0) scale(${s.toFixed(3)})`
     el.style.opacity = o.toFixed(3)
   }
-  const ease = (t: number) => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2)
-  const span = (p: number, a: number, b: number) => Math.min(1, Math.max(0, (p - a) / (b - a)))
+
+  /* ---------------------------------------------------------- pointer --- */
+  let tx = 0
+  let ty = 0
+  let px = 0
+  let py = 0
+  const onPointer = (e: PointerEvent) => {
+    tx = (e.clientX / window.innerWidth) * 2 - 1
+    ty = (e.clientY / window.innerHeight) * 2 - 1
+  }
+  const onPointerLeave = () => {
+    tx = 0
+    ty = 0
+  }
+  window.addEventListener("pointermove", onPointer, { passive: true })
+  document.addEventListener("pointerleave", onPointerLeave)
 
   /* ---------------------------------------------------------- render --- */
   let cur: Seam | null = null
@@ -251,13 +380,24 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
     if (active && active !== cur) {
       cur = active
       sp = active.p
-      lastIdx = -1
+      lastF = -1
+      const moves = FLIGHT_CLOUDS[cur.name] ?? []
+      for (const m of moves) {
+        const el = clouds[m.el]
+        if (el) {
+          el.style.filter = m.f
+        }
+      }
     }
     const target = cur ? cur.p : 0
-    sp += (target - sp) * (1 - Math.exp(-dt / 80))
-    if (Math.abs(target - sp) < 0.0005) {
+    sp += (target - sp) * (1 - Math.exp(-dt / 110))
+    if (Math.abs(target - sp) < 0.0004) {
       sp = target
     }
+    /* the flight itself is eased: slow out of the scene, fast through the
+       clouds, slow into the next — the camera has weight, but it is never
+       parked (a third of the motion stays linear) */
+    const e = sp * 0.35 + smooth(sp) * 0.65
 
     const frames = cur ? loadedFlight(cur.name) : null
     const flying = cur !== null && sp > 0.0005 && sp < 0.9995
@@ -266,20 +406,33 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
       showScene(sp < 0.5 ? cur.from : cur.to)
     }
 
-    if (flying && cur && frames) {
-      const idx = Math.round(sp * (FLIGHT_FRAMES - 1))
-      if (idx !== lastIdx) {
-        lastIdx = idx
-        drawCover(ctx, frames[idx], cw, ch)
+    /* the light of the destination arrives over the flight */
+    for (const [name, s] of scenes) {
+      if (!s.tint) {
+        continue
       }
-      canvas.style.opacity = Math.min(1, sp / 0.05, (1 - sp) / 0.05).toFixed(3)
+      let o = s.shown ? 1 : 0
+      if (cur && flying) {
+        o = name === cur.from ? 1 - e : name === cur.to ? e : 0
+      }
+      s.tint.style.opacity = o.toFixed(3)
+    }
+
+    if (flying && cur && frames) {
+      const fpos = e * (FLIGHT_FRAMES - 1)
+      if (Math.abs(fpos - lastF) > 0.015) {
+        lastF = fpos
+        const i = Math.min(FLIGHT_FRAMES - 2, Math.floor(fpos))
+        drawBlend(ctx, frames[i], frames[i + 1], fpos - i, cw, ch)
+      }
+      canvas.style.opacity = Math.min(1, sp / 0.06, (1 - sp) / 0.06).toFixed(3)
     } else if (flying && cur) {
       /* the strip is still streaming (or missing): the scenes crossfade
          under the cloud sweep instead — the journey never stalls */
       const to = scenes.get(cur.to)
       const from = scenes.get(cur.from)
       if (to && from) {
-        to.el.style.opacity = sp.toFixed(3)
+        to.el.style.opacity = e.toFixed(3)
         from.el.style.opacity = "1"
         to.shown = sp >= 0.5
         from.shown = sp < 0.5
@@ -289,20 +442,39 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
       canvas.style.opacity = "0"
     }
 
-    /* clouds: a bank sweeps up through the seam, a second one trails it */
-    const f = flying ? sp : 0
-    if (clouds[0]) {
-      const t = ease(span(f, 0.08, 0.92))
-      cloudAt(clouds[0], -8, 120 - 260 * t, 1.25, flying ? Math.min(1, span(f, 0.05, 0.2), span(1 - f, 0.03, 0.15)) : 0)
+    /* pointer: the world leans a little toward the cursor, clouds more */
+    px += (tx - px) * (1 - Math.exp(-dt / 240))
+    py += (ty - py) * (1 - Math.exp(-dt / 240))
+    world.style.transform = `translate3d(${(-px * 1.1).toFixed(3)}%, ${(-py * 0.7).toFixed(3)}%, 0) scale(1.035)`
+
+    /* clouds: the seam's own choreography */
+    const moves = cur && flying ? (FLIGHT_CLOUDS[cur.name] ?? []) : []
+    const used = new Set<number>()
+    for (const m of moves) {
+      const el = clouds[m.el]
+      if (!el) {
+        continue
+      }
+      used.add(m.el)
+      const t = smooth(span(e, m.win[0], m.win[1]))
+      const env = Math.min(1, span(e, m.win[0], m.win[0] + 0.14), span(1 - e, 0, 0.1))
+      cloudAt(
+        el,
+        lerp(m.x[0], m.x[1], t) + px * 2.2,
+        lerp(m.y[0], m.y[1], t) + py * 1.2,
+        lerp(m.s[0], m.s[1], t),
+        m.o * env
+      )
     }
-    if (clouds[1]) {
-      const t = ease(span(f, 0.3, 1))
-      cloudAt(clouds[1], 22, 130 - 280 * t, 1.1, flying ? Math.min(1, span(f, 0.28, 0.42), span(1 - f, 0, 0.1)) * 0.95 : 0)
+    for (let i = 0; i < 2; i++) {
+      if (!used.has(i) && clouds[i]) {
+        clouds[i].style.opacity = "0"
+      }
     }
     if (clouds[2]) {
       /* the wisps ride the whole journey — thin, slow, always there */
       const y = -((window.scrollY * 0.05) % 120)
-      cloudAt(clouds[2], 0, 60 + y, 1.4, 0.35)
+      cloudAt(clouds[2], px * 3, 60 + y + py * 1.5, 1.4, 0.35)
     }
   }
   gsap.ticker.add(render)
@@ -314,7 +486,10 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
 
   return () => {
     gsap.ticker.remove(render)
+    window.clearTimeout(idle)
     window.removeEventListener("resize", onResize)
+    window.removeEventListener("pointermove", onPointer)
+    document.removeEventListener("pointerleave", onPointerLeave)
     for (const t of triggers) {
       t.kill()
     }
@@ -351,9 +526,9 @@ export function CityStage() {
 
   return (
     <div ref={rootRef} aria-hidden="true" className="city-stage">
-      {SCENES.map((s) => (
-        <div key={s.name} data-scene={s.name} className={`city-scene city-scene-${s.name}`}>
-          {"video" in s ? (
+      <div className="city-world">
+        {SCENES.map((s) => (
+          <div key={s.name} data-scene={s.name} className="city-scene">
             <video
               className="city-media"
               src={s.video}
@@ -363,13 +538,13 @@ export function CityStage() {
               playsInline
               preload={s.name === "hero" ? "auto" : "metadata"}
             />
-          ) : (
-            /* biome-ignore lint/performance/noImgElement: full-bleed world plate, sized by CSS; next/image adds nothing here. */
-            <img className="city-media" src={s.still} alt="" decoding="async" loading={s.name === "work" ? "eager" : "lazy"} />
-          )}
-        </div>
+          </div>
+        ))}
+        <canvas className="city-flight" />
+      </div>
+      {SCENES.map((s) => (
+        <div key={s.name} data-tint={s.name} className={`city-tint city-tint-${s.name}`} />
       ))}
-      <canvas className="city-flight" />
       {/* biome-ignore lint/performance/noImgElement: screen-blended cloud plates moved by the stage. */}
       <img data-cloud="bank" className="city-cloud" src={`${HOME}/cloud-bank.webp`} alt="" decoding="async" />
       {/* biome-ignore lint/performance/noImgElement: screen-blended cloud plates moved by the stage. */}
@@ -381,10 +556,10 @@ export function CityStage() {
 }
 
 /**
- * Flat edit motion (under 1024px, or no city): the same world as per-act
- * plates with a light scroll parallax and the entrance choreography — a
- * layout that moves a little, never a fallback. Reduced motion mounts
- * nothing here.
+ * Flat edit motion (under 1024px): the same world as per-act plates that
+ * ARRIVE — each plate settles from a wider shot as its act enters and the
+ * cloud band lifts away — plus depth parallax and the stations lighting up.
+ * A layout that moves, never a fallback. Reduced motion mounts nothing here.
  */
 export function CityFlatMotion() {
   useEffect(() => {
@@ -400,39 +575,56 @@ export function CityFlatMotion() {
         if (!main) {
           return
         }
-        const tweens: ReturnType<Gsap["fromTo"]>[] = []
         for (const plate of main.querySelectorAll<HTMLElement>("[data-plate]")) {
           const section = plate.closest("section") ?? plate
-          tweens.push(
+          const first = section.hasAttribute("data-zone") && section.dataset.zone === "hero"
+          if (first) {
             gsap.fromTo(
               plate,
-              { yPercent: -8, scale: 1.12 },
+              { scale: 1.08, yPercent: 0 },
               {
-                yPercent: 8,
-                scale: 1.12,
+                scale: 1.2,
+                yPercent: -6,
                 ease: "none",
-                scrollTrigger: { trigger: section, start: "top bottom", end: "bottom top", scrub: 0.3 },
+                scrollTrigger: { trigger: section, start: "top top", end: "bottom top", scrub: 0.3 },
               }
             )
-          )
-        }
-        for (const el of main.querySelectorAll<HTMLElement>("[data-depth]")) {
-          const d = Number(el.dataset.depth ?? "1")
-          tweens.push(
+            continue
+          }
+          gsap
+            .timeline({
+              scrollTrigger: { trigger: section, start: "top bottom", end: "bottom top", scrub: 0.3 },
+            })
+            .fromTo(
+              plate,
+              { scale: 1.28, yPercent: -10 },
+              { scale: 1.1, yPercent: -4, duration: 0.38, ease: "power2.out" }
+            )
+            .to(plate, { yPercent: 8, duration: 0.62, ease: "none" })
+          const band = section.querySelector<HTMLElement>(".city-band")
+          if (band) {
             gsap.fromTo(
-              el,
-              { y: 36 * d },
+              band,
+              { yPercent: 22, scale: 1, xPercent: -2 },
               {
-                y: -36 * d,
+                yPercent: -70,
+                scale: 1.35,
+                xPercent: 2,
                 ease: "none",
-                scrollTrigger: { trigger: el.closest("section") ?? el, start: "top bottom", end: "bottom top", scrub: 0.3 },
+                scrollTrigger: { trigger: section, start: "top bottom", end: "top 5%", scrub: 0.3 },
               }
             )
-          )
+          }
         }
+        bindDepth(gsap, main, 36)
+        const stations = bindStations(ScrollTrigger, main)
+        const rail = bindRail(main)
         cleanup = () => {
-          for (const t of tweens) {
-            t.scrollTrigger?.kill()
+          rail()
+          for (const t of stations) {
+            t.kill()
+          }
+          for (const t of ScrollTrigger.getAll()) {
             t.kill()
           }
         }

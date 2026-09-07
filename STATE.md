@@ -3,7 +3,7 @@
 What is live, what was decided, and what must not be relearned. One file, kept
 short. Open work does **not** live here — it lives in GitHub Issues.
 
-Last reviewed: 2026-09-05 (Codera City) · Production: `https://www.codera.sk` ·
+Last reviewed: 2026-09-07 (Codera City 2.1) · Production: `https://www.codera.sk` ·
 Open backlog: see Issues.
 
 ---
@@ -50,8 +50,9 @@ the ribbon closes). Plus three **case-study pages** (`/praca/meridian`,
 engineering voice: coordinates, annotations). Fraunces loads only for the
 concept worlds' interior serif. Archivo retired with v2.
 
-**The offer:** Vizitka od 1 000 € · Firemný web od 1 800 € · 5D web od
-3 200 €, declared once in `lib/site-config.ts` (`packages`) and consumed by
+**The offer (reset 2026-09-07):** Vizitka od 700 € · Firemný web od 1 200 € ·
+5D web od 2 500 € · Úpravy WordPressu (cena podľa rozsahu), declared once in
+`lib/site-config.ts` (`packages`, `wordpressService`) and consumed by
 the /04 act, the structured data and the tests — drift fails CI.
 
 **The concept worlds:** Meridián (roastery — buy) · Štatút (law practice —

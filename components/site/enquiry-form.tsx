@@ -21,13 +21,13 @@ import { cn } from "@/lib/utils"
 /**
  * Bands, not a slider: the lowest starts at the entry price so nobody selects a
  * budget the studio does not sell at, and the bands track what it actually
- * sells. Follows the package ladder in `lib/site-config.ts` — 1 000 / 1 800 /
- * 3 200 € — so each band brackets one package with room for scope above it.
+ * sells. Follows the package ladder in `lib/site-config.ts` — 700 / 1 200 /
+ * 2 500 € — so each band brackets one package with room for scope above it.
  */
 const BUDGETS = [
-  "1 000 – 2 000 €",
-  "2 000 – 3 500 €",
-  "3 500 € a viac",
+  "700 – 1 200 €",
+  "1 200 – 2 500 €",
+  "2 500 € a viac",
   "Zatiaľ neviem",
 ] as const
 

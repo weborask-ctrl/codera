@@ -680,7 +680,7 @@ function Board05() {
             Začať projekt
           </span>
           <span className="text-[0.8rem] text-black/55 underline underline-offset-4">
-            coderaslovakia@gmail.com
+            kontakt@codera.sk
           </span>
         </div>
       </div>
@@ -691,7 +691,7 @@ function Board05() {
           <img src="/brand/codera-mark-mono.svg" alt="" className="h-3.5 w-3.5 opacity-60" />
           <span className="tracking-[0.26em]">CODERA</span>
         </span>
-        <span>+421 949 753 556 · coderaslovakia@gmail.com</span>
+        <span>+421 949 753 556 · kontakt@codera.sk</span>
         <span>Práca · Služby · Kontakt</span>
         <span>© 2026 Codera</span>
       </footer>
