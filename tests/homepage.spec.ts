@@ -349,8 +349,9 @@ test.describe("Codera homepage", () => {
     await page.goto("/")
     test.skip(!(await worldPossible(page)), "city mode unavailable here (reduced motion)")
     await waitForHydration(page)
-    /* the flight canvas is the only canvas on the page */
-    await expect(page.locator("canvas")).toHaveCount(1, { timeout: 20_000 })
+    /* the world is transform-only since Iterácia 2.7 — no canvas anywhere */
+    await expect(page.locator(".city-stage")).toHaveCount(1, { timeout: 20_000 })
+    await expect(page.locator("canvas")).toHaveCount(0)
     await expect(page.locator(".pin-spacer")).toHaveCount(0)
 
     const acts: string[] = []
@@ -378,6 +379,47 @@ test.describe("Codera homepage", () => {
         timeout: 5_000,
       })
       .toBe("resolution")
+  })
+
+  test("the street opens the demo the visitor is looking at", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await page.goto("/")
+    test.skip(!(await worldPossible(page)), "city mode unavailable here (reduced motion)")
+    await waitForHydration(page)
+    const walk = page.locator("[data-walk]")
+    await expect(walk).toHaveCount(1)
+    const box = await walk.boundingBox()
+    if (!box) {
+      throw new Error("the street walk has no box")
+    }
+    /* every card shares one grid cell: a transparent one must never take the
+       click (Ondrej, 2026-09-07 — it opened the wrong demo) */
+    const seen = new Set<string>()
+    for (const frac of [0.12, 0.36, 0.6, 0.84]) {
+      await page.evaluate(
+        ([top, height, f]) => window.scrollTo({ top: top + height * f, behavior: "instant" as ScrollBehavior }),
+        [box.y, box.height, frac] as const
+      )
+      await page.waitForTimeout(700)
+      const front = await page.evaluate(() =>
+        Array.from(document.querySelectorAll<HTMLAnchorElement>("[data-card]"))
+          .filter((c) => getComputedStyle(c).pointerEvents !== "none")
+          .map((c) => c.getAttribute("href"))
+      )
+      /* exactly one card may be clickable at any moment */
+      expect(front, `frac ${frac}`).toHaveLength(1)
+      const href = front[0] as string
+      if (seen.has(href)) {
+        continue
+      }
+      seen.add(href)
+      await page.mouse.click(640, 430)
+      await page.waitForURL(`**${href}`, { timeout: 10_000 })
+      await page.goBack()
+      await waitForHydration(page)
+    }
+    /* the four stops must not all land on the same demo */
+    expect(seen.size).toBeGreaterThan(1)
   })
 
   test("scroll cannot be trapped: End reaches the footer immediately", async ({ page }) => {

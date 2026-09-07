@@ -297,8 +297,7 @@ function Offer({ city }: { city: boolean }) {
               key={n}
               data-enter
               data-offer-row
-              data-depth={(0.35 + i * 0.25).toFixed(2)}
-              data-shift={((i - 1) * 0.5).toFixed(2)}
+              data-depth={(0.2 + i * 0.16).toFixed(2)}
               className="enter city-glass city-sign"
             >
               <span className="city-sign-n" style={MONO}>
@@ -315,12 +314,10 @@ function Offer({ city }: { city: boolean }) {
         {/* three terraces, none pushed over the others — the "čo v tom nie
             je" line is the point: the price is a boundary, not bait */}
         <div className="city-terraces">
-          {packages.map((pkg, i) => (
+          {packages.map((pkg) => (
             <div
               key={pkg.id}
               data-enter
-              data-depth={(0.2 + (i === 1 ? 0.5 : 0)).toFixed(2)}
-              data-shift={((1 - i) * 0.35).toFixed(2)}
               className="enter city-glass city-terrace"
             >
               <p className="city-terrace-name" style={DISPLAY}>
