@@ -725,6 +725,20 @@ main[data-city] {
   gap: 0.5rem;
 }
 
+/* adaptive lite mode (set by the stage when frames run long): no backdrop
+   blur, the glass carries more body instead */
+:root[data-lite] .city-glass {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: rgb(255 255 255 / 0.8);
+}
+:root[data-lite] .city-glass-dark {
+  background: rgb(11 26 74 / 0.74);
+}
+:root[data-lite] .city-card {
+  will-change: auto;
+}
+
 /* ---------------------------------------------------------- flat edit --- */
 .city-plate {
   position: absolute;

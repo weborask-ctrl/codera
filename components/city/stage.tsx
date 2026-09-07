@@ -227,9 +227,10 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
   let cw = 0
   let ch = 0
   let lastF = -1
+  let lite = false
   const sizeCanvas = () => {
     /* the strip is 2304 px wide — a wider canvas only costs fill */
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5, 2560 / window.innerWidth)
+    const dpr = Math.min(window.devicePixelRatio || 1, lite ? 1 : 1.5, 2560 / window.innerWidth)
     cw = Math.round(window.innerWidth * dpr)
     ch = Math.round(window.innerHeight * dpr)
     canvas.width = cw
@@ -371,6 +372,19 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
   window.addEventListener("pointermove", onPointer, { passive: true })
   document.addEventListener("pointerleave", onPointerLeave)
 
+  /* ------------------------------------------------- adaptive quality --- */
+  /* if frames run long while the world moves, the stage lightens itself:
+     single frames instead of blends, a 1× canvas, and the glass loses its
+     backdrop blur (CSS reads data-lite on the root). Never the other way
+     round — a page that flickers between qualities is worse than a lighter
+     one. */
+  let slow = 0
+  const goLite = () => {
+    lite = true
+    document.documentElement.setAttribute("data-lite", "")
+    sizeCanvas()
+  }
+
   /* ---------------------------------------------------------- render --- */
   let cur: Seam | null = null
   let sp = 0
@@ -379,6 +393,12 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
     const now = performance.now()
     const dt = Math.min(64, now - lastT)
     lastT = now
+    if (!lite) {
+      slow = dt > 34 ? slow + 1 : Math.max(0, slow - 1)
+      if (slow > 12) {
+        goLite()
+      }
+    }
 
     let active: Seam | null = null
     for (const s of seams) {
@@ -439,7 +459,7 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
       if (Math.abs(fpos - lastF) > 0.015) {
         lastF = fpos
         const i = Math.min(FLIGHT_FRAMES - 2, Math.floor(fpos))
-        drawBlend(ctx, frames[i], frames[i + 1], fpos - i, cw, ch)
+        drawBlend(ctx, frames[i], frames[i + 1], lite ? 0 : fpos - i, cw, ch)
       }
       canvas.style.opacity = Math.min(1, sp / 0.06, (1 - sp) / 0.06).toFixed(3)
     } else if (flying && cur) {

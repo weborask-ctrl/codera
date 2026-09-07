@@ -4,8 +4,11 @@
  * Experience entry (Iterácia 2.0 — Codera City): decides the edit and
  * assembles the page.
  *
- * - city mode: ≥1024px viewport + motion allowed → the fixed world stage
- *   behind the acts, camera flights on the seams, the street walk in /02
+ * - city mode: ≥1024px viewport + a fine pointer that hovers (a desktop
+ *   with a mouse or trackpad) + motion allowed → the fixed world stage
+ *   behind the acts, camera flights on the seams, the street walk in /02.
+ *   Tablets in landscape are wide but touch-driven and GPU-poor: the
+ *   flights stuttered there (Ondrej, 2026-09-07), so they take the flat edit.
  * - flat mode: everything else (mobile/tablet edits, reduced motion, and
  *   the SSR default) → the same acts over their own plates of the same
  *   world; the story survives intact (same story, different edit)
@@ -30,16 +33,18 @@ const CityFlatMotion = dynamic(
 )
 
 const WIDE = "(min-width: 1024px)"
+const FINE = "(hover: hover) and (pointer: fine)"
 const REDUCE = "(prefers-reduced-motion: reduce)"
 
 function subscribe(onChange: () => void) {
-  const wide = window.matchMedia(WIDE)
-  const motion = window.matchMedia(REDUCE)
-  wide.addEventListener("change", onChange)
-  motion.addEventListener("change", onChange)
+  const queries = [WIDE, FINE, REDUCE].map((q) => window.matchMedia(q))
+  for (const q of queries) {
+    q.addEventListener("change", onChange)
+  }
   return () => {
-    wide.removeEventListener("change", onChange)
-    motion.removeEventListener("change", onChange)
+    for (const q of queries) {
+      q.removeEventListener("change", onChange)
+    }
   }
 }
 
@@ -49,7 +54,7 @@ function snapshot(): Mode {
   if (window.matchMedia(REDUCE).matches) {
     return "still"
   }
-  return window.matchMedia(WIDE).matches ? "city" : "flat"
+  return window.matchMedia(WIDE).matches && window.matchMedia(FINE).matches ? "city" : "flat"
 }
 
 export function Experience() {
