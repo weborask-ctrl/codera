@@ -184,7 +184,9 @@ function bindDepth(gsap: Gsap, main: HTMLElement, amount: number) {
 }
 
 const cloudAt = (el: HTMLElement, x: number, y: number, s: number, o: number) => {
-  el.style.transform = `translate3d(${x.toFixed(2)}vw, ${y.toFixed(2)}vh, 0) scale(${s.toFixed(3)})`
+  /* a mirrored plate reads as a second cloud, not the same one again */
+  const sx = el.dataset.flip ? -s : s
+  el.style.transform = `translate3d(${x.toFixed(2)}vw, ${y.toFixed(2)}vh, 0) scale(${sx.toFixed(3)}, ${s.toFixed(3)})`
   el.style.opacity = o.toFixed(3)
 }
 
@@ -716,8 +718,10 @@ export function CityFlatMotion() {
     <div ref={veilRef} aria-hidden="true" className="city-veil">
       {/* cutouts with real alpha, drawn normally: on the flat edit's pale sky a
           screen-blended white cloud has nothing to lighten, so it vanished */}
+      {/* the soft white bank vanished on a phone's pale sky — the passage
+          uses the volumetric cumulus twice, the first one mirrored */}
       {/* biome-ignore lint/performance/noImgElement: alpha cloud plates moved by the passage. */}
-      <img data-cloud="bank" className="city-cloud" src={`${HOME}/cloud-bank-a.webp`} alt="" decoding="async" />
+      <img data-cloud="bank" data-flip="" className="city-cloud" src={`${HOME}/cloud-one-a.webp`} alt="" decoding="async" />
       {/* biome-ignore lint/performance/noImgElement: alpha cloud plates moved by the passage. */}
       <img data-cloud="one" className="city-cloud" src={`${HOME}/cloud-one-a.webp`} alt="" decoding="async" />
     </div>
