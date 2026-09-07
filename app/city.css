@@ -198,9 +198,10 @@ main[data-city] {
   position: fixed;
   mix-blend-mode: normal;
   top: 0;
-  /* tall enough to fill a portrait viewport at the passage's midpoint */
-  width: max(180vw, 213vh);
-  left: calc(50vw - max(90vw, 106.5vh));
+  /* big enough to cross a portrait viewport, small enough that its shape
+     stays readable — a phone should see a cloud, not its white interior */
+  width: max(150vw, 130vh);
+  left: calc(50vw - max(75vw, 65vh));
   z-index: 20;
 }
 @media (min-width: 768px) {
