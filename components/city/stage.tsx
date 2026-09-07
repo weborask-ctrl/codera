@@ -13,8 +13,10 @@
  * flight, and each seam has its own cloud choreography — descent, forward
  * passage, ascent, night fall — so no two transitions read the same.
  *
- * Scroll input is native; the world alone interpolates (a ≤120 ms
- * critically-damped follow on the flight progress and on the pointer).
+ * Scroll input is native; the world alone interpolates: the flight follows
+ * the scroll with a ~240 ms critically-damped glide, so a mouse wheel's
+ * stepped deltas become one continuous camera move (the DOM still moves
+ * the instant the wheel does).
  * GSAP + ScrollTrigger is the only motion engine; the canvas only draws.
  * Nothing here pins — every sticky region is CSS sticky, so the document
  * never gains a pin-spacer and End always reaches the footer.
@@ -28,7 +30,7 @@
 import type { gsap as GsapType } from "gsap"
 import type { ScrollTrigger as ScrollTriggerType } from "gsap/ScrollTrigger"
 import { useEffect, useRef } from "react"
-import { drawBlend, FLIGHT_FRAMES, loadedFlight, warmFlight } from "./frames"
+import { drawBlend, FLIGHT_FRAMES, loadedFlight, warmAllFlights, warmFlight } from "./frames"
 
 type Gsap = typeof GsapType
 type ST = typeof ScrollTriggerType
@@ -156,15 +158,19 @@ function bindRail(main: HTMLElement): () => void {
   }
 }
 
-/** Depth parallax on the glass: each panel rides at its own speed. */
+/** Depth parallax on the glass: each panel rides at its own speed, and
+ *  panels with a shift drift sideways too — the layout breathes with the
+ *  scroll and the world shows between the panels. */
 function bindDepth(gsap: Gsap, main: HTMLElement, amount: number) {
   for (const el of main.querySelectorAll<HTMLElement>("[data-depth]")) {
     const d = Number(el.dataset.depth ?? "1")
+    const sx = Number(el.dataset.shift ?? "0")
     gsap.fromTo(
       el,
-      { y: amount * d },
+      { y: amount * d, x: amount * sx },
       {
         y: -amount * d,
+        x: -amount * sx,
         ease: "none",
         scrollTrigger: {
           trigger: el.closest("section") ?? el,
@@ -222,7 +228,8 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
   let ch = 0
   let lastF = -1
   const sizeCanvas = () => {
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5)
+    /* the strip is 2304 px wide — a wider canvas only costs fill */
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5, 2560 / window.innerWidth)
     cw = Math.round(window.innerWidth * dpr)
     ch = Math.round(window.innerHeight * dpr)
     canvas.width = cw
@@ -262,8 +269,11 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
   }
   let idle = 0
   if (seams[0]) {
-    /* the first flight starts right under the fold — warm it at idle */
-    idle = window.setTimeout(() => warmFlight(seams[0].name), 1200)
+    /* every strip streams in journey order once the page is idle — the
+       first one is needed right under the fold */
+    idle = window.setTimeout(() => {
+      warmAllFlights(seams.map((s) => s.name))
+    }, 1200)
   }
 
   /* ---------------------------------------------- scene drift on scroll --- */
@@ -381,6 +391,12 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
       cur = active
       sp = active.p
       lastF = -1
+      /* the destination's loop buffers while the flight is in the clouds */
+      const dest = scenes.get(cur.to)?.video
+      if (dest && dest.preload !== "auto") {
+        dest.preload = "auto"
+        dest.load()
+      }
       const moves = FLIGHT_CLOUDS[cur.name] ?? []
       for (const m of moves) {
         const el = clouds[m.el]
@@ -390,7 +406,7 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
       }
     }
     const target = cur ? cur.p : 0
-    sp += (target - sp) * (1 - Math.exp(-dt / 110))
+    sp += (target - sp) * (1 - Math.exp(-dt / 240))
     if (Math.abs(target - sp) < 0.0004) {
       sp = target
     }

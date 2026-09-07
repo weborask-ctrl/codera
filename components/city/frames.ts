@@ -1,16 +1,16 @@
 /**
  * Flight strips: each seam between two scenes is a short camera flight
- * rendered as a WebP frame sequence and scrubbed by scroll on the stage
- * canvas. Frames are fetched once per strip, decoded off the main thread
+ * rendered as an AVIF frame sequence (2304 px, cut from the 4K upscale) and
+ * scrubbed by scroll on the stage canvas. Frames are fetched once per strip, decoded off the main thread
  * with createImageBitmap, and cached for the page lifetime.
  */
 
-export const FLIGHT_FRAMES = 48
+export const FLIGHT_FRAMES = 40
 
 const cache = new Map<string, Promise<ImageBitmap[]>>()
 
 export function flightSrc(name: string, index: number) {
-  return `/home/flight/${name}/${String(index).padStart(2, "0")}.webp`
+  return `/home/flight/${name}/${String(index).padStart(2, "0")}.avif`
 }
 
 const yieldToMain = () => new Promise<void>((resolve) => setTimeout(resolve, 0))
@@ -41,6 +41,21 @@ export function loadFlight(name: string): Promise<ImageBitmap[]> {
     cache.set(name, pending)
   }
   return pending
+}
+
+/** Streams every strip in journey order, one after another, at idle —
+ *  a flight must never start on the crossfade fallback. */
+export async function warmAllFlights(names: string[]) {
+  for (const name of names) {
+    if (settled.has(name)) {
+      continue
+    }
+    try {
+      settled.set(name, await loadFlight(name))
+    } catch {
+      /* a missing strip degrades to the cloud crossfade — never an error */
+    }
+  }
 }
 
 export function loadedFlight(name: string): ImageBitmap[] | null {
