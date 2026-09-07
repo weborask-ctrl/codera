@@ -196,6 +196,7 @@ main[data-city] {
 }
 .city-veil .city-cloud {
   position: fixed;
+  mix-blend-mode: normal;
   top: 0;
   /* tall enough to fill a portrait viewport at the passage's midpoint */
   width: max(180vw, 213vh);
