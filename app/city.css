@@ -974,3 +974,101 @@ main[data-experience] .city-hero-copy .rise {
 .city-offer .city-h2 {
   padding-bottom: 0.16em;
 }
+
+/* ---------------------------------------------------- the city builds --- */
+/* A fixed 16:9 box that covers the viewport, so the layers' percentages map
+   onto the base exactly (the same framing object-fit: cover would give). */
+.city-asm {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100vw, 177.78svh);
+  height: max(56.25vw, 100svh);
+  transform: translate(-50%, -50%);
+  overflow: hidden;
+  display: none;
+}
+.city-asm-base,
+.city-asm-layer,
+.city-asm-cloud {
+  position: absolute;
+}
+.city-asm-base {
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-image: url("/home/asm/base-1280.jpg");
+}
+@supports (background-image: image-set(url("/home/asm/base-1280.avif") type("image/avif") 1x)) {
+  .city-asm-base {
+    background-image: image-set(url("/home/asm/base-1280.avif") type("image/avif") 1x, url("/home/asm/base-2560.avif") type("image/avif") 2x, url("/home/asm/base-1280.jpg") 1x, url("/home/asm/base-2560.jpg") 2x);
+  }
+  @media (min-width: 1921px) {
+    .city-asm-base {
+      background-image: image-set(url("/home/asm/base-1920.avif") type("image/avif") 1x, url("/home/asm/base-3840.avif") type("image/avif") 2x, url("/home/asm/base-1920.jpg") 1x, url("/home/asm/base-3840.jpg") 2x);
+    }
+  }
+}
+.city-asm-layer {
+  height: auto;
+  display: block;
+  will-change: transform, opacity;
+  transform-origin: 50% 100%;
+  animation: city-asm-rise 1.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--asm-t0, 0ms) + var(--d, 0s));
+}
+@keyframes city-asm-rise {
+  from {
+    transform: translate3d(0, 26%, 0) scale(0.92);
+    opacity: 0;
+  }
+  45% {
+    opacity: 1;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+.city-asm-cloud {
+  left: 26%;
+  bottom: -14%;
+  width: 52%;
+  height: auto;
+  opacity: 0;
+  mix-blend-mode: normal;
+  animation: city-asm-cloud 1.4s ease-out both;
+  animation-delay: calc(var(--asm-t0, 0ms) + 0.9s);
+}
+@keyframes city-asm-cloud {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 12%, 0);
+  }
+  to {
+    opacity: 0.9;
+    transform: none;
+  }
+}
+/* from 768 px the hero plate is the assembly; phones keep the portrait plate */
+@media (min-width: 768px) {
+  .city-asm {
+    display: block;
+  }
+  /* the assembly carries the picture from here; the plate keeps no image
+     of its own (declared after the @supports upgrade, so it wins by order) */
+  .city-plate-img.city-plate-hero {
+    background-image: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .city-asm-layer,
+  .city-asm-cloud {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .city-asm-cloud {
+    opacity: 0.9;
+  }
+}
