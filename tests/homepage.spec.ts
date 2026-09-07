@@ -153,6 +153,7 @@ test.describe("Codera homepage", () => {
       "Kancelária",
       "Pražiareň",
       "Stratégia",
+      "Úpravy WordPressu",
       "Čo bude",
       "Váš ďalší web nemusí",
     ]) {
@@ -235,7 +236,7 @@ test.describe("Codera homepage", () => {
 
   test("secondary contact details are real and reachable", async ({ page }) => {
     await page.goto("/")
-    await expect(page.locator("a[href^='mailto:coderaslovakia']").first()).toHaveCount(1)
+    await expect(page.locator("a[href^='mailto:kontakt@codera.sk']").first()).toHaveCount(1)
     await expect(page.locator("a[href^='tel:+421']").first()).toHaveCount(1)
   })
 

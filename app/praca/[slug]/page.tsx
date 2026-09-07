@@ -5,7 +5,7 @@ import { MeridianHero } from "@/components/concepts/meridian"
 import { StatutHero } from "@/components/concepts/statut"
 import { VlnaHero } from "@/components/concepts/vlna"
 import { caseStudies, getCaseStudy } from "@/lib/case-studies"
-import { siteConfig } from "@/lib/site-config"
+import { commercial, siteConfig } from "@/lib/site-config"
 
 /**
  * Case-study pages — Step 6 phase D.
@@ -194,7 +194,7 @@ export default async function CaseStudyPage({
               Začať projekt
             </Link>
             <span className="text-[0.8rem] text-[#f2f4f6]/60">
-              Prvý návrh do 72 hodín · od 1 000 €
+              Prvý návrh do {commercial.firstProposalHours} hodín · od {commercial.priceFrom}
             </span>
           </div>
         </div>

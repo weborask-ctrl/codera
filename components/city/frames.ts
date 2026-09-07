@@ -5,7 +5,7 @@
  * with createImageBitmap, and cached for the page lifetime.
  */
 
-export const FLIGHT_FRAMES = 32
+export const FLIGHT_FRAMES = 48
 
 const cache = new Map<string, Promise<ImageBitmap[]>>()
 
@@ -58,6 +58,24 @@ export function warmFlight(name: string) {
     .catch(() => {
       /* a missing strip degrades to the cloud crossfade — never an error */
     })
+}
+
+/** two adjacent frames cross-blended: slow scrolling never steps */
+export function drawBlend(
+  ctx: CanvasRenderingContext2D,
+  a: ImageBitmap,
+  b: ImageBitmap,
+  t: number,
+  w: number,
+  h: number
+) {
+  ctx.globalAlpha = 1
+  drawCover(ctx, a, w, h)
+  if (t > 0.01) {
+    ctx.globalAlpha = Math.min(1, t)
+    drawCover(ctx, b, w, h)
+    ctx.globalAlpha = 1
+  }
 }
 
 /** cover-fit draw, like object-fit: cover */

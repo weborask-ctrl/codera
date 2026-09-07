@@ -19,7 +19,7 @@
 import { useEffect } from "react"
 import { openEnquiry } from "@/components/experience/enquiry-bus"
 import { bindStage } from "@/components/experience/stage"
-import { commercial, packages, siteConfig } from "@/lib/site-config"
+import { commercial, packages, siteConfig, wordpressService } from "@/lib/site-config"
 import { skills } from "@/lib/skills"
 import { demoShot, HOME_DEMOS } from "./demos"
 
@@ -190,16 +190,20 @@ function Hero() {
             </span>
           </span>
         </h1>
-        <p className="city-lead">
-          Navrhujeme a staviame firemné weby, ktoré pôsobia tak dôveryhodne, ako naozaj
-          pracujete.
-        </p>
-        <div className="city-cta-row">
-          <Cta className="city-btn city-btn-ink">Začať projekt</Cta>
-          <a href="#praca" className="city-btn city-btn-ghost">
-            Zostúpiť do mesta ↓
-          </a>
-        </div>
+        <span className="rise-wrap">
+          <p className="rise city-lead" style={{ ["--rise-delay" as string]: "0.32s" }}>
+            Navrhujeme a staviame firemné weby, ktoré pôsobia tak dôveryhodne, ako naozaj
+            pracujete.
+          </p>
+        </span>
+        <span className="rise-wrap">
+          <div className="rise city-cta-row" style={{ ["--rise-delay" as string]: "0.46s" }}>
+            <Cta className="city-btn city-btn-ink">Začať projekt</Cta>
+            <a href="#praca" className="city-btn city-btn-ghost">
+              Zostúpiť do mesta ↓
+            </a>
+          </div>
+        </span>
       </div>
     </section>
   )
@@ -325,6 +329,33 @@ function Offer({ city }: { city: boolean }) {
           ))}
         </div>
 
+        {/* WordPress work beside the packages (Ondrej, 2026-09-07): edits and
+            care for sites that already run on WordPress — the live editor demo
+            shows what the client gets to touch */}
+        <div data-enter data-depth="0.3" className="enter city-glass city-wp">
+          <div className="city-wp-copy">
+            <span className="city-sign-n" style={MONO}>
+              WORDPRESS
+            </span>
+            <p className="city-wp-t" style={DISPLAY}>
+              {wordpressService.name}
+            </p>
+            <p className="city-wp-d">{wordpressService.line}</p>
+          </div>
+          <ul className="city-wp-scope">
+            {wordpressService.scope.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+          <div className="city-wp-act">
+            <p className="city-wp-price">{wordpressService.priceNote}</p>
+            <Cta className="city-btn city-btn-ink city-btn-sm">Zistiť cenu</Cta>
+            <a href={wordpressService.demo} className="city-wp-demo">
+              Pozrieť ukážku editora →
+            </a>
+          </div>
+        </div>
+
         <div data-enter className="enter city-offer-close">
           <p>Uvedené sú východiskové ceny — presnú cenu poviete po konzultácii.</p>
           <span>
@@ -359,6 +390,7 @@ function Process({ city }: { city: boolean }) {
               key={t}
               data-enter
               data-depth={(0.3 + i * 0.3).toFixed(2)}
+              data-station=""
               className="enter city-glass city-glass-dark city-holo city-station"
             >
               <span className="city-station-dot" aria-hidden="true" />
