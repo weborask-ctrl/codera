@@ -17,6 +17,8 @@
  * Choreography, all plain CSS so it starts at first paint on the
  * server-rendered plate and the stage can resume it mid-motion. It is a
  * building site, in the order a building site works:
+ *   0. the hero opens on an empty sky: a wash of the same sky without its
+ *      clouds covers the plate, and clears as the world comes together
  *   1. the islands are surveyed and then laid down in strata from the plateau
  *      downward, settling into place — the ground is built too
  *   2. scaffolding goes up inside each building's silhouette
@@ -43,6 +45,8 @@ export function HeroAssembly({ resumeFrom = 0 }: { resumeFrom?: number }) {
   return (
     <div className="city-asm" style={rootStyle}>
       <div className="city-asm-base" />
+      {/* the empty sky the hero opens on; it clears as the world assembles */}
+      <div className="city-asm-wash" />
       {ASM_ELEMENTS.map((e) => {
         const style = {
           left: `${e.left}%`,

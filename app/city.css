@@ -1011,6 +1011,27 @@ main[data-experience] .city-hero-copy .rise {
     }
   }
 }
+/* The hero opens on nothing: this wash is the same sky with its clouds taken
+   out, it covers the plate at first paint and clears as the world assembles.
+   It sits above the plate and below the elements, so the ground can be laid
+   while the air is still empty. */
+.city-asm-wash {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/webp;base64,UklGRtgAAABXRUJQVlA4IMwAAABQCQCdASpgADYAPmEqkkakJKYhKVbZaMAMCWcAyh4fkCUCLrcMHI3Z2UD1MFtKd1J8ys+nPR3akcGFMG1JeGE/JO5vHYxC9oXDGVATzcpBQyeeAAD++tOgtz4SIb2SfMI8DQiUMIuJ+fwi7eido8b3+23lz9SXL996BC+7J7kZaE3capakzp0nsW7fTh2eQGG1LBkdr02RbsviXOYVEKGcsCYHFhoWFU2kjY+r+ENP3L/OW67nf3Zk4iaJKLVmWZRNB7KXMjSEIo2HwAA=");
+  background-size: cover;
+  background-position: center;
+  animation: city-asm-clear 1.5s ease-in both;
+  animation-delay: calc(var(--asm-t0, 0ms) + 0.25s);
+}
+@keyframes city-asm-clear {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
 /* Every element sits in the 16:9 frame by percent, and the whole hero is
    built the way a site is built. The ground first: each island is surveyed
    and then laid down in strata from its plateau downward. Then the buildings:
@@ -1138,7 +1159,7 @@ main[data-experience] .city-hero-copy .rise {
   opacity: 0;
   mix-blend-mode: normal;
   animation: city-asm-cloud 1.4s ease-out both;
-  animation-delay: calc(var(--asm-t0, 0ms) + 3.9s);
+  animation-delay: calc(var(--asm-t0, 0ms) + 4.15s);
 }
 @keyframes city-asm-ground {
   from {
@@ -1250,7 +1271,8 @@ main[data-experience] .city-hero-copy .rise {
 }
 @media (prefers-reduced-motion: reduce) {
   .city-asm-cage,
-  .city-asm-slab {
+  .city-asm-slab,
+  .city-asm-wash {
     display: none;
   }
   .city-asm-el,
