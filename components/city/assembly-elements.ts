@@ -11,16 +11,16 @@ export interface AsmElement {
   width: number
 }
 export const ASM_ELEMENTS: readonly AsmElement[] = [
-  { id: "r1", kind: "rock", floors: 0, delay: 0, left: 21.693, top: 49.167, width: 31.615 },
-  { id: "r2", kind: "rock", floors: 0, delay: 0, left: 47.682, top: 51.157, width: 27.135 },
-  { id: "r3", kind: "rock", floors: 0, delay: 0, left: 68.698, top: 49.167, width: 31.302 },
-  { id: "bfar", kind: "building", floors: 11, delay: 1.53, left: 92.5, top: 21.481, width: 7.5 },
-  { id: "btall", kind: "building", floors: 14, delay: 0.97, left: 58.385, top: 2.685, width: 10.625 },
-  { id: "bpink", kind: "building", floors: 11, delay: 1.19, left: 40.599, top: 22.5, width: 10.807 },
-  { id: "bpeach", kind: "building", floors: 9, delay: 1.31, left: 30.078, top: 35.88, width: 13.438 },
-  { id: "blcyl", kind: "building", floors: 5, delay: 1.65, left: 25.391, top: 53.981, width: 12.031 },
-  { id: "bcenter", kind: "building", floors: 9, delay: 0.85, left: 51.484, top: 30.185, width: 22.734 },
-  { id: "brtowers", kind: "building", floors: 12, delay: 1.42, left: 79.375, top: 28.194, width: 13.047 },
-  { id: "brcyl", kind: "building", floors: 5, delay: 1.75, left: 78.698, top: 62.361, width: 16.51 },
-  { id: "bridges", kind: "bridge", floors: 0, delay: 3.4, left: 36.589, top: 35.972, width: 49.036 },
+  { id: "r1", kind: "rock", floors: 10, delay: 0, left: 22.266, top: 49.583, width: 29.896 },
+  { id: "r2", kind: "rock", floors: 10, delay: 0, left: 48.255, top: 51.574, width: 25.99 },
+  { id: "r3", kind: "rock", floors: 10, delay: 0, left: 69.245, top: 49.583, width: 30.755 },
+  { id: "bfar", kind: "building", floors: 11, delay: 1.88, left: 93.047, top: 21.852, width: 6.953 },
+  { id: "btall", kind: "building", floors: 14, delay: 1.32, left: 58.958, top: 4.491, width: 9.297 },
+  { id: "bpink", kind: "building", floors: 11, delay: 1.54, left: 41.563, top: 23.38, width: 9.271 },
+  { id: "bpeach", kind: "building", floors: 9, delay: 1.66, left: 30.651, top: 36.25, width: 12.292 },
+  { id: "blcyl", kind: "building", floors: 5, delay: 2, left: 25.964, top: 54.352, width: 10.885 },
+  { id: "bcenter", kind: "building", floors: 9, delay: 1.2, left: 52.057, top: 30.556, width: 21.589 },
+  { id: "brtowers", kind: "building", floors: 12, delay: 1.77, left: 79.948, top: 28.75, width: 11.901 },
+  { id: "brcyl", kind: "building", floors: 5, delay: 2.1, left: 79.245, top: 62.778, width: 15.391 },
+  { id: "bridges", kind: "bridge", floors: 0, delay: 3.5, left: 37.161, top: 36.343, width: 47.891 },
 ]

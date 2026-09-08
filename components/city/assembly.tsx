@@ -17,7 +17,8 @@
  * Choreography, all plain CSS so it starts at first paint on the
  * server-rendered plate and the stage can resume it mid-motion. It is a
  * building site, in the order a building site works:
- *   1. the rock bases rise out of the cloud floor and settle — the ground
+ *   1. the islands are surveyed and then laid down in strata from the plateau
+ *      downward, settling into place — the ground is built too
  *   2. scaffolding goes up inside each building's silhouette
  *   3. the floors are poured from the ground up, one step per floor, with a
  *      fresh slab glowing at the top of the work
@@ -71,7 +72,7 @@ export function HeroAssembly({ resumeFrom = 0 }: { resumeFrom?: number }) {
               />
               <img className="city-asm-img" src={PIXEL} alt="" decoding="async" fetchPriority="high" />
             </picture>
-            {e.kind === "building" ? (
+            {e.kind !== "bridge" ? (
               <>
                 <i className="city-asm-cage" />
                 <i className="city-asm-slab" />
