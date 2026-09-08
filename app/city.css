@@ -1011,8 +1011,12 @@ main[data-experience] .city-hero-copy .rise {
     }
   }
 }
-/* every element sits in the 16:9 frame by percent; the wrapper turns and
-   settles (smooth), the picture inside is revealed floor by floor (stepped) */
+/* Every element sits in the 16:9 frame by percent. A building is built the
+   way a building is built: scaffolding goes up first, the floors are poured
+   from the ground up (one step per floor), a fresh slab glows at the top of
+   the work, and the scaffold comes down when the top floor is in. The
+   scaffold and the slab are masked with the element's own picture, so they
+   only ever appear inside that building's silhouette. */
 .city-asm-el {
   position: absolute;
   display: block;
@@ -1024,17 +1028,17 @@ main[data-experience] .city-hero-copy .rise {
   width: 100%;
   height: auto;
 }
-/* 1. the rock bases rise out of the cloud floor and settle, gently turning */
+/* 1. the ground: the rock bases rise out of the cloud floor and settle */
 .city-asm-rock {
-  animation: city-asm-rock 1.15s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: city-asm-ground 1.3s cubic-bezier(0.16, 1, 0.3, 1) both;
   animation-delay: calc(var(--asm-t0, 0ms) + var(--d, 0s));
 }
-@keyframes city-asm-rock {
+@keyframes city-asm-ground {
   from {
-    transform: translate3d(0, 28%, 0) rotateY(-12deg) scale(0.94);
+    transform: translate3d(0, 20%, 0) scale(0.965);
     opacity: 0;
   }
-  40% {
+  45% {
     opacity: 1;
   }
   to {
@@ -1042,25 +1046,11 @@ main[data-experience] .city-hero-copy .rise {
     opacity: 1;
   }
 }
-/* 2. buildings: the wrapper turns a few degrees into place while the picture
-      is revealed from the ground up in as many steps as the building has
-      floors — construction, not a fade */
-.city-asm-building {
-  animation: city-asm-turn 1.1s cubic-bezier(0.22, 1, 0.36, 1) both;
-  animation-delay: calc(var(--asm-t0, 0ms) + var(--d, 0s));
-}
+/* 2. the floors: one step per floor, from the ground up */
 .city-asm-building .city-asm-img {
   clip-path: inset(100% 0 0 0);
-  animation: city-asm-floors 0.95s steps(var(--n, 8), end) both;
-  animation-delay: calc(var(--asm-t0, 0ms) + var(--d, 0s));
-}
-@keyframes city-asm-turn {
-  from {
-    transform: translate3d(0, 3%, 0) rotateY(9deg);
-  }
-  to {
-    transform: none;
-  }
+  animation: city-asm-floors 1.35s steps(var(--n, 9), end) both;
+  animation-delay: calc(var(--asm-t0, 0ms) + var(--d, 0s) + 0.4s);
 }
 @keyframes city-asm-floors {
   from {
@@ -1070,10 +1060,97 @@ main[data-experience] .city-hero-copy .rise {
     clip-path: inset(0 0 0 0);
   }
 }
-/* 3. the bridges grow out from their middles and connect the islands */
+/* the building wears its own picture as a mask, so the scaffold and the slab
+   drawn inside it can never spill into the sky */
+.city-asm-building {
+  -webkit-mask-image: var(--m);
+  mask-image: var(--m);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+.city-asm-cage,
+.city-asm-slab {
+  position: absolute;
+  inset: 0;
+  display: block;
+  pointer-events: none;
+}
+/* 3. the scaffold: floor ties and standards, receding as the floors arrive */
+.city-asm-cage {
+  background-image:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(24, 36, 74, 0.5) 0 1px,
+      rgba(24, 36, 74, 0) 1px calc(100% / var(--n, 9))
+    ),
+    repeating-linear-gradient(to right, rgba(24, 36, 74, 0.34) 0 1px, rgba(24, 36, 74, 0) 1px 19%);
+  opacity: 0;
+  animation:
+    city-asm-cage-in 0.4s ease-out both,
+    city-asm-cage-up 1.35s steps(var(--n, 9), end) both,
+    city-asm-cage-out 0.45s ease-in forwards;
+  animation-delay:
+    calc(var(--asm-t0, 0ms) + var(--d, 0s)),
+    calc(var(--asm-t0, 0ms) + var(--d, 0s) + 0.4s),
+    calc(var(--asm-t0, 0ms) + var(--d, 0s) + 1.6s);
+}
+@keyframes city-asm-cage-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes city-asm-cage-up {
+  from {
+    clip-path: inset(0 0 0 0);
+  }
+  to {
+    clip-path: inset(0 0 100% 0);
+  }
+}
+@keyframes city-asm-cage-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+/* 4. the slab: the floor being poured glows at the top of the work */
+.city-asm-slab {
+  background-image: linear-gradient(
+    to bottom,
+    rgba(255, 246, 232, 0) 0%,
+    rgba(255, 246, 232, 0.62) 40%,
+    rgba(255, 246, 232, 0.62) 60%,
+    rgba(255, 246, 232, 0) 100%
+  );
+  background-size: 100% 3.2%;
+  background-repeat: no-repeat;
+  background-position: 0 103%;
+  animation:
+    city-asm-slab-rise 1.35s steps(var(--n, 9), end) both,
+    city-asm-cage-out 0.4s ease-in forwards;
+  animation-delay:
+    calc(var(--asm-t0, 0ms) + var(--d, 0s) + 0.4s),
+    calc(var(--asm-t0, 0ms) + var(--d, 0s) + 1.62s);
+}
+@keyframes city-asm-slab-rise {
+  from {
+    background-position: 0 103%;
+  }
+  to {
+    background-position: 0 -3%;
+  }
+}
+/* 5. last, the bridges grow out from their middles and connect the islands */
 .city-asm-bridge .city-asm-img {
   clip-path: inset(0 50% 0 50%);
-  animation: city-asm-connect 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: city-asm-connect 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: calc(var(--asm-t0, 0ms) + var(--d, 0s));
 }
 @keyframes city-asm-connect {
@@ -1084,7 +1161,7 @@ main[data-experience] .city-hero-copy .rise {
     clip-path: inset(0 0 0 0);
   }
 }
-/* 4. a cloud puff settles in front of the feet, last */
+/* 6. a cloud puff settles in front of the feet */
 .city-asm-cloud {
   position: absolute;
   left: 26%;
@@ -1094,7 +1171,7 @@ main[data-experience] .city-hero-copy .rise {
   opacity: 0;
   mix-blend-mode: normal;
   animation: city-asm-cloud 1.4s ease-out both;
-  animation-delay: calc(var(--asm-t0, 0ms) + 2.4s);
+  animation-delay: calc(var(--asm-t0, 0ms) + 3.4s);
 }
 @keyframes city-asm-cloud {
   from {
@@ -1104,6 +1181,13 @@ main[data-experience] .city-hero-copy .rise {
   to {
     opacity: 0.9;
     transform: none;
+  }
+}
+/* without masks the scaffold would be a rectangle over the sky */
+@supports not ((-webkit-mask-image: url("/home/asm/r1-1x.avif")) or (mask-image: url("/home/asm/r1-1x.avif"))) {
+  .city-asm-cage,
+  .city-asm-slab {
+    display: none;
   }
 }
 /* from 768 px the hero plate is the assembly; phones keep the portrait plate */
@@ -1118,6 +1202,10 @@ main[data-experience] .city-hero-copy .rise {
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  .city-asm-cage,
+  .city-asm-slab {
+    display: none;
+  }
   .city-asm-el,
   .city-asm-img,
   .city-asm-cloud {

@@ -15,13 +15,15 @@
  * plain sky with no ghost of the city.
  *
  * Choreography, all plain CSS so it starts at first paint on the
- * server-rendered plate and the stage can resume it mid-motion:
- *   1. the rock bases rise out of the cloud floor and settle, gently turning
- *   2. each building is revealed floor by floor from the ground up (a stepped
- *      clip on the picture) while the whole building turns a few degrees
- *      into place — centre island first, then left, then right
- *   3. the bridges grow out from their middles and connect the islands
- *   4. a cloud puff settles in front of the feet
+ * server-rendered plate and the stage can resume it mid-motion. It is a
+ * building site, in the order a building site works:
+ *   1. the rock bases rise out of the cloud floor and settle — the ground
+ *   2. scaffolding goes up inside each building's silhouette
+ *   3. the floors are poured from the ground up, one step per floor, with a
+ *      fresh slab glowing at the top of the work
+ *   4. the scaffold comes down when the top floor is in
+ *   5. the bridges grow out from their middles and connect the islands
+ *   6. a cloud puff settles in front of the feet
  * The headline never waits for any of it.
  */
 
@@ -47,6 +49,9 @@ export function HeroAssembly({ resumeFrom = 0 }: { resumeFrom?: number }) {
           width: `${e.width}%`,
           ["--d" as string]: `${e.delay}s`,
           ["--n" as string]: String(Math.max(1, e.floors)),
+          /* the scaffold and the slab wear the element's own silhouette; the
+             1x file is the one the picture below already loads on 1x screens */
+          ["--m" as string]: `url("${ASM}/${e.id}-1x.avif")`,
         } as CSSProperties
         return (
           <span key={e.id} className={`city-asm-el city-asm-${e.kind}`} style={style}>
@@ -66,6 +71,12 @@ export function HeroAssembly({ resumeFrom = 0 }: { resumeFrom?: number }) {
               />
               <img className="city-asm-img" src={PIXEL} alt="" decoding="async" fetchPriority="high" />
             </picture>
+            {e.kind === "building" ? (
+              <>
+                <i className="city-asm-cage" />
+                <i className="city-asm-slab" />
+              </>
+            ) : null}
           </span>
         )
       })}
