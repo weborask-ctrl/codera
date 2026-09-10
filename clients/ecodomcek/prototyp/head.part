@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EcoDomček — prechádzka domom</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --paper:#f3eee3; --paper2:#e9e1cf; --ink:#26221c; --ink2:#5b554a;
+    --line:rgba(38,34,28,.18); --moss:#4d6a2f; --amber:#d2842a;
+    --dusk:#1d1b19; --glow:#f2b563;
+    --sans:'Hanken Grotesk','Helvetica Neue',Arial,sans-serif;
+    --mono:'IBM Plex Mono','SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:auto}
+  body{margin:0;overflow-x:hidden;background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+  a{color:inherit}
+  #world{position:fixed;inset:0;z-index:0}
+  #world canvas{display:block;width:100%;height:100%}
+  #veil{position:fixed;inset:0;z-index:1;pointer-events:none;
+    background:linear-gradient(90deg,var(--paper) 0%,rgba(243,238,227,.86) 15%,rgba(243,238,227,0) 46%)}
+  .dusk #veil{background:linear-gradient(90deg,var(--dusk) 0%,rgba(29,27,25,.9) 18%,rgba(29,27,25,0) 55%)}
+  .dusk{color:#f3eee3}
+  #scroller{position:relative;z-index:2}
+  .beat{min-height:100svh;display:flex;align-items:center;padding:0 clamp(20px,5vw,80px)}
+  .panel{width:100%;max-width:min(560px,92vw);display:flex;flex-direction:column;gap:20px;
+    opacity:0;transform:translateY(18px)}
+  .tag{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--ink2)}
+  .dusk .tag{color:rgba(243,238,227,.7)}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--amber);flex:none}
+  .rule{width:28px;height:1px;background:currentColor;flex:none;opacity:.6}
+  h1,h2{margin:0;font-weight:300;letter-spacing:-.02em;line-height:1}
+  h1{font-size:clamp(38px,6.4vw,84px);line-height:.99}
+  h2{font-size:clamp(30px,4.4vw,56px);line-height:1.02}
+  .eko{color:var(--moss)}
+  .dusk .eko{color:#9dbd66}
+  p{margin:0;font-size:clamp(16px,1.35vw,20px);line-height:1.5;max-width:min(46ch,100%)}
+  .dusk p{color:rgba(243,238,227,.86)}
+  .cta{display:inline-flex;align-items:center;gap:10px;height:52px;padding:0 26px;border-radius:999px;
+    background:var(--amber);color:#26221c;font-size:16px;font-weight:500;text-decoration:none;width:fit-content}
+  .link{font-family:var(--mono);font-size:13px;white-space:nowrap;letter-spacing:.06em;border-bottom:1px solid currentColor;
+    padding-bottom:3px;text-decoration:none;opacity:.85}
+  .row{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+  .layers{border-top:1px solid var(--line);font-size:15px}
+  .layers div{display:flex;gap:14px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line)}
+  .layers b{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--ink2);width:22px;flex:none}
+  .layers span{flex:1}
+  .layers i{font-family:var(--mono);font-size:11px;font-style:normal;color:var(--ink2)}
+  .proj{border-top:1px solid var(--line)}
+  .proj div{display:flex;gap:14px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line);font-size:15px}
+  .proj b{font-family:var(--mono);font-size:12px;font-weight:400;color:var(--ink2);width:38px;flex:none}
+  .phone{font-size:clamp(34px,4.6vw,56px);font-weight:300;color:var(--glow);line-height:1}
+  .fields{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:min(520px,100%);width:100%}
+  .fields label{display:flex;flex-direction:column;gap:6px;font-family:var(--mono);font-size:10px;
+    letter-spacing:.14em;text-transform:uppercase;color:rgba(243,238,227,.6)}
+  .fields span{height:34px;border-bottom:1px solid rgba(243,238,227,.3)}
+  .fields label.wide{grid-column:1/-1}
+  header{position:fixed;top:0;left:0;right:0;z-index:5;display:flex;align-items:center;
+    justify-content:space-between;gap:16px;padding:18px clamp(20px,5vw,80px);pointer-events:none}
+  header *{pointer-events:auto}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand b{font-size:14px;font-weight:500;letter-spacing:.22em}
+  .brand i{display:block;font-family:var(--mono);font-size:9px;font-style:normal;letter-spacing:.12em;
+    color:var(--ink2);margin-top:3px}
+  .dusk .brand i{color:rgba(243,238,227,.6)}
+  nav{display:flex;gap:28px;font-size:15px;font-weight:500}
+  nav a{text-decoration:none;opacity:.9}
+  .tel{font-family:var(--mono);font-size:13px;letter-spacing:.06em;text-decoration:none;
+    display:flex;align-items:center;gap:9px}
+  #map{position:fixed;right:clamp(20px,5vw,80px);bottom:34px;z-index:5;display:flex;align-items:center;
+    gap:12px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2)}
+  .dusk #map{color:rgba(243,238,227,.7)}
+  #map .dots{display:flex;gap:7px}
+  #map .dots i{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.4;transition:.25s}
+  #map .dots i.on{background:var(--amber);opacity:1;transform:scale(1.5)}
+  #hint{position:fixed;left:clamp(20px,5vw,80px);bottom:34px;z-index:5;display:flex;align-items:center;gap:10px;
+    font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);transition:opacity .4s}
+  #note{position:fixed;left:50%;transform:translateX(-50%);bottom:34px;z-index:5;font-family:var(--mono);
+    font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink2);opacity:.75;text-align:center}
+  .dusk #note{color:rgba(243,238,227,.6)}
+  #load{position:fixed;inset:0;z-index:9;background:var(--paper);display:flex;align-items:center;
+    justify-content:center;flex-direction:column;gap:14px;transition:opacity .8s}
+  #load.gone{opacity:0;pointer-events:none}
+  #load span{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink2)}
+  #load .bar{width:180px;height:1px;background:var(--line);overflow:hidden}
+  #load .bar i{display:block;height:100%;width:0;background:var(--amber);transition:width .5s}
+  @media (max-width:860px){
+    nav{display:none}
+    .panel{max-width:100%}
+    .brand b{font-size:12px;letter-spacing:.18em}
+    .brand i{display:none}
+    .tel{font-size:12px}
+    header{padding:14px 20px}
+    #veil{background:linear-gradient(180deg,rgba(243,238,227,.5) 0%,rgba(243,238,227,0) 26%,rgba(243,238,227,.94) 56%,var(--paper) 100%)}
+    .dusk #veil{background:linear-gradient(180deg,rgba(29,27,25,.5) 0%,rgba(29,27,25,0) 26%,rgba(29,27,25,.94) 56%,var(--dusk) 100%)}
+    .beat{align-items:flex-end;padding-bottom:132px}
+    .fields{grid-template-columns:1fr}
+    #hint,#note{display:none}
+    #map{left:20px;right:20px;bottom:22px;justify-content:space-between}
+  }
+</style>
+</head>
+<body>
+
+<div id="world"></div>
+<div id="veil"></div>
+
+<header>
+  <div class="brand">
+    <svg width="36" height="27" viewBox="0 0 40 30" fill="none" aria-hidden="true">
+      <polyline points="2,28 20,8" stroke="#7a5a3a" stroke-width="5"/>
+      <polyline points="20,8 38,28" stroke="#4d6a2f" stroke-width="5"/>
+      <polyline points="11,28 20,18 29,28" stroke="#c9a96e" stroke-width="4"/>
+    </svg>
+    <div><b>ECODOMČEK</b><i>EKO·LOGICKÉ · EKO·NOMICKÉ STAVBY</i></div>
+  </div>
+  <nav>
+    <a href="#b7">Realizácie</a><a href="#b2">O nás</a><a href="#b4">Technológia</a><a href="#b8">Kontakt</a>
+  </nav>
+  <a class="tel" href="tel:+421908704281"><span class="dot"></span>0908 704 281</a>
+</header>
+
+<div id="scroller">
+
+  <section class="beat" id="b0"><div class="panel">
+    <div class="tag"><span class="dot"></span><span class="rule"></span>01 / 09 · Exteriér · Lúčina · ráno</div>
+    <h1>Čo je <span class="eko">eko</span>logické,<br>je aj <span class="eko">eko</span>nomické.</h1>
+    <p>Drevodomy na kľúč z Lúčiny pri Prešove. Prvý sme si postavili sami v roku 2007. Tento — v našej dedine — v roku 2024. Prejdite si ho izbu po izbe.</p>
+    <div class="row"><a class="cta" href="#b1">Prejsť si dom →</a><a class="link" href="tel:+421908704281">Zavolať 0908 704 281</a></div>
+  </div></section>
+
+  <section class="beat" id="b1"><div class="panel">
+    <div class="tag"><span class="dot"></span><span class="rule"></span>02 / 09 · Fasáda · obklady a strechy</div>
+    <h2>Drevo, ktoré je vidieť.</h2>
+    <p>Rhombus profil zo smrekovca v kombinácii s kompaktnými doskami Fundermax. Klasický tatranský profil, veľkoplošné materiály alebo thermo drevo — čokoľvek, čo drží a starne pekne.</p>
+    <p>Strechy: sedlová, valbová či pultová. Krytina plechová, keramická, betónová, fólia či zelená. Všetko máme, všetko spravíme.</p>
+  </div></section>
+
+  <section class="beat" id="b2"><div class="panel">
+    <div class="tag"><span class="dot"></span><span class="rule"></span>03 / 09 · Prah · o nás</div>
+    <h2>Vitajte vo svete,<br>kde vonia drevo.</h2>
+    <p>Kariéra staviteľa sa začala v roku 2007, keď som si svojpomocne postavil montovaný drevodom. Dovtedy som robil v IT. Potom zavolal jeden kamarát, druhý, piaty, desiaty. Firma vznikla v roku 2017.</p>
+    <p>Poradíme a prekonzultujeme — hoci aj zadarmo.</p>
+  </div></section>
+
+  <section class="beat" id="b3"><div class="panel">
+    <div class="tag"><span class="dot"></span><span class="rule"></span>04 / 09 · Obývačka · kúrenie</div>
+    <h2>V zime teplučký,<br>v lete chladí.</h2>
+    <p>Drevodomu často stačí jeden kozub. Ak treba viac: tepelné čerpadlo, plyn, elektrina, solár. Nízkoenergetický štandard je pri tejto konštrukcii bežný, nie príplatok.</p>
+    <p>A keď sa predstavivosť rozbehne — podsvietený sprchový kút, pochôdzna sieť nad galériou, hojdačka z druhého poschodia. Áno, aj také sme robili.</p>
+  </div></section>
+
+  <section class="beat" id="b4"><div class="panel">
+    <div class="tag"><span class="dot"></span><span class="rule"></span>05 / 09 · Konštrukcia · rez stenou</div>
+    <h2>Otvoríme vám stenu.</h2>
+    <p>My, konzervatívni Slováci, drevostavbe nedôverujeme. Rozumieme. Preto ju neschovávame — tu je vrstva po vrstve. V USA a Kanade je táto technológia osvedčená viac ako 200 rokov.</p>
+    <div class="layers">
+      <div><b>01</b><span>Drevený obklad — rhombus profil</span><i>[hrúbka]</i></div>
+      <div><b>02</b><span>Vetraná medzera, latovanie</span><i>[hrúbka]</i></div>
+      <div><b>03</b><span>Drevovláknitá doska</span><i>[hrúbka]</i></div>
+      <div><b>04</b><span>Nosná konštrukcia + izolácia</span><i>[hrúbka]</i></div>
+      <div><b>05</b><span>Parobrzda</span><i>[hrúbka]</i></div>
+      <div><b>06</b><span>Inštalačná predstena</span><i>[hrúbka]</i></div>
+      <div><b>07</b><span>Sadrokartón, maľba</span><i>[hrúbka]</i></div>
+    </div>
+    <p style="font-family:var(--mono);font-size:11px;line-height:1.5;color:var(--ink2)">Orientačná skladba — vrstvy, hrúbky a U-hodnotu potvrdí EcoDomček. Nič sa neodhaduje.</p>
+  </div></section>
+
+  <section class="beat" id="b5"><div class="panel">
+    <div class="tag"><span class="dot"></span><span class="rule"></span>06 / 09 · Kuchyňa · zdravé bývanie</div>
+    <h2>Príjemná klíma.<br>Bez chémie.</h2>
+    <p>Difúzne otvorená stavba z prírodných materiálov. Drevo chránime bóraxovou soľou — prírodným produktom zo soľných jazier, nie postrekom.</p>
+    <p>Sadrokartón, sadrovláknité dosky, veľkoplošné materiály, maľovanie. Dokončenie je tá časť, kde sa dobrá stavba dá pokaziť. Na to si dávame bacha.</p>
+  </div></section>
+
+  <section class="beat" id="b6"><div class="panel">
+    <div class="tag"><span class="dot"></span><span class="rule"></span>07 / 09 · Terasa · záhrada</div>
+    <h2>K domu patria<br>aj chvíle vonku.</h2>
+    <p>Terasa rozširuje obytný priestor — dá sa uzavrieť a používať aj v zime. Podlaha zo sibírskeho smrekovca alebo termo jaseňa. Altánok v srdci záhrady: a ak príde búrka, skrytí v ňom grilujete ďalej.</p>
+    <p>Garáž, prístrešok pre autá, sklad, drevník. Postavili sme aj kombináciu všetkého naraz.</p>
+  </div></section>
+
+  <section class="beat" id="b7"><div class="panel">
+    <div class="tag"><span class="dot"></span><span class="rule"></span>08 / 09 · Realizácie · 2008 → 2024</div>
+    <h2>Začalo to<br>vlastným domčekom.</h2>
+    <p>Osem realizácií od Žiliny po Kéked. Každá fotená z lešenia, nie z katalógu.</p>
+    <div class="proj">
+      <div><b>2008</b><span>Moja prvotina: náš domček</span></div>
+      <div><b>2015</b><span>Budatín pri Žiline — fasáda zo surového cetrisu</span></div>
+      <div><b>2019</b><span>Luxusná terasa, Chrastné — strecha zo skla</span></div>
+      <div><b>2021</b><span>Bungalov v Prešove</span></div>
+      <div><b>2023</b><span>Veľká rodina — veľký dom pri Košiciach</span></div>
+      <div><b>2024</b><span>Rodinný dom Lúčina — tento dom</span></div>
+    </div>
+  </div></section>
+
+  <section class="beat" id="b8"><div class="panel">
+    <div class="tag"><span class="dot"></span><span class="rule"></span>09 / 09 · Kontakt · Lúčina · večer</div>
+    <h2>Postavme váš.</h2>
+    <p>Volajte kedykoľvek ;) — alebo napíšte, čo staviame. Keď už nič iné, minimálne poradíme. Zadarmo.</p>
+    <a class="phone" href="tel:+421908704281">0908 704 281</a>
+    <div class="fields">
+      <label>Meno<span></span></label>
+      <label>Telefón alebo e-mail<span></span></label>
+      <label class="wide">Čo staviame?<span></span></label>
+    </div>
+    <div class="row"><a class="cta" href="mailto:dobryden@ecodomcek.sk">Poslať dopyt →</a>
+      <span class="link" style="border:0;opacity:.7">EcoDomček, s.r.o. · Lúčina 33 · IČO 50619616</span></div>
+  </div></section>
+
+</div>
+
+<div id="hint">
+  <svg width="14" height="24" viewBox="0 0 16 28" fill="none" aria-hidden="true"><path d="M8 2v22M2 18l6 6 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+  Scrollujte — vchádzame dnu
+</div>
+<div id="note">Blockout · proporcie z fotiek realizácie 2024 · finálny model bude presný</div>
+<div id="map"><span id="mapLabel">01 Exteriér</span><span class="dots" id="dots"></span></div>
+
+<div id="load"><span>EcoDomček — staviame dom</span><div class="bar"><i id="bar"></i></div></div>
+

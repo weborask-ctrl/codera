@@ -141,3 +141,32 @@ Zdrojové artboardy a fotky sú v `compositions/` (`*.dc.html`,
 01 Exteriér · 04 Rez stenou · 07 Realizácie · 09 Kontakt. Mobil 390×844:
 01 · 04 · 09. Stav: NA SCHVÁLENIE — implementácia sveta začína až po
 schválení (PLAN.md §11, fáza 2 → 3).
+
+---
+
+## Fáza 2b — interaktívny prototyp prechádzky
+
+Prototyp (three.js blockout + GSAP ScrollTrigger, natívny scroll):
+https://claude.ai/code/artifact/ec635947-fb5c-4b60-91e2-41bc54e1c3c9
+
+Zdroj v `prototyp/` (`index.html` je celý súbor; `head.part` + `libs.part` +
+`world.js.part` sú diely, z ktorých sa skladá; `ecodomcek-prechadzka-domom.html`
+je verzia bez document wrappera pre Artifact). Referenčné zábery
+v `prototyp/shots/`.
+
+**Čo prototyp dokazuje:** jeden svet, kamera vedená scrollom cez 9 zastávok,
+cutaway stien pri vstupe dnu, rozobratie steny na vrstvy, pohľad zhora
+(dollhouse), dramaturgia svetla ráno → večer, DOM text nad svetom, mini-mapa
+domu. Natívny scroll bez smooth-scroll vrstvy (zákon č. 1).
+
+**Čo prototyp nie je:** finálna kvalita. Dom je blockout s proporciami
+odhadnutými z fotiek realizácie 2024, nie z výkresov. Materiály sú ploché,
+bez fotorealizmu. Interiér je vymyslené rozloženie — skutočný pôdorys
+nemáme.
+
+**Známe otvorené body:**
+- Mobil: NOT VALIDATED — headless prostredie nedáva spoľahlivé meranie
+  šírky; treba reálne zariadenie.
+- Beat 08 (zhora) je najslabší záber; dollhouse čitateľnosť si vyžiada
+  skutočný pôdorys a viac zariadenia.
+- Výkon: zatiaľ nemeraný (FPS, LCP) — patrí do fázy 7.
