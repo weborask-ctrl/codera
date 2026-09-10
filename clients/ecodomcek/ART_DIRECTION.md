@@ -182,3 +182,45 @@ Označené priamo na stránke. Finálne rendery vzniknú z výkresov.
   merania. Úzky layout (500 px) overený, 390 px treba na reálnom zariadení.
 - Výkon (LCP, váha 2 MB) nemeraný — fáza 7.
 - Rez stenou má stále `[hrúbka]` placeholdery — čaká na klienta.
+
+---
+
+## Fáza 2c — dom ako predmet (2026-09-10)
+
+Prototyp: https://claude.ai/code/artifact/ec635947-fb5c-4b60-91e2-41bc54e1c3c9
+
+**Korekcia dva.** Fotoreálna verzia mala zábery na celú plochu s textom
+cez ne. Ondrej: „nechcem aby to boli v pozadí." Má pravdu — fullbleed
+fotka s textom navrchu je tapeta, nie exponát, a stránka o remesle má
+svoj predmet ukazovať, nie ním podkladať.
+
+**Nový zákon layoutu:** obrázok nikdy nie je pozadie. Každý záber žije
+v ráme v mriežke stránky, text je vedľa. Rám je sticky — drží, kým beží
+jeho akt, potom pustí. Canvas stránky ostáva papier.
+
+**Odvodenie z knižnice:** `lusion.md` (LIKED) — *„the stage-block grammar:
+a dark 3D stage set INTO a calm chrome, not a dark page; the 3D is the
+PRODUCT DEMO, not decoration."* Presne to: exponát vsadený do pokojnej
+stránky. `noomo.md` (LIKED) — *„3D as a tangible material of the layout"*.
+Anotačný systém (číslované body + legenda) je z
+`styles/industrial-architectural.md`: specimen-labels a kóty. Dlhé
+slovenské názvy nejdú na obrázok, ale do legendy vedľa — kreslárska
+konvencia, a rieši to pretekanie štítkov cez okraj rámu.
+
+**Nová dramaturgia — dom sa rozoberá:**
+ACT 1 (5 krokov, jeden rám): celý dom → číslované časti pribúdajú
+(strecha, obklad, kompaktné dosky, konzola) → rozložený na vrstvy
+(strecha, poschodia, základová doska) → rez domom s izbami.
+ACT 2 (6 krokov): rez stenou, obývačka, kuchyňa, terasa, realizácie,
+kontakt vo večernom tmavom akte.
+
+**Nové zábery:** `explod.jpg` (rozložený dom), `rez.jpg` (otvorený dom
+ako dollhouse), `hero.jpg` (celý dom s čistou oblohou a priestorom okolo).
+
+**Poznámka k testovaniu:** headless Chromium po programovom scrolle fotí
+od začiatku dokumentu, nie viewport — preto `?step=N` vyrenderuje krok
+samostatne na začiatku dokumentu namiesto scrollovania k nemu. Skoršie
+„prázdne" zábery boli tento artefakt, nie chyba layoutu.
+
+**Otvorené:** mobil 390 px NOT VALIDATED (headless nejde pod 500 px);
+výkon nemeraný; `[hrúbka]` v skladbe steny čaká na klienta.

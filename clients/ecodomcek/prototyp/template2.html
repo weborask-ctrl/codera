@@ -1,0 +1,188 @@
+<title>EcoDomček — dom, ktorý sa dá rozobrať</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --paper:#f3eee3; --paper2:#e9e1cf; --ink:#26221c; --ink2:#5b554a; --line:rgba(38,34,28,.2);
+    --moss:#4d6a2f; --amber:#d2842a; --dusk:#12100e; --glow:#f2b563;
+    --sans:'Hanken Grotesk','Helvetica Neue',Arial,sans-serif;
+    --mono:'IBM Plex Mono','SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;overflow-x:clip;background:var(--paper);color:var(--ink);
+    font-family:var(--sans);-webkit-font-smoothing:antialiased;
+    transition:background .45s ease,color .45s ease}
+  body[data-t="dusk"]{background:var(--dusk);color:#f3eee3}
+  a{color:inherit}
+
+  h1,h2{margin:0;font-weight:300;letter-spacing:-.025em}
+  h1{font-size:clamp(38px,4.6vw,72px);line-height:1}
+  h2{font-size:clamp(29px,3.4vw,50px);line-height:1.03}
+  p{margin:0;font-size:clamp(16px,1.15vw,19px);line-height:1.58;max-width:46ch}
+  body[data-t="dusk"] p{color:rgba(243,238,227,.88)}
+  .panel{display:flex;flex-direction:column;gap:20px}
+  .tag{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;
+    letter-spacing:.15em;text-transform:uppercase;color:var(--ink2)}
+  body[data-t="dusk"] .tag{color:rgba(243,238,227,.72)}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--amber);flex:none}
+  .rule{width:28px;height:1px;background:currentColor;flex:none;opacity:.55}
+  .eko{color:var(--moss)}
+  body[data-t="dusk"] .eko{color:#a8c977}
+  .fine{font-family:var(--mono);font-size:11px;line-height:1.6;letter-spacing:.04em;color:var(--ink2)}
+  body[data-t="dusk"] .fine{color:rgba(243,238,227,.6)}
+  .row{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+  .cta{display:inline-flex;align-items:center;gap:10px;height:54px;padding:0 28px;border-radius:999px;
+    background:var(--amber);color:#26221c;font-size:16px;font-weight:500;text-decoration:none;width:fit-content}
+  .link{font-family:var(--mono);font-size:13px;letter-spacing:.05em;white-space:nowrap;
+    border-bottom:1px solid currentColor;padding-bottom:3px;text-decoration:none;opacity:.85}
+  .layers,.proj{border-top:1px solid var(--line)}
+  body[data-t="dusk"] .layers,body[data-t="dusk"] .proj{border-color:rgba(243,238,227,.22)}
+  .layers div,.proj div{display:flex;gap:14px;align-items:baseline;padding:9px 0;
+    border-bottom:1px solid var(--line);font-size:16px}
+  body[data-t="dusk"] .layers div,body[data-t="dusk"] .proj div{border-color:rgba(243,238,227,.22)}
+  .layers b{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--ink2);width:22px;flex:none}
+  .proj b{font-family:var(--mono);font-size:12px;font-weight:400;color:var(--ink2);width:40px;flex:none}
+  .layers span,.proj span{flex:1}
+  .layers i{font-family:var(--mono);font-size:11px;font-style:normal;color:var(--ink2)}
+  .phone{font-size:clamp(34px,3.6vw,52px);font-weight:300;color:var(--glow);line-height:1;text-decoration:none}
+  .fields{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:min(520px,100%)}
+  .fields label{display:flex;flex-direction:column;gap:7px;font-family:var(--mono);font-size:10px;
+    letter-spacing:.15em;text-transform:uppercase;color:rgba(243,238,227,.62)}
+  .fields span{height:32px;border-bottom:1px solid rgba(243,238,227,.32)}
+  .fields label.wide{grid-column:1/-1}
+
+  header{position:fixed;top:0;left:0;right:0;z-index:9;display:flex;align-items:center;
+    justify-content:space-between;gap:16px;padding:18px clamp(20px,5vw,88px);pointer-events:none}
+  header::before{content:"";position:absolute;inset:0;z-index:-1;
+    background:linear-gradient(180deg,var(--paper) 0%,rgba(243,238,227,.86) 55%,rgba(243,238,227,0) 100%)}
+  body[data-t="dusk"] header::before{
+    background:linear-gradient(180deg,var(--dusk) 0%,rgba(18,16,14,.86) 55%,rgba(18,16,14,0) 100%)}
+  header *{pointer-events:auto}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand b{font-size:14px;font-weight:500;letter-spacing:.22em}
+  .brand i{display:block;font-family:var(--mono);font-size:9px;font-style:normal;
+    letter-spacing:.12em;color:var(--ink2);margin-top:3px}
+  body[data-t="dusk"] .brand i{color:rgba(243,238,227,.6)}
+  nav{display:flex;gap:28px;font-size:15px;font-weight:500}
+  nav a{text-decoration:none;opacity:.92}
+  .tel{font-family:var(--mono);font-size:13px;letter-spacing:.05em;text-decoration:none;
+    display:flex;align-items:center;gap:9px}
+
+  /* progress rail — where in the house we are */
+  #rail{position:fixed;left:clamp(10px,2vw,26px);top:50%;transform:translateY(-50%);z-index:8;
+    display:flex;flex-direction:column;gap:9px;align-items:center}
+  #rail i{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.3;
+    color:var(--ink2);transition:.3s}
+  body[data-t="dusk"] #rail i{color:rgba(243,238,227,.8)}
+  #rail i.on{background:var(--amber);opacity:1;transform:scale(1.7)}
+  #hint{position:fixed;left:50%;transform:translateX(-50%);bottom:24px;z-index:8;
+    display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;
+    letter-spacing:.15em;text-transform:uppercase;color:var(--ink2);transition:opacity .5s}
+
+  @media (max-width:960px){
+    nav{display:none}
+    .brand i{display:none}
+    .brand b{font-size:12px;letter-spacing:.18em}
+    header{padding:12px 20px}
+    .tel{font-size:12px}
+    .fields{grid-template-columns:1fr}
+    #rail{left:8px;gap:7px}
+    #hint{display:none}
+  }
+  /*STAGECSS*/
+</style>
+
+<header>
+  <div class="brand">
+    <svg width="34" height="26" viewBox="0 0 40 30" fill="none" aria-hidden="true">
+      <polyline points="2,28 20,8" stroke="#7a5a3a" stroke-width="5"/>
+      <polyline points="20,8 38,28" stroke="#4d6a2f" stroke-width="5"/>
+      <polyline points="11,28 20,18 29,28" stroke="#c9a96e" stroke-width="4"/>
+    </svg>
+    <div><b>ECODOMČEK</b><i>EKO·LOGICKÉ · EKO·NOMICKÉ STAVBY</i></div>
+  </div>
+  <nav><a href="#act-realizacie">Realizácie</a><a href="#act-dom">Dom</a>
+       <a href="#act-stena">Technológia</a><a href="#act-kontakt">Kontakt</a></nav>
+  <a class="tel" href="tel:+421908704281"><span class="dot"></span>0908 704 281</a>
+</header>
+
+<main>
+  <!--ACTS-->
+</main>
+
+<div id="rail"></div>
+<div id="hint">
+  <svg width="13" height="22" viewBox="0 0 16 28" fill="none" aria-hidden="true"><path d="M8 2v22M2 18l6 6 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+  Scrollujte — dom sa rozoberie
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+(function(){
+  var STEPS = /*STEPS*/;
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var steps = [].slice.call(document.querySelectorAll('.step'));
+  var rail = document.getElementById('rail'), railEls = [];
+  var hint = document.getElementById('hint');
+  var current = -1;
+
+  STEPS.forEach(function(){ var i = document.createElement('i'); rail.appendChild(i); railEls.push(i); });
+
+  function show(k){
+    if(k === current) return;
+    current = k;
+    var s = STEPS[k];
+    // stage: the frame swaps which held shot it carries
+    var act = steps[k].closest('.act');
+    [].forEach.call(act.querySelectorAll('.stage-img'), function(el){
+      el.classList.toggle('on', el.dataset.k.split(' ')[0] === s.stage);
+    });
+    // parts: named pieces of the house, revealed one by one
+    [].forEach.call(act.querySelectorAll('.part'), function(el){
+      el.classList.toggle('on', s.parts.indexOf(el.dataset.p) !== -1);
+    });
+    for(var i = 0; i < railEls.length; i++) railEls[i].classList.toggle('on', i === k);
+    document.body.dataset.t = s.theme;
+    hint.style.opacity = k === 0 ? 1 : 0;
+  }
+
+  gsap.registerPlugin(ScrollTrigger);
+  steps.forEach(function(el, k){
+    ScrollTrigger.create({
+      trigger: el, start: 'top 62%', end: 'bottom 38%',
+      onEnter: function(){ show(k); }, onEnterBack: function(){ show(k); }
+    });
+    gsap.timeline({scrollTrigger:{trigger: el, start:'top 88%', end:'bottom 12%', scrub: reduce ? false : 0.4}})
+      .fromTo(el.querySelector('.panel'), {opacity:0, y: reduce ? 0 : 18},
+              {opacity:1, y:0, duration:.3, ease:'power2.out'})
+      .to(el.querySelector('.panel'), {opacity:1, duration:.44})
+      .to(el.querySelector('.panel'), {opacity: reduce ? 1 : 0, y: reduce ? 0 : -14, duration:.26, ease:'power2.in'});
+  });
+
+  show(0);
+  addEventListener('load', function(){ ScrollTrigger.refresh(); });
+
+  // review hook: ?step=N renders one step alone at the top of the document —
+  // headless capture ignores programmatic scroll, so the step comes to us
+  var m = location.search.match(/[?&]step=([0-9]+)/);
+  if(m){
+    var k = Math.min(steps.length - 1, parseInt(m[1], 10));
+    ScrollTrigger.getAll().forEach(function(t){ t.kill(); });
+    var act = steps[k].closest('.act');
+    [].forEach.call(document.querySelectorAll('.act'), function(a){
+      if(a !== act) a.style.display = 'none';
+    });
+    steps.forEach(function(el, i){ if(el !== steps[k]) el.style.display = 'none'; });
+    act.style.minHeight = '100svh';
+    act.style.alignItems = 'center';
+    var cs = act.querySelector('.col-stage');
+    cs.style.position = 'static';
+    cs.style.height = 'auto';
+    document.querySelectorAll('.part').forEach(function(el){ el.style.transition = 'none'; });
+    document.body.style.transition = 'none';
+    document.getElementById('hint').style.display = 'none';
+    gsap.set('.panel', {opacity:1, y:0});
+    show(k);
+  }
+})();
+</script>
