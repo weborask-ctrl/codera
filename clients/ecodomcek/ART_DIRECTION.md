@@ -144,29 +144,41 @@ schválení (PLAN.md §11, fáza 2 → 3).
 
 ---
 
-## Fáza 2b — interaktívny prototyp prechádzky
+## Fáza 2b — prototyp prechádzky (fotoreálny)
 
-Prototyp (three.js blockout + GSAP ScrollTrigger, natívny scroll):
-https://claude.ai/code/artifact/ec635947-fb5c-4b60-91e2-41bc54e1c3c9
+Prototyp: https://claude.ai/code/artifact/ec635947-fb5c-4b60-91e2-41bc54e1c3c9
+Zdroj a zábery: `prototyp/` (pozri `prototyp/README.md`).
 
-Zdroj v `prototyp/` (`index.html` je celý súbor; `head.part` + `libs.part` +
-`world.js.part` sú diely, z ktorých sa skladá; `ecodomcek-prechadzka-domom.html`
-je verzia bez document wrappera pre Artifact). Referenčné zábery
-v `prototyp/shots/`.
+**Korekcia 2026-09-10.** Prvá verzia prototypu bola realtime three.js
+blockout a Ondrej ju odmietol: „kreslený blud, stromy nie sú pekné".
+Mal pravdu a knižnica to hovorila vopred — 08 §9 (pre-rendered secret)
+aj PLAN.md §6 predpisujú **pečený svet**: drahá scenéria sa renderuje
+offline, realtime ostáva len pre to, čo musí reagovať. Blockout tú
+lekciu porušil. Nahradený sekvenciou pred-renderovaných záberov.
 
-**Čo prototyp dokazuje:** jeden svet, kamera vedená scrollom cez 9 zastávok,
-cutaway stien pri vstupe dnu, rozobratie steny na vrstvy, pohľad zhora
-(dollhouse), dramaturgia svetla ráno → večer, DOM text nad svetom, mini-mapa
-domu. Natívny scroll bez smooth-scroll vrstvy (zákon č. 1).
+**Vizuálny smer — `exoape.md` (LIKED), teraz naplno.** Záznam hovorí:
+„TAKE: light-weight display type at massive scale; dusk warmth instead
+of flat black; text floating over the world at full opacity; slow-dissolve
+transitions. REFUSE: photography dependence — Codera has no photo assets."
+Pre EcoDomček sa to REFUSE obracia: klient MÁ fotografovateľný predmet —
+skutočný dom. Fotografický svet je teda pre neho legitímny, kým pre
+Coderu nebol. To je presne to, na čo knižnica slúži: rovnaký záznam,
+opačné rozhodnutie podľa klienta.
 
-**Čo prototyp nie je:** finálna kvalita. Dom je blockout s proporciami
-odhadnutými z fotiek realizácie 2024, nie z výkresov. Materiály sú ploché,
-bez fotorealizmu. Interiér je vymyslené rozloženie — skutočný pôdorys
-nemáme.
+Doplnkovo: `igloo.md` (jedno prostredie, akty = kamera a svetlo — latka
+fotoreálnosti a atmosféry) a 08 §11 (jeden beat ≈ jeden viewport).
 
-**Známe otvorené body:**
-- Mobil: NOT VALIDATED — headless prostredie nedáva spoľahlivé meranie
-  šírky; treba reálne zariadenie.
-- Beat 08 (zhora) je najslabší záber; dollhouse čitateľnosť si vyžiada
-  skutočný pôdorys a viac zariadenia.
-- Výkon: zatiaľ nemeraný (FPS, LCP) — patrí do fázy 7.
+**Čo prototyp dokazuje:** 9 zastávok v jednom fotoreálnom svete,
+dramaturgia svetla ráno → večer, text nad svetom s čitateľným holdom,
+mapa domu, natívny scroll bez smooth-scroll vrstvy.
+
+**Čo prototyp nie je:** zábery sú architektonické vizualizácie podľa
+proporcií a materiálov realizácie Lúčina 2024, **nie fotografie domu**.
+Označené priamo na stránke. Finálne rendery vzniknú z výkresov.
+
+**Otvorené:**
+- Mobil NOT VALIDATED — headless Chromium ignoruje šírku okna pod 500 px
+  a rozloží stránku na 500, takže staršie „mobilné chyby" boli artefakt
+  merania. Úzky layout (500 px) overený, 390 px treba na reálnom zariadení.
+- Výkon (LCP, váha 2 MB) nemeraný — fáza 7.
+- Rez stenou má stále `[hrúbka]` placeholdery — čaká na klienta.
