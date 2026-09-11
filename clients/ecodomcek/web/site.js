@@ -11,28 +11,55 @@
     });
   });
 
-  // ── the sticky stage: one act, several held shots ───────────────────
-  document.querySelectorAll('[data-stage]').forEach(function (act) {
-    var shots = act.querySelectorAll('[data-shot]');
-    var pins = act.querySelectorAll('.pin');
-    var rows = act.querySelectorAll('.idxlist div');
-    var steps = act.querySelectorAll('.step');
-    var cur = -1;
+  // ── the house: four cut-out layers land on each other as you scroll ──
+  // Each layer carries its own start (spread) and end (seated) position as
+  // a percentage of its own height, so the choreography survives any
+  // viewport. Text steps stay discrete (enter → hold → exit); only the
+  // house is scrubbed.
+  var act = document.querySelector('[data-house]'), houseTl = null;
+  if (act) {
+    var L = {};
+    act.querySelectorAll('.lyr').forEach(function (el) { L[el.dataset.l] = el; });
+    var order = ['ground', 'upper', 'roof'];
+    Object.keys(L).forEach(function (k) { gsap.set(L[k], { yPercent: reduce ? +L[k].dataset.y1 : +L[k].dataset.y0 }); });
 
+    if (!reduce) {
+      var tl = gsap.timeline({ paused: true, defaults: { ease: 'power2.in' } });
+      // a landing nudges everything already seated: the thud
+      function settle(names, at) {
+        names.forEach(function (n) {
+          var el = L[n], seat = +el.dataset.y1, dip = 320 / el.offsetHeight * 1.1 || 1;
+          tl.to(el, { yPercent: seat + dip, duration: .08, ease: 'power1.out' }, at)
+            .to(el, { yPercent: seat, duration: .16, ease: 'power2.out' }, at + .08);
+        });
+      }
+      tl.to(L.ground, { yPercent: +L.ground.dataset.y1, duration: 1.7 }, 1.3);
+      settle(['base'], 3.0);
+      tl.to(L.upper, { yPercent: +L.upper.dataset.y1, duration: 1.7 }, 3.4);
+      settle(['ground', 'base'], 5.1);
+      tl.to(L.roof, { yPercent: +L.roof.dataset.y1, duration: 1.7 }, 5.5);
+      settle(['upper', 'ground', 'base'], 7.2);
+      tl.to({}, { duration: 2.8 }, 7.2);                       // the hold on the finished house
+      houseTl = tl;
+      ScrollTrigger.create({
+        trigger: act, start: 'top top', end: 'bottom bottom', scrub: .55,
+        animation: tl, invalidateOnRefresh: true
+      });
+    }
+
+    // pins + legend + rail follow the text step, discretely
+    var pins = act.querySelectorAll('.pin'), rail = act.querySelectorAll('.rail i');
+    var steps = act.querySelectorAll('.step'), cur = -1;
     function show(k) {
       if (k === cur) return;
       cur = k;
-      var st = steps[k], want = st.dataset.shot;
-      var live = (st.dataset.pins || '').split(',').filter(Boolean);
-      shots.forEach(function (s) {
-        var on = s.dataset.shot === want;
-        gsap.to(s, { opacity: on ? 1 : 0, duration: reduce ? 0 : .75, ease: 'power2.inOut' });
-        s.style.zIndex = on ? 2 : 1;
-      });
+      var live = (steps[k].dataset.pins || '').split(',').filter(Boolean);
       pins.forEach(function (p) { p.classList.toggle('on', live.indexOf(p.dataset.p) !== -1); });
-      rows.forEach(function (r) { r.classList.toggle('on', live.indexOf(r.dataset.p) !== -1); });
+      rail.forEach(function (r) { r.classList.toggle('on', live.indexOf(r.dataset.p) !== -1); });
+      steps.forEach(function (st) {
+        st.querySelectorAll('.idxlist div').forEach(function (r) { r.classList.toggle('on', live.indexOf(r.dataset.p) !== -1); });
+      });
     }
-
     steps.forEach(function (st, k) {
       ScrollTrigger.create({
         trigger: st, start: 'top 58%', end: 'bottom 42%',
@@ -40,7 +67,7 @@
       });
     });
     show(0);
-  });
+  }
 
   // ── parallax inside the frame: the image breathes, the frame holds ──
   if (!reduce) {
@@ -100,7 +127,8 @@
   else addEventListener('load', function () { setTimeout(open, 260); });
   addEventListener('load', function () { ScrollTrigger.refresh(); });
 
-  // review hook: ?sec=N renders one section alone at the top of the page
+  // review hook: ?sec=N renders one section alone at the top of the page;
+  // &step=M picks the text step, &p=0.7 sets the house timeline progress
   var m = location.search.match(/[?&]sec=([0-9]+)/);
   if (m) {
     var k = Math.min(sections.length - 1, parseInt(m[1], 10));
@@ -121,18 +149,17 @@
     keep.classList.add('on');
     var sticky = keep.querySelector('.sticky');
     if (sticky) { sticky.style.position = 'static'; sticky.style.height = 'auto'; }
-    var steps = keep.querySelectorAll('.step');
-    var pick = Math.min(steps.length - 1, parseInt((location.search.match(/[?&]step=([0-9]+)/) || [0, 0])[1], 10));
-    steps.forEach(function (s, i) { if (i !== pick) s.style.display = 'none'; });
-    if (steps[pick]) {
-      var live = (steps[pick].dataset.shot);
-      keep.querySelectorAll('[data-shot]').forEach(function (s) {
-        s.style.opacity = s.dataset.shot === live ? 1 : 0;
-      });
-      var lp = (steps[pick].dataset.pins || '').split(',').filter(Boolean);
+    var ksteps = keep.querySelectorAll('.step');
+    var pick = Math.min(ksteps.length - 1, parseInt((location.search.match(/[?&]step=([0-9]+)/) || [0, 0])[1], 10));
+    ksteps.forEach(function (s, i) { if (i !== pick) s.style.display = 'none'; });
+    if (ksteps[pick]) {
+      var lp = (ksteps[pick].dataset.pins || '').split(',').filter(Boolean);
       keep.querySelectorAll('.pin').forEach(function (p) { p.classList.toggle('on', lp.indexOf(p.dataset.p) !== -1); });
+      keep.querySelectorAll('.rail i').forEach(function (r) { r.classList.toggle('on', lp.indexOf(r.dataset.p) !== -1); });
       keep.querySelectorAll('.idxlist div').forEach(function (r) { r.classList.toggle('on', lp.indexOf(r.dataset.p) !== -1); });
     }
+    var pm = location.search.match(/[?&]p=([0-9.]+)/);
+    if (pm && houseTl) houseTl.progress(parseFloat(pm[1]));
     if (veil) veil.remove();
     document.getElementById('hero') && document.getElementById('hero').classList.add('on');
   }

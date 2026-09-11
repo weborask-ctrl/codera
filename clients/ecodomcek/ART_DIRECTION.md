@@ -286,3 +286,48 @@ Zdroj: `web/` (pozri `web/README.md`), zábery aktov vo `web/shots/`.
 
 **Otvorené:** mobil 390 px NOT VALIDATED (headless nejde pod 500 px);
 výkon nemeraný; `[hrúbka]` a U-hodnota čakajú na klienta.
+
+---
+
+## Fáza 4 — dom zapadne do seba (2026-09-11)
+
+Ondrej: „prerob rozpoloženie stránky a vlož 5D prvky na úvodnú stránku,
+že keď sa bude scrolovať dole, ten dom zapadne do seba pekne."
+
+**Čo sa zmenilo v rozložení.** Úvod (rozložený dom s typom) a druhý akt
+(Štyri vrstvy, crossfade rozložený → zložený) sa zliali do jedného
+**5D hera na 5 obrazoviek**: vpravo sticky dom, vľavo päť textových
+krokov. Stránka má teraz 9 aktov, index a kotvy prečíslované.
+
+**Mechanika.** Fáza 2d tvrdila, že vrstvy sa z jedného renderu vyrezať
+nedajú — platilo to pre rovné rezy. Segmentácia podľa farby pozadia
+s floodfillom (`web/renders/segment.py`) ich oddelí čisto: strecha,
+poschodie, prízemie, doska + jej tieň, každá ako WebP s alfou. Dom je
+**cut-out priamo na papieri** — objekt v mriežke, nie obrázok v ráme
+(a už vôbec nie pozadie). Dosadacie posuny sú zmerané (44/26/30 px
+renderu), rozložená poloha je širšia než render, aby mal scroll čo skladať.
+
+**Dramaturgia.** Dosadnutie prízemia · poschodia · strechy je zladené
+s textovým krokom, ktorý o ňom hovorí; špendlíky na dome, legenda pri
+texte a koľajnica pod domom (Doska · Prízemie · Poschodie · Strecha) sa
+rozsvecujú diskrétne, nie scrubom. Text nikdy nežije v polovičnej
+opacite. Reduced motion = dom sedí od začiatku, text len scrolluje.
+
+**Reference map (hero):**
+
+| Prvok | Zdroj | Extrahované | Adaptované |
+| --- | --- | --- | --- |
+| Predrenderované vrstvy scrubované scrollom | `08_MOTION_AND_SPATIAL_DESIGN.md` §9 (Arqitel, „pre-rendered secret") | scéna sa pečie, realtime je len scrub | žiadny WebGL: 4 alfa-obrázky + transform |
+| Objekt, ktorý sa scrollom stavia | `records/igloo.md` (svet vzniká pri scrolle, jeden materiál) | jedno prostredie, jeden objekt, scroll = stavba | dom sa skladá zdola nahor, papier ostáva |
+| Sticky objekt + diskrétne textové kroky | `records/refokus.md` (pinned sekvencie, beat variety) | text nesie kroky, objekt drží | 5 krokov, každý má vlastný pin/legendu |
+| Číslované špendlíky + legenda | výkresová konvencia z fázy 2b | čísla na kresbe, mená v legende | špendlíky sú deti vrstiev, cestujú s nimi |
+
+**Čo sa nepodarilo.** Zložený render z rovnakej kamery (dva pokusy
+s referenciou, jeden čistiaci prechod nad poskladaným kompozitom) zakaždým
+zmenil proporcie domu — crossfade by bol morf, nie „cvaknutie". Finálny
+stav je preto samotné poskladanie vrstiev; švy sú tesné (kontrola 3× zoom
+v `compose.py`), ale bez kontaktných tieňov medzi dielmi.
+
+**Validácia.** LOCAL: Playwright reálny scroll 1440×900 a 390×844 —
+sticky drží, dom sa skladá v správnych bodoch (`web/shots/hero-*`).
+Mobil na reálnom zariadení NOT VALIDATED.

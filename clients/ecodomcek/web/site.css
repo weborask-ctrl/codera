@@ -116,21 +116,31 @@ figure{margin:0;position:relative}
   font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2)}
 .band.moss .cap,.band.dusk .cap{color:rgba(243,238,227,.5)}
 
-/* ═══ 01 HERO — full bleed, the exploded house, type overlapping ═══════ */
-#hero{min-height:100svh;display:flex;flex-direction:column;justify-content:center;
-  padding:96px 0 84px;position:relative}
-#hero .stack{position:relative;display:grid;grid-template-columns:1fr;align-items:center}
-#hero .art{grid-area:1/1;justify-self:end;width:min(56vw,840px);max-height:72svh;
-  margin-right:calc(var(--gut) * -0.35)}
-#hero .art img{width:100%;height:100%;object-fit:contain}
-#hero .words{grid-area:1/1;position:relative;z-index:2;pointer-events:none;padding-inline:var(--gut)}
-/* the type needs its own ground: a paper veil fading into the drawing */
-#hero .words::before{content:"";position:absolute;left:0;right:34%;top:-12%;bottom:-12%;z-index:-1;
-  background:linear-gradient(90deg,var(--paper) 0%,var(--paper) 58%,rgba(243,238,227,0) 100%)}
-#hero h1{font-size:clamp(38px,5.3vw,86px)}
-#hero .words>*{pointer-events:auto}
+/* ═══ 01 HERO — the house lands layer by layer while you scroll ═════ */
+#hero{padding:0}
+#hero .split{grid-template-columns:minmax(0,44fr) minmax(0,56fr);gap:clamp(26px,3.5vw,64px)}
+#hero .col-a{order:2}
+#hero .step{min-height:92svh}
+#hero .step.intro{min-height:100svh;padding-top:clamp(100px,13vh,150px)}
+#hero h1{font-size:clamp(36px,4.15vw,70px)}
 #hero .sub{margin-top:22px;max-width:34ch;font-size:clamp(16px,1.15vw,19px)}
 #hero .meta{margin-top:26px;display:flex;gap:26px;flex-wrap:wrap}
+#hero .stage{width:min(100%,calc((100svh - 210px) * 1.34));margin-left:auto}
+/* the house is a cut-out on the paper — an object in the grid, not a picture in a frame */
+.house{position:relative;width:100%;aspect-ratio:1500/1119}
+.house .lyr{position:absolute;will-change:transform}
+.house .lyr img{width:100%;height:auto;display:block;pointer-events:none;user-select:none}
+.house .pin{z-index:3}
+#hero .cap{margin-top:14px}
+.rail{display:flex;gap:14px}
+.rail i{font-style:normal;position:relative;padding-left:12px;opacity:.35;transition:opacity .4s var(--ease),color .4s}
+.rail i::before{content:"";position:absolute;left:0;top:50%;width:6px;height:6px;margin-top:-3px;border-radius:50%;
+  background:var(--line);transition:background .4s}
+.rail i.on{opacity:1;color:var(--ink)}
+.rail i.on::before{background:var(--amber)}
+.ctas{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.ghost:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 #scrollcue{display:flex;align-items:center;gap:10px;margin-top:34px;font-family:var(--mono);
   font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2)}
 #scrollcue svg{animation:nudge 2.4s var(--ease) infinite}
@@ -288,14 +298,16 @@ footer .big{font-family:var(--serif);font-size:clamp(24px,2.4vw,38px);line-heigh
   .band.moss .sticky{background:linear-gradient(180deg,var(--moss-deep) 0%,var(--moss-deep) 86%,rgba(36,51,26,0) 100%)}
   .steps{position:relative;z-index:2}
   .step{min-height:auto;padding:22px 0 56px}
-  #hero{min-height:auto;padding:92px 0 56px}
-  #hero .stack{grid-template-columns:1fr}
-  #hero .art{grid-area:auto;width:100%;max-height:none;margin:0 0 22px;justify-self:center}
-  #hero .words::before{display:none}
-  #hero .words{grid-area:auto;position:static}
-  #hero h1{text-shadow:none}
-  #hero .sub{background:none}
-  #hero .meta{position:static;text-align:left;margin-top:26px}
+  #hero{padding:0 0 40px}
+  #hero .split{grid-template-columns:1fr;gap:0}
+  #hero .col-a{order:-1}
+  #hero .stage{width:100%}
+  #hero .step{min-height:auto;padding:22px 0 56px}
+  #hero .step.intro{min-height:auto;padding-top:10px}
+  #hero .sticky{padding:76px 0 16px;background:linear-gradient(180deg,var(--paper) 0%,var(--paper) 97%,rgba(243,238,227,0) 100%)}
+  #hero .cap{display:none}
+  #hero .stage{width:108%;margin-left:-4%}
+  .rail{display:none}
   .rooms{grid-template-columns:1fr;gap:34px}
   .rooms figure:nth-child(2){margin-top:0}
   .rooms .frame{aspect-ratio:4/3}

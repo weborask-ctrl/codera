@@ -1,22 +1,27 @@
 #!/usr/bin/env python3
 """EcoDomček — page composer.
 
-Eleven acts, each with a DIFFERENT SHAPE (refokus.md: beat variety over
+Nine acts, each with a DIFFERENT SHAPE (refokus.md: beat variety over
 effect variety). Images are framed objects inside the grid, never
 backgrounds. Two type voices: grotesque for structure, serif for the human
 moments. Colour lives inside the bands; the shell stays paper.
+
+The hero is the 5D piece: the house arrives exploded into four cut-out
+layers and the scroll lands them on each other — foundation, ground floor,
+upper floor, roof — while the text walks through what each layer does.
 """
-import base64, pathlib, sys
+import base64, json, pathlib, sys
 
 HERE = pathlib.Path(__file__).parent
-REND = HERE.parent / "renders"
+REND = HERE / "renders" if (HERE / "renders").exists() else HERE.parent / "renders"
+MIME = {".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".png": "image/png"}
 
 
 def b64(rel):
     p = REND / rel
     if not p.exists():
         sys.exit(f"missing render: {p}")
-    return "data:image/jpeg;base64," + base64.b64encode(p.read_bytes()).decode("ascii")
+    return f"data:{MIME[p.suffix]};base64," + base64.b64encode(p.read_bytes()).decode("ascii")
 
 
 def lines(text, cls=""):
@@ -30,6 +35,28 @@ def lines(text, cls=""):
 ARROW = ('<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">'
          '<path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" '
          'stroke-linecap="round" stroke-linejoin="round"/></svg>')
+
+# ── the house: four cut-out layers measured from the exploded render ──────
+LAY = json.loads((REND / "layers2.json").read_text())
+# where each layer must travel (px of the 1119-high render) to sit on the one below
+DROP = {"base": 0, "ground": 44, "upper": 44 + 26, "roof": 44 + 26 + 30}
+# how much wider than the render the opening spread is (% of render height, upward)
+SPREAD = {"base": 0, "ground": -1.6, "upper": -5.0, "roof": -10.5}
+PINS = {"roof": ("01", 52, 38), "upper": ("02", 31, 63), "ground": ("03", 26, 58), "base": ("04", 56, 74)}
+NAMES = {"01": "Strecha", "02": "Poschodie · spálne a kúpeľňa",
+         "03": "Prízemie · obývačka, kuchyňa", "04": "Základová doska"}
+
+
+def layer(name):
+    l, W, H = LAY["layers"][name], LAY["W"], LAY["H"]
+    y0 = SPREAD[name] * H / l["h"]           # yPercent of the layer's own height
+    y1 = DROP[name] / l["h"] * 100
+    p, px, py = PINS[name]
+    pin = f'<div class="pin" data-p="{p}" style="left:{px}%;top:{py}%"><s></s><b>{p}</b></div>'
+    return (f'<div class="lyr" data-l="{name}" data-y0="{y0:.2f}" data-y1="{y1:.2f}" '
+            f'style="left:{l["x"]/W*100:.2f}%;top:{l["y"]/H*100:.2f}%;width:{l["w"]/W*100:.2f}%">'
+            f'<img src="{b64(f"lyr-{name}.webp")}" alt="" draggable="false">{pin}</div>')
+
 
 LAYERS = [("01", "Drevený obklad — rhombus profil"), ("02", "Vetraná medzera, latovanie"),
           ("03", "Drevovláknitá doska"), ("04", "Nosná konštrukcia + izolácia"),
@@ -53,11 +80,13 @@ PROCESS = [
     ("04", "Dokončenie", "Sadrokartón, obklady, maľovanie. Tá časť, kde sa dobrá stavba dá pokaziť."),
 ]
 
-QUOTE = "\u201eVitajte vo svete,|kde vonia drevo.\u201c"
+QUOTE = "„Vitajte vo svete,|kde vonia drevo.“"
 
 SERVICES = ["(Drevo)domy na kľúč", "Strechy", "Altánky", "Terasy", "Sadrokartóny",
             "Drevené obklady", "Renovácie", "Maľovanie", "Zatepľovanie", "Interiéry",
             "Konzultácie", "Zoženieme, zobchodujeme"]
+
+N = "09"   # acts on the running index
 
 
 def sec(i, name, band, inner, extra=""):
@@ -69,70 +98,62 @@ def sec(i, name, band, inner, extra=""):
 def build():
     S = []
 
-    # ── 01 HERO — full bleed, the exploded house, type over it ──────────
+    # ── 01 HERO — the house lands layer by layer while you scroll ───────
+    legend = "".join(f'<div data-p="{p}"><b>{p}</b><span>{NAMES[p]}</span></div>' for p in ("01", "02", "03", "04"))
+    house = "".join(layer(n) for n in ("base", "ground", "upper", "roof"))
+    steps = [
+        ("04,03", f"01 / {N} · Základová doska → prízemie", "Najprv sadne|prízemie.",
+         ["Základová doska drží dom nad terénom. Prízemie s obývačkou, kuchyňou a tmavým krídlom sa na ňu položí ako jeden diel.",
+          "Steny sa vyrábajú v hale, na stavbe sa už len skladajú. Preto to ide rýchlo."]),
+        ("02", f"01 / {N} · Poschodie", "Poschodie|nesie spálne.",
+         ["Spálne, detské izby a kúpeľňa. Ďalší diel, ďalší deň montáže.",
+          "Od základov až po kolaudáciu nám tento dom zabral presne rok."]),
+        ("01", f"01 / {N} · Strecha", "Strecha.|A je to dom.",
+         ["Plochá strecha zavrie hmotu. Nič zbytočné, nič navyše.",
+          "Nie sme strohí obchodníci, ale nadšenci drevostavieb."]),
+        ("01,02,03,04", f"01 / {N} · Zložený dom", "Tie isté diely.|Postavené v Lúčine.",
+         ["L-tvar s drevenou hmotou na dve podlažia a tmavým prízemným krídlom. Stojí v našej dedine — vidíme naň z dvora."]),
+    ]
+    steps_html = ""
+    for k, (live, eyebrow, head, paras) in enumerate(steps, start=1):
+        ps = "".join(f'<p class="fade d2">{t}</p>' for t in paras)
+        tail = (f'<div class="idxlist fade d3">{legend}</div>' if k == 4 else
+                f'<div class="idxlist fade d3">{"".join(f"<div data-p={chr(34)}{p}{chr(34)}><b>{p}</b><span>{NAMES[p]}</span></div>" for p in live.split(","))}</div>')
+        cta = ('<div class="ctas fade d4"><a class="btn" href="#act-5">Pozrieť realizácie ' + ARROW + '</a>'
+               '<a class="btn ghost" href="#act-8">Postavme váš</a></div>') if k == 4 else ''
+        steps_html += (f'<div class="step" data-k="{k}" data-pins="{live}" data-reveal>'
+                       f'<div class="eyebrow fade">{eyebrow}</div><h2>{lines(head)}</h2>{ps}{tail}{cta}</div>')
     S.append(f'''<section class="band" id="hero" data-sec="Rozložený dom" data-reveal>
-  <div class="stack">
-    <figure class="art fade d1"><img src="{b64("explod.jpg")}" alt="Rozložený dom — strecha, poschodie, prízemie a základová doska"></figure>
-    <div class="words">
-      <div class="eyebrow fade">Rodinný dom Lúčina <i>/</i> 2024 <i>/</i> okr. Prešov</div>
-      <h1>{lines("Dom, ktorý sa dá|rozobrať na kúsky.")}</h1>
-      <p class="sub fade d2">Montovaná drevostavba je stavebnica s presnými dielmi. Presne preto ide rýchlo a presne preto sedí. Scrollujte — poskladáme ho.</p>
-      <div id="scrollcue" class="fade d3">
-        <svg width="13" height="22" viewBox="0 0 16 28" fill="none"><path d="M8 2v22M2 18l6 6 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-        Scrollujte
+  <div class="wrap split" data-house>
+    <div class="col-a sticky">
+      <div class="stage">
+        <div class="house" id="house">{house}</div>
+        <div class="cap"><span>Rodinný dom Lúčina · 2024 · vizualizácia</span>
+          <span class="rail"><i data-p="04">Doska</i><i data-p="03">Prízemie</i><i data-p="02">Poschodie</i><i data-p="01">Strecha</i></span></div>
       </div>
-      <div class="meta fade d4">
-        <span class="mono">Drevostavby od roku 2007</span>
-        <span class="mono">Lúčina · Prešov · Košice · Žilina</span>
+    </div>
+    <div class="steps">
+      <div class="step intro" data-k="0" data-pins="">
+        <div class="eyebrow fade">Rodinný dom Lúčina <i>/</i> 2024 <i>/</i> okr. Prešov</div>
+        <h1>{lines("Dom, ktorý sa dá|rozobrať na kúsky.")}</h1>
+        <p class="sub fade d2">Montovaná drevostavba je stavebnica s presnými dielmi. Presne preto ide rýchlo a presne preto sedí. Scrollujte — poskladáme ho.</p>
+        <div id="scrollcue" class="fade d3">
+          <svg width="13" height="22" viewBox="0 0 16 28" fill="none"><path d="M8 2v22M2 18l6 6 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Scrollujte
+        </div>
+        <div class="meta fade d4">
+          <span class="mono">Drevostavby od roku 2007</span>
+          <span class="mono">Lúčina · Prešov · Košice · Žilina</span>
+        </div>
       </div>
+      {steps_html}
     </div>
   </div>
 </section>''')
 
-    # ── 02 LAYERS — split, sticky drawing, legend lights up ─────────────
-    pins = [("01", 50, 11.5), ("02", 46, 33), ("03", 42, 62), ("04", 52, 86.5)]
-    names = {"01": "Strecha", "02": "Poschodie · spálne a kúpeľňa",
-             "03": "Prízemie · obývačka, kuchyňa", "04": "Základová doska"}
-    pin_html = "".join(
-        f'<div class="pin" data-p="{p}" style="left:{x}%;top:{y}%"><s></s><b>{p}</b></div>'
-        for p, x, y in pins)
-    rows = "".join(f'<div data-p="{p}"><b>{p}</b><span>{names[p]}</span></div>' for p, _, _ in pins)
-    steps = [
-        ('explod', '01', "02 / 11 · Štyri vrstvy", "Každá vrstva|má svoju prácu.",
-         ["Základová doska drží dom nad terénom. Prízemie nesie poschodie, poschodie nesie strechu.",
-          "Steny sa vyrábajú v hale, na stavbe sa už len skladajú."]),
-        ('explod', '01,02,03,04', "02 / 11 · Štyri vrstvy", "Stavebnica|s presnými dielmi.",
-         ["Od základov až po kolaudáciu. Tento dom nám zabral presne rok.",
-          "Nie sme strohí obchodníci, ale nadšenci drevostavieb."]),
-        ('axon', '', "03 / 11 · Zložený dom", "A takto to|sadne dokopy.",
-         ["Tie isté diely, zložené. L-tvar s drevenou hmotou na dve podlažia a tmavým prízemným krídlom.",
-          "Nič zbytočné, nič navyše."]),
-    ]
-    steps_html = ""
-    for shot, live, eyebrow, head, paras in steps:
-        ps = "".join(f'<p class="fade d2">{t}</p>' for t in paras)
-        steps_html += (f'<div class="step" data-shot="{shot}" data-pins="{live}" data-reveal>'
-                       f'<div class="eyebrow fade">{eyebrow}</div>'
-                       f'<h2>{lines(head)}</h2>{ps}'
-                       + (f'<div class="idxlist fade d3">{rows}</div>' if live else '') +
-                       '</div>')
-    S.append(sec(1, "Štyri vrstvy", "paper", f'''<div class="wrap split" data-stage>
-  <div class="col-a sticky">
-    <figure>
-      <div class="frame obj" style="aspect-ratio:4/3">
-        <img data-shot="explod" src="{b64("explod.jpg")}" alt="Rozložený dom" style="position:absolute;inset:0;opacity:1">
-        <img data-shot="axon" src="{b64("axon.jpg")}" alt="Zložený dom" style="position:absolute;inset:0;opacity:0">
-        <div class="pins">{pin_html}</div>
-      </div>
-      <figcaption class="cap"><span>Skladba domu · vizualizácia</span><span>01 — 04</span></figcaption>
-    </figure>
-  </div>
-  <div class="steps">{steps_html}</div>
-</div>'''))
-
-    # ── 03 FINISHED HOUSE — wide moment + fact row ──────────────────────
-    S.append(sec(2, "Hotový dom", "paper", f'''<div class="wrap wide" data-reveal>
-  <div class="eyebrow fade">04 / 11 <i>/</i> Hotový dom <i>/</i> Lúčina</div>
+    # ── 02 FINISHED HOUSE — wide moment + fact row ──────────────────────
+    S.append(sec(1, "Hotový dom", "paper", f'''<div class="wrap wide" data-reveal>
+  <div class="eyebrow fade">02 / {N} <i>/</i> Hotový dom <i>/</i> Lúčina</div>
   <h2 style="margin:18px 0 34px">{lines("Stojí v našej dedine.|Vidíme naň z dvora.")}</h2>
   <figure data-par>
     <div class="frame clipimg" style="aspect-ratio:21/9"><img src="{b64("hero.jpg")}" alt="Rodinný dom Lúčina"></div>
@@ -146,10 +167,10 @@ def build():
   </div>
 </div>'''))
 
-    # ── 04 QUOTE — the serif voice, no image ────────────────────────────
-    S.append(sec(3, "O nás", "sand", f'''<div class="wrap quote" data-reveal>
+    # ── 03 QUOTE — the serif voice, no image ────────────────────────────
+    S.append(sec(2, "O nás", "sand", f'''<div class="wrap quote" data-reveal>
   <div>
-    <div class="eyebrow fade">05 / 11 <i>/</i> O nás</div>
+    <div class="eyebrow fade">03 / {N} <i>/</i> O nás</div>
     <blockquote style="margin-top:26px">{lines(QUOTE)}</blockquote>
     <div class="who fade d2">
       <span class="mono">Roman Chovanec</span><span class="fine">konateľ · stavia od roku 2007</span>
@@ -161,9 +182,9 @@ def build():
   </div>
 </div>'''))
 
-    # ── 05 WALL — moss band, technical: drawing + spec table ────────────
+    # ── 04 WALL — moss band, technical: drawing + spec table ────────────
     spec = "".join(f'<tr><td>{n}</td><td>{t}</td><td>[hrúbka]</td></tr>' for n, t in LAYERS)
-    S.append(sec(4, "Konštrukcia", "moss", f'''<div class="wrap split" data-reveal>
+    S.append(sec(3, "Konštrukcia", "moss", f'''<div class="wrap split" data-reveal>
   <div class="col-a" style="position:sticky;top:0;padding:clamp(20px,4vh,40px) 0">
     <figure data-par>
       <div class="frame clipimg" style="aspect-ratio:4/3"><img src="{b64("beat4.jpg")}" alt="Rez difúzne otvorenou stenou"></div>
@@ -171,7 +192,7 @@ def build():
     </figure>
   </div>
   <div style="padding:clamp(20px,4vh,40px) 0">
-    <div class="eyebrow fade">06 / 11 <i>/</i> Konštrukcia <i>/</i> vrstva po vrstve</div>
+    <div class="eyebrow fade">04 / {N} <i>/</i> Konštrukcia <i>/</i> vrstva po vrstve</div>
     <h2 style="margin:18px 0 22px">{lines("Otvoríme|vám stenu.")}</h2>
     <p class="lead fade d2" style="margin-bottom:30px">My, konzervatívni Slováci, drevostavbe nedôverujeme. Rozumieme. Preto ju neschovávame — tu je vrstva po vrstve. V USA a Kanade je táto technológia osvedčená viac ako 200 rokov.</p>
     <table class="spec fade d3"><tbody>{spec}</tbody></table>
@@ -179,52 +200,52 @@ def build():
   </div>
 </div>'''))
 
-    # ── 06 ROOMS — three frames in a row, a different rhythm ────────────
+    # ── 05 ROOMS — three frames in a row, a different rhythm ────────────
     rooms = [("beat3.jpg", "Obývačka", "Drevodomu často stačí jeden kozub. Ak treba viac: tepelné čerpadlo, plyn, solár."),
              ("beat5.jpg", "Kuchyňa", "Prírodné materiály, difúzne otvorená stavba. Drevo chránime bóraxovou soľou, nie postrekom."),
              ("beat6.jpg", "Terasa", "Rozširuje obytný priestor — dá sa uzavrieť a používať aj v zime. Sibírsky smrekovec.")]
     rh = "".join(f'''<figure><div class="frame clipimg"><img src="{b64(f)}" alt="{t}"></div>
       <h3>{t}</h3><p>{d}</p></figure>''' for f, t, d in rooms)
-    S.append(sec(5, "Izby", "paper", f'''<div class="wrap" data-reveal>
-  <div class="eyebrow fade">07 / 11 <i>/</i> Vnútri</div>
+    S.append(sec(4, "Izby", "paper", f'''<div class="wrap" data-reveal>
+  <div class="eyebrow fade">05 / {N} <i>/</i> Vnútri</div>
   <h2 style="margin:18px 0 40px">{lines("V zime teplučký,|v lete chladí.")}</h2>
   <div class="rooms fade d2">{rh}</div>
 </div>'''))
 
-    # ── 07 PROJECT INDEX — density is the credibility engine ────────────
+    # ── 06 PROJECT INDEX — density is the credibility engine ────────────
     idx = "".join(f'''<a href="#" data-thumb="{b64('thumbs/' + th + '.jpg')}">
       <span class="yr">{y}</span><span class="nm">{n}</span>
       <span class="pl">{pl}</span><span class="tg">{tg}</span></a>''' for y, n, pl, tg, th in PROJECTS)
-    S.append(sec(6, "Realizácie", "paper", f'''<div class="wrap" data-reveal>
-  <div class="eyebrow fade">08 / 11 <i>/</i> Realizácie <i>/</i> 2008 — 2024</div>
+    S.append(sec(5, "Realizácie", "paper", f'''<div class="wrap" data-reveal>
+  <div class="eyebrow fade">06 / {N} <i>/</i> Realizácie <i>/</i> 2008 — 2024</div>
   <h2 style="margin:18px 0 12px">{lines("Začalo to|vlastným domčekom.")}</h2>
   <p class="fade d2" style="margin-bottom:34px">Osem realizácií od Žiliny po Kéked. Každá fotená z lešenia, nie z katalógu.</p>
   <div class="index fade d3">{idx}</div>
 </div>'''))
 
-    # ── 08 PROCESS + SERVICES — numbered grid, then the full index ──────
+    # ── 07 PROCESS + SERVICES — numbered grid, then the full index ──────
     proc = "".join(f'<div><b>{n}</b><h3>{t}</h3><p>{d}</p></div>' for n, t, d in PROCESS)
     svc = "".join(f'<div><i>{i+1:02d}</i><span>{s}</span></div>' for i, s in enumerate(SERVICES))
-    S.append(sec(7, "Ako to ide", "paper", f'''<div class="wrap" data-reveal>
-  <div class="eyebrow fade">09 / 11 <i>/</i> Ako to ide</div>
+    S.append(sec(6, "Ako to ide", "paper", f'''<div class="wrap" data-reveal>
+  <div class="eyebrow fade">07 / {N} <i>/</i> Ako to ide</div>
   <h2 style="margin:18px 0 40px">{lines("Od prvého telefonátu|po kolaudáciu.")}</h2>
   <div class="proc fade d2">{proc}</div>
   <div class="eyebrow fade d3" style="margin-top:clamp(46px,7vh,88px)">Čo všetko robíme</div>
   <div class="svc fade d3">{svc}</div>
 </div>'''))
 
-    # ── 09 EVENING — full-bleed image moment before the contact ─────────
-    S.append(sec(8, "Večer", "paper", f'''<div class="wrap wide" data-reveal>
+    # ── 08 EVENING — full-bleed image moment before the contact ─────────
+    S.append(sec(7, "Večer", "paper", f'''<div class="wrap wide" data-reveal>
   <figure data-par>
     <div class="frame clipimg" style="aspect-ratio:21/9"><img src="{b64("beat8.jpg")}" alt="Dom večer"></div>
     <figcaption class="cap"><span>Večer v Lúčine · vizualizácia</span><span>Postavené 2024</span></figcaption>
   </figure>
 </div>'''))
 
-    # ── 10 CONTACT — dusk act ───────────────────────────────────────────
-    S.append(sec(9, "Kontakt", "dusk", f'''<div class="wrap contact" data-reveal>
+    # ── 09 CONTACT — dusk act ───────────────────────────────────────────
+    S.append(sec(8, "Kontakt", "dusk", f'''<div class="wrap contact" data-reveal>
   <div>
-    <div class="eyebrow fade">11 / 11 <i>/</i> Kontakt <i>/</i> Lúčina</div>
+    <div class="eyebrow fade">09 / {N} <i>/</i> Kontakt <i>/</i> Lúčina</div>
     <h2 style="margin:18px 0 26px">{lines("Postavme váš.")}</h2>
     <p class="lead fade d2">Volajte kedykoľvek ;) — alebo napíšte, čo staviame. Keď už nič iné, minimálne poradíme. Zadarmo.</p>
     <a class="tel-big fade d3" href="tel:+421908704281" style="margin-top:30px">0908 704 281</a>
