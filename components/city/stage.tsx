@@ -30,8 +30,9 @@
 
 import type { gsap as GsapType } from "gsap"
 import type { ScrollTrigger as ScrollTriggerType } from "gsap/ScrollTrigger"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { stage } from "@/components/experience/stage"
+import { LiveCity, liveElapsed } from "./live"
 
 type Gsap = typeof GsapType
 type ST = typeof ScrollTriggerType
@@ -342,6 +343,12 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
 
   /* ---------------------------------------------------------- clouds --- */
   const clouds = Array.from(root.querySelectorAll<HTMLElement>("[data-cloud]"))
+  /* the living city's depth: each group leans with the pointer by its own
+     amount — sky least, the near island and the foreground clouds most */
+  const leans = Array.from(root.querySelectorAll<HTMLElement>("[data-lean]")).map((el) => ({
+    el,
+    k: Number(el.dataset.lean) || 0,
+  }))
 
   /* ---------------------------------------------------------- pointer --- */
   let tx = 0
@@ -450,6 +457,9 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
     px += (tx - px) * (1 - Math.exp(-dt / 240))
     py += (ty - py) * (1 - Math.exp(-dt / 240))
     world.style.transform = `translate3d(${(-px * 1.1).toFixed(3)}%, ${(-py * 0.7).toFixed(3)}%, 0)`
+    for (const { el, k } of leans) {
+      el.style.transform = `translate3d(${(-px * k * 0.9).toFixed(3)}%, ${(-py * k * 0.55).toFixed(3)}%, 0)`
+    }
 
     /* clouds: the passage's own choreography */
     placeClouds(clouds, cur ? cur.name : "", e, px, py)
@@ -481,6 +491,9 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
 
 export function CityStage() {
   const rootRef = useRef<HTMLDivElement>(null)
+  /* the stage mounts after hydration; its copy of the living city resumes
+     the arrival where the server-rendered plate's copy already is */
+  const [resume] = useState(() => (typeof window === "undefined" ? 0 : liveElapsed()))
 
   useEffect(() => {
     const root = rootRef.current
@@ -512,7 +525,9 @@ export function CityStage() {
             <div
               className={i === 0 ? `city-media city-plate-${plate}` : "city-media"}
               {...(i === 0 ? {} : { "data-scene-plate": plate })}
-            />
+            >
+              {i === 0 ? <LiveCity resumeFrom={resume} /> : null}
+            </div>
           </div>
         ))}
       </div>

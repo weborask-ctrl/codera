@@ -22,6 +22,7 @@ import { bindStage } from "@/components/experience/stage"
 import { commercial, packages, siteConfig, wordpressService } from "@/lib/site-config"
 import { skills } from "@/lib/skills"
 import { DEMO_SIZES, demoSrcSet, HOME_DEMOS } from "./demos"
+import { LiveCity } from "./live"
 
 const DISPLAY = { fontFamily: "var(--font-bricolage), var(--font-geist-sans), sans-serif" }
 const ACCENT = {
@@ -97,7 +98,11 @@ function Cta({ children, className }: { children: React.ReactNode; className: st
 function Plate({ name, band = true }: { name: string; band?: boolean }) {
   return (
     <div aria-hidden="true" className="city-plate">
-      <div data-plate className={`city-plate-img city-plate-${name}`} />
+      <div data-plate className={`city-plate-img city-plate-${name}`}>
+        {/* from 768 px the hero is the living city: it arrives through
+            clouds and stays alive (components/city/live.tsx) */}
+        {name === "hero" ? <LiveCity /> : null}
+      </div>
       {band ? (
         /* biome-ignore lint/performance/noImgElement: screen-blended cloud plate, decorative. */
         <img className="city-band" src="/home/cloud-bank.webp" alt="" decoding="async" loading="lazy" />
@@ -173,6 +178,8 @@ function Hero() {
       {/* the hero plate stays in the city edit too: it holds the frame for
           the instant before the stage chunk arrives, then the stage hides it */}
       <Plate name="hero" band={false} />
+      {/* phones arrive too: a haze over the portrait plate that clears */}
+      <div aria-hidden="true" className="city-hero-haze" />
       <div aria-hidden="true" className="city-hero-scrim" />
       <div data-enter className="enter city-hero-copy">
         <h1 className="city-h1" style={DISPLAY}>
