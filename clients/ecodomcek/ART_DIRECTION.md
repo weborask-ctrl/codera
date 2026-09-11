@@ -224,3 +224,27 @@ samostatne na začiatku dokumentu namiesto scrollovania k nemu. Skoršie
 
 **Otvorené:** mobil 390 px NOT VALIDATED (headless nejde pod 500 px);
 výkon nemeraný; `[hrúbka]` v skladbe steny čaká na klienta.
+
+---
+
+## Fáza 2d — exploded view na úvode (2026-09-11)
+
+Ondrej: „urob exploded view domu na začiatku." Stránka teraz otvára
+**rozloženým domom** a scroll ho skladá.
+
+**Prečo to funguje pre tohto klienta:** montovaná drevostavba JE
+stavebnica. Rozložený dom nie je efekt, je to doslovný popis technológie
+— a zároveň odpoveď na bariéru nedôvery z O nás: kto vidí, z čoho sa dom
+skladá, prestane sa báť, že je to „len drevo".
+
+**Mechanika montáže.** Vrstvy sa nedali vyrezať z jedného renderu —
+v axonometrii sú L-tvaru a v obrazových riadkoch sa prelínajú, takže
+žiadny vodorovný ani šikmý rez ich nerozdelí čisto (zmerané po stĺpcoch).
+Namiesto slicovania vznikol druhý render: **zložená axonometria
+z rovnakého uhla, rovnakej mierky a na rovnakom pozadí**. Crossfade
+rozložený → zložený potom číta ako poskladanie domu.
+
+**Nový sled ACT 1:** rozložený dom (hero) → štyri vrstvy s číslami
+a legendou (01 strecha, 02 poschodie, 03 prízemie, 04 základová doska) →
+zložený dom → hotový dom na svahu (05 obklad, 06 kompaktné dosky,
+07 konzola) → rez domom. ACT 2 (prechádzka izbami) ostáva.

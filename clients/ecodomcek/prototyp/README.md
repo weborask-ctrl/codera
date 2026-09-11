@@ -19,11 +19,13 @@ fotka s textom navrchu je tapeta, nie exponát.
 
 ## Dva akty
 
-**ACT 1 — DOM** (5 krokov, jeden sticky rám, tri zábery). Dom sa ukáže
-celý, potom sa naň postupne pridávajú číslované body a k nim legenda
-v texte (01 strecha, 02 obklad, 03 kompaktné dosky, 04 konzola). Potom
-rám prepne na rozložený dom (strecha, poschodia, základová doska od seba)
-a nakoniec na rez domom s izbami.
+**ACT 1 — DOM** (5 krokov, jeden sticky rám, štyri zábery). Stránka
+**otvára rozloženým domom**: strecha, poschodie, prízemie a základová
+doska plávajú od seba, každá vrstva má číslo na kresbe a názov v legende
+vedľa. Potom sa dom **poskladá** — rám prejde na zloženú axonometriu
+z rovnakého uhla a rovnakého pozadia, takže crossfade číta ako montáž.
+Nasleduje hotový dom na svahu s číslami na fasáde a nakoniec rez domom
+s izbami.
 
 **ACT 2 — PRECHÁDZKA** (6 krokov). Rez stenou, obývačka, kuchyňa, terasa,
 realizácie, kontakt. Rovnaká gramatika: jeden rám, text vedľa. Kontakt
@@ -36,7 +38,8 @@ realizácie *Rodinný dom Lúčina, 2024*. **Nie sú to fotografie realizácie**
 označené priamo na stránke pod každým rámom. Finálne rendery vzniknú
 z výkresov.
 
-`hero` celý dom · `explod` rozložený na vrstvy · `rez` otvorený dom
+`explod` rozložený na vrstvy · `axon` zložený (rovnaký uhol ako explod,
+kvôli crossfade montáže) · `hero` celý dom na svahu · `rez` otvorený dom
 · `beat3` obývačka · `beat4` rez stenou · `beat5` kuchyňa · `beat6` terasa
 · `beat7` z výšky · `beat8` večer
 

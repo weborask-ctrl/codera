@@ -12,53 +12,65 @@ holding one shot at a time, so the world never becomes wallpaper.
 Every stage frame is content in the page grid, never a background layer.
 """
 
-# ── ACT 1 ────────────────────────────────────────────────────────────────
-# parts[]: (x%, y%, angle°, length px, number, label) — pin sits at x/y on the
-# frame, the leader line runs out at `angle`, the label hangs at its end.
+# ── ACT 1 — the house opens EXPLODED, then assembles ─────────────────────
+# The page starts with the building taken apart: four layers floating, each
+# numbered, the names in the legend beside the drawing. Scroll puts it back
+# together (exploded → assembled axonometric → the finished house on its
+# slope) and then opens it again as a cutaway.
+#
+# parts[]: (x, y, angle, length, number, label) — x/y are fractions of the
+# frame; only the number sits on the drawing, the label goes to the legend.
 ACT1 = dict(
     id="dom",
     stages=[
-        dict(key="whole", file="hero.jpg", cap="Rodinný dom Lúčina · 2024 · vizualizácia"),
-        dict(key="explod", file="explod.jpg", object=True, cap="Skladba domu · vizualizácia"),
-        dict(key="rez", file="rez.jpg", object=True, cap="Rez domom · vizualizácia"),
+        dict(key="explod", file="explod.jpg", object=True,
+             cap="Rozložený dom · vizualizácia"),
+        dict(key="axon", file="axon.jpg", object=True,
+             cap="Zložený dom · vizualizácia"),
+        dict(key="whole", file="hero.jpg",
+             cap="Rodinný dom Lúčina · 2024 · vizualizácia"),
+        dict(key="rez", file="rez.jpg", object=True,
+             cap="Rez domom · vizualizácia"),
     ],
     steps=[
         dict(
-            stage="whole", parts=[],
-            tag="01 / 11 · Dom · Lúčina, okr. Prešov",
-            h='Toto je dom,<br>ktorý sme postavili.',
+            stage="explod",
+            parts=[(0.50, 0.115, 0, 0, "01", "Strecha")],
+            tag="01 / 11 · Rozložený dom · Lúčina, okr. Prešov",
+            h='Dom sa dá<br>rozobrať na štyri vrstvy.',
             big=True,
-            p=["Rodinný dom v Lúčine pri Prešove, dokončený v roku 2024. Drevostavba na kľúč — od základov po interiér. Stojí v našej dedine, takže naň vidíme z dvora.",
-               "Poďme ho rozobrať na kúsky."],
+            p=["Takto vyzerá rodinný dom v Lúčine, keď ho rozložíte. Montovaná drevostavba je stavebnica s presnými dielmi — a presne preto ide rýchlo a presne preto sedí.",
+               "Scrollujte a poskladáme ho."],
             cta=True,
         ),
         dict(
-            stage="whole",
-            parts=[(0.66, 0.205, -38, 118, "01", "Plochá strecha · tenká hrana"),
-                   (0.83, 0.34, 14, 150, "02", "Obklad · rhombus profil, smrekovec")],
-            tag="02 / 11 · Obálka domu",
-            h="Drevo, ktoré je vidieť.",
-            p=["Rhombus profil zo smrekovca v kombinácii s kompaktnými doskami Fundermax. Klasický tatranský profil, veľkoplošné materiály alebo thermo drevo — čokoľvek, čo drží a starne pekne.",
-               "Strecha: sedlová, valbová či pultová. Krytina plechová, keramická, betónová, fólia či zelená. Všetko máme, všetko spravíme."],
+            stage="explod",
+            parts=[(0.50, 0.115, 0, 0, "01", "Strecha"),
+                   (0.46, 0.33, 0, 0, "02", "Poschodie · spálne a kúpeľňa"),
+                   (0.42, 0.62, 0, 0, "03", "Prízemie · obývačka, kuchyňa"),
+                   (0.52, 0.865, 0, 0, "04", "Základová doska")],
+            tag="02 / 11 · Štyri vrstvy",
+            h="Každá vrstva má svoju prácu.",
+            p=["Základová doska drží dom nad terénom. Prízemie nesie poschodie, poschodie nesie strechu. Steny sa vyrábajú v hale, na stavbe sa už len skladajú.",
+               "Od základov až po kolaudáciu. Tento dom nám zabral presne rok."],
         ),
         dict(
-            stage="whole",
-            parts=[(0.66, 0.205, -38, 118, "01", "Plochá strecha · tenká hrana"),
-                   (0.83, 0.34, 14, 150, "02", "Obklad · rhombus profil, smrekovec"),
-                   (0.19, 0.63, 186, 150, "03", "Kompaktné dosky · Fundermax"),
-                   (0.46, 0.585, 128, 150, "04", "Konzola nad vstupom")],
-            tag="03 / 11 · Detaily",
-            h="Každý kus má dôvod.",
-            p=["Konzola nad vstupom nie je efekt — kryje vchod pred dažďom a tieni presklenie v lete. Tmavé kompaktné dosky idú tam, kde stena dostáva najviac vody.",
+            stage="axon",
+            parts=[],
+            tag="03 / 11 · Zložený dom",
+            h="A takto to sadne<br>dokopy.",
+            p=["Tie isté diely, zložené. Nič zbytočné, nič navyše — L-tvar s drevenou hmotou na dve podlažia a tmavým prízemným krídlom.",
                "Nie sme strohí obchodníci, ale nadšenci drevostavieb. Radi poradíme a usmerníme — hoci aj zadarmo."],
         ),
         dict(
-            stage="explod",
-            parts=[],
-            tag="04 / 11 · Skladba · ako to drží",
-            h="Rozoberme ho.",
-            p=["Základová doska, nosná konštrukcia poschodí, strecha. Montovaná drevostavba je stavebnica s presnými dielmi — preto ide rýchlo a preto sedí.",
-               "Od základov až po kolaudáciu. Zabralo nám to presne rok."],
+            stage="whole",
+            parts=[(0.66, 0.205, 0, 0, "05", "Obklad · rhombus profil, smrekovec"),
+                   (0.19, 0.63, 0, 0, "06", "Kompaktné dosky · Fundermax"),
+                   (0.46, 0.585, 0, 0, "07", "Konzola nad vstupom")],
+            tag="04 / 11 · Hotový dom",
+            h="Postavený v našej dedine.",
+            p=["Rhombus profil zo smrekovca v kombinácii s kompaktnými doskami Fundermax. Konzola nad vstupom nie je efekt — kryje vchod pred dažďom a tieni presklenie v lete.",
+               "Stojí v Lúčine, takže naň vidíme z dvora."],
         ),
         dict(
             stage="rez",
