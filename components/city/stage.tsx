@@ -30,9 +30,8 @@
 
 import type { gsap as GsapType } from "gsap"
 import type { ScrollTrigger as ScrollTriggerType } from "gsap/ScrollTrigger"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import { stage } from "@/components/experience/stage"
-import { assemblyElapsed, HeroAssembly } from "./assembly"
 
 type Gsap = typeof GsapType
 type ST = typeof ScrollTriggerType
@@ -425,24 +424,20 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
 
     /* which act is on screen when no passage is running */
     const act = stage.act
+    /* the act's own progress gives every scene a slow forward drift, so the
+       world is never parked even while the copy is being read */
+    const actP = stage.p[act] ?? 0
 
     for (const scene of scenes) {
       const name = scene.el.dataset.scene ?? ""
-      /* every scene rests at its own base scale plus a slow forward drift
-         along its act; the passages continue from that value, so the scale
-         never pops at a seam. The hero rests at 1 to match the server plate. */
-      const base = name === "hero" ? 1 : 1.1
-      const own = stage.p[name as keyof typeof stage.p] ?? 0
-      const rest = base + 0.12 * own
-      const drift = -3 * own
       if (cur && name === cur.from) {
         /* leaving: pushes forward and dissolves into the clouds */
-        setScene(scene, 1 - smooth(span(e, 0.34, 0.72)), rest + 0.22 * e, drift - 6 * e)
+        setScene(scene, 1 - smooth(span(e, 0.34, 0.72)), 1.1 + 0.24 * e, -3 - 6 * e)
       } else if (cur && name === cur.to) {
         /* arriving: settles out of a wider shot */
-        setScene(scene, smooth(span(e, 0.28, 0.66)), rest + 0.24 * (1 - e), drift + 7 * (1 - e))
+        setScene(scene, smooth(span(e, 0.28, 0.66)), 1.34 - 0.24 * e, 7 * (1 - e))
       } else if (!cur && name === act) {
-        setScene(scene, 1, rest, drift)
+        setScene(scene, 1, 1.1 + 0.12 * actP, -3 * actP)
       } else {
         scene.el.style.opacity = "0"
         if (scene.tint) {
@@ -486,12 +481,6 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
 
 export function CityStage() {
   const rootRef = useRef<HTMLDivElement>(null)
-  /* the server-rendered plate has been building the city since first paint;
-     the stage's copy resumes the same animation from where it is */
-  const [resume, setResume] = useState(0)
-  useEffect(() => {
-    setResume(assemblyElapsed())
-  }, [])
 
   useEffect(() => {
     const root = rootRef.current
@@ -520,13 +509,10 @@ export function CityStage() {
       <div className="city-world">
         {SCENES.map(([name, plate], i) => (
           <div key={name} data-scene={name} className="city-scene">
-            {i === 0 ? (
-              <div className="city-media">
-                <HeroAssembly resumeFrom={resume} />
-              </div>
-            ) : (
-              <div className="city-media" data-scene-plate={plate} />
-            )}
+            <div
+              className={i === 0 ? `city-media city-plate-${plate}` : "city-media"}
+              {...(i === 0 ? {} : { "data-scene-plate": plate })}
+            />
           </div>
         ))}
       </div>
