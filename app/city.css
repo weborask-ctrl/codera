@@ -85,13 +85,15 @@ main[data-city] {
 .city-plate-night::after {
   background: linear-gradient(180deg, rgb(6 12 40 / 0.4) 0%, rgb(6 12 40 / 0.1) 45%, rgb(6 12 40 / 0.66) 100%);
 }
+/* the passage plates: alpha cutouts, no blend mode — a blended layer reads
+   the whole backdrop back every frame, an alpha plate is one composite */
 .city-cloud {
   position: absolute;
+  display: block;
   left: -10vw;
   top: 0;
   width: 120vw;
   height: auto;
-  mix-blend-mode: screen;
   opacity: 0;
   transform: translate3d(0, 120vh, 0);
   will-change: transform, opacity;
@@ -198,9 +200,37 @@ main[data-city] {
 .city-veil {
   display: contents;
 }
+.city-cloud-img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+/* the haze in the middle of a passage: one flat layer, tinted for the light
+   the passage travels through, so the swap never shows an empty gap and the
+   plates never have to carry the whole crossing alone */
+.city-haze {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity;
+  background: radial-gradient(75% 70% at 50% 50%, rgb(255 250 246 / 0.96) 0%, rgb(236 240 252 / 0.85) 60%, rgb(223 241 255 / 0.7) 100%);
+}
+.city-haze[data-tone="warm"] {
+  background: radial-gradient(75% 70% at 50% 50%, rgb(255 244 232 / 0.96) 0%, rgb(255 232 214 / 0.85) 60%, rgb(250 226 208 / 0.7) 100%);
+}
+.city-haze[data-tone="gold"] {
+  background: radial-gradient(75% 70% at 50% 50%, rgb(255 226 190 / 0.94) 0%, rgb(214 174 208 / 0.82) 60%, rgb(120 84 150 / 0.66) 100%);
+}
+.city-haze[data-tone="night"] {
+  background: radial-gradient(75% 70% at 50% 50%, rgb(58 74 132 / 0.9) 0%, rgb(22 30 74 / 0.86) 60%, rgb(8 12 40 / 0.8) 100%);
+}
+.city-veil .city-haze {
+  position: fixed;
+  z-index: 19;
+}
 .city-veil .city-cloud {
   position: fixed;
-  mix-blend-mode: normal;
   top: 0;
   /* big enough to cross a portrait viewport, small enough that its shape
      stays readable — a phone should see a cloud, not its white interior */
@@ -819,6 +849,32 @@ main[data-city] {
   inset: 0;
   overflow: hidden;
   z-index: 0;
+}
+/* a flat plate dissolves into the sky of the seam instead of ending on a
+   line: the passage parts its clouds over the middle, and a hard edge of the
+   picture scrolling under them read as a cut (iPad, Iterácia 3.7) */
+.city-plate::before,
+.city-plate::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 22%;
+  z-index: 2;
+  pointer-events: none;
+}
+.city-plate::before {
+  top: 0;
+  background: linear-gradient(180deg, var(--city-sky) 0%, rgb(223 241 255 / 0) 100%);
+}
+.city-plate::after {
+  bottom: 0;
+  background: linear-gradient(0deg, var(--city-sky) 0%, rgb(223 241 255 / 0) 100%);
+}
+/* the first act has no seam above it, the last none below */
+.city-hero .city-plate::before,
+.city-resolution .city-plate::after {
+  display: none;
 }
 /* the hero plate holds the frame until the stage chunk mounts, then hides */
 .city-stage ~ .city-main .city-hero .city-plate {
