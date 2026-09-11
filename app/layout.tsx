@@ -160,8 +160,19 @@ export default function RootLayout({
           rel="preload"
           as="image"
           type="image/avif"
-          href="/home/hero-1280.avif"
-          imageSrcSet="/home/hero-1280.avif 1x, /home/hero-2560.avif 2x"
+          href="/home/live/sky-1280.avif"
+          imageSrcSet="/home/live/sky-1280.avif 1x, /home/live/sky-2560.avif 2x"
+          media="(min-width: 768px)"
+          fetchPriority="high"
+        />
+        {/* the cloud we arrive through is the first frame; it must not
+            queue behind the city's layers */}
+        <link
+          rel="preload"
+          as="image"
+          type="image/avif"
+          href="/home/live/cloud-puff-1x.avif"
+          imageSrcSet="/home/live/cloud-puff-1x.avif 1x, /home/live/cloud-puff-2x.avif 2x"
           media="(min-width: 768px)"
           fetchPriority="high"
         />

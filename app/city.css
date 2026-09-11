@@ -40,6 +40,11 @@ main[data-city] {
   opacity: 0;
   will-change: opacity;
 }
+/* the hero scene is on screen from the moment the stage mounts — the motion
+   engine loads a beat later and takes over the opacity from there */
+.city-scene[data-scene="hero"] {
+  opacity: 1;
+}
 .city-tint {
   position: absolute;
   inset: 0;
@@ -973,4 +978,277 @@ main[data-experience] .city-hero-copy .rise {
 /* Fraunces italic descends deeply; the offer headline needs room under it */
 .city-offer .city-h2 {
   padding-bottom: 0.16em;
+}
+
+/* ================================================================
+   The living city (Iterácia 3.6). The hero arrives through clouds, then
+   stays alive: depth under the pointer, drifting foreground clouds, a light
+   along the tubes, a slow breath. See components/city/live.tsx.
+   ================================================================ */
+/* a fixed 16:9 box that covers the viewport whatever its shape; the layers
+   sit in it by percent, so they always line up with the sky behind them */
+.city-live {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100vw, 177.78svh);
+  height: max(56.25vw, 100svh);
+  transform: translate(-50%, -50%);
+  overflow: hidden;
+  display: none;
+  /* A. the landing: the whole world settles down from a slightly wider shot */
+  animation: city-live-land 2.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--live-t0, 0ms);
+}
+@keyframes city-live-land {
+  from {
+    scale: 1.08;
+    translate: 0 2.4%;
+  }
+  to {
+    scale: 1;
+    translate: 0 0;
+  }
+}
+/* C. the world breathes, once it has landed */
+.city-live-world {
+  position: absolute;
+  inset: 0;
+  animation: city-live-breathe 14s ease-in-out infinite;
+  animation-delay: calc(var(--live-t0, 0ms) + 2.6s);
+}
+@keyframes city-live-breathe {
+  0%,
+  100% {
+    scale: 1;
+  }
+  50% {
+    scale: 1.012;
+  }
+}
+.city-live-sky {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-image: url("/home/live/sky-1280.jpg");
+}
+@supports (background-image: image-set(url("/home/live/sky-1280.avif") type("image/avif") 1x)) {
+  .city-live-sky {
+    background-image: image-set(url("/home/live/sky-1280.avif") type("image/avif") 1x, url("/home/live/sky-2560.avif") type("image/avif") 2x, url("/home/live/sky-1280.jpg") 1x, url("/home/live/sky-2560.jpg") 2x);
+  }
+  @media (min-width: 1921px) {
+    .city-live-sky {
+      background-image: image-set(url("/home/live/sky-1920.avif") type("image/avif") 1x, url("/home/live/sky-3840.avif") type("image/avif") 2x, url("/home/live/sky-1920.jpg") 1x, url("/home/live/sky-3840.jpg") 2x);
+    }
+  }
+}
+/* the groups lean with the pointer; the stage writes their transform */
+.city-live-group {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+.city-live-el,
+.city-live-cloud {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+}
+.city-live-img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+/* a light travels along the glass tubes: a moving highlight masked with the
+   bridges' own picture, so it exists only on the tubes */
+.city-live-glint {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+  -webkit-mask-image: var(--gm);
+  mask-image: var(--gm);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  background-image: linear-gradient(
+    100deg,
+    rgb(255 255 255 / 0) 0%,
+    rgb(255 255 255 / 0) 38%,
+    rgb(255 252 240 / 0.95) 47%,
+    rgb(214 248 255 / 0.95) 53%,
+    rgb(255 255 255 / 0) 62%,
+    rgb(255 255 255 / 0) 100%
+  );
+  background-size: 260% 100%;
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  /* overlay lifts the glass body and edges, which are mid-tones; the bright
+     cores are already white and stay as they are */
+  mix-blend-mode: overlay;
+  animation: city-live-glint 11s ease-in-out infinite;
+  animation-delay: calc(var(--live-t0, 0ms) + 3.2s);
+}
+@keyframes city-live-glint {
+  0% {
+    background-position: 0 0;
+  }
+  32%,
+  100% {
+    background-position: 100% 0;
+  }
+}
+/* foreground clouds, nearer than the city, always on the move; they animate
+   translate so the pointer lean (transform) composes with it */
+.city-live-drift {
+  will-change: translate;
+  animation: city-live-drift 52s ease-in-out infinite alternate;
+}
+.city-live-drift-far {
+  left: -6%;
+  top: 44%;
+  width: 112%;
+  opacity: 0.5;
+}
+.city-live-drift-near {
+  left: 58%;
+  top: 64%;
+  width: 62%;
+  opacity: 0.72;
+  animation-duration: 38s;
+  animation-direction: alternate-reverse;
+}
+@keyframes city-live-drift {
+  from {
+    translate: -2.5% 0.4%;
+  }
+  to {
+    translate: 2.5% -0.4%;
+  }
+}
+/* A. the veil we arrive through: a haze that clears and near cloud plates
+   that part left and right, thinning as we pass them; gone after two seconds */
+.city-live-arrive {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.city-live-haze {
+  position: absolute;
+  inset: 0;
+  /* dense enough on its own to be the inside of a cloud, so the first paint
+     never depends on a plate having decoded; the plates add the texture */
+  background: radial-gradient(70% 70% at 50% 45%, rgb(255 247 241 / 0.97) 0%, rgb(252 238 238 / 0.86) 55%, rgb(244 232 242 / 0.7) 100%);
+  animation: city-live-clear 1.9s cubic-bezier(0.45, 0, 0.2, 1) both;
+  animation-delay: calc(var(--live-t0, 0ms) + 0.3s);
+}
+@keyframes city-live-clear {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+.city-live-part {
+  will-change: transform, opacity;
+  animation-duration: 2.1s;
+  animation-timing-function: cubic-bezier(0.3, 0.6, 0.35, 1);
+  animation-fill-mode: both;
+}
+.city-live-part-l {
+  left: -28%;
+  top: -30%;
+  width: 118%;
+  animation-name: city-live-part;
+  animation-delay: calc(var(--live-t0, 0ms) + 0.12s);
+}
+.city-live-part-r {
+  right: -34%;
+  top: -22%;
+  width: 118%;
+  scale: -1 1;
+  animation-name: city-live-part;
+  animation-delay: calc(var(--live-t0, 0ms) + 0.22s);
+}
+.city-live-part-w {
+  left: -10%;
+  top: 18%;
+  width: 130%;
+  opacity: 0.7;
+  animation-name: city-live-part-w;
+  animation-duration: 1.7s;
+  animation-delay: calc(var(--live-t0, 0ms) + 0.05s);
+}
+@keyframes city-live-part {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 1;
+  }
+  40% {
+    opacity: 1;
+  }
+  to {
+    transform: translate3d(-38%, 26%, 0) scale(1.5);
+    opacity: 0;
+  }
+}
+@keyframes city-live-part-w {
+  from {
+    transform: translate3d(0, 0, 0) scale(1.05);
+    opacity: 0.7;
+  }
+  to {
+    transform: translate3d(-30%, -6%, 0) scale(1.35);
+    opacity: 0;
+  }
+}
+/* phones keep the portrait plate; they get the haze clearing and nothing else */
+.city-hero-haze {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(80% 70% at 50% 40%, rgb(255 247 241 / 0.8) 0%, rgb(252 238 238 / 0.55) 55%, rgb(244 232 242 / 0.3) 100%);
+  animation: city-live-clear 1.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation-delay: 0.15s;
+}
+/* from 768 px the living city carries the hero picture; the plate keeps no
+   image of its own (declared after the ladders, so it wins by order) */
+@media (min-width: 768px) {
+  .city-live {
+    display: block;
+  }
+  .city-plate-hero {
+    background-image: none;
+  }
+  .city-hero-haze {
+    display: none;
+  }
+}
+/* without masks the light would be a bar across the sky */
+@supports not ((-webkit-mask-image: url("/home/live/bridges-1x.avif")) or (mask-image: url("/home/live/bridges-1x.avif"))) {
+  .city-live-glint {
+    display: none;
+  }
+}
+/* a page that found itself slow keeps the picture and drops the ambience */
+html[data-lite] .city-live-world,
+html[data-lite] .city-live-drift,
+html[data-lite] .city-live-glint {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .city-live,
+  .city-live-world,
+  .city-live-drift,
+  .city-live-glint,
+  .city-hero-haze {
+    animation: none;
+  }
+  .city-live-arrive,
+  .city-hero-haze {
+    display: none;
+  }
 }
