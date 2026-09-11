@@ -17,10 +17,10 @@
  * because nothing is re-encoded. Transform and opacity only: the compositor
  * carries the whole passage.
  *
- * Scroll input is native. The world alone interpolates (a ~200 ms
- * critically-damped follow), which now smooths a continuous signal instead
- * of hiding steps. GSAP + ScrollTrigger is the only motion engine; nothing
- * pins, so End always reaches the footer.
+ * Scroll input is native. The world alone interpolates — a critically damped
+ * spring with a ~0.4 s settle (Iterácia 3.7), so a wheel notch changes the
+ * world's acceleration and never its speed. GSAP + ScrollTrigger is the only
+ * motion engine; nothing pins, so End always reaches the footer.
  *
  * References (CODERA_DESIGN_REFERENCES): refokus — beat variety over effect
  * variety, the shell never competes with the work; activetheory — conviction
@@ -38,6 +38,33 @@ type Gsap = typeof GsapType
 type ST = typeof ScrollTriggerType
 
 const HOME = "/home"
+const LIVE = "/home/live"
+
+/** The file the plate CSS will pick for this screen (the AVIF ladder in
+ *  city.css), so it can be decoded off the main thread before the class
+ *  lands and the first paint of a 4K plate is not a long frame mid-scroll. */
+function plateFile(plate: string): string {
+  const wide = window.innerWidth > 1920
+  const two = window.devicePixelRatio > 1.5
+  const w = wide ? (two ? 3840 : 1920) : two ? 2560 : 1280
+  return `${HOME}/${plate}-${w}.avif`
+}
+
+/** One cloud plate of a passage: the same alpha plates the hero arrives
+ *  through (components/city/live.tsx), so the seams speak the hero's
+ *  language and nothing is blended — a blend mode reads the whole backdrop
+ *  back for every frame, an alpha plate is one composite. */
+function CloudPlate({ cloud, name, className = "" }: { cloud: string; name: string; className?: string }) {
+  return (
+    <picture data-cloud={cloud} className={`city-cloud ${className}`.trim()}>
+      <source type="image/avif" srcSet={`${LIVE}/cloud-${name}-1x.avif 1x, ${LIVE}/cloud-${name}-2x.avif 2x`} />
+      <source type="image/webp" srcSet={`${LIVE}/cloud-${name}-1x.webp 1x, ${LIVE}/cloud-${name}-2x.webp 2x`} />
+      {/* eager: a plate that lazy-loads when the passage brings it on screen
+          arrives mid-passage as a network wait and a decode spike */}
+      <img className="city-cloud-img" src={`${LIVE}/cloud-${name}-1x.webp`} alt="" decoding="async" />
+    </picture>
+  )
+}
 
 /** The five scenes in journey order. Stills, not video: a still is sharper
  *  than any encode of the same frame and cannot stutter on decode. Each ships
@@ -67,27 +94,70 @@ interface CloudMove {
 }
 
 /**
- * Cloud choreography per passage. t1 descends (banks rise past the camera),
- * t2 moves forward (clouds part sideways), t3 climbs (clouds sink below in
- * golden-to-violet light), t4 falls into night (dim blue banks rise).
+ * Cloud choreography per passage, in the language of the hero's arrival
+ * (Iterácia 3.7, Ondrej 2026-09-11: "celé to tam seká"): the plates no
+ * longer fly 280 vh across the screen — they come TOWARD the camera and part,
+ * growing as they pass, so the displacement per frame is half of what it was
+ * at the same scroll speed and the growth reads as depth. A haze peaks in the
+ * middle of every passage so the swap never shows an empty gap.
+ * t1 descends (banks rise past us), t2 moves forward (they part sideways),
+ * t3 climbs (they sink away in golden-to-violet light), t4 falls into night.
  */
 const PASSAGE_CLOUDS: Record<string, CloudMove[]> = {
   t1: [
-    { el: 0, x: [-8, -4], y: [125, -155], s: [1.25, 1.7], win: [0.02, 0.94], o: 1, f: "" },
-    { el: 1, x: [30, 12], y: [140, -165], s: [1.0, 1.55], win: [0.18, 1], o: 0.95, f: "" },
+    { el: 0, x: [-12, -30], y: [64, -66], s: [1.1, 2.05], win: [0.02, 0.96], o: 0.96, f: "" },
+    { el: 1, x: [22, 44], y: [80, -58], s: [1.0, 1.9], win: [0.14, 1], o: 0.92, f: "" },
   ],
   t2: [
-    { el: 0, x: [-30, -130], y: [30, 4], s: [1.35, 2.1], win: [0.04, 0.96], o: 0.95, f: "" },
-    { el: 1, x: [24, 122], y: [22, -14], s: [1.1, 2.0], win: [0.12, 1], o: 0.9, f: "sepia(0.2) saturate(1.15)" },
+    { el: 0, x: [-22, -118], y: [26, 8], s: [1.3, 2.25], win: [0.04, 0.96], o: 0.94, f: "" },
+    { el: 1, x: [16, 116], y: [14, -8], s: [1.15, 2.1], win: [0.12, 1], o: 0.9, f: "sepia(0.2) saturate(1.15)" },
   ],
   t3: [
-    { el: 0, x: [-10, -6], y: [-135, 145], s: [1.55, 1.2], win: [0.02, 0.94], o: 0.92, f: "sepia(0.55) saturate(1.5) hue-rotate(-14deg)" },
-    { el: 1, x: [26, 14], y: [-155, 135], s: [1.45, 1.1], win: [0.16, 1], o: 0.88, f: "sepia(0.45) saturate(1.6) hue-rotate(228deg)" },
+    { el: 0, x: [-12, -22], y: [-58, 62], s: [1.75, 1.25], win: [0.02, 0.96], o: 0.92, f: "sepia(0.55) saturate(1.5) hue-rotate(-14deg)" },
+    { el: 1, x: [22, 36], y: [-72, 54], s: [1.6, 1.15], win: [0.14, 1], o: 0.88, f: "sepia(0.45) saturate(1.6) hue-rotate(228deg)" },
   ],
   t4: [
-    { el: 0, x: [-8, -2], y: [125, -155], s: [1.25, 1.6], win: [0.02, 0.94], o: 0.78, f: "brightness(0.55) sepia(0.6) hue-rotate(178deg) saturate(1.5)" },
-    { el: 1, x: [28, 12], y: [140, -165], s: [1.0, 1.5], win: [0.18, 1], o: 0.66, f: "brightness(0.45) sepia(0.6) hue-rotate(190deg) saturate(1.5)" },
+    { el: 0, x: [-12, -28], y: [64, -66], s: [1.1, 1.95], win: [0.02, 0.96], o: 0.8, f: "brightness(0.55) sepia(0.6) hue-rotate(178deg) saturate(1.5)" },
+    { el: 1, x: [22, 42], y: [80, -58], s: [1.0, 1.85], win: [0.14, 1], o: 0.7, f: "brightness(0.45) sepia(0.6) hue-rotate(190deg) saturate(1.5)" },
   ],
+}
+
+/** the haze in the middle of each passage: peak opacity and its tone */
+const PASSAGE_HAZE: Record<string, { peak: number; tone: string }> = {
+  t1: { peak: 0.42, tone: "day" },
+  t2: { peak: 0.4, tone: "warm" },
+  t3: { peak: 0.45, tone: "gold" },
+  t4: { peak: 0.55, tone: "night" },
+}
+const hazeAt = (haze: HTMLElement | null, name: string, e: number, gain = 1) => {
+  if (!haze) {
+    return
+  }
+  const h = PASSAGE_HAZE[name]
+  haze.style.opacity = h ? Math.min(0.92, Math.sin(Math.PI * e) * h.peak * gain).toFixed(3) : "0"
+}
+
+/**
+ * The world follows the scroll through a critically damped spring rather
+ * than a first-order filter. A wheel notch is a 100 px jump; a first-order
+ * filter turns every jump into a fresh burst of speed that decays before the
+ * next notch lands, and that sawtooth of velocity is what read as stutter
+ * (measured 2026-09-11: 10 stalls in 89 passage frames at a steady wheel).
+ * A spring keeps velocity continuous — a new target changes acceleration,
+ * never speed — so notches blend into one motion. ω sets a ~0.4 s settle.
+ */
+const SPRING_W = 11.5
+const springStep = (x: number, v: number, target: number, dt: number): [number, number] => {
+  const h = Math.min(0.064, dt / 1000)
+  const a = -2 * SPRING_W * v - SPRING_W * SPRING_W * (x - target)
+  const nv = v + a * h
+  let nx = x + nv * h
+  if (nx < 0) {
+    nx = 0
+  } else if (nx > 1) {
+    nx = 1
+  }
+  return [nx, nv]
 }
 
 interface Passage {
@@ -144,12 +214,15 @@ export function placeClouds(clouds: HTMLElement[], name: string, e: number, px =
   }
 }
 
-export function lightClouds(clouds: HTMLElement[], name: string, extra = "") {
+export function lightClouds(clouds: HTMLElement[], name: string, extra = "", haze: HTMLElement | null = null) {
   for (const m of PASSAGE_CLOUDS[name] ?? []) {
     const el = clouds[m.el]
     if (el) {
       el.style.filter = `${m.f} ${extra}`.trim()
     }
+  }
+  if (haze) {
+    haze.dataset.tone = PASSAGE_HAZE[name]?.tone ?? "day"
   }
 }
 
@@ -265,8 +338,13 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
     if (!el || !plate) {
       return
     }
-    el.classList.add(`city-plate-${plate}`)
     el.removeAttribute("data-scene-plate")
+    /* decode first, then paint: img.decode() runs off the main thread, and
+       the CSS background then finds the file already in the image cache */
+    const warm = new Image()
+    warm.src = plateFile(plate)
+    const land = () => el.classList.add(`city-plate-${plate}`)
+    warm.decode().then(land, land)
   }
   const warmRest = () => {
     for (const scene of scenes) {
@@ -343,6 +421,7 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
 
   /* ---------------------------------------------------------- clouds --- */
   const clouds = Array.from(root.querySelectorAll<HTMLElement>("[data-cloud]"))
+  const haze = root.querySelector<HTMLElement>("[data-haze]")
   /* the living city's depth: each group leans with the pointer by its own
      amount — sky least, the near island and the foreground clouds most */
   const leans = Array.from(root.querySelectorAll<HTMLElement>("[data-lean]")).map((el) => ({
@@ -372,6 +451,7 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
      frame to step through and no state to switch. */
   let cur: Passage | null = null
   let sp = 0
+  let sv = 0
   let lastT = performance.now()
   let lit = ""
   /* if frames run long while the world moves, the page lightens itself once
@@ -413,18 +493,20 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
       cur = active
       if (cur) {
         sp = cur.p
+        sv = 0
       }
     }
     const target = cur ? cur.p : 0
-    sp += (target - sp) * (1 - Math.exp(-dt / 200))
-    if (Math.abs(target - sp) < 0.0004) {
+    ;[sp, sv] = springStep(sp, sv, target, dt)
+    if (Math.abs(target - sp) < 0.0004 && Math.abs(sv) < 0.002) {
       sp = target
+      sv = 0
     }
     const e = cur ? glide(sp) : 0
 
     if (cur && lit !== cur.name) {
       lit = cur.name
-      lightClouds(clouds, cur.name)
+      lightClouds(clouds, cur.name, "", haze)
       /* whatever the idle queue has not reached yet, the passage needs now */
       attach(byName.get(cur.to))
     }
@@ -441,8 +523,9 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
         /* leaving: pushes forward and dissolves into the clouds */
         setScene(scene, 1 - smooth(span(e, 0.34, 0.72)), 1.1 + 0.24 * e, -3 - 6 * e)
       } else if (cur && name === cur.to) {
-        /* arriving: settles out of a wider shot */
-        setScene(scene, smooth(span(e, 0.28, 0.66)), 1.34 - 0.24 * e, 7 * (1 - e))
+        /* arriving: settles out of a wider shot — a smaller step than before,
+           so a 4K plate travels fewer pixels per frame at the same speed */
+        setScene(scene, smooth(span(e, 0.28, 0.66)), 1.26 - 0.16 * e, 6 * (1 - e))
       } else if (!cur && name === act) {
         setScene(scene, 1, 1.1 + 0.12 * actP, -3 * actP)
       } else {
@@ -463,6 +546,7 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
 
     /* clouds: the passage's own choreography */
     placeClouds(clouds, cur ? cur.name : "", e, px, py)
+    hazeAt(haze, cur ? cur.name : "", e)
     if (clouds[2]) {
       /* the wisps ride the whole journey — thin, slow, always there */
       const y = -((window.scrollY * 0.05) % 120)
@@ -534,12 +618,12 @@ export function CityStage() {
       {SCENES.map(([name]) => (
         <div key={name} data-tint={name} className={`city-tint city-tint-${name}`} />
       ))}
-      {/* biome-ignore lint/performance/noImgElement: screen-blended cloud plates moved by the passage. */}
-      <img data-cloud="bank" className="city-cloud" src={`${HOME}/cloud-bank.webp`} alt="" decoding="async" />
-      {/* biome-ignore lint/performance/noImgElement: screen-blended cloud plates moved by the passage. */}
-      <img data-cloud="one" className="city-cloud" src={`${HOME}/cloud-one.webp`} alt="" decoding="async" />
-      {/* biome-ignore lint/performance/noImgElement: screen-blended cloud plates moved by the passage. */}
-      <img data-cloud="wisp" className="city-cloud city-cloud-wisp" src={`${HOME}/cloud-wisp.webp`} alt="" decoding="async" />
+      {/* the haze under the plates: peaks mid-passage so the swap never shows a gap */}
+      <div data-haze className="city-haze" />
+      {/* the same alpha plates the hero arrives through, moved by the passage */}
+      <CloudPlate cloud="bank" name="bank" />
+      <CloudPlate cloud="one" name="puff" />
+      <CloudPlate cloud="wisp" name="wisp" className="city-cloud-wisp" />
     </div>
   )
 }
@@ -612,23 +696,57 @@ export function CityFlatMotion() {
         /* the cloud passages */
         const veil = veilRef.current
         const clouds = veil ? Array.from(veil.querySelectorAll<HTMLElement>("[data-cloud]")) : []
+        const haze = veil ? veil.querySelector<HTMLElement>("[data-haze]") : null
+        /* the veil follows the seam through the same spring as the stage:
+           a finger flick or a wheel notch never lands on the plates directly */
+        const flat = { name: "", target: 0, x: 0, v: 0, last: performance.now() }
         for (const el of main.querySelectorAll<HTMLElement>("[data-seam]")) {
           const name = el.dataset.seam ?? ""
           ScrollTrigger.create({
             trigger: el,
             start: "top bottom",
             end: "bottom top",
-            onEnter: () => lightClouds(clouds, name, FLAT_CLOUD_LIGHT),
-            onEnterBack: () => lightClouds(clouds, name, FLAT_CLOUD_LIGHT),
-            onUpdate: (self) => placeClouds(clouds, name, glide(self.progress)),
-            onLeave: () => placeClouds(clouds, "", 0),
-            onLeaveBack: () => placeClouds(clouds, "", 0),
+            onEnter: () => {
+              flat.name = name
+              flat.x = 0
+              flat.v = 0
+              lightClouds(clouds, name, FLAT_CLOUD_LIGHT, haze)
+            },
+            onEnterBack: () => {
+              flat.name = name
+              flat.x = 1
+              flat.v = 0
+              lightClouds(clouds, name, FLAT_CLOUD_LIGHT, haze)
+            },
+            onUpdate: (self) => {
+              flat.target = self.progress
+            },
+            onLeave: () => {
+              flat.target = 1
+            },
+            onLeaveBack: () => {
+              flat.target = 0
+            },
           })
         }
+        const tick = () => {
+          const now = performance.now()
+          const dt = now - flat.last
+          flat.last = now
+          ;[flat.x, flat.v] = springStep(flat.x, flat.v, flat.target, dt)
+          const e = flat.name ? glide(flat.x) : 0
+          const running = e > 0.001 && e < 0.999
+          placeClouds(clouds, running ? flat.name : "", e)
+          /* the flat seam is a sky band between two plates, so its haze runs
+             a little denser than the stage's */
+          hazeAt(haze, running ? flat.name : "", e, 1.3)
+        }
+        gsap.ticker.add(tick)
         bindDepth(gsap, main, 36)
         const stations = bindStations(ScrollTrigger, main)
         const rail = bindRail(main)
         cleanup = () => {
+          gsap.ticker.remove(tick)
           rail()
           for (const t of stations) {
             t.kill()
@@ -646,12 +764,10 @@ export function CityFlatMotion() {
   }, [])
   return (
     <div ref={veilRef} aria-hidden="true" className="city-veil">
-      {/* the soft white bank vanished on a phone's pale sky — the passage
-          uses the volumetric cumulus twice, the first one mirrored */}
-      {/* biome-ignore lint/performance/noImgElement: alpha cloud plates moved by the passage. */}
-      <img data-cloud="bank" data-flip="" className="city-cloud" src={`${HOME}/cloud-one-a.webp`} alt="" decoding="async" />
-      {/* biome-ignore lint/performance/noImgElement: alpha cloud plates moved by the passage. */}
-      <img data-cloud="one" className="city-cloud" src={`${HOME}/cloud-one-a.webp`} alt="" decoding="async" />
+      {/* the haze under the plates, then the plates the hero arrives through */}
+      <div data-haze className="city-haze" />
+      <CloudPlate cloud="bank" name="bank" />
+      <CloudPlate cloud="one" name="puff" />
     </div>
   )
 }
