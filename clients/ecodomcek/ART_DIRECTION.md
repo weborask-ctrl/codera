@@ -248,3 +248,41 @@ rozložený → zložený potom číta ako poskladanie domu.
 a legendou (01 strecha, 02 poschodie, 03 prízemie, 04 základová doska) →
 zložený dom → hotový dom na svahu (05 obklad, 06 kompaktné dosky,
 07 konzola) → rez domom. ACT 2 (prechádzka izbami) ostáva.
+
+---
+
+## Fáza 3 — remeselná prestavba podľa Refokusu (2026-09-11)
+
+Ondrej: „inšpiruj sa knižnicou a prácou Refokus, urob to premakanejšie —
+nech to vyzerá ako stránka za 20 tisíc."
+
+**Diagnóza.** Predchádzajúca verzia opakovala jeden split screen
+jedenásťkrát. To je najsilnejší „šablónový" signál, aký stránka môže
+vyslať. `refokus.md` to hovorí presne: *„the site feels rich because every
+scroll beat delivers a different kind of content, not a different effect."*
+Pozrel som aj skutočné zábery (`shots/refokus-02`, `-04`) a potvrdilo sa:
+logo wall, serif testimonial, celý oranžový pás pre projekt, tmavý pás pre
+ďalší — zakaždým iný tvar aj iná farba.
+
+**Čo sa zmenilo:**
+
+1. **Dva typografické hlasy.** Hanken Grotesk nesie štruktúru, Newsreader
+   (serif) ľudské momenty — citát konateľa a claim v pätičke. Doteraz bol
+   na stránke jediný hlas, čo ju robilo plochou.
+2. **Desať aktov, desať tvarov.** Full-bleed kresba s typom cez ňu ·
+   sticky kresba s legendou · široký 21:9 záber s riadkom faktov · čisto
+   typografický serif pás bez obrázka · machový technický pás s tabuľkou ·
+   tri rámy v rade · projektový index s thumbnailom na kurzore · štyri
+   číslované kroky + index služieb · tichý široký záber · tmavý kontakt.
+3. **Farba v pásoch, nie v shelli.** papier → piesok → mach → papier →
+   súmrak. Hlavička sa nad tmavými pásmi invertuje.
+4. **Hustota ako dôveryhodnosť** (`basement.md`): osem reálnych realizácií
+   s rokom, miestom a tagmi; dvanásť služieb ako index; sedemvrstvová
+   tabuľka skladby steny.
+5. **Remeslo:** maskované odkrytie nadpisov po riadkoch, clip-path odkrytie
+   obrázkov, parallax vnútri rámu, bežiaci index, hover stavy, focus-visible.
+
+Zdroj: `web/` (pozri `web/README.md`), zábery aktov vo `web/shots/`.
+
+**Otvorené:** mobil 390 px NOT VALIDATED (headless nejde pod 500 px);
+výkon nemeraný; `[hrúbka]` a U-hodnota čakajú na klienta.
