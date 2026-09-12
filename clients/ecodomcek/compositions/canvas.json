@@ -1,0 +1,17 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "title": "01 Exteriér — ráno (desktop)", "x": 0, "y": 0, "w": 1440, "h": 900 },
+    { "file": "RezStenou.dc.html", "title": "04 Rez stenou (desktop)", "x": 1560, "y": 0, "w": 1440, "h": 900 },
+    { "file": "Realizacie.dc.html", "title": "07 Realizácie — zhora (desktop)", "x": 3120, "y": 0, "w": 1440, "h": 900 },
+    { "file": "Kontakt.dc.html", "title": "09 Kontakt — večer (desktop)", "x": 4680, "y": 0, "w": 1440, "h": 900 },
+    { "file": "MobilHero.dc.html", "title": "01 Exteriér (mobil)", "x": 0, "y": 1100, "w": 390, "h": 844 },
+    { "file": "MobilRez.dc.html", "title": "04 Rez stenou (mobil)", "x": 520, "y": 1100, "w": 390, "h": 844 },
+    { "file": "MobilKontakt.dc.html", "title": "09 Kontakt (mobil)", "x": 1040, "y": 1100, "w": 390, "h": 844 }
+  ],
+  "annotations": [
+    { "id": "ref-map", "x": 0, "y": -330, "w": 560, "text": "REFERENČNÁ MAPA (Codera)\nSvetlý svet, akty = kamera + svetlo, mono anotácie → igloo (LIKED)\nĽahký display vo veľkom, text nad svetom v plnej opacite, teplý súmrak → exoape (LIKED)\nFixný svet + natívny scroll, pečená scenéria → Refokus/Arqitel/Cula štúdia (08 §8–13)\nKaždý beat = iný druh obsahu → refokus (LIKED)\nHustota reálneho obsahu ako dôvera → basement (LIKED)\nPaleta z materiálu, jantárová ihla len pre CTA → organic-natural\nSpecimen-labels, kóty, ostré hrany → industrial-architectural" },
+    { "id": "stand-in", "x": 640, "y": -330, "w": 440, "text": "ČO JE PLACEHOLDER\n• Fotka domu v Lúčine (2024) stojí namiesto 3D renderu — vo finále kamera prechádza renderom tohto domu.\n• [hrúbka] a [doplní EcoDomček] = čísla, ktoré klient nedodal. Nič nie je odhadnuté.\n• Skladba steny je orientačná (difúzne otvorená) — potvrdí klient." },
+    { "id": "static-test", "x": 1160, "y": -330, "w": 440, "text": "STATIC-FRAME TEST\nKaždý artboard je držaný záber (shot), nie priebeh animácie. Ak nefunguje zastavený, nefunguje ani v pohybe.\n\nBeaty 0–7 = deň na papieri, beat 9 = večer. Jeden tmavý akt, motivovaný príbehom (súmrak), nie štýlom." }
+  ],
+  "launch": { "view": "canvas" }
+}

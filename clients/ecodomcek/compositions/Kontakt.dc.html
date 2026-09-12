@@ -1,0 +1,121 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    body { margin: 0; background: #1d1b19; }
+    a { color: #f3eee3; } a:hover { color: #f2b563; }
+    .sans { font-family: 'Hanken Grotesk', 'Helvetica Neue', Arial, sans-serif; }
+    .mono { font-family: 'IBM Plex Mono', 'SF Mono', Menlo, monospace; }
+  </style>
+</helmet>
+<div class="sans" style="position: relative; width: 1440px; height: 900px; overflow: hidden; background: #1d1b19; color: #f3eee3;">
+
+  <!-- SVET: dom večer (stand-in fotka stmavená; vo finále render s rozsvietenými oknami) -->
+  <div style="position: absolute; left: 640px; top: 0; width: 800px; height: 900px; overflow: hidden;">
+    <img src="lucina-a.jpg" alt="Rodinný dom Lúčina večer" style="width: 100%; height: 100%; object-fit: cover; object-position: 48% 22%; display: block; opacity: 0.42; filter: saturate(0.6) brightness(0.8);">
+    <div style="position: absolute; inset: 0; background: linear-gradient(90deg, #1d1b19 0%, rgba(29,27,25,0.9) 18%, rgba(29,27,25,0.15) 60%, rgba(29,27,25,0) 100%);"></div>
+    <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(29,27,25,0.1) 0%, rgba(29,27,25,0) 40%, rgba(29,27,25,0.95) 88%, #1d1b19 100%);"></div>
+    <div style="position: absolute; left: 120px; top: 260px; width: 520px; height: 420px; background: radial-gradient(ellipse at 55% 55%, rgba(242,181,99,0.4) 0%, rgba(242,181,99,0.12) 45%, rgba(242,181,99,0) 70%);"></div>
+  </div>
+
+  <!-- HLAVIČKA -->
+  <div style="position: absolute; left: 0; top: 0; width: 1440px; height: 88px; box-sizing: border-box; padding: 0 80px; display: flex; align-items: center; justify-content: space-between;">
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <svg width="40" height="30" viewBox="0 0 40 30" fill="none" aria-hidden="true">
+        <polyline points="2,28 20,8" stroke="#c9a96e" stroke-width="5" stroke-linecap="square"/>
+        <polyline points="20,8 38,28" stroke="#8aa85a" stroke-width="5" stroke-linecap="square"/>
+        <polyline points="11,28 20,18 29,28" stroke="#f3eee3" stroke-width="4" stroke-linecap="square"/>
+      </svg>
+      <div style="display: flex; flex-direction: column; gap: 3px;">
+        <span style="font-size: 15px; line-height: 1; font-weight: 500; letter-spacing: 0.22em;">ECODOMČEK</span>
+        <span class="mono" style="font-size: 9px; line-height: 1; letter-spacing: 0.14em; color: rgba(243,238,227,0.6);">EKO·LOGICKÉ · EKO·NOMICKÉ STAVBY</span>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 36px; font-size: 15px; font-weight: 500; letter-spacing: 0.01em;">
+      <span>Realizácie</span>
+      <span>O nás</span>
+      <span>Technológia</span>
+      <span style="border-bottom: 1px solid #f3eee3; padding-bottom: 2px;">Kontakt</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span style="display: block; width: 6px; height: 6px; border-radius: 50%; background: #d2842a;"></span>
+      <span class="mono" style="font-size: 13px; line-height: 1; letter-spacing: 0.06em;">0908 704 281</span>
+    </div>
+  </div>
+
+  <!-- TEXT + FORMULÁR -->
+  <div style="position: absolute; left: 80px; top: 150px; width: 620px; display: flex; flex-direction: column; gap: 26px;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span style="display: block; width: 6px; height: 6px; border-radius: 50%; background: #d2842a;"></span>
+      <span style="display: block; width: 32px; height: 1px; background: rgba(243,238,227,0.6);"></span>
+      <span class="mono" style="font-size: 12px; line-height: 1; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(243,238,227,0.65);">09 / 09 · Kontakt · Lúčina · večer</span>
+    </div>
+    <h2 style="margin: 0; font-size: 64px; line-height: 1; font-weight: 300; letter-spacing: -0.02em;">Postavme váš.</h2>
+    <p style="margin: 0; max-width: 520px; font-size: 19px; line-height: 1.5; color: rgba(243,238,227,0.85);">Volajte kedykoľvek ;) — alebo napíšte, čo staviame. Keď už nič iné, minimálne poradíme. Zadarmo.</p>
+
+    <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px;">
+      <span style="font-size: 56px; line-height: 1; font-weight: 300; letter-spacing: 0.01em; color: #f2b563;">0908 704 281</span>
+      <span class="mono" style="font-size: 14px; letter-spacing: 0.06em; color: rgba(243,238,227,0.8);">dobryden@ecodomcek.sk</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 24px; margin-top: 8px; max-width: 560px;">
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <span class="mono" style="font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(243,238,227,0.6);">Meno</span>
+        <div style="height: 40px; border-bottom: 1px solid rgba(243,238,227,0.3);"></div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <span class="mono" style="font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(243,238,227,0.6);">Telefón alebo e-mail</span>
+        <div style="height: 40px; border-bottom: 1px solid rgba(243,238,227,0.3);"></div>
+      </div>
+      <div style="grid-column: span 2; display: flex; flex-direction: column; gap: 8px;">
+        <span class="mono" style="font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(243,238,227,0.6);">Čo staviame?</span>
+        <div style="height: 40px; border-bottom: 1px solid rgba(243,238,227,0.3); display: flex; align-items: flex-end; padding-bottom: 10px; font-size: 16px; color: rgba(243,238,227,0.45);">Dom, strecha, terasa, altánok… alebo len otázka.</div>
+      </div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 28px; margin-top: 4px;">
+      <div style="display: flex; align-items: center; gap: 12px; height: 52px; padding: 0 26px; border-radius: 999px; background: #d2842a; color: #26221c; font-size: 16px; font-weight: 500;">
+        <span>Poslať dopyt</span>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="#26221c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <span class="mono" style="font-size: 12px; letter-spacing: 0.06em; color: rgba(243,238,227,0.6);">Ozveme sa. Určite.</span>
+    </div>
+  </div>
+
+  <!-- PÄTIČKA -->
+  <div style="position: absolute; left: 80px; right: 80px; bottom: 44px; display: flex; align-items: flex-end; justify-content: space-between; gap: 40px; border-top: 1px solid rgba(243,238,227,0.18); padding-top: 18px;">
+    <div style="display: flex; flex-direction: column; gap: 6px;">
+      <span class="mono" style="font-size: 11px; letter-spacing: 0.1em; color: rgba(243,238,227,0.7);">EcoDomček, s.r.o. · Lúčina 33, 082 07 Lúčina, okr. Prešov</span>
+      <span class="mono" style="font-size: 11px; letter-spacing: 0.1em; color: rgba(243,238,227,0.5);">IČO 50619616 · IČ DPH SK2120403648 · OR OS Prešov, Sro 33794/P</span>
+    </div>
+    <div style="display: flex; align-items: flex-end; gap: 16px;">
+      <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
+        <span class="mono" style="font-size: 11px; line-height: 1; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(243,238,227,0.5);">Mapa domu</span>
+        <span class="mono" style="font-size: 12px; line-height: 1; letter-spacing: 0.14em; text-transform: uppercase; color: #f3eee3;">09 Večer</span>
+      </div>
+      <svg width="84" height="72" viewBox="0 0 84 72" fill="none" aria-hidden="true">
+        <rect x="1.5" y="16.5" width="81" height="54" stroke="#f3eee3" stroke-opacity="0.5"/>
+        <path d="M30 16.5V70.5M30 42h52.5M56 42v28.5" stroke="#f3eee3" stroke-opacity="0.5"/>
+        <circle cx="12" cy="8" r="2" fill="#f3eee3" fill-opacity="0.45"/>
+        <circle cx="40" cy="8" r="2" fill="#f3eee3" fill-opacity="0.45"/>
+        <circle cx="60" cy="8" r="3.5" fill="#d2842a"/>
+        <circle cx="14" cy="60" r="2" fill="#f3eee3" fill-opacity="0.45"/>
+        <circle cx="14" cy="30" r="2" fill="#f3eee3" fill-opacity="0.45"/>
+        <circle cx="30" cy="52" r="2" fill="#f3eee3" fill-opacity="0.45"/>
+        <circle cx="44" cy="28" r="2" fill="#f3eee3" fill-opacity="0.45"/>
+        <circle cx="70" cy="28" r="2" fill="#f3eee3" fill-opacity="0.45"/>
+        <circle cx="70" cy="58" r="2" fill="#f3eee3" fill-opacity="0.45"/>
+      </svg>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>
