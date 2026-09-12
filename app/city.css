@@ -94,8 +94,10 @@ main[data-city] {
   top: 0;
   width: 120vw;
   height: auto;
-  opacity: 0;
-  transform: translate3d(0, 120vh, 0);
+  /* composited from the start at 0.001 (never 0): the texture is resident
+     before the first passage needs it */
+  opacity: 0.001;
+  transform: translate3d(0, 0, 0);
   will-change: transform, opacity;
   pointer-events: none;
 }
@@ -191,7 +193,8 @@ main[data-city] {
   max-width: 1280px;
   margin: 0 auto;
 }
-.city-seam { height: 110svh; }
+/* longer since 4.2: the same wheel notch moves the passage less */
+.city-seam { height: 150svh; }
 .city-seam-flat { height: 52svh; }
 /* the flat edit's cloud veil: fixed over the page, clouds only during a seam */
 /* the veil must NOT form a stacking context of its own: screen-blended
@@ -224,6 +227,25 @@ main[data-city] {
 }
 .city-haze[data-tone="night"] {
   background: radial-gradient(75% 70% at 50% 50%, rgb(58 74 132 / 0.9) 0%, rgb(22 30 74 / 0.86) 60%, rgb(8 12 40 / 0.8) 100%);
+}
+/* the light of the hour we break out into: a soft sun behind the plates,
+   brightest just past the middle of the passage (4.2) */
+.city-bloom {
+  position: absolute;
+  inset: -10%;
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity, transform;
+  background: radial-gradient(38% 34% at 50% 40%, rgb(255 250 232 / 0.95) 0%, rgb(255 236 200 / 0.55) 45%, rgb(255 230 200 / 0) 72%);
+}
+.city-bloom[data-tone="warm"] {
+  background: radial-gradient(38% 34% at 50% 40%, rgb(255 244 224 / 0.95) 0%, rgb(255 214 170 / 0.55) 45%, rgb(255 210 170 / 0) 72%);
+}
+.city-bloom[data-tone="gold"] {
+  background: radial-gradient(40% 36% at 50% 42%, rgb(255 232 180 / 0.98) 0%, rgb(255 190 120 / 0.6) 45%, rgb(230 150 140 / 0) 72%);
+}
+.city-bloom[data-tone="night"] {
+  background: radial-gradient(34% 30% at 50% 38%, rgb(200 214 255 / 0.7) 0%, rgb(110 130 220 / 0.35) 45%, rgb(40 50 120 / 0) 72%);
 }
 .city-veil .city-haze {
   position: fixed;

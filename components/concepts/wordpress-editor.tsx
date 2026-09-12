@@ -289,6 +289,7 @@ export function Preview({
   cart = 0,
   onCart,
   onEdit,
+  hot,
 }: {
   site: Site
   compact?: boolean
@@ -297,13 +298,17 @@ export function Preview({
   onCart?: () => void
   /** the preview is a way into the editor: click a thing, edit that thing */
   onEdit?: (field: string) => void
+  /** the field being edited right now — outlined, for the hero's show */
+  hot?: string
 }) {
   const t = T[site.lang]
   const c = localize(site)
   const font = FONTS[site.font].style
   const small = compact || phone
-  const edit = (field: string) =>
-    onEdit
+  const edit = (field: string) => ({
+    "data-field": field,
+    ...(hot === field ? { "data-hot": "" } : {}),
+    ...(onEdit
       ? {
           role: "button" as const,
           tabIndex: 0,
@@ -316,7 +321,8 @@ export function Preview({
             }
           },
         }
-      : {}
+      : {}),
+  })
   return (
     <div
       className={`wp-site overflow-hidden bg-white text-[#1B1A17] ${phone ? "rounded-[1.6rem]" : "rounded-[1.1rem] border border-[#1B1A17]/10 shadow-[0_40px_90px_-30px_rgba(27,26,23,0.45)]"}`}
@@ -348,7 +354,7 @@ export function Preview({
           {site.on.menu ? <span>{t.menu}</span> : null}
           {!phone && site.on.gallery ? <span>{t.gallery}</span> : null}
           {site.on.shop ? <span>{t.shop}</span> : null}
-          {site.on.book ? <span style={{ color: site.accent, fontWeight: 700 }}>{t.book}</span> : null}
+          {site.on.book ? <span className="wp-acc" style={{ color: site.accent, fontWeight: 700 }}>{t.book}</span> : null}
           {site.on.shop ? (
             <span className="relative inline-flex items-center" role="img" aria-label={`${cart} ${t.inCart}`} data-cart={cart}>
               <svg width={small ? 14 : 16} height={small ? 14 : 16} viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -357,7 +363,7 @@ export function Preview({
                 <circle cx="11.5" cy="13" r="1" fill="currentColor" />
               </svg>
               {cart > 0 ? (
-                <span className="absolute -top-1.5 -right-2 rounded-full px-1 text-[0.5rem] font-bold text-white" style={{ background: site.accent, minWidth: "0.9rem", textAlign: "center" }}>
+                <span className="wp-acc absolute -top-1.5 -right-2 rounded-full px-1 text-[0.5rem] font-bold text-white" style={{ background: site.accent, minWidth: "0.9rem", textAlign: "center" }}>
                   {cart}
                 </span>
               ) : null}
@@ -387,7 +393,7 @@ export function Preview({
           ) : null}
           <span
             {...edit("cta")}
-            className={`mt-3 w-fit rounded-full ${small ? "px-3 py-1.5 text-[0.55rem]" : "px-4 py-2 text-[0.7rem]"} font-bold tracking-[0.1em] text-white`}
+            className={`wp-acc mt-3 w-fit rounded-full ${small ? "px-3 py-1.5 text-[0.55rem]" : "px-4 py-2 text-[0.7rem]"} font-bold tracking-[0.1em] text-white`}
             style={{ background: site.accent }}
           >
             {(c.cta || " ").toUpperCase()}
@@ -441,7 +447,7 @@ export function Preview({
                   e.stopPropagation()
                   onCart?.()
                 }}
-                className="shrink-0 rounded-full px-3.5 py-2 text-[0.66rem] font-bold tracking-[0.08em] text-white transition-transform active:scale-95"
+                className="wp-acc shrink-0 rounded-full px-3.5 py-2 text-[0.66rem] font-bold tracking-[0.08em] text-white transition-transform active:scale-95"
                 style={{ background: site.accent }}
               >
                 {t.addToCart.toUpperCase()}
@@ -449,7 +455,7 @@ export function Preview({
             </div>
           ) : null}
           {site.on.book ? (
-            <div className={`rounded-xl p-4 text-white ${phone ? "" : "md:col-span-2"}`} style={{ background: site.accent }}>
+            <div className={`wp-acc rounded-xl p-4 text-white ${phone ? "" : "md:col-span-2"}`} style={{ background: site.accent }}>
               <p className="text-[0.95rem] font-bold">{t.bookTitle}</p>
               <p className="mt-1 text-[0.78rem] opacity-85">{t.bookText}</p>
             </div>

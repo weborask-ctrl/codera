@@ -667,3 +667,73 @@ close (ticker, a Jazyk chip) read the localized content.
 `npm run verify` green; `tests/demos.spec.ts` extended (EN turns the
 visitor's headline, dish and post English; a hand-written English shows;
 SK returns the original) green in chromium, firefox and webkit.
+
+---
+
+## Iterácia 4.2 — the WordPress hero that lands, and passages that fly (2026-09-12)
+
+**Status: DONE — gate passed locally; PREVIEW after merge; DEVICE is Ondrej.**
+
+Measured after (probe, 1920×1080 @ DPR 2, a wheel notch every 60 ms):
+t1 mean 17.3 ms, 0 jerks, 1 long frame in the passage · t2 16.9 ms, 2, 1 ·
+t3 17.0 ms, 2, 4 · t4 16.9 ms, 0, 5. The 3.7 baseline on t2 the same
+morning: 16.9 ms, 2 jerks, 4 long frames. Frame strips of t1–t4 read as one
+flight: volumes approach, the inside of the cloud, the next act revealed as
+the plates part.
+
+### Mission
+
+Ondrej, 2026-09-12, after 4.1: "to úvodné okno pri WordPresse vôbec
+nezaujme, čo je zlé, lebo je to skvelý nápad — urob to tak, aby to vyniklo,
+wau efekt; plus tie prechody s mrakmi chcem plynulejšie a výstižnejšie ako
+doteraz, daj si záležať, nech to vyzerá ako web za 10-tisíc eur."
+
+### Inputs
+
+`components/concepts/wordpress.tsx` (hero), `wordpress-editor.tsx`
+(Preview), `components/city/stage.tsx` + `app/city.css` (passages),
+`scratchpad/probe-passage.js` (wheel-input probe), `cap-passage.js`
+(frame strips). LIKED records: lusion (the exhibit IS the product demo,
+input maps to motion instantly), exoape (slow dissolves, never wipes; dusk
+light), igloo (one world, acts are camera positions and light changes,
+mono annotations), refokus (every beat delivers a different kind of
+content), activetheory (restraint: density of finish, not a showreel).
+
+### Constraints
+
+- Readability over choreography: the hero copy is readable from the first
+  frame and never lives at low opacity; the demo plays beside it.
+- One motion engine (GSAP); DOM only in the hero (no canvas); reduced
+  motion is a composed still of the edited site, not an empty frame.
+- Passages stay a continuous function of scroll through the spring; no
+  frame sequences, no blend modes; every change is measured with the probe
+  (real wheel input) before it is believed.
+- Nothing about the business is invented; the bakery stays fictional.
+
+### Deliverables
+
+1. **Hero:** the bakery site edits itself in front of the visitor — a ghost
+   cursor and a small editor card retype the headline, pick a brand colour,
+   swap the photo, add a dish, switch the whole site to English, publish
+   ("Zverejnené 22:14") — on a desktop and a phone at once, in depth on
+   the pointer, with the room light following the brand colour; then it
+   hands over ("Teraz ty"). The copy narrates the step in mono.
+2. **Passages:** (a) cheaper frames — no CSS filters on moving plates (pre-
+   toned cloud variants), the arriving scene rasterised before the seam,
+   cloud scale ranges that do not overscale the bitmaps; (b) a passage
+   that reads as a flight — a third plate for depth, the near plates
+   crossing the camera, a real "inside the cloud" beat (haze to ~0.85 with
+   the leaving scene fully gone), the arriving scene revealed by the
+   clouds parting from the centre, a light bloom for the destination's
+   hour, a touch of camera roll; longer seams so a wheel notch moves less.
+
+### Completion gate
+
+Probe on t1–t4 at DPR 2: zero stalls/jerks in the passage and fewer long
+frames than the 3.7 baseline measured today; frame strips read as one
+continuous flight; `npm run verify` green; Playwright green in three
+browsers; the WordPress tests unchanged and green.
+
+### Validation classes
+
+LOCAL + CI by the gate; PREVIEW on the deployment URL; DEVICE is Ondrej.

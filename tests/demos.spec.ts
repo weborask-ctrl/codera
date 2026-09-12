@@ -91,6 +91,18 @@ test.describe("Rezervácie demo", () => {
 })
 
 test.describe("WordPress demo", () => {
+  test("the hero edits the bakery site in front of the visitor", async ({ page }) => {
+    await page.goto("/ukazky/wordpress")
+    const hero = page.locator(".wp-hero")
+    const headline = hero.locator('[data-preview="desktop"] .wp-headline')
+    await expect(headline).toHaveText("Chlieb, ktorý vonia už na ulici.")
+    /* the show retypes the headline and says what it is doing */
+    await expect(headline).toHaveText("Rožky sú na pulte od šiestej.", { timeout: 15000 })
+    await expect(hero.locator("[data-demo-line]")).toContainText("MENÍ SA")
+    /* and later turns the whole site English, on the phone too */
+    await expect(hero.locator('[data-preview="phone"] .wp-headline')).toHaveText("Rolls are on the counter from six.", { timeout: 20000 })
+  })
+
   test("the editor changes the site, publishes a revision, restores it and sells", async ({ page }) => {
     await page.goto("/ukazky/wordpress")
     const editor = page.locator("[data-editor]")

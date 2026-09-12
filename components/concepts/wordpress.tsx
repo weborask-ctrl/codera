@@ -20,9 +20,10 @@
  * canvas; the depth is CSS 3D on the pointer.
  */
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { BRIC, FR, fx, KonceptLine, MONO, Shell } from "./shell"
 import { AMBER, BLUE, DEFAULT_SITE, Editor, INK, localize, PAPER, Preview, useSiteState } from "./wordpress-editor"
+import { STEP_LINE, WordpressHeroDemo } from "./wordpress-hero-demo"
 
 const PAD = "px-[clamp(1.25rem,4vw,3.5rem)]"
 
@@ -38,11 +39,17 @@ const FACTS = [
 /* ---------------------------------------------------------------- hero --- */
 
 export function WordpressHero({ portal = false }: { portal?: boolean }) {
+  const [line, setLine] = useState(STEP_LINE.start)
+  const [room, setRoom] = useState(AMBER)
+  const [yours, setYours] = useState(false)
   return (
     <Shell
       className={`wp-hero relative flex h-full flex-col overflow-hidden ${portal ? "" : "min-h-svh"}`}
-      style={{ background: PAPER, color: INK }}
+      style={{ background: PAPER, color: INK, ["--wp-room" as string]: room }}
     >
+      {/* the room light: follows the brand colour the show picks */}
+      <div aria-hidden="true" className="wp-room wp-room-a absolute" />
+      <div aria-hidden="true" className="wp-room wp-room-b absolute" />
       <header className={`relative z-10 flex items-center justify-between ${PAD} pt-7 pb-3`}>
         <span style={{ ...BRIC, fontWeight: 800, fontSize: "1.1rem", letterSpacing: "0.02em" }}>
           WordPress<span style={{ color: BLUE }}>.</span>
@@ -61,16 +68,16 @@ export function WordpressHero({ portal = false }: { portal?: boolean }) {
         )}
       </header>
 
-      <div className={`relative z-10 grid flex-1 items-center gap-10 ${PAD} pb-10 lg:grid-cols-[1fr_1.05fr]`}>
+      <div className={`relative z-10 grid flex-1 items-center gap-10 ${PAD} pb-10 lg:grid-cols-[0.8fr_1.2fr]`}>
         <div>
           <h1
-            className="wfx max-w-[10ch] text-balance"
-            style={{ ...BRIC, fontWeight: 800, fontSize: portal ? "4.6rem" : "clamp(3rem,7.6vw,6.8rem)", lineHeight: 0.98, letterSpacing: "-0.02em", ...fx(0) }}
+            className="wfx max-w-[12ch] text-balance"
+            style={{ ...BRIC, fontWeight: 800, fontSize: portal ? "4.6rem" : "clamp(2.7rem,5.4vw,5.1rem)", lineHeight: 0.98, letterSpacing: "-0.02em", ...fx(0) }}
           >
             Stránka, ktorú si upravíš{" "}
             <em style={{ ...FR, fontStyle: "italic", fontWeight: 400, color: BLUE }}>sám.</em>
           </h1>
-          <p className="wfx mt-6 max-w-[30rem] text-[1.1rem] leading-[1.55] text-[#1B1A17]/70" style={fx(1)}>
+          <p className="wfx mt-5 max-w-[28rem] text-[1.02rem] leading-[1.55] text-[#1B1A17]/70" style={fx(1)}>
             WordPress dá klientovi kľúče od vlastného obsahu. Text, fotka, cena,
             nový článok — zmeníš to sám, o desiatej večer, bez volania vývojárovi.
           </p>
@@ -81,7 +88,7 @@ export function WordpressHero({ portal = false }: { portal?: boolean }) {
               </span>
             ) : (
               <>
-                <a href="#editor" className="rounded-full px-8 py-4 text-[0.9rem] font-bold text-white transition-transform hover:-translate-y-0.5" style={{ background: BLUE }}>
+                <a href="#editor" className={`rounded-full px-8 py-4 text-[0.9rem] font-bold text-white transition-transform hover:-translate-y-0.5 ${yours ? "wp-pulse" : ""}`} style={{ background: BLUE }}>
                   Skús editor naživo
                 </a>
                 <a href="#kedy" className="rounded-full border border-[#1B1A17]/30 px-8 py-4 text-[0.9rem] font-medium transition-colors hover:border-[#1B1A17]">
@@ -90,29 +97,31 @@ export function WordpressHero({ portal = false }: { portal?: boolean }) {
               </>
             )}
           </div>
+          {!portal ? (
+            <p className="wfx mt-7 flex min-h-[1.4em] items-center gap-2.5 whitespace-nowrap text-[0.62rem] tracking-[0.2em] text-[#1B1A17]/55" style={{ ...MONO, ...fx(3) }} data-demo-line aria-live="polite">
+              <span className="wp-demo-dot inline-block h-1.5 w-1.5 rounded-full" style={{ background: room }} />
+              {line}
+            </p>
+          ) : null}
         </div>
 
-        {/* the site, standing in the room: CSS depth on the pointer, block chips floating around it */}
-        <div className="wfx relative" style={{ ...fx(1), perspective: "1400px" }}>
+        {/* the site, standing in the room and editing itself: CSS depth on the pointer */}
+        <div className="wfx relative" style={{ ...fx(1), perspective: "1500px" }}>
           <div
             className="wp-tilt relative"
-            style={{ transform: "rotateY(calc(var(--tx, 0) * -9deg)) rotateX(calc(var(--ty, 0) * 7deg))", transformStyle: "preserve-3d", transition: "transform 0.25s ease-out" }}
+            style={{ transform: "rotateY(calc(var(--tx, 0) * -8deg)) rotateX(calc(var(--ty, 0) * 6deg))", transformStyle: "preserve-3d", transition: "transform 0.25s ease-out" }}
           >
-            <Preview site={DEFAULT_SITE} compact />
-            {[
-              ["Nadpis", "-8%", "18%"],
-              ["Obrázok", "82%", "36%"],
-              ["Tlačidlo", "-6%", "72%"],
-              ["Menu", "86%", "82%"],
-            ].map(([l, x, y], i) => (
-              <span
-                key={l}
-                className="wp-chip absolute rounded-md border-2 bg-white px-2.5 py-1 text-[0.6rem] font-bold tracking-[0.12em]"
-                style={{ left: x, top: y, borderColor: BLUE, color: BLUE, transform: `translateZ(${40 + i * 18}px)`, boxShadow: "0 12px 30px -10px rgba(47,91,255,0.5)" }}
-              >
-                {l.toUpperCase()}
-              </span>
-            ))}
+            {portal ? (
+              <Preview site={DEFAULT_SITE} compact />
+            ) : (
+              <WordpressHeroDemo
+                onStep={(s) => {
+                  setLine(STEP_LINE[s])
+                  setRoom(s === "start" || s === "headline" ? AMBER : "#2F7A4F")
+                  setYours(s === "yours")
+                }}
+              />
+            )}
           </div>
         </div>
       </div>
@@ -250,8 +259,8 @@ export default function WordpressSite() {
       }
       gsap.registerPlugin(ScrollTrigger)
       ctx = gsap.context(() => {
-        gsap.utils.toArray<HTMLElement>(".wp-hero .wp-chip").forEach((el, i) => {
-          gsap.to(el, { y: (i % 2 ? -1 : 1) * (28 + i * 10), ease: "none", scrollTrigger: { trigger: ".wp-hero", start: "top top", end: "bottom top", scrub: true } })
+        gsap.utils.toArray<HTMLElement>(".wp-hero .wp-demo-card, .wp-hero .wp-demo-phone").forEach((el, i) => {
+          gsap.to(el, { y: (i % 2 ? -1 : 1) * (34 + i * 12), ease: "none", scrollTrigger: { trigger: ".wp-hero", start: "top top", end: "bottom top", scrub: true } })
         })
         gsap.fromTo(".wp-tilt", { y: 0 }, { y: -60, ease: "none", scrollTrigger: { trigger: ".wp-hero", start: "top top", end: "bottom top", scrub: true } })
         /* the light in the close climbs as the visitor arrives */
