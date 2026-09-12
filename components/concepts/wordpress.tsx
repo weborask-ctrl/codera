@@ -2,41 +2,29 @@
 
 /**
  * WORDPRESS — the fifth capability as a full demo (Iterácia 1.2, Ondrej's
- * brief 2026-09-04: replace Výkon with a WordPress demo that briefly shows
- * what WordPress gives a client's site; design per the earlier passes).
+ * brief 2026-09-04; the editor grown into a real back office and the close
+ * brought alive in Iterácia 4.0, 2026-09-12: "aby si klienti vedeli toho viac
+ * vyskúšať, plus uprav dizajn konca tej stránky, chcem ho viac živý").
  *
- * The honest way to show WordPress is to let the visitor DO the thing it
- * is for: a fictional bakery site sits inside a live block editor, and
- * every change — headline, accent, sections, language — lands in the
- * preview at once. Around it: what the platform brings (general facts
- * about WordPress, nothing invented about the studio), when it fits and
- * when custom code is the honest answer, the close. Warm paper, ink, an
- * editor-blue accent with the bakery's amber. Photos generated for this
- * concept in Higgsfield. No canvas; the depth is CSS 3D on the pointer.
+ * The honest way to show WordPress is to let the visitor DO the thing it is
+ * for: a fictional bakery site sits inside a live editor (wordpress-editor.tsx)
+ * and every change — content, look, sections, dishes, posts, a shop with a
+ * cart, language — lands in the preview at once, on a desktop or a phone,
+ * with publish, revisions and reset. Around it: what the platform brings
+ * (general facts about WordPress, nothing invented about the studio), when it
+ * fits and when custom code is the honest answer, and a close where the
+ * visitor's own edited site stands in the room and keeps living: it tilts
+ * with the pointer, its blocks float, its news run as a ticker, the light
+ * behind it breathes. Warm paper, ink, an editor-blue accent with the
+ * bakery's amber. Photos generated for this concept in Higgsfield. No
+ * canvas; the depth is CSS 3D on the pointer.
  */
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import { BRIC, FR, fx, KonceptLine, MONO, Shell } from "./shell"
+import { AMBER, BLUE, DEFAULT_SITE, Editor, INK, PAPER, Preview, useSiteState } from "./wordpress-editor"
 
-const PAPER = "#F6F1E7"
-const INK = "#1B1A17"
-const BLUE = "#2F5BFF"
-const AMBER = "#E8A23A"
-const IMG = "/demos/wordpress"
 const PAD = "px-[clamp(1.25rem,4vw,3.5rem)]"
-
-type Lang = "sk" | "en"
-const T: Record<Lang, Record<string, string>> = {
-  sk: { nav1: "Menu", nav2: "Galéria", nav3: "Rezervácia", open: "Otvorené dnes 7:00 – 18:00", menu: "Dnes na pulte", gallery: "Z pekárne", book: "Rezervuj stôl", news: "Novinky", cta: "Objednať na zajtra" },
-  en: { nav1: "Menu", nav2: "Gallery", nav3: "Booking", open: "Open today 7:00 – 18:00", menu: "On the counter today", gallery: "From the bakery", book: "Book a table", news: "News", cta: "Order for tomorrow" },
-}
-const ACCENTS = [
-  ["Jantár", AMBER],
-  ["Modrá", BLUE],
-  ["Lesná", "#2F7A4F"],
-] as const
-const SECTIONS = ["menu", "gallery", "book", "news"] as const
-type SectionKey = (typeof SECTIONS)[number]
 
 const FACTS = [
   ["Editor blokov", "Texty, fotky a sekcie upravíš ako v dokumente — bez kódu, bez čakania."],
@@ -46,116 +34,6 @@ const FACTS = [
   ["Rozšírenia", "Rezervácie, formuláre, newsletter — tisíce overených doplnkov namiesto vývoja od nuly."],
   ["Aktualizácie a zálohy", "Platforma sa udržiava; obsah aj nastavenia sa zálohujú automaticky."],
 ] as const
-
-/* ----------------------------------------------------- the site preview --- */
-
-function Preview({
-  headline,
-  accent,
-  lang,
-  on,
-  compact = false,
-}: {
-  headline: string
-  accent: string
-  lang: Lang
-  on: Record<SectionKey, boolean>
-  compact?: boolean
-}) {
-  const t = T[lang]
-  return (
-    <div
-      className="wp-site overflow-hidden rounded-[1.1rem] border border-[#1B1A17]/10 bg-white text-[#1B1A17] shadow-[0_40px_90px_-30px_rgba(27,26,23,0.45)]"
-      style={{ ["--wp-accent" as string]: accent }}
-    >
-      {/* browser chrome */}
-      <div className="flex items-center gap-2 border-b border-[#1B1A17]/8 bg-[#F6F1E7] px-3 py-2">
-        <span className="h-2 w-2 rounded-full bg-[#1B1A17]/20" />
-        <span className="h-2 w-2 rounded-full bg-[#1B1A17]/20" />
-        <span className="h-2 w-2 rounded-full bg-[#1B1A17]/20" />
-        <span className="ml-2 rounded-md bg-white px-2 py-0.5 text-[0.55rem] tracking-[0.08em] text-[#1B1A17]/55" style={MONO}>
-          pekaren-korka.sk
-        </span>
-      </div>
-      {/* the fictional site */}
-      <div className={`flex items-center justify-between ${compact ? "px-4 py-2.5" : "px-6 py-3.5"}`}>
-        <span style={{ ...FR, fontWeight: 600, fontSize: compact ? "0.95rem" : "1.15rem" }}>Pekáreň Kôrka</span>
-        <nav className={`flex ${compact ? "gap-3 text-[0.62rem]" : "gap-5 text-[0.78rem]"} font-medium text-[#1B1A17]/70`}>
-          {on.menu ? <span>{t.nav1}</span> : null}
-          {on.gallery ? <span>{t.nav2}</span> : null}
-          {on.book ? <span style={{ color: accent, fontWeight: 700 }}>{t.nav3}</span> : null}
-        </nav>
-      </div>
-      <div className={`relative ${compact ? "h-[150px]" : "h-[260px] md:h-[300px]"} overflow-hidden`}>
-        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${IMG}/pekaren.jpg)` }} />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(27,26,23,0.72) 0%, rgba(27,26,23,0.15) 70%)" }} />
-        <div className={`relative flex h-full flex-col justify-end ${compact ? "p-4" : "p-6 md:p-8"} text-white`}>
-          <p className={`${compact ? "text-[0.5rem]" : "text-[0.6rem]"} tracking-[0.2em] opacity-80`} style={MONO}>
-            {t.open.toUpperCase()}
-          </p>
-          <h3
-            className="wp-headline mt-2 max-w-[18ch] text-balance"
-            style={{ ...FR, fontWeight: 600, fontSize: compact ? "1.25rem" : "clamp(1.5rem,2.6vw,2.2rem)", lineHeight: 1.05 }}
-          >
-            {headline || " "}
-          </h3>
-          <span
-            className={`mt-3 w-fit rounded-full ${compact ? "px-3 py-1.5 text-[0.55rem]" : "px-4 py-2 text-[0.7rem]"} font-bold tracking-[0.1em] text-white`}
-            style={{ background: accent }}
-          >
-            {t.cta.toUpperCase()}
-          </span>
-        </div>
-      </div>
-      {!compact ? (
-        <div className="grid gap-4 p-6 md:grid-cols-[1.2fr_1fr]">
-          {on.menu ? (
-            <div>
-              <p className="text-[0.58rem] tracking-[0.2em] text-[#1B1A17]/50" style={MONO}>
-                {t.menu.toUpperCase()}
-              </p>
-              <ul className="mt-2 divide-y divide-[#1B1A17]/8 text-[0.85rem]">
-                {[
-                  ["Kváskový chlieb", "3,90 €"],
-                  ["Maslový croissant", "2,40 €"],
-                  ["Kardamómová buchta", "2,90 €"],
-                ].map(([n, p]) => (
-                  <li key={n} className="flex justify-between py-1.5">
-                    <span>{n}</span>
-                    <span className="tnum text-[#1B1A17]/60">{p}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
-          {on.gallery ? (
-            <div>
-              <p className="text-[0.58rem] tracking-[0.2em] text-[#1B1A17]/50" style={MONO}>
-                {t.gallery.toUpperCase()}
-              </p>
-              <div className="mt-2 grid grid-cols-2 gap-2">
-                <div className="aspect-[4/5] rounded-lg bg-cover bg-center" style={{ backgroundImage: `url(${IMG}/kolace.jpg)` }} />
-                <div className="aspect-[4/5] rounded-lg bg-cover bg-center" style={{ backgroundImage: `url(${IMG}/pekar.jpg)` }} />
-              </div>
-            </div>
-          ) : null}
-          {on.book ? (
-            <div className="rounded-xl p-4 text-white md:col-span-2" style={{ background: accent }}>
-              <p className="text-[0.95rem] font-bold">{t.book}</p>
-              <p className="mt-1 text-[0.78rem] opacity-85">{lang === "sk" ? "Raňajky v sobotu pre štyroch — dve kliknutia." : "Saturday breakfast for four — two clicks."}</p>
-            </div>
-          ) : null}
-          {on.news ? (
-            <div className="border-t border-[#1B1A17]/8 pt-3 text-[0.8rem] text-[#1B1A17]/70 md:col-span-2">
-              <span className="font-bold text-[#1B1A17]">{t.news}: </span>
-              {lang === "sk" ? "Od pondelka pečieme aj bezlepkový chlieb." : "From Monday we also bake gluten-free bread."}
-            </div>
-          ) : null}
-        </div>
-      ) : null}
-    </div>
-  )
-}
 
 /* ---------------------------------------------------------------- hero --- */
 
@@ -220,7 +98,7 @@ export function WordpressHero({ portal = false }: { portal?: boolean }) {
             className="wp-tilt relative"
             style={{ transform: "rotateY(calc(var(--tx, 0) * -9deg)) rotateX(calc(var(--ty, 0) * 7deg))", transformStyle: "preserve-3d", transition: "transform 0.25s ease-out" }}
           >
-            <Preview headline="Chlieb, ktorý vonia už na ulici." accent={AMBER} lang="sk" on={{ menu: true, gallery: true, book: true, news: false }} compact />
+            <Preview site={DEFAULT_SITE} compact />
             {[
               ["Nadpis", "-8%", "18%"],
               ["Obrázok", "82%", "36%"],
@@ -242,14 +120,117 @@ export function WordpressHero({ portal = false }: { portal?: boolean }) {
   )
 }
 
+/* --------------------------------------------------------------- close --- */
+
+/** The visitor's own site keeps living at the end: it stands in the room on
+ *  a desktop and a phone, tilts with the pointer, its blocks float, its news
+ *  and dishes run as a ticker, the light behind it breathes. Whatever they
+ *  changed above is named back to them. */
+function WordpressClose({ state }: { state: ReturnType<typeof useSiteState> }) {
+  const { site, changes, cart } = state
+  const ticker = [
+    ...site.news.map((p) => `${p.title || "…"}`),
+    ...site.menu.map((d) => `${d.name || "…"} ${d.price}`),
+    `${site.hours} · ${site.name}`,
+  ]
+  const chips: [string, boolean][] = [
+    ["Nadpis", changes.includes("nadpis")],
+    ["Farba", changes.includes("farbu")],
+    ["Menu", changes.includes("menu")],
+    ["Novinky", changes.includes("novinky")],
+    ["Obchod", changes.includes("obchod")],
+    ["Fotka", changes.includes("fotku")],
+  ]
+  return (
+    <Shell id="zaver" className={`wp-close relative overflow-hidden ${PAD} py-[12svh]`} style={{ background: INK, color: PAPER }}>
+      {/* the light: two soft bodies of colour, breathing and drifting */}
+      <div aria-hidden="true" className="wp-glow wp-glow-a absolute" style={{ background: `radial-gradient(closest-side, ${site.accent}, transparent 70%)` }} />
+      <div aria-hidden="true" className="wp-glow wp-glow-b absolute" style={{ background: `radial-gradient(closest-side, ${BLUE}, transparent 70%)` }} />
+
+      <div className="relative z-10 grid items-center gap-12 lg:grid-cols-[1fr_1.1fr]">
+        <div>
+          <p className="wfx text-[0.62rem] tracking-[0.22em] text-[#F6F1E7]/55" style={{ ...MONO, ...fx(0) }}>
+            VAŠA STRÁNKA · ŽIVÁ
+          </p>
+          <h2 className="wfx mt-4 max-w-[14ch] text-balance" style={{ ...BRIC, fontWeight: 800, fontSize: "clamp(2.8rem,7vw,6.4rem)", lineHeight: 1, letterSpacing: "-0.02em", ...fx(1) }}>
+            Obsah je tvoj. <em style={{ ...FR, fontStyle: "italic", fontWeight: 400, color: site.accent }}>Technika je naša.</em>
+          </h2>
+          <p className="wfx mt-6 max-w-[30rem] text-[1.02rem] leading-[1.6] text-[#F6F1E7]/75" style={fx(2)} data-changes={changes.length}>
+            {changes.length ? (
+              <>
+                Pred chvíľou ste zmenili <b className="text-[#F6F1E7]">{changes.join(", ")}</b>
+                {cart ? ` a do košíka dali ${cart} ${cart === 1 ? "kus" : cart < 5 ? "kusy" : "kusov"}` : ""}. Presne takto to bude vyzerať u vás: stránka, ktorú si meníte sami, a my sa staráme, aby bežala rýchlo a bezpečne.
+              </>
+            ) : (
+              <>Skúste hore zmeniť nadpis alebo pridať jedlo do menu — objaví sa aj tu. Postavíme stránku na WordPresse tak, aby vyzerala ako na mieru, a odovzdáme ju s editorom, v ktorom sa nedá nič pokaziť.</>
+            )}
+          </p>
+          <div className="wfx mt-8 flex flex-wrap items-center gap-3" style={fx(3)}>
+            <a href="/#kontakt" className="rounded-full px-8 py-4 text-[0.9rem] font-bold transition-transform hover:-translate-y-0.5" style={{ background: PAPER, color: INK }}>
+              Napíšte nám
+            </a>
+            <a href="#editor" className="rounded-full border border-[#F6F1E7]/35 px-8 py-4 text-[0.9rem] font-medium transition-colors hover:border-[#F6F1E7]">
+              Späť k editoru ↑
+            </a>
+          </div>
+        </div>
+
+        {/* the room: desktop and phone, depth on the pointer, blocks afloat */}
+        <div className="wfx relative min-h-[26rem]" style={{ ...fx(2), perspective: "1600px" }}>
+          <div
+            className="wpar relative"
+            style={{ ["--depth" as string]: "10", transform: "rotateY(calc(var(--tx, 0) * -10deg)) rotateX(calc(var(--ty, 0) * 8deg))", transformStyle: "preserve-3d", transition: "transform 0.3s ease-out" }}
+          >
+            <div className="wp-float" style={{ ["--fl" as string]: "0s" }}>
+              <Preview site={site} compact cart={cart} />
+            </div>
+            <div
+              className="wp-float absolute right-[-4%] bottom-[-10%] w-[36%] min-w-[11rem] rounded-[1.6rem] border-[6px] border-[#F6F1E7]/90 bg-[#F6F1E7] shadow-[0_40px_80px_-24px_rgba(0,0,0,0.7)]"
+              style={{ ["--fl" as string]: "-2.4s", transform: "translateZ(70px)" }}
+            >
+              <Preview site={site} phone compact cart={cart} />
+            </div>
+            {chips.map(([l, hot], i) => (
+              <span
+                key={l}
+                className="wp-chip wp-float absolute rounded-md border-2 px-2.5 py-1 text-[0.6rem] font-bold tracking-[0.12em]"
+                style={{
+                  left: ["-6%", "70%", "-9%", "88%", "30%", "58%"][i],
+                  top: ["10%", "-6%", "58%", "48%", "-12%", "104%"][i],
+                  ["--fl" as string]: `${(-i * 0.9).toFixed(1)}s`,
+                  transform: `translateZ(${50 + i * 14}px)`,
+                  borderColor: hot ? site.accent : "rgba(246,241,231,0.6)",
+                  background: hot ? site.accent : "rgba(27,26,23,0.85)",
+                  color: hot ? "#fff" : "rgba(246,241,231,0.85)",
+                  boxShadow: hot ? `0 12px 30px -10px ${site.accent}` : "none",
+                }}
+              >
+                {l.toUpperCase()}
+                {hot ? " ✓" : ""}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* the ticker: the site's own words, running */}
+      <div aria-hidden="true" className="wp-ticker relative z-10 mt-16 overflow-hidden border-y border-[#F6F1E7]/15 py-3" style={MONO}>
+        <div className="wp-ticker-track flex w-max gap-10 whitespace-nowrap text-[0.66rem] tracking-[0.18em] text-[#F6F1E7]/70">
+          {[...ticker, ...ticker, ...ticker].map((t, i) => (
+            <span key={`${t}-${i.toString()}`}>
+              {t.toUpperCase()} <span style={{ color: site.accent }}>◆</span>
+            </span>
+          ))}
+        </div>
+      </div>
+    </Shell>
+  )
+}
+
 /* ---------------------------------------------------------------- site --- */
 
 export default function WordpressSite() {
-  const [headline, setHeadline] = useState("Chlieb, ktorý vonia už na ulici.")
-  const [accent, setAccent] = useState<string>(AMBER)
-  const [lang, setLang] = useState<Lang>("sk")
-  const [on, setOn] = useState<Record<SectionKey, boolean>>({ menu: true, gallery: true, book: true, news: false })
-  const [published, setPublished] = useState<string | null>(null)
+  const state = useSiteState()
   const rootRef = useRef<HTMLElement>(null)
 
   /* scroll choreography: the hero chips drift with the scroll, the facts
@@ -267,10 +248,13 @@ export default function WordpressSite() {
       }
       gsap.registerPlugin(ScrollTrigger)
       ctx = gsap.context(() => {
-        gsap.utils.toArray<HTMLElement>(".wp-chip").forEach((el, i) => {
+        gsap.utils.toArray<HTMLElement>(".wp-hero .wp-chip").forEach((el, i) => {
           gsap.to(el, { y: (i % 2 ? -1 : 1) * (28 + i * 10), ease: "none", scrollTrigger: { trigger: ".wp-hero", start: "top top", end: "bottom top", scrub: true } })
         })
         gsap.fromTo(".wp-tilt", { y: 0 }, { y: -60, ease: "none", scrollTrigger: { trigger: ".wp-hero", start: "top top", end: "bottom top", scrub: true } })
+        /* the light in the close climbs as the visitor arrives */
+        gsap.fromTo(".wp-glow-a", { yPercent: 30 }, { yPercent: -20, ease: "none", scrollTrigger: { trigger: ".wp-close", start: "top bottom", end: "bottom top", scrub: true } })
+        gsap.fromTo(".wp-glow-b", { yPercent: -30 }, { yPercent: 20, ease: "none", scrollTrigger: { trigger: ".wp-close", start: "top bottom", end: "bottom top", scrub: true } })
       }, rootRef)
     })()
     return () => {
@@ -278,8 +262,6 @@ export default function WordpressSite() {
       ctx?.revert()
     }
   }, [])
-
-  const label = (k: SectionKey) => ({ menu: "Menu", gallery: "Galéria", book: "Rezervácia", news: "Novinky" })[k]
 
   return (
     <main ref={rootRef} style={{ background: PAPER, color: INK }}>
@@ -291,100 +273,13 @@ export default function WordpressSite() {
           <h2 className="wfx text-balance" style={{ ...BRIC, fontWeight: 800, fontSize: "clamp(2.4rem,5.4vw,4.6rem)", lineHeight: 1, letterSpacing: "-0.02em", ...fx(0) }}>
             Zmeň to. <em style={{ ...FR, fontStyle: "italic", fontWeight: 400, color: BLUE }}>Hneď to vidíš.</em>
           </h2>
-          <p className="wfx text-[0.66rem] tracking-[0.2em] text-[#1B1A17]/50" style={{ ...MONO, ...fx(1) }}>
-            TAKTO VYZERÁ DEŇ KLIENTA S WORDPRESSOM
+          <p className="wfx max-w-[26rem] text-[0.9rem] leading-[1.5] text-[#1B1A17]/60" style={fx(1)}>
+            Obsah, vzhľad, sekcie, jedlá a ceny, články, obchod s košíkom, jazyk.
+            Publikovanie s revíziami. Náhľad na počítači aj telefóne. Všetko
+            ostáva uložené, aj keď stránku obnovíte.
           </p>
         </div>
-
-        <div className="mt-10 grid gap-8 lg:grid-cols-[22rem_1fr]">
-          {/* the panel */}
-          <div className="wfx rounded-2xl border border-[#1B1A17]/10 bg-white p-6" style={fx(2)}>
-            <p className="text-[0.58rem] tracking-[0.22em] text-[#1B1A17]/50" style={MONO}>
-              EDITOR · ÚVODNÁ STRÁNKA
-            </p>
-
-            <label className="mt-5 block">
-              <span className="text-[0.8rem] font-bold">Nadpis</span>
-              <input
-                value={headline}
-                maxLength={48}
-                onChange={(e) => setHeadline(e.target.value)}
-                className="mt-2 w-full rounded-lg border border-[#1B1A17]/15 bg-[#FBF8F2] px-3 py-2.5 text-[0.95rem] outline-none focus:border-[#2F5BFF]"
-                style={FR}
-              />
-            </label>
-
-            <div className="mt-5">
-              <span className="text-[0.8rem] font-bold">Farba značky</span>
-              <div className="mt-2 flex gap-2.5">
-                {ACCENTS.map(([n, c]) => (
-                  <button
-                    key={n}
-                    type="button"
-                    onClick={() => setAccent(c)}
-                    aria-label={n}
-                    aria-pressed={accent === c}
-                    className="h-9 w-9 rounded-full border-2 transition-transform hover:scale-105"
-                    style={{ background: c, borderColor: accent === c ? INK : "transparent" }}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-5">
-              <span className="text-[0.8rem] font-bold">Sekcie</span>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {SECTIONS.map((k) => (
-                  <button
-                    key={k}
-                    type="button"
-                    aria-pressed={on[k]}
-                    onClick={() => setOn((s) => ({ ...s, [k]: !s[k] }))}
-                    className="rounded-full border px-3.5 py-1.5 text-[0.72rem] font-bold tracking-[0.06em] transition-colors"
-                    style={on[k] ? { background: INK, color: PAPER, borderColor: INK } : { borderColor: "rgba(27,26,23,0.25)", color: "rgba(27,26,23,0.7)" }}
-                  >
-                    {label(k)}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-5">
-              <span className="text-[0.8rem] font-bold">Jazyk</span>
-              <div className="mt-2 inline-flex overflow-hidden rounded-full border border-[#1B1A17]/20">
-                {(["sk", "en"] as Lang[]).map((l) => (
-                  <button
-                    key={l}
-                    type="button"
-                    aria-pressed={lang === l}
-                    onClick={() => setLang(l)}
-                    className="px-4 py-1.5 text-[0.72rem] font-bold tracking-[0.1em]"
-                    style={lang === l ? { background: INK, color: PAPER } : { color: "rgba(27,26,23,0.7)" }}
-                  >
-                    {l.toUpperCase()}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setPublished(new Date().toLocaleTimeString("sk-SK", { hour: "2-digit", minute: "2-digit" }))}
-              className="mt-7 w-full rounded-full px-6 py-3.5 text-[0.85rem] font-bold text-white transition-transform hover:-translate-y-0.5 active:scale-[0.98]"
-              style={{ background: BLUE }}
-            >
-              Publikovať
-            </button>
-            <p className="mt-3 min-h-[1.2rem] text-[0.72rem]" style={{ color: published ? "#2F7A4F" : "rgba(27,26,23,0.5)" }} aria-live="polite">
-              {published ? `✓ Zverejnené o ${published}. Návštevníci to už vidia.` : "Zmeny sa zobrazujú v náhľade okamžite."}
-            </p>
-          </div>
-
-          {/* the live site */}
-          <div className="wfx" style={fx(3)}>
-            <Preview headline={headline} accent={accent} lang={lang} on={on} />
-          </div>
-        </div>
+        <Editor state={state} />
       </Shell>
 
       {/* ---- what the platform brings ---- */}
@@ -406,7 +301,7 @@ export default function WordpressSite() {
       </Shell>
 
       {/* ---- the honest part ---- */}
-      <Shell id="kedy" className={`${PAD} py-[10svh]`} style={{ background: INK, color: PAPER }}>
+      <Shell id="kedy" className={`${PAD} py-[10svh]`} style={{ background: "#2A2823", color: PAPER }}>
         <h2 className="wfx max-w-[18ch] text-balance" style={{ ...BRIC, fontWeight: 800, fontSize: "clamp(2.4rem,5.4vw,4.6rem)", lineHeight: 1, letterSpacing: "-0.02em", ...fx(0) }}>
           Kedy WordPress <em style={{ ...FR, fontStyle: "italic", fontWeight: 400, color: AMBER }}>áno</em> — a kedy radšej nie
         </h2>
@@ -423,7 +318,7 @@ export default function WordpressSite() {
             </ul>
           </div>
           <div className="wfx" style={fx(2)}>
-            <p className="text-[0.62rem] tracking-[0.22em]" style={{ ...MONO, color: BLUE }}>
+            <p className="text-[0.62rem] tracking-[0.22em]" style={{ ...MONO, color: "#8FA8FF" }}>
               VLASTNÝ KÓD JE POCTIVEJŠÍ, KEĎ
             </p>
             <ul className="mt-4 space-y-3 text-[1.02rem] leading-[1.5] text-[#F6F1E7]/85">
@@ -436,24 +331,10 @@ export default function WordpressSite() {
         </div>
       </Shell>
 
-      {/* ---- close ---- */}
-      <Shell className={`${PAD} py-[14svh]`}>
-        <h2 className="wfx max-w-[14ch] text-balance" style={{ ...BRIC, fontWeight: 800, fontSize: "clamp(2.8rem,7vw,6.4rem)", lineHeight: 1, letterSpacing: "-0.02em", ...fx(0) }}>
-          Obsah je tvoj. <em style={{ ...FR, fontStyle: "italic", fontWeight: 400, color: BLUE }}>Technika je naša.</em>
-        </h2>
-        <div className="mt-10 flex flex-wrap items-end justify-between gap-8">
-          <p className="wfx max-w-[30rem] text-[1.02rem] leading-[1.6] text-[#1B1A17]/70" style={fx(1)}>
-            Postavíme stránku na WordPresse tak, aby vyzerala ako na mieru — a
-            odovzdáme ju s editorom, v ktorom sa nedá nič pokaziť.
-          </p>
-          <a href="/#kontakt" className="wfx rounded-full px-8 py-4 text-[0.9rem] font-bold text-white transition-transform hover:-translate-y-0.5" style={{ ...fx(2), background: INK }}>
-            Napíšte nám
-          </a>
-        </div>
-      </Shell>
+      <WordpressClose state={state} />
 
       <footer className={`flex flex-wrap items-baseline justify-between gap-3 border-t border-[#1B1A17]/12 ${PAD} py-5 text-[0.56rem] tracking-[0.14em] text-[#1B1A17]/55`} style={MONO}>
-        <span>PEKÁREŇ KÔRKA JE FIKTÍVNA · FOTOGRAFIE GENEROVANÉ PRE TENTO KONCEPT</span>
+        <span>PEKÁREŇ KÔRKA JE FIKTÍVNA · FOTOGRAFIE GENEROVANÉ PRE TENTO KONCEPT · NIČ SA NIKAM NEODOSIELA</span>
         <KonceptLine />
       </footer>
     </main>

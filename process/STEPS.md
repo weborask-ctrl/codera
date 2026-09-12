@@ -570,3 +570,63 @@ was too small and the ukážka framing too quiet — both fixed. What remains is
 the big one: **the three concept sites get individually redesigned to a far
 more interesting level, one at a time, each as its own session with Ondrej.**
 Order to be picked by him: Meridián / Štatút / Vlna.
+
+---
+
+## Iterácia 4.0 — the demo subpages as working systems (2026-09-12)
+
+**Status: DONE — gate passed locally, DEVICE pending.**
+
+### Mission
+
+Ondrej, 2026-09-12: "v tých podstránkach vybuduj poriadny rezervačný systém,
+prepojenie a podobne; v WordPress podstránke chcem, aby si klienti vedeli
+toho viac vyskúšať; plus uprav dizajn konca tej stránky, chcem ho viac živý."
+The demo pages must DO the thing they demonstrate, not gesture at it.
+
+### Inputs
+
+`components/concepts/vlna.tsx` (Rezervácie — Štúdio), `components/concepts/
+wordpress.tsx` (WordPress — Pekáreň Kôrka), the LIKED records othership and
+y7 (booking-first wellness, b&w energy), non-negotiable #3 (nothing invented
+about the business; demos wear the honest label).
+
+### Constraints
+
+- No backend in this repository: everything runs in the browser and is kept
+  in localStorage; nothing is sent anywhere and the pages say so.
+- Whatever cannot run for real in a demo (payment, e-mail, SMS) is shown as
+  the client will receive it and labelled as simulated; whatever can run for
+  real (calendar files, Google Calendar links, CSV export, waitlist logic,
+  capacity, revisions) runs for real.
+- The fictional studio and bakery stay fictional; the honest footer line is
+  kept and tested.
+- Mobile-first: the booking sheet is a bottom sheet on a phone; the editor
+  previews a phone.
+
+### Deliverables
+
+1. Rezervácie: booking sheet (seats, contact, reminder → card with real
+   number checks or pay at the studio → confirmation with a code), .ics and
+   Google Calendar, e-mail and SMS previews, my bookings with cancellation
+   that frees the seat, a waitlist told when a seat frees, the owner view
+   (occupancy, revenue, guest list, CSV, the map of connections).
+2. WordPress: an editor with content, look (accent, typeface, hero photo,
+   layout), sections, dishes and prices, posts, a WooCommerce product with a
+   counting cart, language, publish with revisions and restore, reset,
+   desktop and phone preview, click-to-edit from the preview, persistence.
+3. WordPress close brought alive: the visitor's own edited site on a desktop
+   and a phone, depth on the pointer, floating blocks, breathing light, a
+   ticker of its news and dishes, the changes named back to the visitor.
+
+### Completion gate
+
+`npm run verify` green; `tests/demos.spec.ts` green in chromium, firefox and
+webkit (book → confirm → reload → owner → cancel; card checks; waitlist;
+editor → publish → restore → shop → dish → post → phone → close → reload);
+the honest-label tests unchanged and green.
+
+### Validation classes
+
+LOCAL and CI by the gate; PREVIEW on the deployment URL after merge; DEVICE
+is Ondrej's on his phone and tablet.
