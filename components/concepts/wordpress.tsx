@@ -22,7 +22,7 @@
 
 import { useEffect, useRef } from "react"
 import { BRIC, FR, fx, KonceptLine, MONO, Shell } from "./shell"
-import { AMBER, BLUE, DEFAULT_SITE, Editor, INK, PAPER, Preview, useSiteState } from "./wordpress-editor"
+import { AMBER, BLUE, DEFAULT_SITE, Editor, INK, localize, PAPER, Preview, useSiteState } from "./wordpress-editor"
 
 const PAD = "px-[clamp(1.25rem,4vw,3.5rem)]"
 
@@ -128,10 +128,11 @@ export function WordpressHero({ portal = false }: { portal?: boolean }) {
  *  changed above is named back to them. */
 function WordpressClose({ state }: { state: ReturnType<typeof useSiteState> }) {
   const { site, changes, cart } = state
+  const c = localize(site)
   const ticker = [
-    ...site.news.map((p) => `${p.title || "…"}`),
-    ...site.menu.map((d) => `${d.name || "…"} ${d.price}`),
-    `${site.hours} · ${site.name}`,
+    ...c.news.map((p) => `${p.title || "…"}`),
+    ...c.menu.map((d) => `${d.name || "…"} ${d.price}`),
+    `${c.hours} · ${c.name}`,
   ]
   const chips: [string, boolean][] = [
     ["Nadpis", changes.includes("nadpis")],
@@ -140,6 +141,7 @@ function WordpressClose({ state }: { state: ReturnType<typeof useSiteState> }) {
     ["Novinky", changes.includes("novinky")],
     ["Obchod", changes.includes("obchod")],
     ["Fotka", changes.includes("fotku")],
+    ["Jazyk", changes.includes("jazyk") || changes.includes("preklad")],
   ]
   return (
     <Shell id="zaver" className={`wp-close relative overflow-hidden ${PAD} py-[12svh]`} style={{ background: INK, color: PAPER }}>
@@ -195,8 +197,8 @@ function WordpressClose({ state }: { state: ReturnType<typeof useSiteState> }) {
                 key={l}
                 className="wp-chip wp-float absolute rounded-md border-2 px-2.5 py-1 text-[0.6rem] font-bold tracking-[0.12em]"
                 style={{
-                  left: ["-6%", "70%", "-9%", "88%", "30%", "58%"][i],
-                  top: ["10%", "-6%", "58%", "48%", "-12%", "104%"][i],
+                  left: ["-6%", "70%", "-9%", "88%", "30%", "58%", "8%"][i],
+                  top: ["10%", "-6%", "58%", "48%", "-12%", "104%", "98%"][i],
                   ["--fl" as string]: `${(-i * 0.9).toFixed(1)}s`,
                   transform: `translateZ(${50 + i * 14}px)`,
                   borderColor: hot ? site.accent : "rgba(246,241,231,0.6)",

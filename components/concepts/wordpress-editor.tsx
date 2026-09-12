@@ -9,7 +9,10 @@
  * visitor edits the content (name, headline, text, button, opening hours),
  * the look (accent, typeface, hero photo, hero layout), the sections (menu
  * with editable dishes and prices, gallery, booking, news with real posts,
- * a WooCommerce product with a cart that counts), the language — and sees
+ * a WooCommerce product with a cart that counts), the language (the whole
+ * site turns English, the visitor's own words included — pre-filled by the
+ * dictionary in wordpress-translate.ts and editable by hand, the way a
+ * multilingual WordPress keeps one content per language) — and sees
  * every change land in the preview at once, on a desktop or a phone. Publish
  * keeps a revision, revisions restore, reset returns the starting site.
  * Clicking a piece of the preview opens the field that edits it. Everything
@@ -20,6 +23,7 @@
 
 import { useCallback, useEffect, useId, useState } from "react"
 import { BRIC, FR, MONO } from "./shell"
+import { translate, translateInfo } from "./wordpress-translate"
 
 export const PAPER = "#F6F1E7"
 export const INK = "#1B1A17"
@@ -58,6 +62,24 @@ export interface Site {
   menu: Dish[]
   news: Post[]
   product: { name: string; price: string }
+  /** the English the owner wrote by hand, keyed by field, with the Slovak it
+   *  was written for — a changed original makes it stale and the automatic
+   *  translation takes over again */
+  tr: Record<string, Override>
+}
+export interface Override {
+  src: string
+  text: string
+}
+export interface Content {
+  name: string
+  headline: string
+  sub: string
+  cta: string
+  hours: string
+  menu: Dish[]
+  news: Post[]
+  product: { name: string; price: string }
 }
 export interface Revision {
   at: string
@@ -79,8 +101,8 @@ export const FONTS: Record<FontKey, { label: string; style: React.CSSProperties 
 export const HEROES: Record<HeroImg, string> = { pekaren: "Pult", kolace: "Koláče", pekar: "Pekár" }
 
 const T: Record<Lang, Record<string, string>> = {
-  sk: { menu: "Menu", gallery: "Galéria", book: "Rezervácia", news: "Novinky", shop: "Obchod", onCounter: "Dnes na pulte", fromBakery: "Z pekárne", bookTitle: "Rezervuj stôl", bookText: "Raňajky v sobotu pre štyroch — dve kliknutia.", addToCart: "Do košíka", inCart: "v košíku", newsTitle: "Novinky", hours: "Otvorené dnes", order: "Objednať" },
-  en: { menu: "Menu", gallery: "Gallery", book: "Booking", news: "News", shop: "Shop", onCounter: "On the counter today", fromBakery: "From the bakery", bookTitle: "Book a table", bookText: "Saturday breakfast for four — two clicks.", addToCart: "Add to cart", inCart: "in cart", newsTitle: "News", hours: "Open today", order: "Order" },
+  sk: { menu: "Menu", gallery: "Galéria", book: "Rezervácia", news: "Novinky", shop: "Obchod", onCounter: "Dnes na pulte", fromBakery: "Z pekárne", bookTitle: "Rezervuj stôl", bookText: "Raňajky v sobotu pre štyroch — dve kliknutia.", addToCart: "Do košíka", inCart: "v košíku", newsTitle: "Novinky", hours: "Otvorené dnes", order: "Objednať", emptyMenu: "(menu je prázdne)", noPosts: "(zatiaľ bez článkov)", delivery: "doručenie do 2 dní" },
+  en: { menu: "Menu", gallery: "Gallery", book: "Booking", news: "News", shop: "Shop", onCounter: "On the counter today", fromBakery: "From the bakery", bookTitle: "Book a table", bookText: "Saturday breakfast for four — two clicks.", addToCart: "Add to cart", inCart: "in cart", newsTitle: "News", hours: "Open today", order: "Order", emptyMenu: "(the menu is empty)", noPosts: "(no posts yet)", delivery: "delivery in 2 days" },
 }
 
 const uid = () => Math.random().toString(36).slice(2, 8)
@@ -104,10 +126,78 @@ export const DEFAULT_SITE: Site = {
   ],
   news: [{ id: "p1", title: "Od pondelka pečieme aj bezlepkový chlieb", text: "Nová pec, nová múka z Liptova, rovnaký kvások. Príďte ochutnať.", date: "dnes" }],
   product: { name: "Darčeková krabica pečiva", price: "24 €" },
+  tr: {},
 }
 
 const KEY = "wp-demo-v1"
 const FIELDS: (keyof Site)[] = ["name", "headline", "sub", "cta", "hours", "accent", "font", "hero", "layout", "lang"]
+
+/* ------------------------------------------------------------ language --- */
+
+/** the English of one field: what the owner wrote for this very Slovak, or
+ *  the automatic translation */
+export function english(site: Site, key: string, sk: string): string {
+  const o = site.tr[key]
+  return o && o.src === sk ? o.text : translate(sk)
+}
+
+/** the content in the language the site is set to */
+export function localize(site: Site): Content {
+  if (site.lang === "sk") {
+    return site
+  }
+  return {
+    name: english(site, "name", site.name),
+    headline: english(site, "headline", site.headline),
+    sub: english(site, "sub", site.sub),
+    cta: english(site, "cta", site.cta),
+    hours: site.hours,
+    menu: site.menu.map((d) => ({ ...d, name: english(site, `menu.${d.id}`, d.name) })),
+    news: site.news.map((p) => ({ ...p, title: english(site, `news.${p.id}.title`, p.title), text: english(site, `news.${p.id}.text`, p.text), date: translate(p.date) })),
+    product: { ...site.product, name: english(site, "product", site.product.name) },
+  }
+}
+
+export interface TrRow {
+  key: string
+  label: string
+  sk: string
+  en: string
+  /** written by hand for this Slovak */
+  manual: boolean
+  /** words the automatic translation did not know */
+  unknown: number
+  long: boolean
+}
+
+/** every text the owner can translate, side by side */
+export function translationRows(site: Site): TrRow[] {
+  const rows: TrRow[] = []
+  const add = (key: string, label: string, sk: string, long = false) => {
+    if (sk.trim() === "") {
+      return
+    }
+    const o = site.tr[key]
+    const manual = !!o && o.src === sk
+    const auto = translateInfo(sk)
+    rows.push({ key, label, sk, en: manual ? o.text : auto.text, manual, unknown: manual ? 0 : auto.unknown, long })
+  }
+  add("name", "Názov", site.name)
+  add("headline", "Nadpis", site.headline)
+  add("sub", "Text pod nadpisom", site.sub, true)
+  add("cta", "Tlačidlo", site.cta)
+  for (const d of site.menu) {
+    add(`menu.${d.id}`, "Jedlo", d.name)
+  }
+  for (const p of site.news) {
+    add(`news.${p.id}.title`, "Článok", p.title)
+    add(`news.${p.id}.text`, "Text článku", p.text, true)
+  }
+  if (site.on.shop) {
+    add("product", "Produkt", site.product.name)
+  }
+  return rows
+}
 
 /* ------------------------------------------------------------ the state --- */
 
@@ -183,6 +273,9 @@ export function useSiteState() {
   if (site.on.gallery !== DEFAULT_SITE.on.gallery || site.on.book !== DEFAULT_SITE.on.book || site.on.menu !== DEFAULT_SITE.on.menu) {
     changes.push("sekcie")
   }
+  if (Object.keys(site.tr).length > 0) {
+    changes.push("preklad")
+  }
 
   return { site, patch, setSite, revisions, publish, restore, reset, publishedAt, cart, setCart, changes, loaded }
 }
@@ -206,6 +299,7 @@ export function Preview({
   onEdit?: (field: string) => void
 }) {
   const t = T[site.lang]
+  const c = localize(site)
   const font = FONTS[site.font].style
   const small = compact || phone
   const edit = (field: string) =>
@@ -248,7 +342,7 @@ export function Preview({
 
       <div className={`flex items-center justify-between ${small ? "px-4 py-2.5" : "px-6 py-3.5"}`}>
         <span {...edit("name")} style={{ ...font, fontSize: small ? "0.95rem" : "1.15rem" }}>
-          {site.name || " "}
+          {c.name || " "}
         </span>
         <nav className={`flex items-center ${small ? "gap-2.5 text-[0.6rem]" : "gap-5 text-[0.78rem]"} font-medium text-[#1B1A17]/70`}>
           {site.on.menu ? <span>{t.menu}</span> : null}
@@ -284,11 +378,11 @@ export function Preview({
             className="wp-headline mt-2 max-w-[18ch] text-balance"
             style={{ ...font, fontSize: phone ? "1.5rem" : compact ? "1.25rem" : "clamp(1.5rem,2.6vw,2.2rem)", lineHeight: 1.05 }}
           >
-            {site.headline || " "}
+            {c.headline || " "}
           </h3>
-          {!compact && site.sub ? (
+          {!compact && c.sub ? (
             <p {...edit("sub")} className={`mt-2 max-w-[34ch] ${phone ? "text-[0.72rem]" : "text-[0.82rem]"} leading-[1.45] opacity-85`}>
-              {site.sub}
+              {c.sub}
             </p>
           ) : null}
           <span
@@ -296,7 +390,7 @@ export function Preview({
             className={`mt-3 w-fit rounded-full ${small ? "px-3 py-1.5 text-[0.55rem]" : "px-4 py-2 text-[0.7rem]"} font-bold tracking-[0.1em] text-white`}
             style={{ background: site.accent }}
           >
-            {(site.cta || " ").toUpperCase()}
+            {(c.cta || " ").toUpperCase()}
           </span>
         </div>
       </div>
@@ -309,13 +403,13 @@ export function Preview({
                 {t.onCounter.toUpperCase()}
               </p>
               <ul className="mt-2 divide-y divide-[#1B1A17]/8 text-[0.85rem]">
-                {site.menu.map((d) => (
+                {c.menu.map((d) => (
                   <li key={d.id} className="flex justify-between gap-3 py-1.5">
                     <span>{d.name || "—"}</span>
                     <span className="tnum text-[#1B1A17]/60">{d.price}</span>
                   </li>
                 ))}
-                {site.menu.length === 0 ? <li className="py-1.5 text-[#1B1A17]/45">(menu je prázdne)</li> : null}
+                {c.menu.length === 0 ? <li className="py-1.5 text-[#1B1A17]/45">{t.emptyMenu}</li> : null}
               </ul>
             </div>
           ) : null}
@@ -335,9 +429,9 @@ export function Preview({
             <div {...edit("product")} className={`flex items-center gap-4 rounded-xl border border-[#1B1A17]/10 p-3 ${phone ? "" : "md:col-span-2"}`}>
               <div className="h-16 w-16 shrink-0 rounded-lg bg-cover bg-center" style={{ backgroundImage: `url(${IMG}/kolace.jpg)` }} />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-[0.9rem] font-bold">{site.product.name || "—"}</p>
+                <p className="truncate text-[0.9rem] font-bold">{c.product.name || "—"}</p>
                 <p className="text-[0.78rem] text-[#1B1A17]/60">
-                  {site.product.price} · {site.lang === "sk" ? "doručenie do 2 dní" : "delivery in 2 days"}
+                  {c.product.price} · {t.delivery}
                 </p>
               </div>
               <button
@@ -366,14 +460,14 @@ export function Preview({
                 {t.newsTitle.toUpperCase()}
               </p>
               <ul className="mt-2 space-y-2">
-                {site.news.map((p) => (
+                {c.news.map((p) => (
                   <li key={p.id} className="text-[0.8rem] text-[#1B1A17]/75">
                     <span className="font-bold text-[#1B1A17]">{p.title || "—"}</span>
                     {p.text ? <span> — {p.text}</span> : null}
                     <span className="text-[#1B1A17]/45"> · {p.date}</span>
                   </li>
                 ))}
-                {site.news.length === 0 ? <li className="text-[0.8rem] text-[#1B1A17]/45">(zatiaľ bez článkov)</li> : null}
+                {c.news.length === 0 ? <li className="text-[0.8rem] text-[#1B1A17]/45">{t.noPosts}</li> : null}
               </ul>
             </div>
           ) : null}
@@ -385,15 +479,16 @@ export function Preview({
 
 /* --------------------------------------------------------------- editor --- */
 
-type Tab = "obsah" | "vzhlad" | "sekcie" | "novinky" | "obchod"
+type Tab = "obsah" | "vzhlad" | "sekcie" | "novinky" | "obchod" | "jazyk"
 const TABS: [Tab, string][] = [
   ["obsah", "Obsah"],
   ["vzhlad", "Vzhľad"],
   ["sekcie", "Sekcie"],
   ["novinky", "Novinky"],
   ["obchod", "Obchod"],
+  ["jazyk", "Jazyk"],
 ]
-const FIELD_TAB: Record<string, Tab> = { name: "obsah", headline: "obsah", sub: "obsah", cta: "obsah", hours: "obsah", menu: "sekcie", news: "novinky", product: "obchod" }
+const FIELD_TAB: Record<string, Tab> = { name: "obsah", headline: "obsah", sub: "obsah", cta: "obsah", hours: "obsah", menu: "sekcie", news: "novinky", product: "obchod", lang: "jazyk" }
 
 const input = "mt-1.5 w-full rounded-lg border border-[#1B1A17]/15 bg-[#FBF8F2] px-3 py-2.5 text-[0.95rem] outline-none transition-colors focus:border-[#2F5BFF]"
 const label = "text-[0.78rem] font-bold"
@@ -419,6 +514,12 @@ export function Editor({ state }: { state: ReturnType<typeof useSiteState> }) {
   const ring = (f: string) => (flash === f ? { boxShadow: `0 0 0 3px ${site.accent}55`, borderColor: site.accent } : undefined)
 
   const setDish = (did: string, p: Partial<Dish>) => patch({ menu: site.menu.map((d) => (d.id === did ? { ...d, ...p } : d)) })
+  const setEnglish = (key: string, src: string, text: string) => patch({ tr: { ...site.tr, [key]: { src, text } } })
+  const dropEnglish = (key: string) => {
+    const { [key]: _gone, ...rest } = site.tr
+    patch({ tr: rest })
+  }
+  const rows = tab === "jazyk" ? translationRows(site) : []
   const setPost = (pid: string, p: Partial<Post>) => patch({ news: site.news.map((x) => (x.id === pid ? { ...x, ...p } : x)) })
 
   return (
@@ -451,27 +552,28 @@ export function Editor({ state }: { state: ReturnType<typeof useSiteState> }) {
 
         <div className="space-y-4 px-5 py-5">
           {tab === "obsah" ? (
-            <>
-              {(
-                [
-                  ["name", "Názov", 32],
-                  ["headline", "Nadpis", 48],
-                  ["sub", "Text pod nadpisom", 120],
-                  ["cta", "Tlačidlo", 24],
-                  ["hours", "Otváracie hodiny", 24],
-                ] as [keyof Site, string, number][]
-              ).map(([k, l, max]) => (
-                <div key={k}>
-                  <label htmlFor={`${id}-${k}`} className={label}>
-                    {l}
-                  </label>
-                  {k === "sub" ? (
-                    <textarea id={`${id}-${k}`} value={site[k] as string} maxLength={max} rows={3} onChange={(e) => patch({ [k]: e.target.value })} className={input} style={{ ...FR, ...ring(k) }} />
-                  ) : (
-                    <input id={`${id}-${k}`} value={site[k] as string} maxLength={max} onChange={(e) => patch({ [k]: e.target.value })} className={input} style={{ ...(k === "headline" || k === "name" ? FR : {}), ...ring(k) }} />
-                  )}
-                </div>
-              ))}
+            [
+              ["name", "Názov", 32],
+              ["headline", "Nadpis", 48],
+              ["sub", "Text pod nadpisom", 120],
+              ["cta", "Tlačidlo", 24],
+              ["hours", "Otváracie hodiny", 24],
+            ] as [keyof Site, string, number][]
+          ).map(([k, l, max]) => (
+            <div key={k}>
+              <label htmlFor={`${id}-${k}`} className={label}>
+                {l}
+              </label>
+              {k === "sub" ? (
+                <textarea id={`${id}-${k}`} value={site[k] as string} maxLength={max} rows={3} onChange={(e) => patch({ [k]: e.target.value })} className={input} style={{ ...FR, ...ring(k) }} />
+              ) : (
+                <input id={`${id}-${k}`} value={site[k] as string} maxLength={max} onChange={(e) => patch({ [k]: e.target.value })} className={input} style={{ ...(k === "headline" || k === "name" ? FR : {}), ...ring(k) }} />
+              )}
+            </div>
+          )) : null}
+
+          {tab === "jazyk" ? (
+            <div id={`${id}-lang`} tabIndex={-1} className="space-y-5 outline-none">
               <div>
                 <span className={label}>Jazyk stránky</span>
                 <div className="mt-1.5 inline-flex overflow-hidden rounded-full border border-[#1B1A17]/20">
@@ -481,9 +583,41 @@ export function Editor({ state }: { state: ReturnType<typeof useSiteState> }) {
                     </button>
                   ))}
                 </div>
-                <p className="mt-1.5 text-[0.7rem] text-[#1B1A17]/50">Vaše texty ostávajú, prepína sa rozhranie stránky — tak funguje viacjazyčný WordPress.</p>
+                <p className="mt-1.5 text-[0.7rem] leading-[1.5] text-[#1B1A17]/55">Prepnite na EN a celá stránka je po anglicky — aj vaše vlastné texty. Viacjazyčný WordPress (WPML, Polylang) drží pre každý jazyk vlastný obsah; anglický je predvyplnený automatickým prekladom a tu ho upravíte.</p>
               </div>
-            </>
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className={label}>Anglické texty</span>
+                  {rows.some((r) => r.manual) ? (
+                    <button type="button" onClick={() => patch({ tr: {} })} className="text-[0.66rem] font-bold text-[#1B1A17]/55 underline">
+                      Vrátiť automatický preklad
+                    </button>
+                  ) : null}
+                </div>
+                <ul className="mt-2 space-y-2.5">
+                  {rows.map((r) => (
+                    <li key={r.key} className="rounded-xl border p-3" style={{ borderColor: r.manual ? site.accent : "rgba(27,26,23,0.12)" }}>
+                      <div className="flex items-center justify-between gap-2 text-[0.58rem] tracking-[0.16em]" style={MONO}>
+                        <span className="text-[#1B1A17]/50">{r.label.toUpperCase()}</span>
+                        <span style={{ color: r.manual ? site.accent : r.unknown > 0 ? "#B5472C" : "rgba(27,26,23,0.45)" }}>{r.manual ? "UPRAVENÉ" : r.unknown > 0 ? "SKONTROLUJTE" : "AUTOMATICKY"}</span>
+                      </div>
+                      <p className="mt-1.5 text-[0.78rem] leading-[1.4] text-[#1B1A17]/60">{r.sk}</p>
+                      {r.long ? (
+                        <textarea value={r.en} rows={2} maxLength={200} aria-label={`${r.label} (EN)`} onChange={(e) => setEnglish(r.key, r.sk, e.target.value)} className="mt-1.5 w-full rounded-lg border border-[#1B1A17]/15 bg-[#FBF8F2] px-2.5 py-2 text-[0.85rem] outline-none focus:border-[#2F5BFF]" />
+                      ) : (
+                        <input value={r.en} maxLength={80} aria-label={`${r.label} (EN)`} onChange={(e) => setEnglish(r.key, r.sk, e.target.value)} className="mt-1.5 w-full rounded-lg border border-[#1B1A17]/15 bg-[#FBF8F2] px-2.5 py-2 text-[0.85rem] outline-none focus:border-[#2F5BFF]" />
+                      )}
+                      {r.manual ? (
+                        <button type="button" onClick={() => dropEnglish(r.key)} className="mt-1.5 text-[0.62rem] text-[#1B1A17]/50 underline">
+                          späť na automatický
+                        </button>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-3 text-[0.68rem] leading-[1.5] text-[#1B1A17]/50">Automatický preklad je slovník tejto ukážky — pozná pekáreň, nie celý jazyk. V ostrom WordPresse ho robí prekladová služba a pred zverejnením ho skontrolujete rovnako ako tu.</p>
+              </div>
+            </div>
           ) : null}
 
           {tab === "vzhlad" ? (

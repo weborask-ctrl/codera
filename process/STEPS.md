@@ -630,3 +630,40 @@ the honest-label tests unchanged and green.
 
 LOCAL and CI by the gate; PREVIEW on the deployment URL after merge; DEVICE
 is Ondrej's on his phone and tablet.
+
+---
+
+## Iterácia 4.1 — the WordPress language switch translates the whole site (2026-09-12)
+
+**Status: DONE — gate passed locally.**
+
+### Mission
+
+Ondrej, 2026-09-12, on 4.0: "oprav ešte to preloženie do angličtiny vo
+WordPresse — preloží to len jednu vetu, to nie je dobré vôbec." The EN
+switch changed only the chrome of the preview; the visitor's own texts
+stayed Slovak.
+
+### Constraints
+
+- Still no service in the browser: the automatic translation is a
+  hand-written dictionary of the bakery's vocabulary
+  (`components/concepts/wordpress-translate.ts`) — phrases first, words
+  second, capitalisation kept, unknown words left alone and counted.
+- The model is the one a multilingual WordPress has: one content per
+  language. The English of each field is the owner's own text when they
+  wrote one for that very Slovak, otherwise the automatic pre-fill.
+- The editor says what the pre-fill is and is not.
+
+### Deliverables
+
+A Jazyk tab: the SK/EN switch, and every text side by side — Slovak, the
+English input, a badge AUTOMATICKY / SKONTROLUJTE (unknown words) /
+UPRAVENÉ, a way back to the automatic text. The preview, the phone and the
+close (ticker, a Jazyk chip) read the localized content.
+
+### Completion gate
+
+`npm run verify` green; `tests/demos.spec.ts` extended (EN turns the
+visitor's headline, dish and post English; a hand-written English shows;
+SK returns the original) green in chromium, firefox and webkit.
