@@ -376,3 +376,28 @@ faktov = štítky), 07 §6 (čipy a štítky ako najlacnejšia páka).
 **Validácia.** LOCAL: Playwright reálny scroll 1440×900 a 390×844
 (`web/shots/hero-*`). Reálny mobil NOT VALIDATED. Video test (MiniMax H3,
 štart = kresba, koniec = poskladaný dom): pozri fázu 5b.
+
+### Fáza 5b — video test (2026-09-12)
+
+MiniMax H3, 5 s, 4:3, 2K, 10 kreditov. Štart = atramentová kresba
+rozloženého domu na papieri (`web/video/test-01-start.jpg`), koniec =
+poskladaný dom z vrstiev (`test-01-end.jpg`). Prompt: statická kamera,
+kresba sa zhmotní zdola nahor pozdĺž vlastných čiar, bez textu.
+
+**Výsledok** (`web/video/test-01-minimax-kresba-hmota.mp4`, snímky
+`web/shots/video-test-01-sheet.jpg`):
+
+- Zhmotnenie funguje a v správnom poradí: doska → prízemie → poschodie →
+  strecha, každý diel sa naplní materiálom mäkkým čelom zhruba pozdĺž
+  kresby. Kamera drží, geometria nedriftuje, papier ostáva čistý.
+- Koncový frame model **nerešpektoval v geometrii**: dom ostal rozložený,
+  diely nedosadli. Materiály z koncového obrázka prevzal, polohy nie.
+- Čelo materializácie nie je „prúd cez čiary", je to gradientový wipe.
+
+**Verdikt.** AI video vie kresbu → hmotu na našej geometrii lacno a
+spoľahlivo, ale skladanie nie. Pre hero to nemá zmysel — prehliadačová
+verzia (fáza 5) robí obe veci, zhmotnenie aj dosadnutie, s vlastnou
+geometriou a bez kreditov. Zmysel to má pre samostatný launch film
+(social): klip 1 kresba → hmota (tento), klip 2 rozložený → poskladaný
+(oba framy fotoreal, ešte neotestované), klip 3 zostup do interiéru.
+Odhad: 3 × 10 kr. skúšky + 3 × 45 kr. finál na Seedance = 165 kr.
