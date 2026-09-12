@@ -127,6 +127,21 @@ test.describe("WordPress demo", () => {
     await editor.getByLabel("Nadpis článku").first().fill("Sobota: pečieme naživo")
     await expect(desktop).toContainText("Sobota: pečieme naživo")
 
+    /* the language: the whole site turns English, the visitor's own words
+       included, and the English can be corrected by hand */
+    await editor.getByRole("tab", { name: "Jazyk" }).click()
+    await editor.getByRole("button", { name: "EN", exact: true }).click()
+    await expect(desktop.locator(".wp-headline")).toHaveText("Rolls are on the counter.")
+    await expect(desktop).toContainText("Poppy seed strudel")
+    await expect(desktop).toContainText("Saturday: we bake live")
+    await expect(desktop).toContainText("Booking")
+    await expect(desktop).toContainText("ADD TO CART")
+    await editor.getByLabel("Nadpis (EN)").fill("Fresh rolls from six.")
+    await expect(desktop.locator(".wp-headline")).toHaveText("Fresh rolls from six.")
+    await expect(editor).toContainText("UPRAVENÉ")
+    await editor.getByRole("button", { name: "SK", exact: true }).click()
+    await expect(desktop.locator(".wp-headline")).toHaveText("Rožky sú na pulte.")
+
     /* the phone preview, and the close that names the changes */
     await page.getByRole("button", { name: "Telefón" }).click()
     await expect(editor.locator('[data-preview="phone"]')).toBeVisible()

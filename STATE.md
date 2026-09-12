@@ -3,7 +3,7 @@
 What is live, what was decided, and what must not be relearned. One file, kept
 short. Open work does **not** live here — it lives in GitHub Issues.
 
-Last reviewed: 2026-09-12 (Iterácia 4.0, demo systems) · Production: `https://www.codera.sk` ·
+Last reviewed: 2026-09-12 (Iterácia 4.1, demo systems + WP language) · Production: `https://www.codera.sk` ·
 Open backlog: see Issues.
 
 ---
@@ -33,7 +33,9 @@ confirmation, .ics and Google Calendar that work, e-mail/SMS previews,
 cancellation that frees the seat, a waitlist, the owner view with CSV;
 `components/concepts/vlna-booking.tsx`), and WordPress is a real editor
 (content, look, sections, dishes, posts, a WooCommerce cart, language,
-publish with revisions, phone preview, click-to-edit, persistence;
+publish with revisions, phone preview, click-to-edit, persistence, an
+EN version of the whole site pre-filled by a bakery dictionary and editable
+by hand (`wordpress-translate.ts`, Iterácia 4.1);
 `components/concepts/wordpress-editor.tsx`) whose close keeps the visitor's
 own site alive. Everything is client-side and says so; guarded by
 `tests/demos.spec.ts`.
