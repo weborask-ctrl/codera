@@ -17,39 +17,39 @@
 
 import { useEffect, useRef, useState } from "react"
 import { BRIC, fx, KonceptLine, MONO, Shell } from "./shell"
-
-const BLACK = "#0E0F10"
-const PAPER = "#F4F6F2"
-const LIME = "#D8F34E"
-const PINK = "#FF7AB6"
+import {
+  BLACK,
+  BookingSheet,
+  type Lesson,
+  LIME,
+  MyBookings,
+  OwnerPanel,
+  PAPER,
+  PINK,
+  useBookingStore,
+  WaitlistButton,
+} from "./vlna-booking"
 
 const IMG = "/demos/studio"
 
-interface Lesson {
-  time: string
-  name: string
-  coach: string
-  spots: number
-}
-
 const WEEK: Record<string, Lesson[]> = {
   "DNES · ŠTVRTOK": [
-    { time: "07:00", name: "Mobilita", coach: "Marek", spots: 4 },
-    { time: "09:30", name: "Pilates", coach: "Nina", spots: 2 },
-    { time: "17:15", name: "Joga flow", coach: "Alica", spots: 8 },
-    { time: "19:00", name: "Dych a regenerácia", coach: "Ema", spots: 1 },
+    { time: "07:00", name: "Mobilita", coach: "Marek", spots: 4, length: 50 },
+    { time: "09:30", name: "Pilates", coach: "Nina", spots: 2, length: 55 },
+    { time: "17:15", name: "Joga flow", coach: "Alica", spots: 8, length: 60 },
+    { time: "19:00", name: "Dych a regenerácia", coach: "Ema", spots: 1, length: 45 },
   ],
   PIATOK: [
-    { time: "07:00", name: "Sila v pomalosti", coach: "Tomáš", spots: 6 },
-    { time: "12:00", name: "Obedová mobilita", coach: "Marek", spots: 5 },
-    { time: "17:15", name: "Pilates", coach: "Nina", spots: 0 },
-    { time: "18:45", name: "Joga flow", coach: "Zoja", spots: 3 },
+    { time: "07:00", name: "Sila v pomalosti", coach: "Tomáš", spots: 6, length: 50 },
+    { time: "12:00", name: "Obedová mobilita", coach: "Marek", spots: 5, length: 40 },
+    { time: "17:15", name: "Pilates", coach: "Nina", spots: 0, length: 55 },
+    { time: "18:45", name: "Joga flow", coach: "Zoja", spots: 3, length: 60 },
   ],
   SOBOTA: [
-    { time: "09:00", name: "Dlhý flow", coach: "Alica", spots: 7 },
-    { time: "11:00", name: "Dych a ľad", coach: "Jakub", spots: 2 },
+    { time: "09:00", name: "Dlhý flow", coach: "Alica", spots: 7, length: 75 },
+    { time: "11:00", name: "Dych a ľad", coach: "Jakub", spots: 2, length: 60 },
   ],
-} as const
+}
 
 /* portraits: studio renders supplied by Ondrej (2026-09-03) — fictional
    people for a fictional studio, in the demo's b&w climate */
@@ -108,7 +108,14 @@ function Scribble({ children }: { children: React.ReactNode }) {
   )
 }
 
-export function VlnaHero({ portal = false }: { portal?: boolean }) {
+export function VlnaHero({
+  portal = false,
+  remaining,
+}: {
+  portal?: boolean
+  /** live seats from the booking store; the portal shows the still */
+  remaining?: (dayKey: string, l: Lesson) => number
+}) {
   return (
     <Shell
       className={`st-hero relative flex h-full flex-col overflow-hidden ${portal ? "" : "min-h-svh"}`}
@@ -191,7 +198,7 @@ export function VlnaHero({ portal = false }: { portal?: boolean }) {
                   {l.time}
                 </span>
                 <span className="flex-1 text-[1.1rem] font-semibold">{l.name}</span>
-                <SpotPill spots={l.spots} />
+                <SpotPill spots={remaining ? remaining("DNES · ŠTVRTOK", l) : l.spots} />
               </div>
             ))}
           </div>
@@ -203,7 +210,8 @@ export function VlnaHero({ portal = false }: { portal?: boolean }) {
 
 export default function VlnaSite() {
   const [day, setDay] = useState<keyof typeof WEEK>("DNES · ŠTVRTOK")
-  const [booked, setBooked] = useState<Record<string, number>>({})
+  const store = useBookingStore(WEEK)
+  const [sheet, setSheet] = useState<{ dayKey: string; lesson: Lesson } | null>(null)
   const rootRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
@@ -245,20 +253,33 @@ export default function VlnaSite() {
     }
   }, [])
 
-  const book = (dayKey: string, l: Lesson) => {
-    const key = `${dayKey}-${l.time}`
-    setBooked((b) => {
-      const used = b[key] ?? 0
-      if (l.spots - used <= 0) {
-        return b
-      }
-      return { ...b, [key]: used + 1 }
-    })
-  }
+  const tonight = WEEK["DNES · ŠTVRTOK"].find((l) => l.time === "17:15")
+  const tonightLeft = tonight ? store.remaining("DNES · ŠTVRTOK", tonight) : 0
 
   return (
     <main ref={rootRef} style={{ background: BLACK, color: PAPER }}>
-      <VlnaHero />
+      <VlnaHero remaining={store.remaining} />
+
+      {sheet ? (
+        <BookingSheet
+          dayKey={sheet.dayKey}
+          lesson={sheet.lesson}
+          left={store.remaining(sheet.dayKey, sheet.lesson)}
+          onBook={store.book}
+          onClose={() => setSheet(null)}
+        />
+      ) : null}
+
+      {store.notice ? (
+        <div className="fixed inset-x-4 bottom-4 z-50 mx-auto flex max-w-[34rem] items-start justify-between gap-4 rounded-2xl p-4 text-[0.86rem] shadow-[0_30px_60px_-20px_rgba(0,0,0,0.7)]" style={{ background: LIME, color: BLACK }} role="status">
+          <span>
+            <b>Čakačka funguje.</b> {store.notice}
+          </span>
+          <button type="button" onClick={store.clearNotice} aria-label="Zavrieť" className="font-bold">
+            ✕
+          </button>
+        </div>
+      ) : null}
 
       {/* ---- the full week — every row books, capacity counts down ---- */}
       <Shell id="rozvrh" className="px-[clamp(1.25rem,4vw,3.5rem)] py-[9svh]">
@@ -278,11 +299,11 @@ export default function VlnaSite() {
             </button>
           ))}
         </div>
-        <div className="mt-6 max-w-[56rem]">
+        <div className="mt-6 max-w-[56rem]" data-schedule data-ready={store.loaded ? "" : undefined}>
           {WEEK[day].map((l, i) => {
-            const left = l.spots - (booked[`${day}-${l.time}`] ?? 0)
+            const left = store.remaining(day, l)
             return (
-              <div key={`${day}-${l.time}`} className="wfx flex flex-wrap items-center justify-between gap-4 border-b border-[#F4F6F2]/12 py-5" style={fx(i + 2)}>
+              <div key={`${day}-${l.time}`} data-lesson={`${day}-${l.time}`} className="wfx flex flex-wrap items-center justify-between gap-4 border-b border-[#F4F6F2]/12 py-5" style={fx(i + 2)}>
                 <span className="text-[0.9rem]" style={{ ...MONO, color: LIME }}>
                   {l.time}
                 </span>
@@ -290,26 +311,34 @@ export default function VlnaSite() {
                   <p className="text-[1.3rem] font-bold" style={BRIC}>
                     {l.name}
                   </p>
-                  <p className="text-[0.8rem] text-[#F4F6F2]/60">{l.coach}</p>
+                  <p className="text-[0.8rem] text-[#F4F6F2]/60">
+                    {l.coach} · {l.length} min
+                  </p>
                 </div>
                 <SpotPill spots={left} />
-                <button
-                  type="button"
-                  onClick={() => book(day, l)}
-                  disabled={left === 0}
-                  className="rounded-full px-6 py-3 text-[0.85rem] font-bold transition-transform enabled:hover:-translate-y-0.5 enabled:active:scale-95 disabled:opacity-40"
-                  style={{ background: left === 0 ? "rgba(244,246,242,0.15)" : PAPER, color: left === 0 ? PAPER : BLACK }}
-                >
-                  {left === 0 ? "Plné" : "Rezervovať"}
-                </button>
+                {left === 0 ? (
+                  <WaitlistButton dayKey={day} time={l.time} waiting={store.waitingFor(day, l.time)} onJoin={store.joinWaitlist} />
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setSheet({ dayKey: day, lesson: l })}
+                    className="rounded-full px-6 py-3 text-[0.85rem] font-bold transition-transform hover:-translate-y-0.5 active:scale-95"
+                    style={{ background: PAPER, color: BLACK }}
+                  >
+                    Rezervovať
+                  </button>
+                )}
               </div>
             )
           })}
         </div>
         <p className="wfx mt-4 text-[0.8rem] text-[#F4F6F2]/55" style={fx(6)}>
-          Rezervácia v deme reálne uberá miesta — vyskúšajte si to. Zrušenie
-          zdarma do 12 h pred lekciou.
+          Celý rezervačný systém v ukážke naozaj funguje: miesta ubúdajú, potvrdenie
+          a pripomienka prídu v znení, kalendár sa naplní, plná lekcia má čakačku.
+          Rezervácie ostávajú uložené aj po obnovení stránky. Zrušenie zdarma do 12 h
+          pred lekciou.
         </p>
+        <MyBookings bookings={store.bookings} onCancel={store.cancel} />
       </Shell>
 
       {/* ---- coaches ---- */}
@@ -390,6 +419,11 @@ export default function VlnaSite() {
         </p>
       </Shell>
 
+      {/* ---- the other side of the system: what the studio sees ---- */}
+      <Shell id="majitel" className="px-[clamp(1.25rem,4vw,3.5rem)] py-[7svh]">
+        <OwnerPanel week={WEEK} bookings={store.bookings} waitlist={store.waitlist} remaining={store.remaining} onReset={store.reset} />
+      </Shell>
+
       {/* ---- close ---- */}
       <Shell id="st-zaver" className="relative overflow-hidden px-[clamp(1.25rem,4vw,3.5rem)] py-[12svh]">
         <div aria-hidden="true" className="st-closeimg absolute inset-[-10%] bg-cover bg-center" style={{ backgroundImage: `url(${IMG}/kruhy.jpg)`, filter: "grayscale(1) contrast(1.15) brightness(0.4)" }} />
@@ -401,7 +435,9 @@ export default function VlnaSite() {
             <a href="#rozvrh" className="rounded-full px-9 py-4.5 text-[1.05rem] font-bold transition-transform hover:-translate-y-0.5" style={{ background: LIME, color: BLACK, padding: "18px 36px" }}>
               Rezervovať lekciu
             </a>
-            <span className="text-[0.9rem] text-[#F4F6F2]/70">dnes o 17:15 je ešte voľné</span>
+            <span className="text-[0.9rem] text-[#F4F6F2]/70">
+              {tonightLeft > 0 ? `dnes o 17:15 ${tonightLeft === 1 ? "je ešte 1 miesto" : tonightLeft < 5 ? `sú ešte ${tonightLeft} miesta` : `je ešte ${tonightLeft} miest`}` : "dnes o 17:15 je už plno — skúste čakačku"}
+            </span>
           </div>
         </div>
       </Shell>

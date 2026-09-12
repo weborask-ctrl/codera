@@ -3,7 +3,7 @@
 What is live, what was decided, and what must not be relearned. One file, kept
 short. Open work does **not** live here — it lives in GitHub Issues.
 
-Last reviewed: 2026-09-07 (Codera City 2.1) · Production: `https://www.codera.sk` ·
+Last reviewed: 2026-09-12 (Iterácia 4.0, demo systems) · Production: `https://www.codera.sk` ·
 Open backlog: see Issues.
 
 ---
@@ -25,8 +25,18 @@ its own plate of the same world with a cloud band. Type: Bricolage Grotesque
 References: activetheory, lusion, zentry, refokus. The Žiara acts, the R3F
 world and `ACT_TONES` were removed with it — git remembers.
 
-**Concept demos (unchanged by 2.0):** Observatórium (Animácie & 3D),
-Kancelária (Dizajn), Pražiareň (Objednávky), Štúdio (Rezervácie), WordPress.
+**Concept demos:** Observatórium (Animácie & 3D), Kancelária (Dizajn),
+Pražiareň (Objednávky), Štúdio (Rezervácie), WordPress. Since Iterácia 4.0
+(2026-09-12) two of them are working systems, not gestures: Štúdio books
+for real in the browser (sheet → card checks or pay at the studio →
+confirmation, .ics and Google Calendar that work, e-mail/SMS previews,
+cancellation that frees the seat, a waitlist, the owner view with CSV;
+`components/concepts/vlna-booking.tsx`), and WordPress is a real editor
+(content, look, sections, dishes, posts, a WooCommerce cart, language,
+publish with revisions, phone preview, click-to-edit, persistence;
+`components/concepts/wordpress-editor.tsx`) whose close keeps the visitor's
+own site alive. Everything is client-side and says so; guarded by
+`tests/demos.spec.ts`.
 
 ---
 
