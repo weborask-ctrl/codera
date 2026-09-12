@@ -16,8 +16,12 @@ the ribbon, the fog and the type.
 | /02 before/after (Bilanc) | the transformation act | Live markup in `components/experience/premena.tsx` — a fictional client, labelled as such | First-party, created in-repo |
 | Fog, glow, obsidian shards | the world | Procedural (GLSL + three.js geometry), no textures | First-party, created in-repo |
 | Fonts: Geist, Geist Mono, Fraunces | everywhere | Google Fonts via `next/font` | SIL Open Font License 1.1 |
+| Codera City world (`public/home/*`: scene plates, flight strips, the living-city layers in `public/home/live/`) | the homepage | Generated for this site by the studio from its own prompts (Seedance flights, image models for plates and cloud plates); no third-party photograph or artwork is referenced | First-party, generated in-house |
+| Cloud plates `cloud-tower-*`, `cloud-cluster-*` (`public/home/live/`) | the cloud passages between acts (Iterácia 4.2) | Generated 2026-09-12 (gpt_image_2_5, the tower upscaled to 4K), cut to alpha from brightness by the scratchpad pipeline `cloud-alpha-2.js` | First-party, generated in-house |
+| Bakery photos (`public/demos/wordpress/*.jpg`) | the WordPress demo | Generated for the fictional Pekáreň Kôrka; the page says so in its footer | First-party, generated in-house |
 | Reference screenshots (`CODERA_DESIGN_REFERENCES/shots/`) | internal study only, never served on the site | Captured from public sites for design study; each record names its source URL | Internal reference use only — MUST NOT ship on any page |
 
-No stock photography, no AI-generated imagery, no third-party illustrations
-are in use. If any is ever added, it enters through this file first — asset,
-source, licence, and where it may appear.
+No stock photography and no third-party illustrations are in use. Generated
+imagery is listed above, always first-party and never depicting a real
+client, place or person. Anything new enters through this file first —
+asset, source, licence, and where it may appear.

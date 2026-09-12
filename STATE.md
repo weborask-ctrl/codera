@@ -3,7 +3,7 @@
 What is live, what was decided, and what must not be relearned. One file, kept
 short. Open work does **not** live here — it lives in GitHub Issues.
 
-Last reviewed: 2026-09-12 (Iterácia 4.1, demo systems + WP language) · Production: `https://www.codera.sk` ·
+Last reviewed: 2026-09-12 (Iterácia 4.2, WP hero show + cloud passages in depth) · Production: `https://www.codera.sk` ·
 Open backlog: see Issues.
 
 ---
@@ -19,7 +19,12 @@ past five complete production screenshots) → glass platforms at golden hour
 motion allowed the world is a fixed stage (`components/city/stage.tsx`): the
 seams between acts scrub Seedance camera flights rendered as 32-frame WebP
 strips (`public/home/flight`), clouds sweep the seams, the hero and the night
-hall are seamless video loops. Under 1024px or reduced motion every act carries
+hall are seamless video loops. Since 3.7/4.2 the seams are cloud passages
+in depth: four alpha plates (far cluster, two mid, a near tower cut from a
+4K render) come toward the camera and part, a haze and a bloom of the hour
+carry the middle, the camera banks ~1.3°, every scene keeps its own act
+drift across the seam (no scale pop), and the arriving scene is composited
+a beat early. Seams are 150 svh. Under 1024px or reduced motion every act carries
 its own plate of the same world with a cloud band. Type: Bricolage Grotesque
 800 + Fraunces italic accent; palette ink #0b1a4a, coral, tangerine, mint.
 References: activetheory, lusion, zentry, refokus. The Žiara acts, the R3F
@@ -37,7 +42,9 @@ publish with revisions, phone preview, click-to-edit, persistence, an
 EN version of the whole site pre-filled by a bakery dictionary and editable
 by hand (`wordpress-translate.ts`, Iterácia 4.1);
 `components/concepts/wordpress-editor.tsx`) whose close keeps the visitor's
-own site alive. Everything is client-side and says so; guarded by
+own site alive, and whose hero edits the bakery site by itself (ghost
+cursor + editor card, six steps, then hands over; `wordpress-hero-demo.tsx`,
+Iterácia 4.2). Everything is client-side and says so; guarded by
 `tests/demos.spec.ts`.
 
 ---

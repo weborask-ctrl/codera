@@ -809,7 +809,9 @@ main[data-experience="v4"][data-wipe-done] .wipe-statement {
   0%, 100% { scale: 1; opacity: 0.55; }
   50% { scale: 1.18; opacity: 0.8; }
 }
-.wp-glow { width: 60vw; height: 60vw; max-width: 46rem; max-height: 46rem; border-radius: 50%; filter: blur(60px); pointer-events: none; will-change: transform, opacity; animation: wp-glow 9s ease-in-out infinite; }
+/* no filter: blur on these — a blurred, animated 60vw layer drops WebKit to
+   3 fps at DPR 2 (measured 2026-09-12); the gradient is soft on its own */
+.wp-glow { width: 66vw; height: 66vw; max-width: 50rem; max-height: 50rem; border-radius: 50%; pointer-events: none; will-change: transform, opacity; animation: wp-glow 9s ease-in-out infinite; }
 .wp-glow-a { left: -18%; top: -20%; }
 .wp-glow-b { right: -22%; bottom: -30%; animation-delay: -4.5s; }
 @keyframes wp-ticker {
@@ -1074,4 +1076,38 @@ main[data-experience="v4"][data-wipe-done] .wipe-statement {
    the still; reduced motion keeps the still only. */
 @media (prefers-reduced-motion: reduce) {
   .st-herovid { display: none; }
+}
+
+/* ---- the WordPress hero that edits itself (Iterácia 4.2) ---- */
+.wp-demo { aspect-ratio: 16 / 9.6; }
+.wp-demo-desktop { position: absolute; left: 0; top: 0; width: 86%; transform: translateZ(0); }
+.wp-demo-phone { position: absolute; right: -3%; bottom: -7%; width: 31%; min-width: 9.5rem; border: 6px solid rgba(246,241,231,0.92); border-radius: 1.7rem; background: #F6F1E7; box-shadow: 0 40px 80px -24px rgba(27,26,23,0.55); transform: translateZ(70px); }
+.wp-demo-card { position: absolute; left: -8%; bottom: 0; width: 15.5rem; max-width: 62%; padding: 0.85rem 0.95rem 0.95rem; border-radius: 0.9rem; background: #fff; border: 1px solid rgba(27,26,23,0.1); box-shadow: 0 30px 60px -22px rgba(27,26,23,0.5); transform: translateZ(90px); }
+.wp-demo-input { display: flex; align-items: center; min-height: 2rem; padding: 0.35rem 0.6rem; border-radius: 0.5rem; border: 1px solid rgba(27,26,23,0.15); background: #FBF8F2; font-size: 0.8rem; line-height: 1.3; }
+.wp-caret { display: inline-block; width: 1.5px; height: 1em; margin-left: 1px; background: #1B1A17; animation: wp-caret 0.9s steps(2, start) infinite; }
+@keyframes wp-caret { to { visibility: hidden; } }
+.wp-demo-cursor { position: absolute; left: 0; top: 0; z-index: 5; pointer-events: none; transform: translateZ(120px); }
+.wp-demo-ring { position: absolute; left: -9px; top: -9px; width: 30px; height: 30px; border-radius: 50%; border: 2px solid; opacity: 0; }
+.wp-site [data-hot] { outline: 2px solid var(--wp-accent, #2F5BFF); outline-offset: 4px; border-radius: 0.3rem; }
+.wp-site .wp-acc { transition: background-color 0.55s ease, color 0.55s ease; }
+.wp-demo-publish { transition: background-color 0.4s ease; }
+.wp-demo-dot { animation: wp-dot 1.6s ease-in-out infinite; }
+/* the hand-over: the real button asks for the visitor once the show is done */
+.wp-pulse { animation: wp-pulse 1.4s ease-out 2; }
+@keyframes wp-pulse { 0% { box-shadow: 0 0 0 0 rgba(47,91,255,0.55); } 100% { box-shadow: 0 0 0 18px rgba(47,91,255,0); } }
+@keyframes wp-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.7); } }
+/* the room light follows the brand colour the show picks */
+.wp-room { width: 64vw; height: 64vw; max-width: 50rem; max-height: 50rem; border-radius: 50%; pointer-events: none; opacity: 0.26; background: radial-gradient(closest-side, var(--wp-room, #E8A23A), transparent 68%); transition: background 0.9s ease; animation: wp-glow 11s ease-in-out infinite; }
+.wp-room-a { right: -16%; top: -26%; }
+.wp-room-b { left: -24%; bottom: -34%; animation-delay: -5s; opacity: 0.18; }
+@media (max-width: 1023px) {
+  /* a phone stacks the show: the desktop full width, the card tucked under
+     its corner, the phone frame left out (the visitor is holding one) */
+  .wp-demo { aspect-ratio: auto; margin-top: 1rem; padding-bottom: 0.5rem; }
+  .wp-demo-desktop { position: relative; width: 100%; }
+  .wp-demo-card { position: relative; left: 0.5rem; bottom: auto; margin-top: -1.6rem; width: 14rem; max-width: 80%; }
+  .wp-demo-phone { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wp-caret, .wp-demo-dot, .wp-room, .wp-pulse { animation: none; }
 }
