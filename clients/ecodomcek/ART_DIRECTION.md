@@ -331,3 +331,48 @@ v `compose.py`), ale bez kontaktných tieňov medzi dielmi.
 **Validácia.** LOCAL: Playwright reálny scroll 1440×900 a 390×844 —
 sticky drží, dom sa skladá v správnych bodoch (`web/shots/hero-*`).
 Mobil na reálnom zariadení NOT VALIDATED.
+
+---
+
+## Fáza 5 — kresba → hmota (2026-09-12)
+
+Ondrej: „text naľavo je strašný … inšpiruj sa [launch-film briefom],
+prerob ten prvotný dizajn." Brief: 15 s film, blueprint sa sám vykreslí,
+sklopí do 3D, budova sa zhmotní cez vlastné čiary, proof overlay, lockup.
+
+**Prieskum pred prácou** (Higgsfield read-only + knižnica): video modely
+vedia štart + koncový frame z našich obrázkov (Seedance 2.5 9 kr./s,
+MiniMax H3 10 kr./5 s), no žiadny nemá parameter na text a 15 s jeden
+záber pripne len dva okamihy — geometria by driftovala (fáza 4 to už
+ukázala). Knižnica: 08 §9 (predrenderovaný svet, scrub), §13 (typ nad
+svetom vždy v DOM), igloo.md (LIKED — čiary inžiniera nad fotoreal
+objektom vo svetlom svete), refokus.md (pinned sekvencia, text v krokoch),
+kpr.md/noomo.md (nadpis a objekt zdieľajú rám). Varovania: modrý blueprint
++ chartreuse = cudzia paleta a doslova súčasná (zavrhnutá) WordPress téma
+klienta; 10 §1 nekopírovať referenciu; 01 §5 jedna myšlienka na viewport.
+
+**Diagnóza textu.** 50/50 split so „SaaS stackom" nabok: eyebrow +
+nadpis o triku + 4-riadkový odsek o scrollovaní + cue + dve meta linky =
+päť myšlienok v jednom viewporte, agentúrna slovenčina.
+
+**Riešenie.** Hero „Dom z výkresu": atramentová kresba (potrace zo
+segmentovaných vrstiev) sa pri načítaní sama vykreslí na papieri; scroll
+zhmotňuje vrstvy cez vlastný obrys a skladá ich; v poslednom stave sa
+čiary znovu vykreslia machom cez hotový dom a vsiaknu, špendlíky dostanú
+materiálové štítky. Copy = disciplína briefu: jeden vykreslený nadpis na
+stav, jedno machové slovo, kóty ako štítky, čipy v titulnom bloku, CTA až
+v hold stave. Všetky vety sú klientove: „Vitajte vo svete, kde vonia
+drevo." · „Difúzne otvorená stavba s použitím ekologických materiálov." ·
+„V lete chladí, v zime je teplučký." · „Nie sme strohí obchodníci, ale
+nadšenci drevostavieb." · „Čo je ekologické, je aj ekonomické." · „Od
+základov až po kolaudáciu." Paleta ostáva: papier, atrament, mach ako pero,
+jantár len CTA/aktívny špendlík.
+
+**Reference map (hero):** 08 §9/§13 (baked svet, DOM typ), igloo.md
+(čiary nad objektom, svetlý svet), refokus.md (diskrétne kroky), kpr.md +
+noomo.md (typ a objekt v jednom ráme), basement.md (hustota overených
+faktov = štítky), 07 §6 (čipy a štítky ako najlacnejšia páka).
+
+**Validácia.** LOCAL: Playwright reálny scroll 1440×900 a 390×844
+(`web/shots/hero-*`). Reálny mobil NOT VALIDATED. Video test (MiniMax H3,
+štart = kresba, koniec = poskladaný dom): pozri fázu 5b.

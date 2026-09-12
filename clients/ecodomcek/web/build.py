@@ -45,6 +45,10 @@ SPREAD = {"base": 0, "ground": -1.6, "upper": -5.0, "roof": -10.5}
 PINS = {"roof": ("01", 52, 38), "upper": ("02", 31, 63), "ground": ("03", 26, 58), "base": ("04", 56, 74)}
 NAMES = {"01": "Strecha", "02": "Poschodie · spálne a kúpeľňa",
          "03": "Prízemie · obývačka, kuchyňa", "04": "Základová doska"}
+# proof-overlay labels: the client's own material vocabulary (CONTENT_INVENTORY §5)
+TAGS = {"roof": "Plochá strecha", "upper": "Rhombus profil · smrekovec",
+        "ground": "Kompaktné dosky Fundermax", "base": "Základová doska"}
+INK = json.loads((REND / "ink-4-150.json").read_text())
 
 
 def layer(name):
@@ -52,10 +56,15 @@ def layer(name):
     y0 = SPREAD[name] * H / l["h"]           # yPercent of the layer's own height
     y1 = DROP[name] / l["h"] * 100
     p, px, py = PINS[name]
-    pin = f'<div class="pin" data-p="{p}" style="left:{px}%;top:{py}%"><s></s><b>{p}</b></div>'
+    pin = (f'<div class="pin" data-p="{p}" style="left:{px}%;top:{py}%"><s></s><b>{p}</b>'
+           f'<i>{TAGS[name]}</i></div>')
+    ink = INK[name]
+    paths = "".join(f'<path class="{c}" d="{d}"/>' for c, d in ink["paths"])
+    svg = (f'<svg class="ink" viewBox="0 0 {ink["w"]} {ink["h"]}" aria-hidden="true">{paths}</svg>')
     return (f'<div class="lyr" data-l="{name}" data-y0="{y0:.2f}" data-y1="{y1:.2f}" '
-            f'style="left:{l["x"]/W*100:.2f}%;top:{l["y"]/H*100:.2f}%;width:{l["w"]/W*100:.2f}%">'
-            f'<img src="{b64(f"lyr-{name}.webp")}" alt="" draggable="false">{pin}</div>')
+            f'style="left:{l["x"]/W*100:.2f}%;top:{l["y"]/H*100:.2f}%;width:{l["w"]/W*100:.2f}%;'
+            f'aspect-ratio:{l["w"]}/{l["h"]}">'
+            f'{svg}<img class="mat" src="{b64(f"lyr-{name}.webp")}" alt="" draggable="false">{pin}</div>')
 
 
 LAYERS = [("01", "Drevený obklad — rhombus profil"), ("02", "Vetraná medzera, latovanie"),
@@ -98,55 +107,41 @@ def sec(i, name, band, inner, extra=""):
 def build():
     S = []
 
-    # ── 01 HERO — the house lands layer by layer while you scroll ───────
-    legend = "".join(f'<div data-p="{p}"><b>{p}</b><span>{NAMES[p]}</span></div>' for p in ("01", "02", "03", "04"))
+    # ── 01 HERO — the house is drawn, then materialises layer by layer ──
+    # Copy discipline from the launch-film brief: one plotted headline per
+    # state, one moss word, dimension-style labels, title-block chips.
+    # Every sentence is the client's own (CONTENT_INVENTORY §4, §5, §6).
     house = "".join(layer(n) for n in ("base", "ground", "upper", "roof"))
     steps = [
-        ("04,03", f"01 / {N} · Základová doska → prízemie", "Najprv sadne|prízemie.",
-         ["Základová doska drží dom nad terénom. Prízemie s obývačkou, kuchyňou a tmavým krídlom sa na ňu položí ako jeden diel.",
-          "Steny sa vyrábajú v hale, na stavbe sa už len skladajú. Preto to ide rýchlo."]),
-        ("02", f"01 / {N} · Poschodie", "Poschodie|nesie spálne.",
-         ["Spálne, detské izby a kúpeľňa. Ďalší diel, ďalší deň montáže.",
-          "Od základov až po kolaudáciu nám tento dom zabral presne rok."]),
-        ("01", f"01 / {N} · Strecha", "Strecha.|A je to dom.",
-         ["Plochá strecha zavrie hmotu. Nič zbytočné, nič navyše.",
-          "Nie sme strohí obchodníci, ale nadšenci drevostavieb."]),
-        ("01,02,03,04", f"01 / {N} · Zložený dom", "Tie isté diely.|Postavené v Lúčine.",
-         ["L-tvar s drevenou hmotou na dve podlažia a tmavým prízemným krídlom. Stojí v našej dedine — vidíme naň z dvora."]),
+        ("",            "", "Vitajte vo svete,|kde <em>vonia</em> drevo.", "", True),
+        ("04,03", "04 → 03 <i>/</i> Základová doska · prízemie", "Difúzne <em>otvorená</em>|stavba.", "s použitím ekologických materiálov", False),
+        ("02",    "02 <i>/</i> Poschodie", "V lete chladí,|v zime <em>teplučký</em>.", "", False),
+        ("01",    "01 <i>/</i> Strecha", "Nadšenci|<em>drevo</em>stavieb.", "Nie sme strohí obchodníci.", False),
+        ("01,02,03,04", f"01 / {N} <i>/</i> Zložený dom <i>/</i> Lúčina", "Čo je <em>eko</em>logické,|je aj ekonomické.", "Od základov až po kolaudáciu.", False),
     ]
     steps_html = ""
-    for k, (live, eyebrow, head, paras) in enumerate(steps, start=1):
-        ps = "".join(f'<p class="fade d2">{t}</p>' for t in paras)
-        tail = (f'<div class="idxlist fade d3">{legend}</div>' if k == 4 else
-                f'<div class="idxlist fade d3">{"".join(f"<div data-p={chr(34)}{p}{chr(34)}><b>{p}</b><span>{NAMES[p]}</span></div>" for p in live.split(","))}</div>')
-        cta = ('<div class="ctas fade d4"><a class="btn" href="#act-5">Pozrieť realizácie ' + ARROW + '</a>'
-               '<a class="btn ghost" href="#act-8">Postavme váš</a></div>') if k == 4 else ''
-        steps_html += (f'<div class="step" data-k="{k}" data-pins="{live}" data-reveal>'
-                       f'<div class="eyebrow fade">{eyebrow}</div><h2>{lines(head)}</h2>{ps}{tail}{cta}</div>')
-    S.append(f'''<section class="band" id="hero" data-sec="Rozložený dom" data-reveal>
-  <div class="wrap split" data-house>
-    <div class="col-a sticky">
-      <div class="stage">
-        <div class="house" id="house">{house}</div>
-        <div class="cap"><span>Rodinný dom Lúčina · 2024 · vizualizácia</span>
-          <span class="rail"><i data-p="04">Doska</i><i data-p="03">Prízemie</i><i data-p="02">Poschodie</i><i data-p="01">Strecha</i></span></div>
-      </div>
-    </div>
-    <div class="steps">
-      <div class="step intro" data-k="0" data-pins="">
-        <div class="eyebrow fade">Rodinný dom Lúčina <i>/</i> 2024 <i>/</i> okr. Prešov</div>
-        <h1>{lines("Dom, ktorý sa dá|rozobrať na kúsky.")}</h1>
-        <p class="sub fade d2">Montovaná drevostavba je stavebnica s presnými dielmi. Presne preto ide rýchlo a presne preto sedí. Scrollujte — poskladáme ho.</p>
-        <div id="scrollcue" class="fade d3">
-          <svg width="13" height="22" viewBox="0 0 16 28" fill="none"><path d="M8 2v22M2 18l6 6 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          Scrollujte
-        </div>
-        <div class="meta fade d4">
-          <span class="mono">Drevostavby od roku 2007</span>
-          <span class="mono">Lúčina · Prešov · Košice · Žilina</span>
-        </div>
-      </div>
-      {steps_html}
+    for k, (live, kota, head, line, intro) in enumerate(steps):
+        tag = "h1" if intro else "h2"
+        inner = (f'<div class="kota fade">{kota}</div>' if kota else "")
+        inner += f'<{tag}>{lines(head)}</{tag}>'
+        if line:
+            inner += f'<p class="line fade d2">{line}</p>'
+        if intro:
+            inner += (f'<div class="chips fade d2"><span>Rodinný dom Lúčina · 2024 · okr. Prešov</span>'
+                      f'<span>Drevostavby od roku 2007</span><span>Vizualizácia</span></div>'
+                      f'<div id="scrollcue" class="fade d3"><svg width="13" height="22" viewBox="0 0 16 28" fill="none">'
+                      f'<path d="M8 2v22M2 18l6 6 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Scrollujte — postavíme ho</div>')
+        if k == 4:
+            inner += (f'<div class="ctas fade d3"><a class="btn" href="tel:+421908704281">Zavolajte 0908 704 281 {ARROW}</a>'
+                      f'<a class="btn ghost" href="#act-5">Realizácie</a></div>')
+        steps_html += f'<div class="step{" intro" if intro else ""}" data-k="{k}" data-pins="{live}">{inner}</div>'
+    S.append(f'''<section class="band" id="hero" data-sec="Dom z výkresu" data-reveal>
+  <div class="track" data-house>
+    <div class="stage">
+      <div class="house" id="house">{house}</div>
+      <div class="copy">{steps_html}</div>
+      <div class="rail mono"><i data-p="04">Doska</i><i data-p="03">Prízemie</i><i data-p="02">Poschodie</i><i data-p="01">Strecha</i></div>
+      <div class="stamp mono">Rodinný dom Lúčina <i>/</i> vizualizácia <i>/</i> rev. 01</div>
     </div>
   </div>
 </section>''')

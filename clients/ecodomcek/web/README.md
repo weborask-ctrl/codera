@@ -17,7 +17,7 @@ scroll beat delivers a different kind of content, not a different effect."*
 
 | # | Akt | Tvar |
 | --- | --- | --- |
-| 01 | Rozložený dom | **5D hero**: dom ako štyri cut-out vrstvy na papieri, scroll ich skladá; text v piatich krokoch, špendlíky + legenda sa rozsvecujú |
+| 01 | Dom z výkresu | **5D hero**: atramentová kresba domu sa sama vykreslí, scroll ju po vrstvách zhmotní a poskladá; jeden vykreslený nadpis na stav (jedno machové slovo), kóty, čipy, proof overlay so štítkami materiálov |
 | 02 | Hotový dom | široký 21:9 záber + riadok faktov |
 | 03 | O nás | **serif**, žiadny obrázok, pieskový pás — typografický oddych |
 | 04 | Konštrukcia | machový pás: kresba + hustá tabuľka skladby |
@@ -40,7 +40,22 @@ nad tmavými pásmi invertuje.
 obrázkov, parallax vnútri rámu, bežiaci index vpravo dole, hover stavy
 na projektoch a odkazoch, focus-visible.
 
-## Hero: ako sa dom skladá
+## Hero: kresba → hmota
+
+Podľa briefu na launch film (kresba, ktorá sa zhmotní): `renders/ink.py`
+vektorizuje každú vrstvu (`potracer`): silueta + hranice tónov (4 tóny,
+medián 7, min. plocha 150; doska len 3 tóny) → `ink-4-150.json`, čiary sa
+inlinujú ako SVG s `vector-effect:non-scaling-stroke`. Pri načítaní sa
+kresba vykreslí (stroke-dashoffset, zdola nahor, raz). Scroll: doska
+zbetónuje (0,03–0,11), prízemie/poschodie/strecha sa zhmotnia cez vlastný
+obrys a dosadnú, a v poslednom stave sa čiary znovu vykreslia machom cez
+hotový dom a vsiaknu (proof overlay); špendlíky dostanú materiálové štítky
+z realizácie (Rhombus profil · smrekovec, kompaktné dosky Fundermax).
+Text je diskrétny (päť stavov, ENTER → HOLD → EXIT, prepína sa podľa
+progresu timeline), len dom sa scrubuje. Na mobile je dom sticky hore
+a texty scrollujú pod ním. Copy sú výlučne klientove vety.
+
+## Vrstvy: ako sa dom skladá
 
 `renders/segment.py` rozreže `renders/explod.jpg` na štyri vrstvy s alfou
 (`lyr-roof/upper/ground/base.webp`, WebP ~145 KB spolu): maska = pixely
@@ -72,8 +87,8 @@ realizácií zo súčasného webu klienta.
 
 ## Testovanie
 
-`?sec=N` vyrenderuje jeden akt samostatne, `?sec=0&step=3&p=0.72` konkrétny
-krok hera s domom v danom bode timeline. Reálny scroll (sticky + scrub)
+`?sec=N` vyrenderuje jeden akt samostatne, `?sec=0&step=3&p=0.66` konkrétny
+stav hera s domom v danom bode timeline (kresba je v teste dokreslená). Reálny scroll (sticky + scrub)
 overuje `scroll-test.cjs` (Playwright, `NODE_PATH=/opt/node22/lib/node_modules
 node scroll-test.cjs` nad `python3 -m http.server 8810`), zábery v `shots/hero-*`. Testovací režim vypína prechody — headless Chromium ich
 neposúva spoľahlivo a inak sa zábery chytia uprostred animácie.
