@@ -143,40 +143,8 @@ export default function RootLayout({
         bricolage.variable
       )}
     >
-      <head>
-        {/* The hero plate is the LCP element in every edit. Preload the file
-            the viewport will actually pick, so it is in flight with the CSS
-            instead of after it. */}
-        <link
-          rel="preload"
-          as="image"
-          type="image/avif"
-          href="/home/m/hero-720.avif"
-          imageSrcSet="/home/m/hero-720.avif 1x, /home/m/hero-1080.avif 2x"
-          media="(max-width: 767px)"
-          fetchPriority="high"
-        />
-        <link
-          rel="preload"
-          as="image"
-          type="image/avif"
-          href="/home/live/sky-1280.avif"
-          imageSrcSet="/home/live/sky-1280.avif 1x, /home/live/sky-2560.avif 2x"
-          media="(min-width: 768px)"
-          fetchPriority="high"
-        />
-        {/* the cloud we arrive through is the first frame; it must not
-            queue behind the city's layers */}
-        <link
-          rel="preload"
-          as="image"
-          type="image/avif"
-          href="/home/live/cloud-puff-1x.avif"
-          imageSrcSet="/home/live/cloud-puff-1x.avif 1x, /home/live/cloud-puff-2x.avif 2x"
-          media="(min-width: 768px)"
-          fetchPriority="high"
-        />
-      </head>
+      {/* the homepage preloads its own plates (app/page.tsx); every other page
+          used to pay for them and never use them (audit 2026-09-14 §1) */}
       <body>
         <a
           href="#hlavny-obsah"

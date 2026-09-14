@@ -587,7 +587,7 @@ function Confirmation({ b, onClose }: { b: Booking; onClose: () => void }) {
   return (
     <div className="space-y-5" data-booked={b.code}>
       <div className="rounded-2xl p-5" style={{ background: LIME, color: BLACK }}>
-        <p className="text-[0.62rem] tracking-[0.2em]" style={MONO}>
+        <p className="text-[0.7rem] tracking-[0.2em]" style={MONO}>
           REZERVÁCIA POTVRDENÁ
         </p>
         <p className="mt-1 text-[2rem] leading-none" style={{ ...BRIC, fontWeight: 800 }}>
@@ -599,7 +599,7 @@ function Confirmation({ b, onClose }: { b: Booking; onClose: () => void }) {
       </div>
 
       <div>
-        <p className="text-[0.62rem] tracking-[0.2em] text-[#F4F6F2]/55" style={MONO}>
+        <p className="text-[0.7rem] tracking-[0.2em] text-[#F4F6F2]/55" style={MONO}>
           DO KALENDÁRA
         </p>
         <div className="mt-2 flex flex-wrap gap-2">
@@ -614,7 +614,7 @@ function Confirmation({ b, onClose }: { b: Booking; onClose: () => void }) {
 
       {/* what the client receives: the e-mail and the SMS, as they land */}
       <div>
-        <p className="text-[0.62rem] tracking-[0.2em] text-[#F4F6F2]/55" style={MONO}>
+        <p className="text-[0.7rem] tracking-[0.2em] text-[#F4F6F2]/55" style={MONO}>
           ČO PRÁVE DOSTALI
         </p>
         <div className="mt-2 grid gap-3 sm:grid-cols-[1.3fr_1fr]">
@@ -751,7 +751,7 @@ export function OwnerPanel({
     <div className="rounded-[18px] border border-[#F4F6F2]/15" data-owner>
       <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left">
         <span>
-          <span className="block text-[0.62rem] tracking-[0.2em] text-[#F4F6F2]/55" style={MONO}>
+          <span className="block text-[0.7rem] tracking-[0.2em] text-[#F4F6F2]/55" style={MONO}>
             DRUHÁ STRANA SYSTÉMU
           </span>
           <span className="block text-[1.3rem] font-bold" style={BRIC}>
@@ -771,7 +771,7 @@ export function OwnerPanel({
               ["Čakačka", String(waitlist.length), waitlist.length ? "dostanú e-mail pri uvoľnení" : "nikto nečaká"],
             ].map(([t, v, s]) => (
               <div key={t} className="rounded-xl border border-[#F4F6F2]/12 p-4">
-                <p className="text-[0.62rem] tracking-[0.16em] text-[#F4F6F2]/55" style={MONO}>
+                <p className="text-[0.7rem] tracking-[0.16em] text-[#F4F6F2]/55" style={MONO}>
                   {t.toUpperCase()}
                 </p>
                 <p className="mt-1 text-[1.8rem] leading-none" style={{ ...BRIC, fontWeight: 800, color: LIME }}>
@@ -827,7 +827,7 @@ export function OwnerPanel({
 
           {/* the connections, honestly: which are real in the demo */}
           <div className="mt-8">
-            <p className="text-[0.62rem] tracking-[0.2em] text-[#F4F6F2]/55" style={MONO}>
+            <p className="text-[0.7rem] tracking-[0.2em] text-[#F4F6F2]/55" style={MONO}>
               ČO JE NA ČO NAPOJENÉ
             </p>
             <div className="mt-3 grid gap-2 sm:grid-cols-2">

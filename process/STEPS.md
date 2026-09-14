@@ -737,3 +737,75 @@ browsers; the WordPress tests unchanged and green.
 ### Validation classes
 
 LOCAL + CI by the gate; PREVIEW on the deployment URL; DEVICE is Ondrej.
+
+---
+
+## Iterácia 4.3 — the audit's REBUILD list, all of it (2026-09-14)
+
+**Status: DONE — gate passed locally; PREVIEW after merge; DEVICE is Ondrej.**
+
+### Mission
+
+Ondrej, 2026-09-14, on `docs/AUDIT_2026-09-14.md`: "oprav všetky." Every
+REBUILD and REMOVE item of the audit, issues #80–#88.
+
+### Deliverables (each closes its issue)
+
+- **#80 phone seams over headings** — the flat passage ends when the seam's
+  bottom edge reaches the upper third (`end: "bottom 34%"`), the flat haze
+  gain drops to 1.1, and every act's copy stacks above the veil
+  (`.city-inner` z-index 21). Measured after: no plate above 0 and no haze
+  once the heading is above 60 % of the screen. The phone street plate gets
+  a denser light tint under the /02 head.
+- **#81 WordPress close on phones** — under 1024 px the stage is in flow:
+  one preview, the chips a row of tags, no phone frame; the stage transforms
+  moved from inline styles to CSS so nothing needs `!important`.
+- **#82 the enquiry form** — `app/actions/enquiry.ts`: a Server Action to
+  Resend (one fetch, no SDK) when `RESEND_API_KEY` is set, with a honeypot,
+  server-side validation and a per-address rate limit; three honest states
+  in the form (delivered / mail client opened / refused). **Needs Ondrej:**
+  a Resend account with the domain verified and `RESEND_API_KEY`
+  (optionally `ENQUIRY_TO`, `ENQUIRY_FROM`) in Vercel — until then the form
+  falls back to the mail client exactly as before.
+- **#83 /03 glass contrast** — solid inks instead of opacity on the
+  secondary type, the coral mono darkened, the glass at 0.66; axe reports
+  zero contrast nodes in /03.
+- **#84 payload** — Observatórium loads a 2048 px texture ladder under
+  1024 px (5.2 MB → 1.3 MB of media on a phone) and the desktop textures
+  re-encoded with mozjpeg; the studio video plays by itself only from 1024
+  px without `saveData`, otherwise a poster and a ▶ VIDEO button; every demo
+  photo re-encoded (−1.9 MB across the demos); and the demo routes split —
+  the map of five sites lived in a Server Component, which Next does not
+  code split, so every demo shipped three.js; `DemoSwitch` (a Client
+  Component) gives each demo its own chunk (WordPress JS 1.7 MB → 0.7 MB
+  uncompressed).
+- **#85 Kancelária publications** — `<details>` cards that open an abstract
+  in place; "ČÍTAŤ →" always visible, a real control on touch.
+- **#86 hygiene** — `X-Robots-Tag: noindex, nofollow` on `/v3`, `/boards`,
+  `/directions`, `/logo-lab`; the Žiara case studies retired: `/praca/*`
+  redirects (308) to the demos, the route and `lib/case-studies.ts`
+  deleted, the sitemap down to the homepage (the demos stay noindex by
+  design); demo titles no longer doubled. Test: "Retired routes".
+- **#87 touch** — 44 px targets on coarse pointers in the demos and the
+  editor, the header menu button 44 px, the honest label at 11.5 px in a
+  44 px link, no page-level mono label under 11 px (22 raised), the demo
+  footers lifted to 72 % ink.
+- **#88 people** — the contact hall names the two founders from
+  `site-config` ("zakladatelia Codery"); nothing else about them is claimed.
+- **REMOVE** — the homepage's preloads moved from the global layout into
+  `app/page.tsx`; no other page pays for them.
+- Also: the phone rail shows the next facade peeking and five dots; the
+  WordPress previews lost their `<nav>`/`<h3>` semantics (they are pictures
+  of a site, not page structure).
+
+### Completion gate
+
+`npm run verify` green; Playwright green in chromium, firefox, webkit with
+the new "Retired routes" test; `scratchpad/verify-43.js` 27/27 against the
+production build (veil timing, close composition, contrast, redirects,
+headers, payload, form fallback, publications, label size).
+
+### Validation classes
+
+LOCAL + CI by the gate; PREVIEW on the deployment URL after merge; DEVICE
+is Ondrej's phone — the veil timing and the 44 px targets especially.

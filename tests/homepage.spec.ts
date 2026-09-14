@@ -508,21 +508,25 @@ test.describe("Codera homepage", () => {
   })
 })
 
-test.describe("Case studies", () => {
-  test("every concept has a readable document page without JavaScript", async ({ browser }) => {
-    const context = await browser.newContext({ javaScriptEnabled: false })
-    const page = await context.newPage()
-    for (const slug of ["meridian", "statut", "vlna"]) {
-      const res = await page.goto(`/praca/${slug}`)
-      expect(res?.status()).toBe(200)
-      /* the honest label is non-negotiable — Step 6 gate */
-      await expect(page.locator("main")).toContainText("UKÁŽKOVÝ KONCEPT")
-      await expect(page.locator("main")).toContainText("ROZHODNUTIA")
-      await expect(page.locator("main")).toContainText("nejde o realizácie", { ignoreCase: true })
+test.describe("Retired routes", () => {
+  test("the old case studies redirect to their demos and dev routes are not indexable", async ({ page, request }) => {
+    for (const [from, to] of [
+      ["/praca/meridian", "/ukazky/objednavky"],
+      ["/praca/statut", "/ukazky/dizajn"],
+      ["/praca/vlna", "/ukazky/rezervacie"],
+    ]) {
+      const res = await request.get(from, { maxRedirects: 0 })
+      expect(res.status()).toBe(308)
+      expect(res.headers().location).toContain(to)
     }
-    await context.close()
+    for (const path of ["/v3", "/boards", "/directions", "/logo-lab"]) {
+      const res = await request.get(path)
+      expect(res.headers()["x-robots-tag"]).toContain("noindex")
+    }
+    /* the demo title is not doubled by the layout template */
+    await page.goto("/ukazky/rezervacie")
+    await expect(page).toHaveTitle(/^Rezervácie — živá ukážka — Codera$/)
   })
-
 })
 
 test.describe("Concept sites", () => {

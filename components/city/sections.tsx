@@ -19,7 +19,7 @@
 import { useEffect } from "react"
 import { openEnquiry } from "@/components/experience/enquiry-bus"
 import { bindStage } from "@/components/experience/stage"
-import { commercial, packages, siteConfig, wordpressService } from "@/lib/site-config"
+import { commercial, packages, people, siteConfig, wordpressService } from "@/lib/site-config"
 import { skills } from "@/lib/skills"
 import { DEMO_SIZES, demoSrcSet, HOME_DEMOS } from "./demos"
 import { LiveCity } from "./live"
@@ -281,6 +281,11 @@ function Work({ city }: { city: boolean }) {
           <DemoCard key={d.slug} slug={d.slug} title={d.title} line={d.line} rail />
         ))}
       </div>
+      <div className="city-rail-dots" aria-hidden="true">
+        {HOME_DEMOS.map((d) => (
+          <span key={d.slug} />
+        ))}
+      </div>
     </section>
   )
 }
@@ -457,6 +462,11 @@ function Resolution({ city }: { city: boolean }) {
           <p className="city-hall-links">
             <a href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a>
             <a href={`tel:${siteConfig.phoneHref}`}>{siteConfig.phone}</a>
+          </p>
+          {/* who answers: the two founders declared in site-config — names
+              only, nothing invented about them (audit 2026-09-14 §8) */}
+          <p className="city-hall-people">
+            Ozveme sa vám my — {people.map((p) => p.name).join(" a ")}, zakladatelia Codery.
           </p>
         </div>
       </div>

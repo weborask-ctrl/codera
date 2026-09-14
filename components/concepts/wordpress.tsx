@@ -54,7 +54,7 @@ export function WordpressHero({ portal = false }: { portal?: boolean }) {
         <span style={{ ...BRIC, fontWeight: 800, fontSize: "1.1rem", letterSpacing: "0.02em" }}>
           WordPress<span style={{ color: BLUE }}>.</span>
         </span>
-        <span className="hidden text-[0.62rem] tracking-[0.22em] text-[#1B1A17]/50 md:block" style={MONO}>
+        <span className="hidden text-[0.7rem] tracking-[0.22em] text-[#1B1A17]/70 md:block" style={MONO}>
           UKÁŽKA — STRÁNKA S EDITOROM
         </span>
         {portal ? (
@@ -98,7 +98,7 @@ export function WordpressHero({ portal = false }: { portal?: boolean }) {
             )}
           </div>
           {!portal ? (
-            <p className="wfx mt-7 flex min-h-[1.4em] items-center gap-2.5 whitespace-nowrap text-[0.62rem] tracking-[0.2em] text-[#1B1A17]/55" style={{ ...MONO, ...fx(3) }} data-demo-line aria-live="polite">
+            <p className="wfx mt-7 flex min-h-[1.4em] items-center gap-2.5 whitespace-nowrap text-[0.7rem] tracking-[0.2em] text-[#1B1A17]/72" style={{ ...MONO, ...fx(3) }} data-demo-line aria-live="polite">
               <span className="wp-demo-dot inline-block h-1.5 w-1.5 rounded-full" style={{ background: room }} />
               {line}
             </p>
@@ -160,7 +160,7 @@ function WordpressClose({ state }: { state: ReturnType<typeof useSiteState> }) {
 
       <div className="relative z-10 grid items-center gap-12 lg:grid-cols-[1fr_1.1fr]">
         <div>
-          <p className="wfx text-[0.62rem] tracking-[0.22em] text-[#F6F1E7]/55" style={{ ...MONO, ...fx(0) }}>
+          <p className="wfx text-[0.7rem] tracking-[0.22em] text-[#F6F1E7]/55" style={{ ...MONO, ...fx(0) }}>
             VAŠA STRÁNKA · ŽIVÁ
           </p>
           <h2 className="wfx mt-4 max-w-[14ch] text-balance" style={{ ...BRIC, fontWeight: 800, fontSize: "clamp(2.8rem,7vw,6.4rem)", lineHeight: 1, letterSpacing: "-0.02em", ...fx(1) }}>
@@ -187,16 +187,16 @@ function WordpressClose({ state }: { state: ReturnType<typeof useSiteState> }) {
         </div>
 
         {/* the room: desktop and phone, depth on the pointer, blocks afloat */}
-        <div className="wfx relative min-h-[26rem]" style={{ ...fx(2), perspective: "1600px" }}>
+        <div className="wfx relative lg:min-h-[26rem]" style={{ ...fx(2), perspective: "1600px" }}>
           <div
-            className="wpar relative"
-            style={{ ["--depth" as string]: "10", transform: "rotateY(calc(var(--tx, 0) * -10deg)) rotateX(calc(var(--ty, 0) * 8deg))", transformStyle: "preserve-3d", transition: "transform 0.3s ease-out" }}
+            className="wpar wp-close-stage relative"
+            style={{ ["--depth" as string]: "10" }}
           >
             <div className="wp-float" style={{ ["--fl" as string]: "0s" }}>
               <Preview site={site} compact cart={cart} />
             </div>
             <div
-              className="wp-float absolute right-[-4%] bottom-[-10%] w-[36%] min-w-[11rem] rounded-[1.6rem] border-[6px] border-[#F6F1E7]/90 bg-[#F6F1E7] shadow-[0_40px_80px_-24px_rgba(0,0,0,0.7)]"
+              className="wp-float wp-close-phone absolute right-[-4%] bottom-[-10%] w-[36%] min-w-[11rem] rounded-[1.6rem] border-[6px] border-[#F6F1E7]/90 bg-[#F6F1E7] shadow-[0_40px_80px_-24px_rgba(0,0,0,0.7)]"
               style={{ ["--fl" as string]: "-2.4s", transform: "translateZ(70px)" }}
             >
               <Preview site={site} phone compact cart={cart} />
@@ -204,12 +204,12 @@ function WordpressClose({ state }: { state: ReturnType<typeof useSiteState> }) {
             {chips.map(([l, hot], i) => (
               <span
                 key={l}
-                className="wp-chip wp-float absolute rounded-md border-2 px-2.5 py-1 text-[0.6rem] font-bold tracking-[0.12em]"
+                className="wp-chip wp-float wp-close-chip absolute rounded-md border-2 px-2.5 py-1 text-[0.7rem] font-bold tracking-[0.12em]"
                 style={{
                   left: ["-6%", "70%", "-9%", "88%", "30%", "58%", "8%"][i],
                   top: ["10%", "-6%", "58%", "48%", "-12%", "104%", "98%"][i],
                   ["--fl" as string]: `${(-i * 0.9).toFixed(1)}s`,
-                  transform: `translateZ(${50 + i * 14}px)`,
+                  ["--z" as string]: `${50 + i * 14}px`,
                   borderColor: hot ? site.accent : "rgba(246,241,231,0.6)",
                   background: hot ? site.accent : "rgba(27,26,23,0.85)",
                   color: hot ? "#fff" : "rgba(246,241,231,0.85)",
@@ -318,7 +318,7 @@ export default function WordpressSite() {
         </h2>
         <div className="mt-10 grid gap-8 md:grid-cols-2">
           <div className="wfx" style={fx(1)}>
-            <p className="text-[0.62rem] tracking-[0.22em]" style={{ ...MONO, color: AMBER }}>
+            <p className="text-[0.7rem] tracking-[0.22em]" style={{ ...MONO, color: AMBER }}>
               WORDPRESS SEDÍ, KEĎ
             </p>
             <ul className="mt-4 space-y-3 text-[1.02rem] leading-[1.5] text-[#F6F1E7]/85">
@@ -329,7 +329,7 @@ export default function WordpressSite() {
             </ul>
           </div>
           <div className="wfx" style={fx(2)}>
-            <p className="text-[0.62rem] tracking-[0.22em]" style={{ ...MONO, color: "#8FA8FF" }}>
+            <p className="text-[0.7rem] tracking-[0.22em]" style={{ ...MONO, color: "#8FA8FF" }}>
               VLASTNÝ KÓD JE POCTIVEJŠÍ, KEĎ
             </p>
             <ul className="mt-4 space-y-3 text-[1.02rem] leading-[1.5] text-[#F6F1E7]/85">
@@ -344,7 +344,7 @@ export default function WordpressSite() {
 
       <WordpressClose state={state} />
 
-      <footer className={`flex flex-wrap items-baseline justify-between gap-3 border-t border-[#1B1A17]/12 ${PAD} py-5 text-[0.56rem] tracking-[0.14em] text-[#1B1A17]/55`} style={MONO}>
+      <footer className={`flex flex-wrap items-baseline justify-between gap-3 border-t border-[#1B1A17]/12 ${PAD} py-5 text-[0.7rem] tracking-[0.14em] text-[#1B1A17]/72`} style={MONO}>
         <span>PEKÁREŇ KÔRKA JE FIKTÍVNA · FOTOGRAFIE GENEROVANÉ PRE TENTO KONCEPT · NIČ SA NIKAM NEODOSIELA</span>
         <KonceptLine />
       </footer>

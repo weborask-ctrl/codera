@@ -350,7 +350,7 @@ export function Preview({
         <span {...edit("name")} style={{ ...font, fontSize: small ? "0.95rem" : "1.15rem" }}>
           {c.name || " "}
         </span>
-        <nav className={`flex items-center ${small ? "gap-2.5 text-[0.6rem]" : "gap-5 text-[0.78rem]"} font-medium text-[#1B1A17]/70`}>
+        <div className={`flex items-center ${small ? "gap-2.5 text-[0.6rem]" : "gap-5 text-[0.78rem]"} font-medium text-[#1B1A17]/70`}>
           {site.on.menu ? <span>{t.menu}</span> : null}
           {!phone && site.on.gallery ? <span>{t.gallery}</span> : null}
           {site.on.shop ? <span>{t.shop}</span> : null}
@@ -369,7 +369,7 @@ export function Preview({
               ) : null}
             </span>
           ) : null}
-        </nav>
+        </div>
       </div>
 
       <div className={`relative ${phone ? "h-[240px]" : compact ? "h-[150px]" : "h-[260px] md:h-[300px]"} overflow-hidden`}>
@@ -379,13 +379,13 @@ export function Preview({
           <p {...edit("hours")} className={`${small ? "text-[0.5rem]" : "text-[0.6rem]"} tracking-[0.2em] opacity-80`} style={MONO}>
             {t.hours.toUpperCase()} {site.hours}
           </p>
-          <h3
+          <p
             {...edit("headline")}
             className="wp-headline mt-2 max-w-[18ch] text-balance"
             style={{ ...font, fontSize: phone ? "1.5rem" : compact ? "1.25rem" : "clamp(1.5rem,2.6vw,2.2rem)", lineHeight: 1.05 }}
           >
             {c.headline || " "}
-          </h3>
+          </p>
           {!compact && c.sub ? (
             <p {...edit("sub")} className={`mt-2 max-w-[34ch] ${phone ? "text-[0.72rem]" : "text-[0.82rem]"} leading-[1.45] opacity-85`}>
               {c.sub}

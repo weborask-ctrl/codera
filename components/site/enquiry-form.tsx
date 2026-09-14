@@ -1,21 +1,19 @@
 "use client"
 
-import { useId, useRef, useState } from "react"
+import { useId, useRef, useState, useTransition } from "react"
 
+import { sendEnquiry } from "@/app/actions/enquiry"
 import { commercial, siteConfig } from "@/lib/site-config"
 import { cn } from "@/lib/utils"
 
 /**
  * Enquiry form.
  *
- * IMPORTANT — there is no server yet. On submit this composes the message and
- * hands it to the visitor's own mail client, then says so plainly. It never
- * claims a message was delivered, because nothing on our side received it.
- *
- * To switch to real server-side delivery, replace `deliver()` below with a
- * Server Action that posts to a transactional mail provider. Nothing else in
- * this component needs to change — the fields, validation and states already
- * match what a backend would need.
+ * Delivery is the Server Action in `app/actions/enquiry.ts` (Resend, when
+ * `RESEND_API_KEY` is set). When the server is not configured, or refuses,
+ * the form falls back to composing the message in the visitor's own mail
+ * client and says so plainly — it never claims a message was delivered when
+ * nothing on our side received it (audit 2026-09-14 §5).
  */
 
 /**
@@ -88,7 +86,11 @@ const fieldClass =
 export function EnquiryForm() {
   const baseId = useId()
   const [errors, setErrors] = useState<Errors>({})
-  const [sent, setSent] = useState(false)
+  /* "delivered": the server took it · "mailto": the visitor's mail client
+     was opened instead · "failed": the server refused and nothing was sent */
+  const [sent, setSent] = useState<"" | "delivered" | "mailto" | "failed">("")
+  const [serverError, setServerError] = useState("")
+  const [pending, startTransition] = useTransition()
   const formRef = useRef<HTMLFormElement>(null)
 
   const id = (name: string) => `${baseId}-${name}`
@@ -110,15 +112,31 @@ export function EnquiryForm() {
 
     const firstInvalid = Object.keys(found)[0]
     if (firstInvalid) {
-      setSent(false)
+      setSent("")
       formRef.current
         ?.querySelector<HTMLElement>(`[name="${firstInvalid}"]`)
         ?.focus()
       return
     }
 
-    deliver(values)
-    setSent(true)
+    const website = String(data.get("website") ?? "")
+    startTransition(async () => {
+      const result = await sendEnquiry({ ...values, website })
+      if (result.ok) {
+        setServerError("")
+        setSent("delivered")
+        formRef.current?.reset()
+        return
+      }
+      if (!result.configured) {
+        /* no server yet: the visitor's own mail client, said plainly */
+        deliver(values)
+        setSent("mailto")
+        return
+      }
+      setServerError(result.error)
+      setSent("failed")
+    })
   }
 
   return (
@@ -126,7 +144,7 @@ export function EnquiryForm() {
       ref={formRef}
       onSubmit={onSubmit}
       noValidate
-      className="flex flex-col gap-5"
+      className="relative flex flex-col gap-5"
     >
       <div className="grid gap-5 sm:grid-cols-2">
         <Field
@@ -213,19 +231,44 @@ export function EnquiryForm() {
         ) : null}
       </div>
 
+      {/* the honeypot: off-screen, unlabelled for people, filled only by bots */}
+      <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+        <label htmlFor={id("website")}>Web</label>
+        <input id={id("website")} name="website" type="text" tabIndex={-1} autoComplete="off" />
+      </div>
+
       <button
         type="submit"
-        className="mt-1 inline-flex h-12 items-center justify-center rounded-full bg-brand px-6 text-[0.9375rem] font-medium text-brand-foreground transition-colors hover:bg-brand-strong active:translate-y-px"
+        disabled={pending}
+        className="mt-1 inline-flex h-12 items-center justify-center rounded-full bg-brand px-6 text-[0.9375rem] font-medium text-brand-foreground transition-colors hover:bg-brand-strong active:translate-y-px disabled:opacity-70"
       >
-        Nezáväzne prebrať projekt
+        {pending ? "Odosielame…" : "Nezáväzne prebrať projekt"}
       </button>
 
       {/* Announced to screen readers the moment it appears. */}
-      <p role="status" aria-live="polite" className="min-h-0">
-        {sent ? (
+      <p role="status" aria-live="polite" className="min-h-0" data-sent={sent || undefined}>
+        {sent === "delivered" ? (
+          <span className="block rounded-[0.625rem] border border-hairline bg-muted px-4 py-3 text-small text-foreground">
+            Správu sme prijali. Ozveme sa do {commercial.responseHours} hodín na kontakt, ktorý ste
+            uviedli.
+          </span>
+        ) : null}
+        {sent === "mailto" ? (
           <span className="block rounded-[0.625rem] border border-hairline bg-muted px-4 py-3 text-small text-muted-foreground">
             Otvorili sme váš e-mailový klient s vyplnenou správou — stačí ju
             odoslať. Ak sa neotvoril, napíšte nám priamo na{" "}
+            <a
+              href={`mailto:${siteConfig.email}`}
+              className="font-medium text-foreground underline underline-offset-4"
+            >
+              {siteConfig.email}
+            </a>
+            .
+          </span>
+        ) : null}
+        {sent === "failed" ? (
+          <span className="block rounded-[0.625rem] border border-destructive/40 bg-muted px-4 py-3 text-small text-foreground">
+            {serverError} Napíšte nám na{" "}
             <a
               href={`mailto:${siteConfig.email}`}
               className="font-medium text-foreground underline underline-offset-4"

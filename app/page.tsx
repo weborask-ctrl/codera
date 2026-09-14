@@ -83,6 +83,39 @@ const faqData = {
 export default function Page() {
   return (
     <>
+      {/* React hoists these into <head>. The hero plate is the LCP element
+          in every edit; the file the viewport will pick is in flight with
+          the CSS instead of after it. Only this page pays for them. */}
+        <link
+          rel="preload"
+          as="image"
+          type="image/avif"
+          href="/home/m/hero-720.avif"
+          imageSrcSet="/home/m/hero-720.avif 1x, /home/m/hero-1080.avif 2x"
+          media="(max-width: 767px)"
+          fetchPriority="high"
+        />
+        <link
+          rel="preload"
+          as="image"
+          type="image/avif"
+          href="/home/live/sky-1280.avif"
+          imageSrcSet="/home/live/sky-1280.avif 1x, /home/live/sky-2560.avif 2x"
+          media="(min-width: 768px)"
+          fetchPriority="high"
+        />
+        {/* the cloud we arrive through is the first frame; it must not
+            queue behind the city's layers */}
+        <link
+          rel="preload"
+          as="image"
+          type="image/avif"
+          href="/home/live/cloud-puff-1x.avif"
+          imageSrcSet="/home/live/cloud-puff-1x.avif 1x, /home/live/cloud-puff-2x.avif 2x"
+          media="(min-width: 768px)"
+          fetchPriority="high"
+        />
+      
       <Experience />
       {/* JSON-LD must reach the document as raw text; both payloads are local
           literals defined above, never user input. */}

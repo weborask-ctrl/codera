@@ -284,7 +284,7 @@ export default function MeridianSite() {
         ))}
       </Shell>
 
-      <footer className="flex flex-wrap items-baseline justify-between gap-3 border-t border-[#241F18]/15 px-[clamp(1.25rem,4vw,3.5rem)] py-5 text-[0.56rem] tracking-[0.14em] text-[#241F18]/55" style={MONO}>
+      <footer className="flex flex-wrap items-baseline justify-between gap-3 border-t border-[#241F18]/15 px-[clamp(1.25rem,4vw,3.5rem)] py-5 text-[0.7rem] tracking-[0.14em] text-[#241F18]/72" style={MONO}>
         <span>PRAŽIAREŇ · PRIAMY NÁKUP OD FARMÁROV</span>
         <span>KOŠÍK V DEME: {cart} POLOŽIEK</span><KonceptLine />
       </footer>
