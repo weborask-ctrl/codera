@@ -401,3 +401,44 @@ geometriou a bez kreditov. Zmysel to má pre samostatný launch film
 (social): klip 1 kresba → hmota (tento), klip 2 rozložený → poskladaný
 (oba framy fotoreal, ešte neotestované), klip 3 zostup do interiéru.
 Odhad: 3 × 10 kr. skúšky + 3 × 45 kr. finál na Seedance = 165 kr.
+
+---
+
+## Fáza 6 — podstránky, referencie, fotky zákaziek (2026-09-14)
+
+Ondrej: „prav text nech je to profesionálnejšie, pridaj podstránky
+a referencie, uprav toto s obrázkami zákaziek, použi motionsites.ai pre
+inšpiráciu smooth prechodov a rozloženia stránky."
+
+**Prieskum** (3 z 5 agentov; copy a fact-check padli na limite, urobené
+ručne). motionsites.ai: katalóg promptov je za paywallom, no štyri lekcie
+v /academy publikujú celé špecifikácie (NovaAI, Aether Lane — luxusné
+reality, DE</HELPERS). Prevzaté: sticky svet + obsah cez neho, 80vh
+medzery medzi bitmi, jednosmerný fade-up 28 px / 700 ms s CTA
+naposledy, štvorvrstvový hero s nadpisom za objektom (máme), číslované
+riadky s mono indexom, badge s ľavou linkou, superscript počty v nav
+(Realizácie ⁸, Služby ¹²), jedno vyjadrenie ako protiváha nadpisu,
+hover strop 2 px. Odmietnuté: sklo/blur, blend-mode text, gradient
+text, masonry, stock ľudia, tmavý canvas, pinned „stránka nescrolluje".
+Prechod medzi dokumentmi v korpuse nie je (všetko sú single-page) —
+odvodený: papierová opona + fetch/swap `<main>`, bfcache cez `pageshow`.
+
+**Architektúra** (06/07/09/10 + záznamy): sedem tvarov, každý iný —
+pozri `web/README.md`. Vyjadrenia: presne dve, priznaný počet („02
+zachytené"), žiadny karusel. Detail: katalógová platňa, fotka nikdy
+väčšia než zdroj.
+
+**Obrázky.** V `compositions/` ležali 800 px orezy tých istých fotiek
+(reálne 480–680 px) — nahradili 420 px náhľady. Zistenie: `t2019b`
+(garáž) a `t2021b` (terasa) sú tá istá scéna → garáž ide bez fotky,
+s poctivou prázdnou platňou. AI upscale zamietnutý (dopisuje detail tam,
+kde je dôkaz remesla). Zoznam pre klienta v README.
+
+**Copy.** Všetky vety klientove (inventár §4–§6), moje spojivo v jeho
+registri; self fact-check: každé číslo na webe je v inventári; dve
+vymyslené sľuby („ozveme sa do dvoch dní", „odhad na papieri")
+odstránené.
+
+**Validácia.** LOCAL: full-page zábery všetkých 14 stránok 1440 a 390
+(`web/shots/x-*`), router netestovaný v reálnom prehliadači (Playwright
+bez klikania) — NOT VALIDATED. Reálny mobil NOT VALIDATED.

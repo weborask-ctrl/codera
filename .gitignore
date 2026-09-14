@@ -44,4 +44,4 @@ node_modules/
 /playwright/.auth/
 
 # generated single-file build of the EcoDomček proposal (python3 build.py)
-clients/ecodomcek/web/index.html
+clients/ecodomcek/web/dist/

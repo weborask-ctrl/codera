@@ -1,94 +1,66 @@
 # EcoDomček — stránka
 
-`python3 build.py` poskladá `index.html` z `index.tpl.html`, `site.css`,
-`site.js` a záberov v `renders/`. Obrázky sa inlinujú, výstup je jeden
-súbor (~2 MB).
+Viacstránkový statický web. `python3 src/build.py` poskladá `dist/` zo
+zdrojov v `src/` a obrázkov v `renders/`:
+
+```
+python3 src/build.py
+python3 -m http.server 8080 --directory dist     # http://localhost:8080/
+```
 
 Publikované: https://claude.ai/code/artifact/ec635947-fb5c-4b60-91e2-41bc54e1c3c9
 
-## Čo túto verziu odlišuje
+## Zdroje
 
-Predchádzajúce verzie opakovali jeden a ten istý split screen (obrázok
-vpravo, text vľavo) jedenásťkrát. To je presne ten „šablónový" pocit.
-`refokus.md` (LIKED) to pomenúva: *„the site feels rich because every
-scroll beat delivers a different kind of content, not a different effect."*
+| Súbor | Čo je v ňom |
+| --- | --- |
+| `src/content.py` | **každý reťazec na webe** — firma, 12 služieb, 8 realizácií, 2 referencie, proces; klientove vety sú VERBATIM |
+| `src/pages.py` | sedem typov stránok, každý s iným tvarom; zdieľané komponenty |
+| `src/build.py` | shell (hlavička, pätička, meta), assety, zápis `dist/` |
+| `src/site.css`, `src/site.js` | jeden motion engine (GSAP + ScrollTrigger na natívnom scrolle), router s papierovou oponou |
+| `src/shots.cjs` | full-page zábery každej stránky (Playwright, desktop + mobil) |
+| `renders/` | vizualizácie domu z Lúčiny, štyri alfa vrstvy, kresba (`ink-4-150.json`), `photos/` = skutočné fotky realizácií |
 
-**Každý akt má iný TVAR:**
+## Stránky (14 dokumentov)
 
-| # | Akt | Tvar |
-| --- | --- | --- |
-| 01 | Dom z výkresu | **5D hero**: atramentová kresba domu sa sama vykreslí, scroll ju po vrstvách zhmotní a poskladá; jeden vykreslený nadpis na stav (jedno machové slovo), kóty, čipy, proof overlay so štítkami materiálov |
-| 02 | Hotový dom | široký 21:9 záber + riadok faktov |
-| 03 | O nás | **serif**, žiadny obrázok, pieskový pás — typografický oddych |
-| 04 | Konštrukcia | machový pás: kresba + hustá tabuľka skladby |
-| 05 | Izby | tri rámy v rade s posunutým stredným |
-| 06 | Realizácie | projektový index, thumbnail sleduje kurzor |
-| 07 | Ako to ide | štyri číslované kroky + index dvanástich služieb |
-| 08 | Večer | jeden široký záber bez textu |
-| 09 | Kontakt | tmavý akt, veľký telefón, formulár |
-| — | Pätička | serif claim + všetky údaje |
+| Stránka | Tvar |
+| --- | --- |
+| `index.html` | hero „Dom z výkresu" (kresba → hmota, 5 stavov) · index služieb · machový teaser technológie · register realizácií s fotkou na kurzore · jedno vyjadrenie ako protiváha nadpisu · proces · súmrakový kontakt |
+| `realizacie.html` | filtre s reálnymi počtami · veľký rám nesie vizualizácia (označená) · osem rovnakých štvorcových kariet — fotka sa nikdy nezobrazí väčšia, než je |
+| `realizacia-*.html` ×8 | katalógová platňa (fotka + plávajúce kóty) · klientov text · materiálové čipy · súvisiace služby · pager s 72 px platňami; Lúčina má navyše vizualizačný blok |
+| `sluzby.html` | sticky lišta 01–12 + dvanásť riadkov s klientovými textami; pieskové prerušenie pred Konzultáciami |
+| `technologia.html` | machový masthead · rozložený dom + legenda · skladba steny (tabuľka je hrdina) · tri interiéry |
+| `o-nas.html` | jednostĺpcová esej v serife s rokmi na okraji · motto · dve vyjadrenia ako hairline riadky · prvotina |
+| `kontakt.html` | začína v súmraku, prechádza do papiera; formulár + údaje |
 
-**Dva typografické hlasy** (refokus): Hanken Grotesk nesie štruktúru,
-Newsreader (serif) nesie ľudské momenty — citát konateľa a claim
-v pätičke. IBM Plex Mono ostáva anotačný hlas.
+## Router
 
-**Farba žije v pásoch, nie v shelli:** papier (default) → piesok (citát)
-→ mach (technológia) → papier → súmrak (kontakt, pätička). Hlavička sa
-nad tmavými pásmi invertuje.
+Odkazy na vlastné stránky zachytí `site.js`: papierová opona vyjde zdola,
+pod ňou sa `fetch`-ne ďalší dokument a vymení `<main>`, opona odíde hore.
+Každá stránka je pritom úplný dokument — bez JS funguje normálna navigácia,
+`pageshow` rieši bfcache, `prefers-reduced-motion` oponu vynechá.
 
-**Remeslo:** maskované odkrytie nadpisov po riadkoch, clip-path odkrytie
-obrázkov, parallax vnútri rámu, bežiaci index vpravo dole, hover stavy
-na projektoch a odkazoch, focus-visible.
+## Obrázky — pravidlá
 
-## Hero: kresba → hmota
+- **Skutočná fotka sa nikdy nezobrazí väčšia než jej zdroj.** Máme 800 px orezy
+  (`renders/photos/`, z `../compositions/`) pre šesť stavieb a 420 px náhľad pre
+  Veľkú terasu. Žiadny AI upscale — dopisoval by fasádu, ktorú klient postavil inak.
+- **Garážo-sklado-terasa (2019) je bez fotky.** Jediný kandidát (`thumbs/t2019b.jpg`)
+  je tá istá scéna ako Veľká terasa 2021 — na starom webe bola pri garáži cudzia fotka.
+  Stránka má poctivú prázdnu platňu „Fotografiu doplní EcoDomček".
+- Vizualizácie domu z Lúčiny (1500–1600 px) nesú veľké rámy a sú vždy označené
+  „vizualizácia".
 
-Podľa briefu na launch film (kresba, ktorá sa zhmotní): `renders/ink.py`
-vektorizuje každú vrstvu (`potracer`): silueta + hranice tónov (4 tóny,
-medián 7, min. plocha 150; doska len 3 tóny) → `ink-4-150.json`, čiary sa
-inlinujú ako SVG s `vector-effect:non-scaling-stroke`. Pri načítaní sa
-kresba vykreslí (stroke-dashoffset, zdola nahor, raz). Scroll: doska
-zbetónuje (0,03–0,11), prízemie/poschodie/strecha sa zhmotnia cez vlastný
-obrys a dosadnú, a v poslednom stave sa čiary znovu vykreslia machom cez
-hotový dom a vsiaknu (proof overlay); špendlíky dostanú materiálové štítky
-z realizácie (Rhombus profil · smrekovec, kompaktné dosky Fundermax).
-Text je diskrétny (päť stavov, ENTER → HOLD → EXIT, prepína sa podľa
-progresu timeline), len dom sa scrubuje. Na mobile je dom sticky hore
-a texty scrollujú pod ním. Copy sú výlučne klientove vety.
+## Čo treba od klienta
 
-## Vrstvy: ako sa dom skladá
-
-`renders/segment.py` rozreže `renders/explod.jpg` na štyri vrstvy s alfou
-(`lyr-roof/upper/ground/base.webp`, WebP ~145 KB spolu): maska = pixely
-odlišné od pozadia, diery vyplnené floodfillom, prízemie od dosky oddelené
-vyšším prahom (dotýkajú sa cez mäkký tieň dosky), tieň dosky ostáva v jej
-vrstve s mäkkou alfou. `renders/layers2.json` nesie bounding boxy;
-`renders/compose.py 30 26 44` poskladá vrstvy s dosadacími posunmi a
-vyrenderuje 3× zväčšené švy na kontrolu.
-
-V stránke: `.house` je box s pomerom renderu, každá vrstva má `data-y0`
-(rozložená poloha, širšia ako render) a `data-y1` (dosadnutá) v percentách
-vlastnej výšky — choreografia tak prežije každý viewport. GSAP timeline
-so `scrub` na celý akt: prízemie 0,13–0,30 · poschodie 0,34–0,51 ·
-strecha 0,55–0,72 · hold do konca; každé dosadnutie „štuchne" už sediace
-vrstvy (thud). Text sú diskrétne kroky (ENTER → HOLD → EXIT), scrubuje sa
-len dom. `prefers-reduced-motion` = dom sedí od začiatku.
-
-Zložený render z rovnakej kamery sa nepodaril: dva pokusy s referenciou
-(`asm0/asm1`) aj čistiaci prechod nad poskladaným kompozitom zmenili
-proporcie (výška 726 vs 937 px), takže crossfade by bol morf. Finálny stav
-je preto samotné poskladanie vrstiev.
-
-## Zábery
-
-Architektonické vizualizácie podľa proporcií a materiálov realizácie
-*Rodinný dom Lúčina, 2024* — **nie fotografie realizácie**, označené
-v pätičke. Thumbnaily v projektovom indexe sú naopak **skutočné fotky**
-realizácií zo súčasného webu klienta.
+Originály fotiek z WordPressu (Médiá → pôvodný súbor) alebo `wp-content/uploads`;
+fotky garáže 2019; ku každej stavbe celok + detail + priebeh; interiér a hotový
+exteriér Lúčiny; pôdorysy Lúčiny + súhlas majiteľa; hrúbky vrstiev a U-hodnota;
+vyjasniť „difúzne otvorená" vs. „uzatvorená"; zvyšné 4 referencie so súhlasom;
+logo v krivkách.
 
 ## Testovanie
 
-`?sec=N` vyrenderuje jeden akt samostatne, `?sec=0&step=3&p=0.66` konkrétny
-stav hera s domom v danom bode timeline (kresba je v teste dokreslená). Reálny scroll (sticky + scrub)
-overuje `scroll-test.cjs` (Playwright, `NODE_PATH=/opt/node22/lib/node_modules
-node scroll-test.cjs` nad `python3 -m http.server 8810`), zábery v `shots/hero-*`. Testovací režim vypína prechody — headless Chromium ich
-neposúva spoľahlivo a inak sa zábery chytia uprostred animácie.
+`node src/shots.cjs realizacie.html sluzby.html …` nad `python3 -m http.server 8811
+--directory dist` (potrebuje `NODE_PATH=/opt/node22/lib/node_modules`). Na úvode
+`?sec=0&step=3&p=0.66` ukáže konkrétny stav hera.
