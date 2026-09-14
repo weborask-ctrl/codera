@@ -50,7 +50,8 @@ main[data-city] {
   inset: 0;
   opacity: 0;
   pointer-events: none;
-  will-change: opacity;
+  /* it travels with its scene during the bridge pan, so transform too */
+  will-change: opacity, transform;
 }
 .city-media {
   position: absolute;
@@ -256,6 +257,94 @@ main[data-city] {
 }
 .city-bloom[data-tone="night"] {
   background: radial-gradient(34% 30% at 50% 38%, rgb(200 214 255 / 0.7) 0%, rgb(110 130 220 / 0.35) 45%, rgb(40 50 120 / 0) 72%);
+}
+
+/* ---- t2 · the sky-bridge the camera pans past (Iterácia 4.5) ----
+   Cut from the living city's own bridges layer. It travels two viewports
+   while the world travels one: the parallax is what says "we are walking
+   past this", and it covers the junction between the two acts. */
+.city-span {
+  position: absolute;
+  display: block;
+  left: 0;
+  top: 42%;
+  width: 92vw;
+  height: auto;
+  opacity: 0.001;
+  transform: translate3d(106vw, 0, 0);
+  will-change: transform, opacity;
+  pointer-events: none;
+  filter: saturate(1.06) contrast(1.04);
+  /* the cut end of the span dissolves into the air instead of showing the
+     straight edge it was cropped on */
+  mask-image: linear-gradient(90deg, rgb(0 0 0 / 1) 0%, rgb(0 0 0 / 1) 78%, rgb(0 0 0 / 0) 99%);
+}
+@media (max-width: 767px) {
+  .city-span {
+    width: 150vw;
+    top: 46%;
+  }
+}
+
+/* ---- t3 · the pane of city glass that grows past the camera ----
+   No blur filter anywhere: an animated blurred layer drops WebKit to 3 fps
+   (measured 2026-09-12). The frost is baked into the gradient, and the
+   specular sweep is a child that crosses as the pane passes. */
+.city-pane {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 92vw;
+  height: 62vh;
+  margin: -31vh -46vw;
+  border-radius: 2.4vmin;
+  overflow: hidden;
+  opacity: 0;
+  transform: scale(0.3);
+  will-change: transform, opacity;
+  pointer-events: none;
+  background: linear-gradient(148deg, rgb(255 255 255 / 0.6) 0%, rgb(234 244 255 / 0.3) 36%, rgb(255 255 255 / 0.5) 62%, rgb(224 238 255 / 0.26) 100%);
+  box-shadow:
+    inset 0 0 0 2.5px rgb(255 255 255 / 0.82),
+    inset 0 0 0 7px rgb(255 255 255 / 0.22),
+    inset 0 6px 26px rgb(255 255 255 / 0.45),
+    0 40px 90px -34px rgb(11 26 74 / 0.6);
+}
+.city-pane[data-tone="warm"] {
+  background: linear-gradient(148deg, rgb(255 248 236 / 0.5) 0%, rgb(255 232 206 / 0.22) 36%, rgb(255 244 226 / 0.4) 62%, rgb(250 226 208 / 0.16) 100%);
+}
+.city-pane[data-tone="gold"] {
+  background: linear-gradient(148deg, rgb(255 246 224 / 0.66) 0%, rgb(255 224 184 / 0.34) 36%, rgb(255 238 212 / 0.56) 62%, rgb(226 192 214 / 0.28) 100%);
+}
+.city-pane[data-tone="night"] {
+  background: linear-gradient(148deg, rgb(206 220 255 / 0.4) 0%, rgb(90 112 190 / 0.22) 36%, rgb(180 198 255 / 0.32) 62%, rgb(40 52 120 / 0.2) 100%);
+  box-shadow:
+    inset 0 0 0 1.5px rgb(210 224 255 / 0.5),
+    0 30px 80px -34px rgb(0 0 0 / 0.6);
+}
+.city-pane-glint {
+  position: absolute;
+  top: -40%;
+  bottom: -40%;
+  left: 0;
+  width: 24%;
+  transform: translate3d(-90%, 0, 0) rotate(14deg);
+  will-change: transform;
+  background: linear-gradient(90deg, rgb(255 255 255 / 0) 0%, rgb(255 255 255 / 0.72) 50%, rgb(255 255 255 / 0) 100%);
+}
+
+/* the flat edition puts the same furniture on its fixed veil */
+.city-veil .city-span,
+.city-veil .city-pane {
+  position: fixed;
+  z-index: 20;
+}
+.city-veil .city-span {
+  top: 44%;
+}
+.city-veil .city-bloom {
+  position: fixed;
+  z-index: 19;
 }
 .city-veil .city-haze {
   position: fixed;

@@ -836,3 +836,54 @@ Ondrej, 2026-09-14: "uprav švy, a navrhni iné prechody okrem mrakov… 10."
 
 Seams: LOCAL + CI by the gate, PREVIEW after merge, DEVICE is Ondrej's
 feel. Proposal: n/a.
+
+---
+
+## Iterácia 4.5 — four ways through one world (2026-09-14)
+
+**Status: DONE — gate passed locally; PREVIEW after merge; DEVICE is Ondrej.**
+
+### Mission
+
+Ondrej, 2026-09-14, on `docs/PASSAGES_PROPOSAL_2026-09-14.md`: "dobre urob
+tie štyri" — the recommended set: clouds · bridge · glass · light.
+
+### Constraints carried over
+
+No frame sequences (the 2.7 lesson); every passage is a continuous function
+of the damped scroll; the arriving act's copy is never under the passage
+(4.3); a flat edition exists for phones and reduced motion; no `filter:
+blur` on an animated layer (the WebKit 3 fps lesson, 4.2).
+
+### Deliverables
+
+- **t1 `clouds`** — unchanged. The arrival the hero speaks; the first seam
+  keeps the promise.
+- **t2 `bridge`** — a horizontal camera pan. The two acts stand side by side
+  and the world slides exactly one viewport (`translate3d` in percent of the
+  scene, so the junction cannot open a gap; the plates' 8 % overscan covers
+  the subpixel); a glass sky-bridge cut from the living city's own bridges
+  layer (`public/home/live/span-bridge-*`) crosses the frame at 1.8× that
+  speed and hides the junction as a pillar hides a whip-pan. Each scene's
+  legibility tint travels with it and carries the share of the screen the
+  scene covers, or the two tints would stack to double strength.
+- **t3 `glass`** — a pane of the city's glass grows from 0.52 to 2.6 past
+  the camera, its frame readable for the first third, its frost carrying the
+  swap, a specular sweep crossing as it passes. No blur filter anywhere.
+- **t4 `light`** — the camera stands still and the hour turns: the haze to
+  0.95 in night tone, the bloom to 0.8, no plates at all, the two acts
+  crossing under the light. The cheapest passage and the truest one here.
+- `PASSAGE_KIND` + `poseFor()` in `components/city/stage.tsx` carry the four
+  beats; the flat edition dresses its veil with the same furniture.
+
+### Measured (probe, 1920×1080 @ DPR 2, a wheel notch every 60 ms)
+
+Recorded in the PR body. The pan moves two full-viewport plates at once —
+the case worth measuring — and the sampled transforms confirm each beat:
+t2 pans exactly one viewport (0 → −1425 px at 1440) while the span travels
+1.8×; t3's pane runs 0.31 → 3.86 scale under a bell of opacity; t4 shows no
+plate at all, haze 0.95 and bloom 0.8.
+
+### Validation classes
+
+LOCAL + CI by the gate; PREVIEW on the deployment URL; DEVICE is Ondrej.

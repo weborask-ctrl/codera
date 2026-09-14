@@ -25,7 +25,11 @@ in depth: four alpha plates (far cluster, two mid, a near tower cut from a
 carry the middle, the camera banks ~1.3°, every scene keeps its own act
 drift across the seam (no scale pop), and the arriving scene is composited
 a beat early. Seams are 90 svh (4.4; 150 svh made the passages 43 % of
-the scroll). Under 1024px or reduced motion every act carries
+the scroll). Since 4.5 the four seams are four different beats in the same
+world (`PASSAGE_KIND` in the stage): t1 the arrival through clouds, t2 a
+horizontal camera pan past a glass sky-bridge, t3 a pane of city glass
+growing past the camera, t4 the hour turning with the camera still. The
+flat edition dresses its veil with the same four. Under 1024px or reduced motion every act carries
 its own plate of the same world with a cloud band. Type: Bricolage Grotesque
 800 + Fraunces italic accent; palette ink #0b1a4a, coral, tangerine, mint.
 References: activetheory, lusion, zentry, refokus. The Žiara acts, the R3F
@@ -57,7 +61,7 @@ founders are named in the contact hall. **The enquiry form delivers
 server-side through `app/actions/enquiry.ts` once `RESEND_API_KEY` is set
 in Vercel; until then it falls back to the visitor's mail client and says
 so.** Seams shortened in 4.4; `docs/PASSAGES_PROPOSAL_2026-09-14.md` holds
-ten passages beyond clouds, awaiting Ondrej's pick. The demos themselves stay client-side and say so; guarded by
+ten passages beyond clouds; Ondrej picked the recommended set and 4.5 built it. The demos themselves stay client-side and say so; guarded by
 `tests/demos.spec.ts`.
 
 ---
