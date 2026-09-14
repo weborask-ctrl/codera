@@ -24,7 +24,8 @@ in depth: four alpha plates (far cluster, two mid, a near tower cut from a
 4K render) come toward the camera and part, a haze and a bloom of the hour
 carry the middle, the camera banks ~1.3°, every scene keeps its own act
 drift across the seam (no scale pop), and the arriving scene is composited
-a beat early. Seams are 150 svh. Under 1024px or reduced motion every act carries
+a beat early. Seams are 90 svh (4.4; 150 svh made the passages 43 % of
+the scroll). Under 1024px or reduced motion every act carries
 its own plate of the same world with a cloud band. Type: Bricolage Grotesque
 800 + Fraunces italic accent; palette ink #0b1a4a, coral, tangerine, mint.
 References: activetheory, lusion, zentry, refokus. The Žiara acts, the R3F
@@ -55,8 +56,8 @@ weight on phones, dev routes are noindexed, the Žiara case studies
 founders are named in the contact hall. **The enquiry form delivers
 server-side through `app/actions/enquiry.ts` once `RESEND_API_KEY` is set
 in Vercel; until then it falls back to the visitor's mail client and says
-so.** Seam length on desktop (43 % of the scroll) is Ondrej's call, still
-open. The demos themselves stay client-side and say so; guarded by
+so.** Seams shortened in 4.4; `docs/PASSAGES_PROPOSAL_2026-09-14.md` holds
+ten passages beyond clouds, awaiting Ondrej's pick. The demos themselves stay client-side and say so; guarded by
 `tests/demos.spec.ts`.
 
 ---
