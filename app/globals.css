@@ -1111,3 +1111,25 @@ main[data-experience="v4"][data-wipe-done] .wipe-statement {
 @media (prefers-reduced-motion: reduce) {
   .wp-caret, .wp-demo-dot, .wp-room, .wp-pulse { animation: none; }
 }
+
+/* ---- touch targets (audit 2026-09-14 §5): 44 px on coarse pointers ---- */
+@media (pointer: coarse) {
+  .world-shell nav a,
+  .world-shell [role="tab"],
+  .world-shell [role="tablist"] > button,
+  .world-shell button:not(.wp-caret) { min-height: 2.75rem; }
+  .world-shell nav a { display: inline-flex; align-items: center; }
+}
+
+/* ---- the WordPress close on phones and tablets (audit 2026-09-14 §3):
+   one preview in flow, the chips a row of tags under it, no phone frame,
+   nothing absolute — the stage is only a stage from lg up ---- */
+@media (max-width: 1023px) {
+  .wp-close-phone { display: none; }
+  .wp-close-stage .wp-close-chip { position: static; display: inline-block; margin: 0.6rem 0.4rem 0 0; animation: none; }
+  .wp-close-stage > .wp-float:first-child { animation: none; }
+}
+@media (min-width: 1024px) {
+  .wp-close-stage { transform: rotateY(calc(var(--tx, 0) * -10deg)) rotateX(calc(var(--ty, 0) * 8deg)); transform-style: preserve-3d; transition: transform 0.3s ease-out; }
+  .wp-close-stage .wp-close-chip { transform: translateZ(var(--z, 0px)); }
+}

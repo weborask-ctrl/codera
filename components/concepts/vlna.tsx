@@ -108,6 +108,47 @@ function Scribble({ children }: { children: React.ReactNode }) {
   )
 }
 
+/** The hero video plays by itself only where the screen is wide and the
+ *  connection is not asking for less; on a phone the poster stands and the
+ *  1.2 MB file is behind a tap (audit 2026-09-14 §9). */
+function HeroVideo() {
+  const [mode, setMode] = useState<"poster" | "auto" | "tap">("poster")
+  useEffect(() => {
+    const nav = navigator as Navigator & { connection?: { saveData?: boolean } }
+    const wide = window.matchMedia("(min-width: 1024px)").matches
+    const lite = !!nav.connection?.saveData || window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    setMode(wide && !lite ? "auto" : "tap")
+  }, [])
+  if (mode === "poster") {
+    return null
+  }
+  if (mode === "tap") {
+    return (
+      <button
+        type="button"
+        onClick={() => setMode("auto")}
+        className="absolute right-[clamp(1.25rem,4vw,3.5rem)] bottom-[clamp(1.25rem,4vw,3.5rem)] z-10 inline-flex min-h-11 items-center gap-2 rounded-full border border-[#F4F6F2]/40 px-4 text-[0.72rem] font-bold tracking-[0.12em]"
+        style={MONO}
+        aria-label="Prehrať video zo štúdia"
+      >
+        ▶ VIDEO
+      </button>
+    )
+  }
+  return (
+    <video
+      className="st-herovid absolute inset-0 h-full w-full object-cover object-[center_30%]"
+      style={{ filter: "grayscale(1) contrast(1.15) brightness(0.55)" }}
+      src={`${IMG}/hero.mp4`}
+      poster={`${IMG}/hero.jpg`}
+      autoPlay
+      muted
+      loop
+      playsInline
+    />
+  )
+}
+
 export function VlnaHero({
   portal = false,
   remaining,
@@ -126,18 +167,7 @@ export function VlnaHero({
         className="st-heroimg absolute inset-0 bg-cover bg-[center_30%]"
         style={{ backgroundImage: `url(${IMG}/hero.jpg)`, filter: "grayscale(1) contrast(1.15) brightness(0.55)" }}
       />
-      {portal ? null : (
-        <video
-          className="st-herovid absolute inset-0 h-full w-full object-cover object-[center_30%]"
-          style={{ filter: "grayscale(1) contrast(1.15) brightness(0.55)" }}
-          src={`${IMG}/hero.mp4`}
-          poster={`${IMG}/hero.jpg`}
-          autoPlay
-          muted
-          loop
-          playsInline
-        />
-      )}
+      {portal ? null : <HeroVideo />}
       <div aria-hidden="true" className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(10,11,12,0.55) 0%, rgba(10,11,12,0.15) 45%, rgba(10,11,12,0.7) 100%)" }} />
 
       <header className="relative z-10 flex items-center justify-between px-[clamp(1.25rem,4vw,3.5rem)] pt-6 pb-4">
@@ -442,7 +472,7 @@ export default function VlnaSite() {
         </div>
       </Shell>
 
-      <footer className="flex flex-wrap items-baseline justify-between gap-3 border-t border-[#F4F6F2]/12 px-[clamp(1.25rem,4vw,3.5rem)] py-5 text-[0.56rem] tracking-[0.14em] text-[#F4F6F2]/55" style={MONO}>
+      <footer className="flex flex-wrap items-baseline justify-between gap-3 border-t border-[#F4F6F2]/12 px-[clamp(1.25rem,4vw,3.5rem)] py-5 text-[0.7rem] tracking-[0.14em] text-[#F4F6F2]/72" style={MONO}>
         <span>ŠTÚDIO · WELLNESS A POHYB · 9 LEKTOROV</span>
         <span>PRVÁ LEKCIA ZA 6 €</span><KonceptLine />
       </footer>

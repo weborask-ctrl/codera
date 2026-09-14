@@ -3,7 +3,7 @@
 What is live, what was decided, and what must not be relearned. One file, kept
 short. Open work does **not** live here — it lives in GitHub Issues.
 
-Last reviewed: 2026-09-12 (Iterácia 4.2, WP hero show + cloud passages in depth) · Production: `https://www.codera.sk` ·
+Last reviewed: 2026-09-14 (Iterácia 4.3, the live audit remediated) · Production: `https://www.codera.sk` ·
 Open backlog: see Issues.
 
 ---
@@ -44,7 +44,19 @@ by hand (`wordpress-translate.ts`, Iterácia 4.1);
 `components/concepts/wordpress-editor.tsx`) whose close keeps the visitor's
 own site alive, and whose hero edits the bakery site by itself (ghost
 cursor + editor card, six steps, then hands over; `wordpress-hero-demo.tsx`,
-Iterácia 4.2). Everything is client-side and says so; guarded by
+Iterácia 4.2). Each demo is its own chunk (`demo-switch.tsx`).
+
+**Audit and remediation (2026-09-14).** `docs/AUDIT_2026-09-14.md` is the
+live diagnostic pass after 4.2; Iterácia 4.3 closed its whole REBUILD list
+(issues #80–#88): phone seams never cover act copy, the WordPress close is
+composed for phones, /03 type passes contrast, demos are a third of their
+weight on phones, dev routes are noindexed, the Žiara case studies
+(`/praca/*`) are retired with redirects, touch targets are 44 px, the two
+founders are named in the contact hall. **The enquiry form delivers
+server-side through `app/actions/enquiry.ts` once `RESEND_API_KEY` is set
+in Vercel; until then it falls back to the visitor's mail client and says
+so.** Seam length on desktop (43 % of the scroll) is Ondrej's call, still
+open. The demos themselves stay client-side and say so; guarded by
 `tests/demos.spec.ts`.
 
 ---
@@ -62,8 +74,8 @@ thins as the light rises.
 The homepage is five acts — /01 Identita (dark fog, lit C, shards) ·
 /02 Premena (Bilanc before/after, frost seam) · /03 Práca (three concept
 worlds) · /04 Ponuka (process + three packages) · /05 Kontakt (ink on frost,
-the ribbon closes). Plus three **case-study pages** (`/praca/meridian`,
-`/praca/statut`, `/praca/vlna`) — documents, no canvas, readable without JS.
+the ribbon closes). Its three case-study pages (`/praca/*`) were retired on
+2026-09-14 and redirect to the demos.
 
 **Type system:** Geist Sans (light weights carry display) + Geist Mono (the
 engineering voice: coordinates, annotations). Fraunces loads only for the
@@ -115,6 +127,9 @@ previews, /textures) was deleted 2026-08-31 — git remembers.
   strings.** Use „…“ pairs in Slovak copy inside code.
 - **Biome reads `//` in JSX text as a suspicious comment** — wrap engineering
   annotations as string expressions.
+- **A Server Component that dynamically imports Client Components is not
+  code split** (Next 16 docs) — the switch that picks a demo must itself be
+  a Client Component, or every demo ships every other demo.
 - **A compact world is a ~490 px card on a 768 px viewport** — viewport-gated
   (`md:`) chrome inside container-sized components lets elements in that then
   collide. Gate on `compact`, not on the viewport.

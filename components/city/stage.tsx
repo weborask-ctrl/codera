@@ -339,10 +339,28 @@ function bindRail(main: HTMLElement): () => void {
     return () => {}
   }
   const cards = Array.from(rail.querySelectorAll<HTMLElement>(".city-railcard"))
+  const dots = Array.from(main.querySelectorAll<HTMLElement>(".city-rail-dots span"))
   let frame = 0
   const place = () => {
     frame = 0
     const mid = window.innerWidth / 2
+    let nearest = 0
+    let best = Number.POSITIVE_INFINITY
+    cards.forEach((card, i) => {
+      const r = card.getBoundingClientRect()
+      const d = Math.abs(r.left + r.width / 2 - mid)
+      if (d < best) {
+        best = d
+        nearest = i
+      }
+    })
+    dots.forEach((dot, i) => {
+      if (i === nearest) {
+        dot.setAttribute("data-on", "")
+      } else {
+        dot.removeAttribute("data-on")
+      }
+    })
     for (const card of cards) {
       const r = card.getBoundingClientRect()
       const d = (r.left + r.width / 2 - mid) / window.innerWidth
@@ -793,7 +811,11 @@ export function CityFlatMotion() {
           ScrollTrigger.create({
             trigger: el,
             start: "top bottom",
-            end: "bottom top",
+            /* the passage is over when the seam's bottom edge — and so the
+               arriving act's head, which starts right under it — reaches
+               the upper third: the head is never read through a cloud
+               (audit 2026-09-14 §2, measured on 375 px) */
+            end: "bottom 34%",
             onEnter: () => {
               flat.name = name
               flat.x = 0
@@ -827,7 +849,7 @@ export function CityFlatMotion() {
           placeClouds(clouds, running ? flat.name : "", e)
           /* the flat seam is a sky band between two plates, so its haze runs
              a little denser than the stage's */
-          hazeAt(haze, running ? flat.name : "", e, 1.3)
+          hazeAt(haze, running ? flat.name : "", e, 1.1)
         }
         gsap.ticker.add(tick)
         bindDepth(gsap, main, 36)

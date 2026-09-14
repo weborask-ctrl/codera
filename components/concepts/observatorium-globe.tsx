@@ -550,10 +550,14 @@ function Rig({ world }: { world: React.RefObject<THREE.Group | null> }) {
 }
 
 function Scene() {
+  /* a phone or a tablet gets the 2048 px ladder (audit 2026-09-14 §9: the
+     4K textures were 5 MB on a 375 px screen); the eye cannot tell on a
+     globe that fills a phone, and the GPU is happier too */
+  const m = typeof window !== "undefined" && window.innerWidth < 1024 ? "-m" : ""
   const [surface, nebula, stars, wisps, ring, rock, rockN] = useLoader(THREE.TextureLoader, [
-    `${IMG}/saturn-surface.jpg`,
-    `${IMG}/nebula.jpg`,
-    `${IMG}/stars.jpg`,
+    `${IMG}/saturn-surface${m}.jpg`,
+    `${IMG}/nebula${m}.jpg`,
+    `${IMG}/stars${m}.jpg`,
     `${IMG}/nebula-wisps.jpg`,
     `${IMG}/ring-strip.jpg`,
     `${IMG}/rock.jpg`,

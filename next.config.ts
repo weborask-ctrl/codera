@@ -20,7 +20,15 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }]
+    return [
+      { source: "/:path*", headers: securityHeaders },
+      /* dev-only routes stay in the build for the capture tooling but must
+         never be indexed (audit 2026-09-14 §10) */
+      {
+        source: "/(v3|boards|directions|logo-lab)",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
+    ]
   },
   /* Amendment 3: the brand-named /koncept routes became skill demos. The old
      URLs were live briefly — send them to their skills, permanently. */
@@ -29,6 +37,10 @@ const nextConfig: NextConfig = {
       { source: "/koncept/meridian", destination: "/ukazky/objednavky", permanent: true },
       { source: "/koncept/statut", destination: "/ukazky/dizajn", permanent: true },
       { source: "/koncept/vlna", destination: "/ukazky/rezervacie", permanent: true },
+      /* the retired case studies (2026-09-14) */
+      { source: "/praca/meridian", destination: "/ukazky/objednavky", permanent: true },
+      { source: "/praca/statut", destination: "/ukazky/dizajn", permanent: true },
+      { source: "/praca/vlna", destination: "/ukazky/rezervacie", permanent: true },
     ]
   },
 }

@@ -89,17 +89,17 @@ export function ObservatoriumHero({ portal = false }: { portal?: boolean }) {
 
       <header className={`relative z-10 flex items-center justify-between ${PAD} pt-7 pb-3`}>
         <span style={{ ...BRIC, fontWeight: 800, fontSize: "1.1rem", letterSpacing: "0.08em" }}>OBSERVATÓRIUM</span>
-        <span className="hidden text-[0.62rem] tracking-[0.22em] opacity-60 md:block" style={MONO}>
+        <span className="hidden text-[0.7rem] tracking-[0.22em] opacity-60 md:block" style={MONO}>
           MESTSKÁ HVIEZDÁREŇ — KUPOLA 12 M
         </span>
         {portal ? (
-          <span className="rounded-full border border-[#EEF2F8]/30 px-5 py-2.5 text-[0.62rem] tracking-[0.2em]" style={MONO}>
+          <span className="rounded-full border border-[#EEF2F8]/30 px-5 py-2.5 text-[0.7rem] tracking-[0.2em]" style={MONO}>
             PROGRAM
           </span>
         ) : (
           <a
             href="#program"
-            className="pointer-events-auto rounded-full border border-[#EEF2F8]/30 px-5 py-2.5 text-[0.62rem] tracking-[0.2em] transition-colors hover:border-[#EEF2F8]"
+            className="pointer-events-auto rounded-full border border-[#EEF2F8]/30 px-5 py-2.5 text-[0.7rem] tracking-[0.2em] transition-colors hover:border-[#EEF2F8]"
             style={MONO}
           >
             PROGRAM
@@ -217,7 +217,7 @@ export default function ObservatoriumSite() {
             data-k={c.k.join(",")}
             data-side={c.side}
           >
-            <p className="mb-4 text-[0.62rem] tracking-[0.28em]" style={{ ...MONO, color: c.color }}>
+            <p className="mb-4 text-[0.7rem] tracking-[0.28em]" style={{ ...MONO, color: c.color }}>
               {c.tag}
             </p>
             <p style={{ ...FR, fontStyle: "italic", fontWeight: 400, fontSize: "clamp(1.9rem,3.8vw,3.4rem)", lineHeight: 1.18 }}>{c.line}</p>
@@ -309,7 +309,7 @@ export default function ObservatoriumSite() {
       </Shell>
 
       <footer
-        className={`relative z-10 flex flex-wrap items-baseline justify-between gap-3 border-t border-[#EEF2F8]/12 ${PAD} py-5 text-[0.56rem] tracking-[0.14em] text-[#EEF2F8]/55`}
+        className={`relative z-10 flex flex-wrap items-baseline justify-between gap-3 border-t border-[#EEF2F8]/12 ${PAD} py-5 text-[0.7rem] tracking-[0.14em] text-[#EEF2F8]/55`}
         style={MONO}
       >
         <span>OBSERVATÓRIUM · VEČERNÉ PROGRAMY ZA JASNÉHO NEBA</span>
