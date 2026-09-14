@@ -1,0 +1,168 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    body { margin: 0; background: #f3eee3; }
+    a { color: #26221c; } a:hover { color: #d2842a; }
+    .sans { font-family: 'Hanken Grotesk', 'Helvetica Neue', Arial, sans-serif; }
+    .mono { font-family: 'IBM Plex Mono', 'SF Mono', Menlo, monospace; }
+  </style>
+</helmet>
+<div class="sans" style="position: relative; width: 1440px; height: 900px; overflow: hidden; background: #f3eee3; color: #26221c;">
+
+  <!-- HLAVIČKA -->
+  <div style="position: absolute; left: 0; top: 0; width: 1440px; height: 88px; box-sizing: border-box; padding: 0 80px; display: flex; align-items: center; justify-content: space-between;">
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <svg width="40" height="30" viewBox="0 0 40 30" fill="none" aria-hidden="true">
+        <polyline points="2,28 20,8" stroke="#7a5a3a" stroke-width="5" stroke-linecap="square"/>
+        <polyline points="20,8 38,28" stroke="#4d6a2f" stroke-width="5" stroke-linecap="square"/>
+        <polyline points="11,28 20,18 29,28" stroke="#c9a96e" stroke-width="4" stroke-linecap="square"/>
+      </svg>
+      <div style="display: flex; flex-direction: column; gap: 3px;">
+        <span style="font-size: 15px; line-height: 1; font-weight: 500; letter-spacing: 0.22em;">ECODOMČEK</span>
+        <span class="mono" style="font-size: 9px; line-height: 1; letter-spacing: 0.14em; color: #5b554a;">EKO·LOGICKÉ · EKO·NOMICKÉ STAVBY</span>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 36px; font-size: 15px; font-weight: 500; letter-spacing: 0.01em;">
+      <span>Realizácie</span>
+      <span>O nás</span>
+      <span style="border-bottom: 1px solid #26221c; padding-bottom: 2px;">Technológia</span>
+      <span>Kontakt</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span style="display: block; width: 6px; height: 6px; border-radius: 50%; background: #d2842a;"></span>
+      <span class="mono" style="font-size: 13px; line-height: 1; letter-spacing: 0.06em;">0908 704 281</span>
+    </div>
+  </div>
+
+  <!-- SVET: rez stenou (v implementácii otvorí kamera reálnu stenu domu) -->
+  <div style="position: absolute; left: 80px; top: 150px; width: 640px; height: 600px;">
+    <svg width="640" height="600" viewBox="0 0 640 600" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Rez difúzne otvorenou stenou, vrstvy 01 až 07">
+      <defs>
+        <pattern id="hatch" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <line x1="0" y1="0" x2="0" y2="10" stroke="#c9b48e" stroke-width="1.2"/>
+        </pattern>
+        <pattern id="rhombus" width="14" height="14" patternUnits="userSpaceOnUse">
+          <rect width="14" height="9" fill="#c48a3f"/>
+          <rect y="9" width="14" height="5" fill="#a86f2e"/>
+        </pattern>
+      </defs>
+      <g transform="translate(40,170) skewY(-12)">
+        <rect x="0" y="0" width="28" height="360" fill="url(#rhombus)"/>
+        <rect x="54" y="0" width="30" height="360" fill="#ede6d6"/>
+        <rect x="64" y="0" width="8" height="360" fill="#d9b98a"/>
+        <rect x="110" y="0" width="40" height="360" fill="#b89a6a"/>
+        <rect x="176" y="0" width="140" height="360" fill="#ece3d2"/>
+        <rect x="176" y="0" width="140" height="360" fill="url(#hatch)"/>
+        <rect x="176" y="0" width="14" height="360" fill="#d9b98a"/>
+        <rect x="239" y="0" width="14" height="360" fill="#d9b98a"/>
+        <rect x="302" y="0" width="14" height="360" fill="#d9b98a"/>
+        <rect x="342" y="0" width="16" height="360" fill="#caa870"/>
+        <rect x="384" y="0" width="44" height="360" fill="#e3d6bf"/>
+        <rect x="384" y="0" width="10" height="360" fill="#d9b98a"/>
+        <rect x="454" y="0" width="14" height="360" fill="#f6f1e6" stroke="#cfc6b4"/>
+      </g>
+      <g font-family="'IBM Plex Mono', Menlo, monospace" font-size="12" fill="#26221c" letter-spacing="1.5">
+        <text x="46" y="152">01</text>
+        <text x="102" y="140">02</text>
+        <text x="162" y="127">03</text>
+        <text x="278" y="103">04</text>
+        <text x="382" y="81">05</text>
+        <text x="438" y="69">06</text>
+        <text x="493" y="57">07</text>
+      </g>
+      <g font-family="'IBM Plex Mono', Menlo, monospace" font-size="11" fill="#5b554a" letter-spacing="1.6">
+        <text x="40" y="568">EXTERIÉR</text>
+        <text x="472" y="470">INTERIÉR</text>
+      </g>
+      <line x1="40" y1="548" x2="140" y2="548" stroke="#26221c" stroke-opacity="0.4"/>
+      <line x1="472" y1="450" x2="572" y2="450" stroke="#26221c" stroke-opacity="0.4"/>
+    </svg>
+  </div>
+
+  <!-- TEXT -->
+  <div style="position: absolute; left: 800px; top: 150px; width: 560px; display: flex; flex-direction: column; gap: 20px;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span style="display: block; width: 6px; height: 6px; border-radius: 50%; background: #d2842a;"></span>
+      <span style="display: block; width: 32px; height: 1px; background: #26221c;"></span>
+      <span class="mono" style="font-size: 12px; line-height: 1; letter-spacing: 0.14em; text-transform: uppercase; color: #5b554a;">04 / 09 · Konštrukcia · rez stenou</span>
+    </div>
+    <h2 style="margin: 0; font-size: 56px; line-height: 1.02; font-weight: 300; letter-spacing: -0.02em;">Otvoríme vám stenu.</h2>
+    <p style="margin: 0; font-size: 19px; line-height: 1.5; color: #26221c;">My, konzervatívni Slováci, drevostavbe nedôverujeme. Rozumieme. Preto ju neschovávame — tu je vrstva po vrstve. V USA a Kanade stojí viac ako 200 rokov.</p>
+
+    <div style="display: flex; flex-direction: column; border-top: 1px solid rgba(38,34,28,0.18);">
+      <div style="display: flex; align-items: baseline; gap: 16px; padding: 9px 0; border-bottom: 1px solid rgba(38,34,28,0.18);">
+        <span class="mono" style="width: 28px; font-size: 12px; letter-spacing: 0.1em; color: #5b554a;">01</span>
+        <span style="flex-grow: 1; font-size: 17px;">Drevený obklad — rhombus profil</span>
+        <span class="mono" style="font-size: 12px; letter-spacing: 0.06em; color: #5b554a;">[hrúbka]</span>
+      </div>
+      <div style="display: flex; align-items: baseline; gap: 16px; padding: 9px 0; border-bottom: 1px solid rgba(38,34,28,0.18);">
+        <span class="mono" style="width: 28px; font-size: 12px; letter-spacing: 0.1em; color: #5b554a;">02</span>
+        <span style="flex-grow: 1; font-size: 17px;">Vetraná medzera, latovanie</span>
+        <span class="mono" style="font-size: 12px; letter-spacing: 0.06em; color: #5b554a;">[hrúbka]</span>
+      </div>
+      <div style="display: flex; align-items: baseline; gap: 16px; padding: 9px 0; border-bottom: 1px solid rgba(38,34,28,0.18);">
+        <span class="mono" style="width: 28px; font-size: 12px; letter-spacing: 0.1em; color: #5b554a;">03</span>
+        <span style="flex-grow: 1; font-size: 17px;">Drevovláknitá doska</span>
+        <span class="mono" style="font-size: 12px; letter-spacing: 0.06em; color: #5b554a;">[hrúbka]</span>
+      </div>
+      <div style="display: flex; align-items: baseline; gap: 16px; padding: 9px 0; border-bottom: 1px solid rgba(38,34,28,0.18);">
+        <span class="mono" style="width: 28px; font-size: 12px; letter-spacing: 0.1em; color: #5b554a;">04</span>
+        <span style="flex-grow: 1; font-size: 17px;">Nosná konštrukcia + izolácia (drevovlákno / minerálna vata)</span>
+        <span class="mono" style="font-size: 12px; letter-spacing: 0.06em; color: #5b554a;">[hrúbka]</span>
+      </div>
+      <div style="display: flex; align-items: baseline; gap: 16px; padding: 9px 0; border-bottom: 1px solid rgba(38,34,28,0.18);">
+        <span class="mono" style="width: 28px; font-size: 12px; letter-spacing: 0.1em; color: #5b554a;">05</span>
+        <span style="flex-grow: 1; font-size: 17px;">Parobrzda</span>
+        <span class="mono" style="font-size: 12px; letter-spacing: 0.06em; color: #5b554a;">[hrúbka]</span>
+      </div>
+      <div style="display: flex; align-items: baseline; gap: 16px; padding: 9px 0; border-bottom: 1px solid rgba(38,34,28,0.18);">
+        <span class="mono" style="width: 28px; font-size: 12px; letter-spacing: 0.1em; color: #5b554a;">06</span>
+        <span style="flex-grow: 1; font-size: 17px;">Inštalačná predstena</span>
+        <span class="mono" style="font-size: 12px; letter-spacing: 0.06em; color: #5b554a;">[hrúbka]</span>
+      </div>
+      <div style="display: flex; align-items: baseline; gap: 16px; padding: 9px 0; border-bottom: 1px solid rgba(38,34,28,0.18);">
+        <span class="mono" style="width: 28px; font-size: 12px; letter-spacing: 0.1em; color: #5b554a;">07</span>
+        <span style="flex-grow: 1; font-size: 17px;">Sadrokartón, maľba</span>
+        <span class="mono" style="font-size: 12px; letter-spacing: 0.06em; color: #5b554a;">[hrúbka]</span>
+      </div>
+    </div>
+
+    <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px;">
+      <span class="mono" style="font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: #5b554a;">U-hodnota steny</span>
+      <span class="mono" style="font-size: 13px; letter-spacing: 0.06em; color: #26221c;">[doplní EcoDomček]</span>
+    </div>
+    <p class="mono" style="margin: 0; font-size: 11px; line-height: 1.5; letter-spacing: 0.06em; color: #5b554a;">Orientačná skladba — vrstvy, hrúbky a hodnoty potvrdí EcoDomček. Nič sa neodhaduje.</p>
+  </div>
+
+  <!-- MINI-MAPA DOMU -->
+  <div style="position: absolute; right: 80px; bottom: 48px; display: flex; align-items: flex-end; gap: 16px;">
+    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
+      <span class="mono" style="font-size: 11px; line-height: 1; letter-spacing: 0.14em; text-transform: uppercase; color: #5b554a;">Mapa domu</span>
+      <span class="mono" style="font-size: 12px; line-height: 1; letter-spacing: 0.14em; text-transform: uppercase; color: #26221c;">04 Stena</span>
+    </div>
+    <svg width="84" height="72" viewBox="0 0 84 72" fill="none" aria-hidden="true">
+      <rect x="1.5" y="16.5" width="81" height="54" stroke="#26221c" stroke-opacity="0.55"/>
+      <path d="M30 16.5V70.5M30 42h52.5M56 42v28.5" stroke="#26221c" stroke-opacity="0.55"/>
+      <circle cx="12" cy="8" r="2" fill="#26221c" fill-opacity="0.5"/>
+      <circle cx="40" cy="8" r="2" fill="#26221c" fill-opacity="0.5"/>
+      <circle cx="60" cy="8" r="2" fill="#26221c" fill-opacity="0.5"/>
+      <circle cx="14" cy="60" r="2" fill="#26221c" fill-opacity="0.5"/>
+      <circle cx="14" cy="30" r="2" fill="#26221c" fill-opacity="0.5"/>
+      <circle cx="30" cy="52" r="3.5" fill="#d2842a"/>
+      <circle cx="44" cy="28" r="2" fill="#26221c" fill-opacity="0.5"/>
+      <circle cx="70" cy="28" r="2" fill="#26221c" fill-opacity="0.5"/>
+      <circle cx="70" cy="58" r="2" fill="#26221c" fill-opacity="0.5"/>
+    </svg>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>
