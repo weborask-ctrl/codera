@@ -809,3 +809,30 @@ headers, payload, form fallback, publications, label size).
 
 LOCAL + CI by the gate; PREVIEW on the deployment URL after merge; DEVICE
 is Ondrej's phone — the veil timing and the 44 px targets especially.
+
+---
+
+## Iterácia 4.4 — shorter seams, and a proposal for passages beyond clouds (2026-09-14)
+
+**Status: seams DONE (gate passed locally); the proposal awaits Ondrej's pick.**
+
+### Mission
+
+Ondrej, 2026-09-14: "uprav švy, a navrhni iné prechody okrem mrakov… 10."
+
+### Deliverables
+
+1. **Seams 150 → 90 svh** (`app/city.css`). The four passages fall from 43 %
+   to ~31 % of the desktop scroll. Probed with real wheel input at DPR 2
+   after the change: t1 0 jerks / 0 long frames, t2 3 / 3, t3 2 / 4, t4 0 /
+   3, mean 16.8–17.2 ms — the same band as 4.2 at 150 svh; the spring, not
+   the length, is what keeps a notch smooth.
+2. **`docs/PASSAGES_PROPOSAL_2026-09-14.md`** — ten passages that are not
+   clouds, each with the camera move, a LIKED reference and an honest cost;
+   the recommendation is one world, four ways to move through it (clouds ·
+   bridge · glass · light). Nothing built until Ondrej picks.
+
+### Validation classes
+
+Seams: LOCAL + CI by the gate, PREVIEW after merge, DEVICE is Ondrej's
+feel. Proposal: n/a.

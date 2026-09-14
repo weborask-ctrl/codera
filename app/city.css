@@ -202,8 +202,9 @@ main[data-city] {
   max-width: 1280px;
   margin: 0 auto;
 }
-/* longer since 4.2: the same wheel notch moves the passage less */
-.city-seam { height: 150svh; }
+/* 4.4: 150 svh made the four seams 43 % of the desktop scroll (audit
+   2026-09-14 §4); the spring keeps a notch smooth at 90 svh too (probed) */
+.city-seam { height: 90svh; }
 .city-seam-flat { height: 52svh; }
 /* the flat edit's cloud veil: fixed over the page, clouds only during a seam */
 /* the veil must NOT form a stacking context of its own: screen-blended
