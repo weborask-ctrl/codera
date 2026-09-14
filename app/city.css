@@ -267,17 +267,16 @@ main[data-city] {
   position: absolute;
   display: block;
   left: 0;
-  top: 42%;
-  width: 92vw;
+  top: 40%;
+  width: 78vw;
   height: auto;
   opacity: 0.001;
   transform: translate3d(106vw, 0, 0);
   will-change: transform, opacity;
   pointer-events: none;
   filter: saturate(1.06) contrast(1.04);
-  /* the cut end of the span dissolves into the air instead of showing the
-     straight edge it was cropped on */
-  mask-image: linear-gradient(90deg, rgb(0 0 0 / 1) 0%, rgb(0 0 0 / 1) 78%, rgb(0 0 0 / 0) 99%);
+  /* its far end thins into the air rather than stopping */
+  mask-image: linear-gradient(90deg, rgb(0 0 0 / 1) 0%, rgb(0 0 0 / 1) 74%, rgb(0 0 0 / 0) 100%);
 }
 @media (max-width: 767px) {
   .city-span {
@@ -817,17 +816,23 @@ main[data-city] {
 /* /04 */
 .city-process { color: #fff; }
 .city-stations {
-  margin-top: 3.8rem;
+  margin-top: 4.6rem;
   display: grid;
-  gap: 1.6rem;
+  gap: 2.2rem;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   list-style: none;
   padding: 0;
 }
+/* the process act runs wider than the others: three stations on a bridge
+   want the room, not a 1280 px column in a 2000 px window (4.6) */
+.city-process .city-inner {
+  max-width: none;
+}
 .city-station {
   position: relative;
-  padding: 2.4rem 2.2rem 2.2rem;
-  border-radius: 30px;
+  padding: 3.6rem 3.2rem 3.4rem;
+  border-radius: 36px;
+  min-height: 29rem;
 }
 .city-station-dot {
   position: absolute;
@@ -876,7 +881,7 @@ main[data-city] {
 .city-station-big {
   display: block;
   font-weight: 800;
-  font-size: clamp(3.2rem, 5.4vw, 5rem);
+  font-size: clamp(4rem, 7.4vw, 7rem);
   letter-spacing: -0.04em;
   line-height: 1;
   color: var(--city-tang);
@@ -884,15 +889,21 @@ main[data-city] {
 .city-station-t {
   display: block;
   font-weight: 800;
-  font-size: clamp(1.5rem, 2vw, 1.85rem);
-  margin-top: 0.6rem;
+  font-size: clamp(1.8rem, 2.7vw, 2.6rem);
+  margin-top: 0.9rem;
 }
 .city-station-d {
   display: block;
-  margin-top: 0.5rem;
-  font-size: clamp(1.02rem, 1.2vw, 1.15rem);
+  margin-top: 0.8rem;
+  font-size: clamp(1.1rem, 1.55vw, 1.5rem);
   line-height: 1.55;
-  color: rgb(255 255 255 / 0.85);
+  color: rgb(255 255 255 / 0.88);
+}
+@media (max-width: 1023px) {
+  .city-station {
+    padding: 2.4rem 2.2rem 2.2rem;
+    min-height: 0;
+  }
 }
 
 /* /05 */
