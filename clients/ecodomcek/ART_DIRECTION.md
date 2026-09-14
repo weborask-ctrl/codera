@@ -442,3 +442,42 @@ odstránené.
 **Validácia.** LOCAL: full-page zábery všetkých 14 stránok 1440 a 390
 (`web/shots/x-*`), router netestovaný v reálnom prehliadači (Playwright
 bez klikania) — NOT VALIDATED. Reálny mobil NOT VALIDATED.
+
+---
+
+## Fáza 7 — plagát, rozdelená lišta, 5D stena (2026-09-14)
+
+Ondrej: „stránka je úplne ako každá AI generated … chcem aby keď sa
+stránka načíta nech sa ten dom poskladá, pridaj pútavý nadpis nie taký
+nudný na kraji … rozdeľ lištu hornú, odstráň zbytočné malé texty …
+stenu chcem 5D, dala sa roztahovať … o tom jednu celú podstránku."
+
+**Diagnóza generickosti:** rovnaký masthead všade, mono štítky a
+číslovania („01 / 07“, kóty, čipy, bežiaci index), nadpis vľavo +
+obrázok vpravo. Všetko preč.
+
+**Hero = plagát** (pangram.md: slovo vlastní rám; kpr.md/noomo.md:
+objekt medzi riadkami nadpisu). Dva riadky obrieho Hanken 300 na
+celú šírku, dom v strede, prekrýva pätu prvého a hlavu druhého riadku.
+Pri načítaní: závoj → kresba sa vykreslí (0,9 s) → doska, prízemie,
+poschodie, strecha sa zhmotnia a dosadnú (do 4,3 s) → až potom vyjde
+text. Scroll preč: vrstvy sa rozídu rôznou rýchlosťou (hĺbka).
+
+**Lišta rozdelená** na tri pilulky (Aether Lane z motionsites: „fixed
+nav pill“, u nás papier, nie sklo): značka · stránky so superscript
+počtami · telefón + Dopyt.
+
+**Stena** (`stena.html`): render siedmich vrstiev (Higgsfield
+gpt_image_2, 2 varianty × 6,5 kr., zvolený B s čiernou vetrozábranou),
+segmentácia floodfillom (sadrokartón potreboval prah 6 — biela na
+papieri), sedem WebP s alfou. Jedno číslo `spread` 0–1, tri vstupy
+(ťah, scroll v 280svh tracku, šípky), lerp v rAF — lusion.md: vstup sa
+mapuje na pohyb okamžite. Zatvorená stena je stoh v strede, otvorená
+= pôvodné pozície renderu; štítky v pevnom riadku na otvorených
+pozíciách, popis poslednej otvorenej vrstvy pod nimi (na mobile len
+posledná). Texty vrstiev: klientove vety, kde existujú; inak stavebná
+fyzika, nie tvrdenie o firme. Kôl „orientačná skladba“.
+
+**Validácia.** LOCAL: Playwright — reálny ťah myšou 5 % → 75 %,
+scroll na koniec tracku → 100 %, bez chýb v konzole; zábery
+`shots/wall-*`, `shots/v7-hero.jpg`. Reálny mobil NOT VALIDATED.

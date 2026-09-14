@@ -38,6 +38,8 @@ IMAGES = [
     "beat0.jpg", "beat1.jpg", "beat2.jpg", "beat3.jpg", "beat4.jpg",
     "beat5.jpg", "beat6.jpg", "beat7.jpg", "beat8.jpg",
     "lyr-base.webp", "lyr-ground.webp", "lyr-upper.webp", "lyr-roof.webp",
+    "wall-1-obklad.webp", "wall-2-latovanie.webp", "wall-3-doska.webp", "wall-4-ram.webp",
+    "wall-5-parobrzda.webp", "wall-6-predstena.webp", "wall-7-sadrokarton.webp",
 ]
 PHOTOS = ["2024-lucina", "2023-kosice", "2021-bungalov-presov", "2021-terasa",
           "2019-terasa-chrastne", "2015-budatin", "2008-prvotina"]
@@ -108,8 +110,11 @@ def header(active: str) -> str:
     <span><b>ECODOMČEK</b><i>EKO·LOGICKÉ · EKO·NOMICKÉ STAVBY</i></span>
   </a>
   {nav(active)}
-  <a class="pill" href="tel:{C.PHONE_RAW}"><span class="dot"></span>{C.PHONE}</a>
-  <button class="menu" type="button" aria-label="Menu" aria-expanded="false"><i></i><i></i></button>
+  <div class="hright">
+    <a class="pill" href="tel:{C.PHONE_RAW}"><span class="dot"></span>{C.PHONE}</a>
+    <a class="pill go" href="kontakt.html">Dopyt {ARROW}</a>
+    <button class="menu" type="button" aria-label="Menu" aria-expanded="false"><i></i><i></i></button>
+  </div>
 </header>'''
 
 
@@ -159,7 +164,6 @@ SHELL = '''<!doctype html>
 {body}
 </main>
 {footer}
-<div id="idx"><b id="idxnum">01</b><s id="idxname">{first}</s></div>
 <div id="peek"><img alt=""></div>
 <script src="assets/gsap.min.js"></script>
 <script src="assets/ScrollTrigger.min.js"></script>

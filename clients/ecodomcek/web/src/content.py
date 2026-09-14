@@ -28,6 +28,7 @@ NAV = [
     ("Úvod", "index.html"),
     ("Realizácie <sup>8</sup>", "realizacie.html"),
     ("Služby <sup>12</sup>", "sluzby.html"),
+    ("Stena", "stena.html"),
     ("Technológia", "technologia.html"),
     ("O nás", "o-nas.html"),
     ("Kontakt", "kontakt.html"),
@@ -190,4 +191,23 @@ PROCESS = [
      "Montovaná drevostavba, difúzne otvorená, z ekologických materiálov. Od základov až po finál."),
     ("04", "Dokončenie",
      "Sadrokartón, obklady, maľovanie. Všetko sa dá pokaziť nevhodnou finalizáciou — a na to si dávame bacha."),
+]
+
+# ── the wall page: name + one sentence per layer. Client sentences VERBATIM
+# where they exist; the rest is building physics, not a claim about EcoDomček.
+WALL_TEXT = [
+    ("Drevený obklad — rhombus profil",
+     "Klasický tatranský profil, moderný rhombus, veľkoplošné materiály alebo thermo drevo."),
+    ("Vetraná medzera, latovanie",
+     "Vzduch za obkladom prúdi zdola nahor a odvádza vlhkosť skôr, než sa dostane k izolácii."),
+    ("Drevovláknitá doska",
+     "Prírodná izolácia na báze drevného vlákna: chráni konštrukciu zvonku a paru nechá prejsť von."),
+    ("Nosná konštrukcia + izolácia",
+     "Drevený rám vyplnený izoláciou. Tu vzniká to „v lete chladí, v zime je teplučký“."),
+    ("Parobrzda",
+     "Brzdí paru z interiéru, ale neuzatvára ju — stena ostáva difúzne otvorená."),
+    ("Inštalačná predstena",
+     "Priestor pre elektrinu a vodu bez zásahu do izolácie."),
+    ("Sadrokartón, maľba",
+     "Sadrokartón je tá najbežnejšia finálna vrstva pri suchej výstavbe."),
 ]

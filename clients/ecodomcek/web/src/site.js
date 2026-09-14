@@ -19,8 +19,6 @@
   gsap.registerPlugin(ScrollTrigger);
 
   var main = document.getElementById('main');
-  var idxNum = document.getElementById('idxnum');
-  var idxName = document.getElementById('idxname');
   var curtain = document.getElementById('curtain');
   var peek = document.getElementById('peek');
   var peekImg = peek && peek.querySelector('img');
@@ -49,6 +47,7 @@
     initParallax();
     initIndex();
     initFilters();
+    initWall();
     initMarks();
     ScrollTrigger.refresh();
   }
@@ -71,15 +70,15 @@
     });
   }
 
-  // ── the hero: drawn in ink, then built layer by layer ────────────────
-  // Each layer carries its spread (data-y0) and seated (data-y1) position
-  // as a percentage of its own height, so the choreography survives any
-  // viewport. Matter arrives through the linework; at the end the linework
-  // re-plots in moss over the built house as proof, then sinks in.
+  // ── the hero: the drawing plots itself, then the house builds — on load.
+  // Each layer carries its spread (data-y0) and seated (data-y1) position as
+  // a percentage of its own height. Matter arrives through the linework as
+  // each layer lands. Scrolling away lifts the layers apart again, roof
+  // fastest, so the poster has depth on the way out.
   function initHouse() {
     var act = main.querySelector('[data-house]');
     if (!act) return;
-    var house = act.querySelector('.house');
+    var poster = act.closest('.poster');
     var L = {};
     act.querySelectorAll('.lyr').forEach(function (el) { L[el.dataset.l] = el; });
     var order = ['base', 'ground', 'upper', 'roof'];
@@ -87,98 +86,133 @@
     order.forEach(function (n) {
       L[n].querySelectorAll('path').forEach(function (p) {
         var len = p._len || (p._len = p.getTotalLength());
-        gsap.set(p, { strokeDasharray: len, strokeDashoffset: reduce ? 0 : len,
-                      stroke: '', opacity: '' });
+        gsap.set(p, { strokeDasharray: len, strokeDashoffset: reduce ? 0 : len, opacity: '' });
         paths.push(p);
       });
     });
     var mats = order.map(function (n) { return L[n].querySelector('.mat'); });
     var inks = order.map(function (n) { return L[n].querySelector('.ink'); });
-    order.forEach(function (n) {
-      gsap.set(L[n], { yPercent: reduce ? +L[n].dataset.y1 : +L[n].dataset.y0 });
-    });
-
-    var steps = act.querySelectorAll('.step');
-    var pins = act.querySelectorAll('.pin');
-    var rail = act.querySelectorAll('.rail i');
-    var cur = -1;
-
-    function show(k) {
-      if (k === cur) return;
-      cur = k;
-      var live = (steps[k].dataset.pins || '').split(',').filter(Boolean);
-      steps.forEach(function (st, i) { st.classList.toggle('on', i === k); });
-      pins.forEach(function (p) { p.classList.toggle('on', live.indexOf(p.dataset.p) !== -1); });
-      rail.forEach(function (r) { r.classList.toggle('on', live.indexOf(r.dataset.p) !== -1); });
-      house.classList.toggle('proof', k === steps.length - 1);
-    }
 
     if (reduce) {
-      gsap.set(mats, { opacity: 1 });
-      gsap.set(paths, { opacity: 0 });
-      steps.forEach(function (st) { st.classList.add('on'); });
-      pins.forEach(function (p) { p.classList.add('on'); });
-      house.classList.add('proof');
+      order.forEach(function (n) { gsap.set(L[n], { yPercent: +L[n].dataset.y1 }); });
+      gsap.set(mats, { opacity: 1 }); gsap.set(paths, { opacity: 0 });
+      poster.classList.add('built');
       return;
     }
+    order.forEach(function (n) { gsap.set(L[n], { yPercent: +L[n].dataset.y0 }); });
+    gsap.set(mats, { opacity: 0 }); gsap.set(inks, { opacity: 1 });
 
-    gsap.set(mats, { opacity: 0 });
-    gsap.set(inks, { opacity: 1 });
-
-    // the entrance: the drawing plots itself, bottom to top, once
-    tweens.push(gsap.to(paths, {
-      strokeDashoffset: 0, duration: 1.1, ease: 'power2.inOut',
-      stagger: { amount: 1.5 }, delay: .25
-    }));
-
-    var tl = gsap.timeline({ paused: true, defaults: { ease: 'power2.in' } });
+    var tl = gsap.timeline({ paused: true, defaults: { ease: 'power2.in' },
+      onComplete: function () { poster.classList.add('built'); } });
     function settle(names, at) {
       names.forEach(function (n) {
         var el = L[n], seat = +el.dataset.y1, dip = 320 / (el.offsetHeight || 320) * 1.1;
-        tl.to(el, { yPercent: seat + dip, duration: .08, ease: 'power1.out' }, at)
-          .to(el, { yPercent: seat, duration: .16, ease: 'power2.out' }, at + .08);
+        tl.to(el, { yPercent: seat + dip, duration: .07, ease: 'power1.out' }, at)
+          .to(el, { yPercent: seat, duration: .14, ease: 'power2.out' }, at + .07);
       });
     }
     function ignite(i, at, dur) {
       tl.to(mats[i], { opacity: 1, duration: dur * .6, ease: 'power1.inOut' }, at)
         .to(inks[i], { opacity: 0, duration: dur * .7, ease: 'power1.in' }, at + dur * .3);
     }
-    ignite(0, .3, 1.0);
-    ignite(1, 1.3, 1.7); tl.to(L.ground, { yPercent: +L.ground.dataset.y1, duration: 1.7 }, 1.3);
-    settle(['base'], 3.0);
-    ignite(2, 3.4, 1.7); tl.to(L.upper, { yPercent: +L.upper.dataset.y1, duration: 1.7 }, 3.4);
-    settle(['ground', 'base'], 5.1);
-    ignite(3, 5.5, 1.7); tl.to(L.roof, { yPercent: +L.roof.dataset.y1, duration: 1.7 }, 5.5);
-    settle(['upper', 'ground', 'base'], 7.2);
-    // proof: the linework re-plots in moss over the built house, then sinks in
-    tl.set(paths, { strokeDashoffset: function (i, p) { return p._len; },
-                    stroke: '#3f5a2a', opacity: .9 }, 7.4)
-      .set(inks, { opacity: 1 }, 7.4)
-      .to(paths, { strokeDashoffset: 0, duration: 1.1, ease: 'none', stagger: { amount: .5 } }, 7.45)
-      .to(paths, { opacity: 0, duration: .6, ease: 'power1.in' }, 9.3)
-      .to({}, { duration: .7 }, 9.3);
+    // 0.0–1.1 the drawing plots; then the house builds bottom to top
+    tl.to(paths, { strokeDashoffset: 0, duration: .9, ease: 'power2.inOut', stagger: { amount: .9 } }, 0);
+    ignite(0, 1.5, .6);
+    ignite(1, 1.9, .7); tl.to(L.ground, { yPercent: +L.ground.dataset.y1, duration: .7 }, 1.9); settle(['base'], 2.6);
+    ignite(2, 2.7, .7); tl.to(L.upper, { yPercent: +L.upper.dataset.y1, duration: .7 }, 2.7); settle(['ground', 'base'], 3.4);
+    ignite(3, 3.5, .75); tl.to(L.roof, { yPercent: +L.roof.dataset.y1, duration: .75 }, 3.5); settle(['upper', 'ground', 'base'], 4.25);
     tweens.push(tl);
+    houseTl = tl;
+    if (document.body.classList.contains('ready')) tl.play(); else pendingPlay = tl;
 
-    var cuts = [.11, .33, .54, .74];
-    track(ScrollTrigger.create({
-      trigger: act, start: 'top top', end: 'bottom bottom', scrub: .55,
-      animation: tl, invalidateOnRefresh: true,
-      onUpdate: function (self) {
-        if (!wide()) return;
-        var k = 0, p = self.progress;
-        while (k < cuts.length && p >= cuts[k] - (k < cur ? -.02 : .02)) k++;
-        show(k);
-      }
-    }));
-    if (!wide()) {
-      steps.forEach(function (st, k) {
-        track(ScrollTrigger.create({
-          trigger: st, start: 'top 62%', end: 'bottom 38%',
-          onEnter: function () { show(k); }, onEnterBack: function () { show(k); }
-        }));
-      });
+    // the way out: layers drift apart with depth as the poster scrolls off
+    var drift = { roof: -14, upper: -8, ground: -3, base: 2 };
+    order.forEach(function (n) {
+      tweens.push(gsap.to(L[n], { y: function () { return innerHeight * drift[n] / 100; }, ease: 'none',
+        scrollTrigger: track(ScrollTrigger.create({
+          trigger: poster, start: 'top top', end: 'bottom top', scrub: .4, invalidateOnRefresh: true
+        })) }));
+    });
+  }
+  var houseTl = null, pendingPlay = null;
+
+  // ── the wall: seven slabs, one number (spread 0..1), three inputs ─────
+  // Drag, scroll and arrow keys all write the same target; a lerp loop
+  // renders it. Input maps to motion within a frame (lusion.md) — no
+  // synthetic smooth-scroll, the page itself never gets intercepted.
+  function initWall() {
+    var wrap = main.querySelector('[data-wall]');
+    if (!wrap) return;
+    var stage = wrap.querySelector('.slabs');
+    var slabs = [].slice.call(stage.querySelectorAll('.slab'));
+    var tags = [].slice.call(wrap.querySelectorAll('.tag'));
+    var desc = wrap.querySelector('.tagdesc');
+    var meter = wrap.querySelector('.meter b');
+    var n = slabs.length, open = [], cur = 0, target = 0, dragOff = 0, scrollS = 0, raf = 0;
+    function measure() {
+      var W = stage.clientWidth;
+      open = slabs.map(function (s) { return s.offsetLeft; });
+      // closed: the slabs stack in the middle of the stage, edges peeking out by 2.2% each
+      var sw = slabs[0].offsetWidth, step = W * .022, x0 = W / 2 - sw / 2 - (n - 1) * step / 2;
+      slabs.forEach(function (s, i) { s._closed = x0 + i * step; });
     }
-    show(0);
+    measure();
+    addEventListener('resize', measure);
+    function render() {
+      cur += (target - cur) * .16;
+      if (Math.abs(target - cur) < .0005) cur = target;
+      slabs.forEach(function (s, i) {
+        var x = s._closed + (open[i] - s._closed) * cur - open[i];
+        s.style.transform = 'translate3d(' + x + 'px,0,0)';
+        s.style.zIndex = n - i;
+      });
+      var last = -1;
+      tags.forEach(function (t, i) {
+        var on = i === 0 ? cur >= .06 : cur >= (i + .55) / n;
+        t.classList.toggle('on', on); if (on) last = i;
+      });
+      tags.forEach(function (t, i) { t.classList.toggle('last', i === last); });
+      if (desc) desc.textContent = last >= 0 ? tags[last].querySelector('p').textContent : '';
+      if (meter) meter.style.left = (cur * 100) + '%';
+      raf = (cur !== target) ? requestAnimationFrame(render) : 0;
+    }
+    function set(v, now) {
+      target = Math.max(0, Math.min(1, v));
+      if (now) { cur = target; }
+      if (!raf) raf = requestAnimationFrame(render);
+    }
+    if (reduce) { target = cur = 1; render(); return; }
+
+    // drag
+    var px = 0, dragging = false;
+    stage.addEventListener('pointerdown', function (e) {
+      dragging = true; px = e.clientX; stage.classList.add('drag'); wrap.classList.add('touched');
+      stage.setPointerCapture(e.pointerId);
+    });
+    stage.addEventListener('pointermove', function (e) {
+      if (!dragging) return;
+      dragOff += (e.clientX - px) / (stage.clientWidth * .75); px = e.clientX;
+      dragOff = Math.max(-scrollS, Math.min(1 - scrollS, dragOff));
+      set(scrollS + dragOff);
+    });
+    function up() { dragging = false; stage.classList.remove('drag'); }
+    stage.addEventListener('pointerup', up); stage.addEventListener('pointercancel', up);
+    // keys
+    addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight') { dragOff += .1; set(scrollS + dragOff); wrap.classList.add('touched'); }
+      if (e.key === 'ArrowLeft') { dragOff -= .1; set(scrollS + dragOff); wrap.classList.add('touched'); }
+    });
+    // scroll (desktop: the stage is sticky inside a 280svh track)
+    if (wide()) {
+      track(ScrollTrigger.create({
+        trigger: wrap, start: 'top top', end: 'bottom bottom', scrub: true,
+        onUpdate: function (self) { scrollS = self.progress; set(scrollS + dragOff); if (self.progress > .02) wrap.classList.add('touched'); }
+      }));
+    }
+    // the invitation: the wall breathes open once, then waits
+    tweens.push(gsap.to({ v: 0 }, { v: .14, duration: 1.1, delay: .9, ease: 'power2.inOut', yoyo: true, repeat: 1,
+      onUpdate: function () { if (!wrap.classList.contains('touched')) set(this.targets()[0].v); } }));
+    window.__wall = set;
   }
 
   // ── parallax inside the frame: the image breathes, the frame holds ───
@@ -212,8 +246,6 @@
         trigger: sec, start: 'top 50%', end: 'bottom 50%',
         onToggle: function (self) {
           if (!self.isActive) return;
-          idxNum.textContent = String(i + 1).padStart(2, '0');
-          idxName.textContent = sec.dataset.sec;
           document.body.dataset.band = sec.dataset.band || 'paper';
         }
       }));
@@ -380,6 +412,7 @@
   var veil = document.getElementById('veil');
   function open() {
     document.body.classList.add('ready');
+    if (pendingPlay) { pendingPlay.play(); pendingPlay = null; }
     if (veil) {
       veil.style.opacity = 0;
       setTimeout(function () { veil.remove(); }, 900);
@@ -424,11 +457,10 @@
       if (hs) hs.classList.toggle('proof', pick === steps.length - 1);
     }
     var pm = location.search.match(/[?&]p=([0-9.]+)/);
-    var housePaths = keep.querySelectorAll('.ink path');
-    housePaths.forEach(function (p) { gsap.set(p, { strokeDashoffset: 0 }); });
-    if (pm && tweens.length) {
-      tweens.forEach(function (t) { if (t.duration() > 5) t.progress(parseFloat(pm[1])); });
-    }
+    if (houseTl) { houseTl.pause(); houseTl.progress(pm ? parseFloat(pm[1]) : 1); pendingPlay = null; }
+    var po = keep.querySelector('.poster'); if (po && (!pm || parseFloat(pm[1]) >= 1)) po.classList.add('built');
+    var wm = location.search.match(/[?&]w=([0-9.]+)/);
+    if (wm && window.__wall) window.__wall(parseFloat(wm[1]), true);
     if (veil) veil.remove();
     document.body.classList.add('ready');
   }

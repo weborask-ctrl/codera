@@ -78,7 +78,7 @@ def build(B):
                      f'<span class="tg">{esc(tags)}</span></a>')
         return f'<div class="index fade d2">{rows}</div>'
 
-    def testimonials(full=False, pick=None):
+    def testimonials(full=False, pick=None, giant=False):
         """Two real quotes, honestly labelled. Rarity is played by naming
         the count, never by a carousel that advertises the shortage."""
         items = C.TESTIMONIALS if pick is None else [C.TESTIMONIALS[pick]]
@@ -88,7 +88,8 @@ def build(B):
                      f'<figcaption><b>{esc(t["author"])}</b>'
                      f'<span>{esc(t["note"])}</span><span>Zdroj: ecodomcek.sk</span>'
                      f'</figcaption></figure>')
-        return f'<div class="refs{" full" if full else ""} fade d2">{rows}</div>'
+        cls = " full" if full else (" giant" if giant else "")
+        return f'<div class="refs{cls} fade d2">{rows}</div>'
 
     def process():
         return '<div class="proc fade d2">' + "".join(
@@ -98,8 +99,7 @@ def build(B):
     def contact_band(num):
         return section(9, "Kontakt", "dusk", f'''<div class="wrap contact" data-reveal>
   <div>
-    <div class="kota fade">{num} <i>/</i> Kontakt <i>/</i> Lúčina</div>
-    <h2 style="margin:18px 0 26px">{lines("Poďme si o tom|<em>pokecať</em>.")}</h2>
+    <h2 style="margin:0 0 26px">{lines("Poďme si o tom|<em>pokecať</em>.")}</h2>
     <p class="lead fade d2">Zavolajte alebo napíšte, čo staviate. Prejdeme si pozemok, predstavu
       a rozpočet — a poradíme, aj keď z toho nakoniec nič nebude. Zadarmo.</p>
     <a class="tel-big fade d3" href="tel:{C.PHONE_RAW}" style="margin-top:30px">{C.PHONE}</a>
@@ -128,127 +128,75 @@ def build(B):
             m = '<div class="mmeta fade d2">' + "".join(
                 f"<div><span>{esc(k)}</span><b>{esc(v)}</b></div>" for k, v in meta) + "</div>"
         return section(0, name, band, f'''<div class="wrap masthead" data-reveal>
-  <div class="mhead">
-    <div>
-      <div class="kota fade">{kota}</div>
-      <h1>{lines(head)}</h1>
-      {f'<p class="lead fade d2">{lead}</p>' if lead else ''}
-    </div>
-    {m}
-  </div>
+  <h1>{lines(head)}</h1>
+  {f'<p class="lead fade d2">{lead}</p>' if lead else ''}
+  {m}
 </div>''')
 
     # ═══════════════════════════════════════════════════════════════════
-    # 1 — ÚVOD
+    # 1 — ÚVOD — type as the hero, the house in front of it
+    # (pangram.md: the word owns the frame; kpr.md/noomo.md: the object
+    # sits between the headline lines). On load the drawing plots itself
+    # and the house builds — no scroll needed. Scroll only lifts the
+    # layers apart again as the poster leaves.
     # ═══════════════════════════════════════════════════════════════════
     house = "".join(layer(n) for n in ("base", "ground", "upper", "roof"))
-    steps = [
-        ("", "", "Vitajte vo svete,|kde <em>vonia</em> drevo.", "", True),
-        ("04,03", "04 → 03 <i>/</i> Základová doska · prízemie",
-         "Difúzne <em>otvorená</em>|stavba.", "S použitím ekologických materiálov.", False),
-        ("02", "02 <i>/</i> Poschodie", "V lete chladí,|v zime <em>teplučký</em>.",
-         "Vysoký komfort bývania — a rýchlosť výstavby.", False),
-        ("01", "01 <i>/</i> Strecha", "Nadšenci|<em>drevo</em>stavieb.",
-         "Nie sme strohí obchodníci.", False),
-        ("01,02,03,04", "01 / 07 <i>/</i> Zložený dom <i>/</i> Lúčina",
-         "Čo je <em>eko</em>logické,|je aj ekonomické.", "Od základov až po kolaudáciu.", False),
-    ]
-    steps_html = ""
-    for k, (live, kota, head, line, intro) in enumerate(steps):
-        tag = "h1" if intro else "h2"
-        inner = f'<div class="kota fade">{kota}</div>' if kota else ""
-        inner += f"<{tag}>{lines(head)}</{tag}>"
-        if line:
-            inner += f'<p class="line fade d2">{esc(line)}</p>'
-        if intro:
-            inner += ('<div class="chips fade d2">'
-                      "<span>Rodinný dom Lúčina · 2024 · okr. Prešov</span>"
-                      "<span>Drevostavby od roku 2007</span><span>Vizualizácia</span></div>"
-                      '<div id="scrollcue" class="fade d3">'
-                      '<svg width="13" height="22" viewBox="0 0 16 28" fill="none">'
-                      '<path d="M8 2v22M2 18l6 6 6-6" stroke="currentColor" stroke-width="1.5" '
-                      'stroke-linecap="round"/></svg>Scrollujte — postavíme ho</div>')
-        if k == 4:
-            inner += ('<div class="ctas fade d3">'
-                      + btn("Pozrieť realizácie", "realizacie.html")
-                      + btn("Ako to staviame", "technologia.html", ghost=True, arrow=False)
-                      + "</div>")
-        steps_html += f'<div class="step{" intro" if intro else ""}" data-k="{k}" data-pins="{live}">{inner}</div>'
-
-    rail = "".join(f'<i data-p="{p}">{n}</i>' for p, n in RAIL)
-    hero = f'''<section class="band" id="hero" data-sec="Dom z výkresu" data-reveal>
-  <div class="track" data-house>
-    <div class="stage">
-      <div class="house">{house}</div>
-      <div class="copy">{steps_html}</div>
-      <div class="rail mono">{rail}</div>
-      <div class="stamp mono">Rodinný dom Lúčina <i>/</i> vizualizácia <i>/</i> rev. 01</div>
-    </div>
+    hero = f'''<section class="band" id="hero" data-sec="Dom">
+  <div class="poster">
+    <h1 class="l1"><span class="rl"><span>Vitajte vo svete,</span></span></h1>
+    <div class="house" data-house>{house}</div>
+    <h1 class="l2"><span class="rl"><span>kde <em>vonia</em> drevo.</span></span></h1>
+    <p class="sub fade">Montované drevodomy z Lúčiny pri Prešove. Od základov až po kolaudáciu.</p>
+    <div class="ctas fade d2">{btn("Pozrieť realizácie", "realizacie.html")}{btn("Otvoriť stenu", "stena.html", ghost=True, arrow=False)}</div>
+    <span class="vz mono">vizualizácia · Rodinný dom Lúčina 2024</span>
   </div>
 </section>'''
 
-    svc_teaser = "".join(
-        f'<a href="sluzby.html#s{i}"><i>{i + 1:02d}</i><span>{esc(n)}</span>'
-        f'<em>{esc(u)}</em></a>' for i, (u, n, _) in enumerate(C.SERVICES))
+    # services as one big typographic list — the words are the design
+    svc_words = "".join(
+        f'<a href="sluzby.html#s{i}" style="--i:{i}"><span>{esc(n)}</span><i>{esc(u)}</i></a>'
+        for i, (u, n, _) in enumerate(C.SERVICES))
 
     home = hero + section(1, "Čo staviame", "paper", f'''<div class="wrap" data-reveal>
-  <div class="mhead">
-    <div>
-      <div class="kota fade">02 / 07 <i>/</i> Čo staviame</div>
-      <h2 style="margin:18px 0 0">{lines("Dom, strechu, terasu.|A všetko <em>medzi</em> tým.")}</h2>
-    </div>
-    <p class="lead fade d2">Od základovej dosky po maľovku. Väčšinu vecí, ktoré dom potrebuje,
-      urobíme sami — nemusíte zháňať päť firiem a potom riešiť, kto za čo môže.</p>
+  <h2 class="big fade">{lines("Dom, strechu, terasu.|A všetko medzi tým.")}</h2>
+  <div class="svcwords">{svc_words}</div>
+</div>''') + section(2, "Stena", "moss", f'''<div class="wrap wallteaser" data-reveal>
+  <div class="wt-text">
+    <h2 class="fade">{lines("Otvoríme|vám <em>stenu</em>.")}</h2>
+    <p class="lead fade d2">„My, konzervatívni Slováci, jej veľmi nedôverujeme.“ Preto drevostavbu
+      neschovávame. Potiahnite stenu a pozrite sa, čo je v nej — sedem vrstiev, každá s menom.</p>
+    <div class="fade d3">{btn("Roztiahnuť stenu", "stena.html")}</div>
   </div>
-  <div class="svcgrid fade d2">{svc_teaser}</div>
-  <div class="more fade d3">{btn("Všetkých dvanásť služieb", "sluzby.html")}</div>
-</div>''') + section(2, "Technológia", "moss", f'''<div class="wrap split" data-reveal>
-  <div class="col-a" style="position:sticky;top:0;padding:clamp(20px,4vh,40px) 0">
-    <figure data-par>
-      <div class="frame clipimg" style="aspect-ratio:4/3">
-        <img src="assets/beat4.jpg" alt="Rez difúzne otvorenou stenou" loading="lazy"></div>
-      {cap("Rez stenou · vizualizácia", "Zvonku dnu")}
-    </figure>
-  </div>
-  <div style="padding:clamp(20px,4vh,40px) 0">
-    <div class="kota fade">03 / 07 <i>/</i> Technológia</div>
-    <h2 style="margin:18px 0 22px">{lines("Otvoríme|vám <em>stenu</em>.")}</h2>
-    <p class="lead fade d2" style="margin-bottom:30px">„My, konzervatívni Slováci, jej veľmi
-      nedôverujeme.“ To je veta z nášho vlastného webu — a rozumieme jej. Preto drevostavbu
-      neschovávame: tu je stena vrstvu po vrstve. V USA a Kanade je táto technológia
-      osvedčená viac ako 200 rokov.</p>
-    <div class="more fade d3">{btn("Ako je dom postavený", "technologia.html")}</div>
-  </div>
+  <a class="wt-art" href="stena.html" aria-label="Otvoriť stenu">
+    <img src="assets/beat4.jpg" alt="Rez stenou — vizualizácia" loading="lazy">
+    <span class="vz mono">vizualizácia</span>
+  </a>
 </div>''') + section(3, "Realizácie", "paper", f'''<div class="wrap" data-reveal>
-  <div class="mhead">
-    <div>
-      <div class="kota fade">04 / 07 <i>/</i> Realizácie <i>/</i> 2008 — 2024</div>
-      <h2 style="margin:18px 0 0">{lines("Začalo to|<em>vlastným</em> domčekom.")}</h2>
+  <a class="feature" href="realizacia-2024-lucina.html">
+    <figure data-par>
+      <div class="frame clipimg" style="aspect-ratio:21/9">
+        <img src="assets/hero.jpg" alt="Rodinný dom Lúčina — vizualizácia" loading="lazy"></div>
+    </figure>
+    <div class="fmeta">
+      <h2 class="fade">Moderný dizajnový dom, Lúčina 2024 {ARROW}</h2>
+      <p class="fade d2">Drevená fasáda v rhombus profile s kompaktnými doskami Fundermax.
+        Stojí v našej dedine — vidíme naň z dvora. <span class="vz">vizualizácia</span></p>
     </div>
-    <p class="lead fade d2">Osem stavieb od Žiliny po Kéked. Fotky sú z reálnych realizácií,
-      nie z katalógu.</p>
-  </div>
+  </a>
+  <h2 class="big fade" style="margin-top:clamp(50px,8vh,110px)">{lines("Začalo to|vlastným domčekom.")}</h2>
   {project_index()}
-  <div class="more fade d3">{btn("Všetky realizácie", "realizacie.html")}</div>
-</div>''') + section(4, "Zákaznícke vyjadrenia", "sand", f'''<div class="wrap" data-reveal>
-  <div class="mhead cw">
-    <div>
-      <div class="kota fade">05 / 07 <i>/</i> Zákaznícke vyjadrenia</div>
-      <h2 style="margin:18px 0 0;max-width:14ch">{lines("Čo hovoria ľudia,|ktorým sme <em>stavali</em>.")}</h2>
-    </div>
-    {testimonials(pick=1)}
-  </div>
-  <div class="more fade d3">{btn("Kto to stavia", "o-nas.html", ghost=True, arrow=False)}</div>
+  <div class="more fade d3">{btn("Všetkých osem realizácií", "realizacie.html")}</div>
+</div>''') + section(4, "Vyjadrenie", "sand", f'''<div class="wrap" data-reveal>
+  {testimonials(pick=1, giant=True)}
 </div>''') + section(5, "Ako to ide", "paper", f'''<div class="wrap" data-reveal>
-  <div class="kota fade">06 / 07 <i>/</i> Ako to ide</div>
-  <h2 style="margin:18px 0 40px">{lines("Od prvého telefonátu|po <em>kolaudáciu</em>.")}</h2>
+  <h2 class="big fade">{lines("Od prvého telefonátu|po kolaudáciu.")}</h2>
   {process()}
-</div>''') + contact_band("07 / 07")
+</div>''') + contact_band("")
 
     page("index.html", "EcoDomček — drevostavby z Lúčiny",
          "Montované drevodomy, strechy, terasy a interiéry z Lúčiny pri Prešove. "
          "Difúzne otvorené stavby z ekologických materiálov, od základov po kolaudáciu.",
-         home, "index", first="Dom z výkresu")
+         home, "index", first="Dom")
 
     # ═══════════════════════════════════════════════════════════════════
     # 2 — REALIZÁCIE (index)
@@ -267,9 +215,7 @@ def build(B):
                     "Osem stavieb.|Jedna <em>technológia</em>.",
                     "Od svojpomocného domčeka v Lúčine po dvojpodlažný dom pri Košiciach. "
                     "Každá stavba je difúzne otvorená a z ekologických materiálov — "
-                    "to sa nemení, aj keď fasáda áno.",
-                    meta=[("Rozsah", "2008 — 2024"), ("Stavieb", "8"),
-                          ("Miesta", "Prešov · Košice · Žilina · Kéked")], name="Realizácie")
+                    "to sa nemení, aj keď fasáda áno.", name="Realizácie")
     from collections import Counter
     cnt = Counter(t for p in C.PROJECTS for t in p["tags"])
     chips_f = f'<button class="on" data-f="">Všetko <sup>{len(C.PROJECTS)}</sup></button>' + "".join(
@@ -283,7 +229,6 @@ def build(B):
     </figure>
     <div class="fmeta">
       <div>
-        <div class="kota fade">Najnovšia stavba <i>/</i> marec 2024 <i>/</i> Lúčina</div>
         <h2 class="fade">Moderný dizajnový dom {ARROW}</h2>
       </div>
       <div>
@@ -346,12 +291,10 @@ def build(B):
 </div>''')
         if rel:
             body += section(3, "Súvisiace služby", "paper", f'''<div class="wrap" data-reveal>
-  <div class="kota fade">Čo sme na tom robili</div>
   <div class="rel fade d2">{rel}</div>
 </div>''')
         if p.get("hero"):
             body += section(4, "Vizualizácia", "paper", f'''<div class="wrap wide" data-reveal>
-  <div class="kota fade">Návrh <i>/</i> vizualizácia</div>
   <h2 style="margin:18px 0 22px">{lines("Tento dom sme|<em>nakreslili</em> znovu.")}</h2>
   <p class="lead fade d2" style="margin-bottom:34px">Pre návrh stránky sme dom z Lúčiny
     vymodelovali a vyrenderovali — aby sme na ňom mohli ukázať, ako je drevostavba poskladaná.
@@ -393,15 +336,14 @@ def build(B):
                      f'{btn("Zavolajte " + C.PHONE, "tel:" + C.PHONE_RAW, arrow=False)}</div></aside>')
         rows += (f'<article class="srow" id="s{i}" data-reveal style="--i:{i}">'
                  f'<div class="snum mono">{i + 1:02d}</div>'
-                 f'<div class="sbody"><div class="kota fade">{esc(u)}</div>'
+                 f'<div class="sbody">'
                  f"<h2>{esc(n)}</h2><p class=\"fade d2\">{esc(t)}</p></div></article>")
     jump = "".join(f'<a href="#s{i}">{esc(n)}</a>' for i, (_, n, _) in enumerate(C.SERVICES))
 
     svc = masthead("Služby <i>/</i> dvanásť vecí, ktoré robíme",
                    "Dom na kľúč —|alebo len jeho <em>kus</em>.",
                    "Stavali sme celé domy aj samostatné terasy, strechy a interiéry. "
-                   "Napíšte, čo potrebujete; ak to nerobíme, povieme rovno.",
-                   meta=[("Služieb", "12"), ("Od", "2007"), ("Firma", "od 2017")], name="Služby")
+                   "Napíšte, čo potrebujete; ak to nerobíme, povieme rovno.", name="Služby")
     svc += section(1, "Služby", "paper", f'''<div class="wrap split srv">
   <nav class="jump" aria-label="Zoznam služieb">{jump}</nav>
   <div class="srows">{rows}</div>
@@ -417,13 +359,8 @@ def build(B):
     spec = "".join(f"<tr><td>{n}</td><td>{esc(t)}</td><td>—</td></tr>" for n, t in C.WALL)
     tech = masthead("Technológia <i>/</i> difúzne otvorená stavba",
                     "Drevostavbe sa|nedá <em>veriť</em>?",
-                    "Presne to si myslí väčšina ľudí, ktorí nám volajú. Tak si otvorme stenu "
-                    "a pozrime sa, čo je v nej.",
-                    meta=[("Konštrukcia", "Difúzne otvorená"),
-                          ("Izolácia", "Drevovláknitá"),
-                          ("Overené", "USA a Kanada, 200+ rokov")], name="Technológia", band="moss")
+                    "", name="Technológia", band="moss")
     tech += section(1, "Vrstvy domu", "paper", f'''<div class="wrap wide" data-reveal>
-  <div class="kota fade">Skladba domu <i>/</i> vizualizácia</div>
   <h2 style="margin:18px 0 34px">{lines("Dom je <em>stavebnica</em>|s presnými dielmi.")}</h2>
   <div class="mhead">
     <figure data-par>
@@ -453,7 +390,6 @@ def build(B):
     </figure>
   </div>
   <div style="padding:clamp(20px,4vh,40px) 0">
-    <div class="kota fade">Vrstva po vrstve</div>
     <h2 style="margin:18px 0 22px">{lines("Sedem vrstiev|medzi vami a <em>zimou</em>.")}</h2>
     <p class="lead fade d2" style="margin-bottom:30px">Difúzne otvorená stavba znamená, že stena
       vie prepustiť vodnú paru von. Vlhkosť v nej neostáva stáť — a to je hlavný dôvod, prečo
@@ -465,7 +401,6 @@ def build(B):
   </div>
 </div>''')
     tech += section(3, "Vnútri", "paper", f'''<div class="wrap" data-reveal>
-  <div class="kota fade">Ako sa v tom býva</div>
   <h2 style="margin:18px 0 40px">{lines("V lete chladí,|v zime je <em>teplučký</em>.")}</h2>
   <div class="trio fade d2">
     {figure("beat3.jpg", "Obývačka", "3/4", ("Obývačka · vizualizácia",))}
@@ -488,8 +423,6 @@ def build(B):
     about = masthead("O nás <i>/</i> od roku 2007",
                      "Kto sme a čo nám|ide <em>najlepšie</em>.",
                      "",
-                     meta=[("Konateľ", C.DIRECTOR), ("Stavia od", "2007"),
-                           ("Firma od", "1. 1. 2017"), ("Sídlo", "Lúčina, okr. Prešov")],
                      name="O nás")
     essay = [
         ("2007", "„Kariéra“ staviteľa sa začala písať v roku 2007, keď som si svojpomocne "
@@ -517,14 +450,12 @@ def build(B):
     <span class="mono">{esc(C.DIRECTOR)}</span><span class="fine">konateľ</span></div>
 </div>''')
     about += section(2, "Motto", "sand", f'''<div class="wrap motto" data-reveal>
-  <div class="kota fade">Motto</div>
   <blockquote class="fade d1">{lines("Čo je <em>eko</em>logické,|je aj ekonomické.")}</blockquote>
   <p class="sig fade d2">V dnešnej dobe je moderné byť „eko“, aj keď mnohokrát sa skutočný význam
     tohto slova stráca. Budeme radi, keď vás naša práca presvedčí, že to nie je iba prázdna
     fráza. Že správať sa a žiť EKOlogicky je správne a rozmýšľať EKOnomicky výhodné.</p>
 </div>''')
     about += section(3, "Zákaznícke vyjadrenia", "paper", f'''<div class="wrap" data-reveal>
-  <div class="kota fade">Zákaznícke vyjadrenia <i>/</i> 02 zachytené</div>
   <h2 style="margin:18px 0 40px;max-width:16ch">{lines("Ľudia, ktorým sme|už <em>stavali</em>.")}</h2>
   {testimonials(full=True)}
   <p class="fine fade d3" style="margin-top:26px">Vyjadrenia sú prevzaté zo súčasného webu
@@ -537,7 +468,6 @@ def build(B):
     {cap("Prvý dom, Lúčina 2008", "Fotografia realizácie")}
   </figure>
   <div>
-    <div class="kota fade">Kde to začalo</div>
     <h2 style="margin:18px 0 22px">{lines("Tak týmto to|všetko <em>začalo</em>.")}</h2>
     <p class="sig fade d2">Drevodom, ktorý som ako „kancelárska krysa“ postavil podľa knižiek
       a rád od kamarátov. Len s nadšením. Bývame v ňom od roku 2008 a sme totálne spokojní.</p>
@@ -550,13 +480,63 @@ def build(B):
          "2017 firma EcoDomček, s.r.o. z Lúčiny pri Prešove.", about, "o-nas", first="O nás")
 
     # ═══════════════════════════════════════════════════════════════════
+    # 8 — STENA — the 5D wall: seven slabs you pull apart
+    # (lusion.md: input maps to motion instantly; igloo.md: labels over a
+    # photoreal object in a light world; 08 §5 one hero object, held shots)
+    # ═══════════════════════════════════════════════════════════════════
+    WL = json.loads((REND / "wall-layers.json").read_text())
+    slabs = ""; tags = ""
+    for i, key in enumerate(WL["order"]):
+        l = WL["layers"][key]
+        n, t = C.WALL_TEXT[i]
+        slabs += (f'<div class="slab" data-i="{i}" style="left:{l["x"] * 100:.2f}%;top:{l["y"] * 100:.2f}%;'
+                  f'width:{l["w"] * 100:.2f}%;aspect-ratio:{l["w"] * WL["W"]:.0f}/{l["h"] * WL["H"]:.0f}">'
+                  f'<img src="assets/wall-{i + 1}-{key}.webp" alt="{esc(n)}" draggable="false" loading="eager"></div>')
+        tags += (f'<div class="tag" data-i="{i}" style="left:{l["x"] * 100:.2f}%;width:{l["w"] * 100:.2f}%">'
+                 f'<b>{i + 1:02d}</b><span>{esc(n)}</span><p>{esc(t)}</p></div>')
+    wall = f'''<section class="band wallpage" id="wall" data-sec="Stena">
+  <div class="walltrack" data-wall>
+    <div class="wallstage">
+      <h1 class="wl"><span class="rl"><span>Potiahnite <em>stenu</em>.</span></span></h1>
+      <div class="slabs" style="aspect-ratio:{WL["W"]}/{WL["H"]}">{slabs}</div>
+      <div class="tags">{tags}</div>
+      <p class="tagdesc"></p>
+      <div class="handle mono" aria-hidden="true"><i></i>Ťahajte doprava — alebo scrollujte</div>
+      <div class="wallbar">
+        <span class="mono">zvonku</span>
+        <div class="meter"><b></b></div>
+        <span class="mono">dnu</span>
+      </div>
+      <span class="vz mono">vizualizácia · orientačná skladba, hrúbky a U-hodnotu potvrdí EcoDomček</span>
+    </div>
+  </div>
+</section>'''
+    wall += section(1, "Prečo difúzne otvorená", "moss", f'''<div class="wrap wallwhy" data-reveal>
+  <h2 class="big fade">{lines("Prečo <em>difúzne</em>|otvorená?")}</h2>
+  <div class="wallcols fade d2">
+    <p class="lead">Stena, ktorá vie prepustiť vodnú paru von. Vlhkosť v nej neostáva stáť —
+      a to je hlavný dôvod, prečo drevostavba vydrží. Aj keď je to u nás ešte stále pomerne nová
+      technológia, v USA a Kanade je osvedčená už viac ako 200 rokov a preverená náročnejšími
+      klimatickými podmienkami, ako u nás.</p>
+    <p class="lead">Na zateplenie používame ekologické materiály na báze drevných vlákien; drevo
+      chránime bóraxovou soľou. Konštrukcia vzniká ako montovaná drevostavba — od základov až po
+      kolaudáciu.</p>
+  </div>
+  <div class="fade d3">{btn("Celá technológia", "technologia.html")}{btn("Zavolajte " + C.PHONE, "tel:" + C.PHONE_RAW, ghost=True, arrow=False)}</div>
+</div>''')
+    wall += contact_band("")
+    page("stena.html", "Stena — sedem vrstiev, ktoré môžete roztiahnuť — EcoDomček",
+         "Interaktívna skladba difúzne otvorenej steny: obklad, vetraná medzera, drevovláknitá "
+         "doska, nosná konštrukcia s izoláciou, parobrzda, inštalačná predstena, sadrokartón.",
+         wall, "stena", first="Stena")
+
+    # ═══════════════════════════════════════════════════════════════════
     # 7 — KONTAKT
     # ═══════════════════════════════════════════════════════════════════
     kont = f'''<section class="band dusk" data-sec="Kontakt" data-band="dusk">
   <div class="wrap masthead" data-reveal>
     <div class="mhead">
       <div>
-        <div class="kota fade">Kontakt <i>/</i> Lúčina 33</div>
         <h1>{lines("Poďme si o tom|<em>pokecať</em>.")}</h1>
         <p class="lead fade d2">Zavolajte kedykoľvek — alebo napíšte, čo staviate.
           Keď už nič iné, minimálne poradíme. Zadarmo.</p>
@@ -576,7 +556,6 @@ def build(B):
   </div>
 </section>''' + section(1, "Dopyt", "paper", f'''<div class="wrap split" data-reveal>
   <div>
-    <div class="kota fade">Dopyt</div>
     <h2 style="margin:18px 0 22px">{lines("Napíšte nám,|čo <em>staviate</em>.")}</h2>
     <p class="lead fade d2">Čím viac napíšete, tým presnejšie vieme odpovedať. Hodí sa:
       miesto stavby, či máte pozemok a projekt, a dokedy by ste chceli bývať.</p>

@@ -21,17 +21,22 @@ Publikované: https://claude.ai/code/artifact/ec635947-fb5c-4b60-91e2-41bc54e1c3
 | `src/shots.cjs` | full-page zábery každej stránky (Playwright, desktop + mobil) |
 | `renders/` | vizualizácie domu z Lúčiny, štyri alfa vrstvy, kresba (`ink-4-150.json`), `photos/` = skutočné fotky realizácií |
 
-## Stránky (14 dokumentov)
+## Stránky (15 dokumentov)
 
 | Stránka | Tvar |
 | --- | --- |
-| `index.html` | hero „Dom z výkresu" (kresba → hmota, 5 stavov) · index služieb · machový teaser technológie · register realizácií s fotkou na kurzore · jedno vyjadrenie ako protiváha nadpisu · proces · súmrakový kontakt |
+| `index.html` | **plagát**: obrí nadpis „Vitajte vo svete, / kde vonia drevo.“ a dom medzi riadkami — kresba sa pri načítaní sama vykreslí a dom sa postaví (bez scrollu); scroll vrstvy znovu nadvihne · služby ako obrie slová · machový teaser steny · vizualizácia + register realizácií · jedno vyjadrenie cez celú šírku · proces · kontakt |
+| `stena.html` | **5D stena**: sedem vrstiev z Higgsfield renderu (`renders/wall-b.png` → `wall-*.webp`), ktoré sa ťahom, scrollom alebo šípkami roztiahnu; každá vrstva dostane meno a jednu vetu, meter zvonku → dnu |
 | `realizacie.html` | filtre s reálnymi počtami · veľký rám nesie vizualizácia (označená) · osem rovnakých štvorcových kariet — fotka sa nikdy nezobrazí väčšia, než je |
 | `realizacia-*.html` ×8 | katalógová platňa (fotka + plávajúce kóty) · klientov text · materiálové čipy · súvisiace služby · pager s 72 px platňami; Lúčina má navyše vizualizačný blok |
 | `sluzby.html` | sticky lišta 01–12 + dvanásť riadkov s klientovými textami; pieskové prerušenie pred Konzultáciami |
 | `technologia.html` | machový masthead · rozložený dom + legenda · skladba steny (tabuľka je hrdina) · tri interiéry |
 | `o-nas.html` | jednostĺpcová esej v serife s rokmi na okraji · motto · dve vyjadrenia ako hairline riadky · prvotina |
 | `kontakt.html` | začína v súmraku, prechádza do papiera; formulár + údaje |
+
+## Lišta
+
+Tri oddelené pilulky: značka · stránky · telefón + Dopyt. Nad tmavými pásmi sa invertujú.
 
 ## Router
 
