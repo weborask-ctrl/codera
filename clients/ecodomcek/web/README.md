@@ -8,6 +8,9 @@ python3 src/build.py
 python3 -m http.server 8080 --directory dist     # http://localhost:8080/
 ```
 
+Jeden súbor na stiahnutie: `python3 src/bundle.py` → `dist/ecodomcek.html` (5,9 MB, všetky
+stránky ako `<template>`, router na hash, funguje z `file://`).
+
 Publikované: https://claude.ai/code/artifact/ec635947-fb5c-4b60-91e2-41bc54e1c3c9
 
 ## Zdroje
