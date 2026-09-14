@@ -887,3 +887,45 @@ plate at all, haze 0.95 and bloom 0.8.
 ### Validation classes
 
 LOCAL + CI by the gate; PREVIEW on the deployment URL; DEVICE is Ondrej.
+
+---
+
+## Iterácia 4.6 — t2 without the junction, t1 lighter, /04 filled (2026-09-14)
+
+**Status: DONE — gate passed locally; PREVIEW after merge; DEVICE is Ondrej.**
+
+### Mission
+
+Ondrej, 2026-09-14, two screenshots from his machine: "veľká chyba tu" (the
+t2 pan showed a raw vertical junction between the two acts, and the span
+was an opaque rectangle with a building above and trees below), "ten prvý
+prechod seká" (t1 stutters on his GPU), "zväčšiť tie boxy aspoň o 40
+percent, aby to zaplnilo priestor" (/04 stations too small in a 2000 px
+window).
+
+### Deliverables
+
+1. **t2 · the pan keeps its direction, loses its junction.** Two plates
+   butted side by side showed their edge — a horizontal bar cannot hide a
+   vertical seam, which the proposal got wrong. The world now slides 12 %
+   while the acts cross-fade under the sky-bridge; each plate carries an
+   18 % scale overscan ramped in over the first and last 15 % of the passage
+   so the seam edges stay continuous and no travel ever exposes the stage.
+2. **The span cut to the tube.** `span-clean.js`: a per-column band mask
+   follows the tube's bright run, capped at its median rim and feathered;
+   the building above and the trees below are transparent now. 78 vw, lower
+   in the frame, thinning at its far end.
+3. **t1 lighter.** Three plates instead of four (the bank went — softest,
+   most like the puff); the hero fades later and faster (0.34–0.52 instead
+   of 0.24–0.5: a fading group of 70 living-city layers is an offscreen
+   pass per frame); the first passage's street plate is decoded at mount
+   and composited at 0.002 for the whole hero act, so a visitor who flicks
+   past the hero in two seconds never meets a 4K upload mid-move.
+4. **/04 stations.** The process act runs to 1720 px, the stations get
+   min-height 24 rem, padding 3.4/3 rem, the figures 7 vw, titles 2.7 vw,
+   body 1.55 vw — about 1.4× in every dimension at 2000 px.
+
+### Validation classes
+
+LOCAL + CI by the gate; PREVIEW on the deployment URL; DEVICE is Ondrej —
+the t1 stutter is his GPU's verdict, and which browser he uses matters.

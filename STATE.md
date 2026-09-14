@@ -26,10 +26,13 @@ carry the middle, the camera banks ~1.3°, every scene keeps its own act
 drift across the seam (no scale pop), and the arriving scene is composited
 a beat early. Seams are 90 svh (4.4; 150 svh made the passages 43 % of
 the scroll). Since 4.5 the four seams are four different beats in the same
-world (`PASSAGE_KIND` in the stage): t1 the arrival through clouds, t2 a
-horizontal camera pan past a glass sky-bridge, t3 a pane of city glass
-growing past the camera, t4 the hour turning with the camera still. The
-flat edition dresses its veil with the same four. Under 1024px or reduced motion every act carries
+world (`PASSAGE_KIND` in the stage): t1 the arrival through clouds (three
+plates since 4.6, the street plate resident from the first frame), t2 a
+12 % camera drift with a dissolve under a glass sky-bridge (4.6: two plates
+butted side by side showed their junction — a horizontal bar cannot hide a
+vertical edge), t3 a pane of city glass growing past the camera, t4 the
+hour turning with the camera still. The flat edition dresses its veil with
+the same four. /04 runs full width with 1.4× stations. Under 1024px or reduced motion every act carries
 its own plate of the same world with a cloud band. Type: Bricolage Grotesque
 800 + Fraunces italic accent; palette ink #0b1a4a, coral, tangerine, mint.
 References: activetheory, lusion, zentry, refokus. The Žiara acts, the R3F

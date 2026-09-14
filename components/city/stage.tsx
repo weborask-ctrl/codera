@@ -131,10 +131,12 @@ const LIGHT = {
  * t3 climbs (they sink away in golden-to-violet light), t4 falls into night.
  */
 const PASSAGE_CLOUDS: Record<string, CloudMove[]> = {
+  /* three plates, not four (4.6): the first passage is the heaviest moment
+     of the page — the living city is still under it — and the fourth plate
+     was the fill that stuttered on a weaker GPU */
   t1: [
     { el: "cluster", x: [26, 22], y: [-12, 10], s: [0.44, 0.62], win: [0, 0.62], o: 0.85, f: LIGHT.day },
-    { el: "bank", x: [30, 62], y: [56, -44], s: [0.8, 1.7], win: [0.04, 0.9], o: 0.96, f: LIGHT.day },
-    { el: "puff", x: [-42, -72], y: [72, -52], s: [0.9, 1.8], win: [0.1, 0.94], o: 0.95, f: LIGHT.day },
+    { el: "puff", x: [-30, -66], y: [70, -50], s: [0.95, 1.85], win: [0.06, 0.92], o: 0.96, f: LIGHT.day },
     { el: "tower", x: [-14, -34], y: [80, -78], s: [1.2, 2.3], win: [0.22, 0.86], o: 1, f: LIGHT.day },
   ],
   t2: [
@@ -163,7 +165,7 @@ const PASSAGE_LIGHT: Record<string, { haze: number; tone: Tone; bloom: number; r
   t1: { haze: 0.8, tone: "day", bloom: 0.7, roll: -1.3 },
   /* a pan does not white out: its haze is only the air between us and the
      far end of the street, and the bloom is the golden hour we pan toward */
-  t2: { haze: 0.2, tone: "warm", bloom: 0.4, roll: 0.4 },
+  t2: { haze: 0.34, tone: "warm", bloom: 0.42, roll: 0.4 },
   /* the pane's own frost covers the swap, so the haze only fills its edges */
   t3: { haze: 0.3, tone: "gold", bloom: 0.66, roll: -1 },
   /* here the light IS the passage */
@@ -206,11 +208,15 @@ function poseFor(kind: PassageKind, side: "from" | "to", e: number, own: number)
   const base = 1.1 + 0.12 * own
   const drift = -3 * own
   if (kind === "bridge") {
-    /* no cross-fade: the world moves, the camera pans. The plates carry an
-       8 % overscan from their scale, so the junction never opens a hairline. */
-    const x = side === "from" ? -100 * e : 100 * (1 - e)
-    const cover = side === "from" ? 1 - e : e
-    return { o: side === "from" ? (e > 0.995 ? 0 : 1) : e < 0.005 ? 0 : 1, s: base + 0.05 * (side === "from" ? e : 1 - e), y: drift, x, t: cover }
+    /* a pan with a dissolve (4.6). Two plates butted side by side showed
+       their junction — a horizontal bar cannot hide a vertical edge — so the
+       world now slides 12 % while the acts cross-fade under the sky-bridge,
+       and each plate carries enough overscan (scale, ramped in and out so
+       the seam edges stay continuous) that no travel ever exposes the stage */
+    const ramp = side === "from" ? Math.min(1, e / 0.15) : Math.min(1, (1 - e) / 0.15)
+    const x = side === "from" ? -12 * e : 12 * (1 - e)
+    const o = side === "from" ? 1 - smooth(span(e, 0.34, 0.62)) : smooth(span(e, 0.38, 0.66))
+    return { o, s: base + 0.18 * ramp, y: drift, x, t: o }
   }
   if (kind === "glass") {
     const o = side === "from" ? 1 - smooth(span(e, 0.3, 0.52)) : smooth(span(e, 0.52, 0.76))
@@ -221,7 +227,7 @@ function poseFor(kind: PassageKind, side: "from" | "to", e: number, own: number)
     const o = side === "from" ? 1 - smooth(span(e, 0.22, 0.5)) : smooth(span(e, 0.5, 0.82))
     return { o, s: base + (side === "from" ? 0.09 * e : 0.07 * (1 - e)), y: drift + (side === "from" ? -2 * e : 2 * (1 - e)), x: 0, t: o }
   }
-  const o = side === "from" ? 1 - smooth(span(e, 0.24, 0.5)) : smooth(span(e, 0.5, 0.78))
+  const o = side === "from" ? 1 - smooth(span(e, 0.34, 0.52)) : smooth(span(e, 0.5, 0.78))
   return { o, s: base + (side === "from" ? 0.22 * e : 0.14 * (1 - e)), y: drift + (side === "from" ? -6 * e : 6 * (1 - e)), x: 0, t: o }
 }
 
@@ -349,8 +355,8 @@ export function placeSpan(el: HTMLElement | null, e: number, px = 0, py = 0, fad
   if (!el) {
     return
   }
-  const s = lerp(1, 1.16, e)
-  el.style.transform = `translate3d(${(lerp(106, -96, e) + px * 2.4).toFixed(2)}vw, ${(lerp(16, 4, e) + py * 2).toFixed(2)}vh, 0) scale(${s.toFixed(3)})`
+  const s = lerp(1, 1.14, e)
+  el.style.transform = `translate3d(${(lerp(104, -92, e) + px * 2.4).toFixed(2)}vw, ${(lerp(22, 12, e) + py * 2).toFixed(2)}vh, 0) scale(${s.toFixed(3)})`
   el.style.opacity = fade.toFixed(3)
 }
 
@@ -530,6 +536,13 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
   const idleWarm = window.requestIdleCallback
     ? window.requestIdleCallback(warmRest, { timeout: 4000 })
     : window.setTimeout(warmRest, 1500)
+  /* the very first passage cannot wait for idle: a visitor who flicks past
+     the hero within two seconds reaches t1 before the idle queue does, and
+     a 4K plate uploading mid-passage is the stutter (4.6) */
+  const firstSeam = main.querySelector<HTMLElement>("[data-seam]")
+  if (firstSeam?.dataset.to) {
+    attach(byName.get(firstSeam.dataset.to))
+  }
 
   /* -------------------------------------------------------- passages --- */
   const passages: Passage[] = []
@@ -726,7 +739,7 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
     let warmAhead = true
     if (!cur) {
       for (const p of passages) {
-        if (p.from === act && actP > 0.5) {
+        if (p.from === act && (actP > 0.5 || act === "hero")) {
           warmName = p.to
           warmSeam = p.name
           warmAhead = true
