@@ -10,6 +10,10 @@ Open backlog: see Issues.
 
 ## What is live
 
+### Isolated jellyfish experiment (Marcus, 2026-09-16)
+
+Marcus authorized a lightweight scroll-controlled spatial prototype after rejecting generated per-section images as a motion solution. Work is in `experiments/jellyfish`, launched with `node scripts/jellyfish-preview.mjs`; it does not replace the production homepage. One procedural jellyfish, camera near/far/orbit changes, changing spaces, and a normal-scroll portfolio block with all five concepts. No animation between individual examples. See the experiment README for exact controls, measured resource use, limitations, and validation. Earlier generated images remain a style study in `docs/design/jellyfish-study-2026-09-16`, not approved motion frames. Full repo verification and remote synchronization must be confirmed separately.
+
 **Homepage — „Codera City" (Iterácia 2.0, 2026-09-05).** Ondrej approved a
 static concept, then the build: one continuous 5D world — a pastel floating
 city at dawn (/01) → the street of demo facades at noon (/02, a sticky walk

@@ -4,6 +4,11 @@ Development utilities. Every script here must be reachable from `package.json`
 and described below. A one-off written during a task either earns an entry in
 the same pull request, or it is deleted — git remembers it either way.
 
+## Jellyfish experiment
+
+- `npm run prototype:jellyfish` / `node scripts/jellyfish-preview.mjs`: isolated localhost preview on port 4317. Downloads only integrity-verified Three.js and GSAP browser files from the lockfile into `.prototype-cache`; no Next build or full dependency install. Serves only the experiment, public assets, approved fonts and business configuration. Requires Node 22.18+ (native TypeScript stripping).
+- `npm run prototype:jellyfish:check` / `node scripts/jellyfish-check.mjs`: focused choreography, static asset, and HTTP boundary checks. See `experiments/jellyfish/README.md` for controls and validation limitations.
+
 ## Brand
 
 | Script | npm | What it does |

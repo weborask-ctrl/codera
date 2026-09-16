@@ -4,6 +4,8 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "prototype:jellyfish": "node scripts/jellyfish-preview.mjs",
+    "prototype:jellyfish:check": "node scripts/jellyfish-check.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

@@ -1,4 +1,5 @@
 # dependencies
+/.prototype-cache/
 /node_modules
 /.pnp
 .pnp.*
