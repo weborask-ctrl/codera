@@ -481,3 +481,52 @@ fyzika, nie tvrdenie o firme. Kôl „orientačná skladba“.
 **Validácia.** LOCAL: Playwright — reálny ťah myšou 5 % → 75 %,
 scroll na koniec tracku → 100 %, bez chýb v konzole; zábery
 `shots/wall-*`, `shots/v7-hero.jpg`. Reálny mobil NOT VALIDATED.
+
+---
+
+## Fáza 8 — detail realizácie ako stavebný list (2026-09-16)
+
+Posledná stránka, ktorá ešte vyzerala ako šablóna. Pred zásahom: malá
+fotka vľavo, stĺpec štítkov vpravo, pod tým prázdny pás, citát drobným
+serifom v rohu. Žiadny nápad — „fotka + text", presne to, čo Ondrej na
+zvyšku webu odmietol.
+
+**Referenčná mapa.** (LIKED záznamy z `CODERA_DESIGN_REFERENCES/records/`)
+
+| Scéna | Záznam | Prevzatá mechanika | Ako je to prispôsobené |
+| --- | --- | --- | --- |
+| Doska s fotkou | `igloo.md` | mono anotácia položená na objekt ako inžinierska kresba; jedno prostredie, „akty" sú zmeny svetla | vlásočnicové úrovne cez fotku, číslo na konci čiary, popis v odsadenom stĺpci; namiesto svetla sa mení stav stavby |
+| Číslica roka | `kpr.md` | typografia a objekt zdieľajú jeden priestor — riadok beží ZA ústredným objektom | za dosku ide číslica roka, nie text: prekrytá číslica je stále číslica, prekrytá veta je nečitateľná |
+| Číslica ako hrdina | `pangram.md` | jedno obrie slovo vlastní rám, obraz je klíma | rok v Newsreader 200 na 19 vw, titulok vedľa nej klesol na 3,9 vw |
+| Hairline tabuľka | `basement.md` | hustota SKUTOČNÉHO obsahu je motor dôveryhodnosti; rytmus obria typografia ↔ hustá mriežka | šesť riadkov, ktoré vieme doložiť (rok, miesto, kategórie, realizoval, fotografia) + linky na služby, ktoré na stavbe naozaj boli |
+| Citát | `exoape.md` | ľahký rez displeja vo veľkom, text v plnom atramente, nikdy pri nízkej opacite | klientove vlastné vety serifom 2,15 vw; podpis na linke vpravo dole |
+| Pravá polovica citátu | `basement.md` | prázdna polovica je miesto, kde sa šablóna prezradí | nesie realizácie z rovnakej kategórie — skutočná navigácia, nie výplň |
+
+**Nápad.** Stránka nepoužíva nový motív, ale ten jediný, ktorý web už
+má: dom rastie od zeme. Doska sa po príchode vyvolá zdola nahor
+(papierová clona ustupuje, na jej hrane svieti jantárová čiara) a ako
+pracovná úroveň míňa jednotlivé výšky, vytlačí sa ich anotácia. Je to
+jednorazový beh na vstupe, nie scrub — po dobehnutí stav DRŽÍ, takže
+žiadne obnovenie stránky nepristane na polovičnej kresbe a každý
+pokojný snímok je hotová okótovaná kresba. `prefers-reduced-motion`
+dostane hotový stav ako layout, nie ako náhradu.
+
+Anotácie sú vlastné `specs` projektu — nič vymyslené, žiadne rozmery v
+milimetroch, ktoré nemáme. Realizácia bez fotografie (garážo-sklado-
+terasa 2019) si drží celú kresbu a stráca len obraz: prázdna doska s
+tromi okótovanými úrovňami je najčistejší snímok zo série.
+
+**Čo ešte padlo.** Mŕtve CSS po zrušených blokoch (`.marks`, `.mark`,
+`.chiprow`, `.rel`). Kolízia triedy `.yr` (rok v karte realizácie vs.
+číslica na liste) — nová trieda `.syr`. Vodorovný pretok 9 px na 820 px
+z posterového domu (`html{overflow-x:clip}`). Biely klin v hornom okraji
+fotky 2023 — orezaný z originálu v `compositions/velka-rodina.jpg`
+jedným rezom, bez dokresľovania (800×692 → 800×670).
+
+**Validácia.** LOCAL: Playwright na `dist/` — 15 stránok × 3 šírky
+(1440 / 820 / 390) bez vodorovného pretoku a bez fotky zväčšenej nad
+vlastný zdroj; doska sa dokresľuje na všetkých ôsmich detailoch
+(4/4, 3/3 úrovní), router po prepnutí stránky znovu inicializuje
+list, `reducedMotion: 'reduce'` dáva hotovú kresbu, konzola čistá.
+Jeden súbor `dist/ecodomcek.html` (7,4 MB) overený z `file://` vrátane
+detailu. Reálny mobil a Safari NOT VALIDATED.

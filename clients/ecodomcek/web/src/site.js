@@ -48,6 +48,7 @@
     initIndex();
     initFilters();
     initWall();
+    initSheet();
     initMarks();
     ScrollTrigger.refresh();
   }
@@ -236,6 +237,46 @@
         }))
       }));
     });
+  }
+
+  // ── the project sheet: the plate develops from the ground up ─────────
+  // One shot on arrival, then it HOLDS — never scrubbed, so a reload can
+  // never land on a half-built frame and every resting state is a
+  // finished annotated drawing (igloo.md: the annotation carries the
+  // precision). Reduced motion gets the finished state as the layout.
+  function initSheet() {
+    var pl = main.querySelector('[data-plate]');
+    if (!pl) return;
+    var cover = pl.querySelector('.cover');
+    var edge = pl.querySelector('.edge');
+    var lns = [].slice.call(pl.querySelectorAll('.ln'));
+    var lvs = [].slice.call(pl.querySelectorAll('.lv'));
+    function put(p) {
+      var y = (1 - p) * 100;
+      if (cover) cover.style.clipPath = 'inset(0 0 ' + (p * 100).toFixed(2) + '% 0)';
+      if (edge) {
+        edge.style.top = y.toFixed(2) + '%';
+        edge.style.opacity = (p > .01 && p < .99) ? 1 : 0;
+      }
+      lns.forEach(function (l, i) {
+        var on = y <= parseFloat(l.dataset.t);
+        l.classList.toggle('on', on);
+        if (lvs[i]) lvs[i].classList.toggle('on', on);
+      });
+    }
+    if (reduce) { put(1); return; }
+    put(0);
+    track(ScrollTrigger.create({
+      trigger: pl, start: 'top 78%', once: true,
+      onEnter: function () {
+        tweens.push(gsap.to({ p: 0 }, {
+          p: 1, duration: 1.5, delay: .3, ease: 'power2.inOut',
+          onUpdate: function () { put(this.targets()[0].p); },
+          onComplete: function () { put(1); }
+        }));
+      }
+    }));
+    window.__sheet = put;
   }
 
   // ── the running index: which act am I in ─────────────────────────────

@@ -1,10 +1,11 @@
 // real interaction test: drag the wall and scroll the track, report the spread meter position
 const { chromium } = require('playwright');
+const BASE = process.env.PREVIEW || 'http://localhost:8811/';
 (async () => {
   const B = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome', args: ['--no-sandbox'] });
   const page = await B.newPage({ viewport: { width: 1440, height: 900 } });
   const errs = []; page.on('pageerror', e => errs.push(String(e)));
-  await page.goto('http://localhost:8811/stena.html', { waitUntil: 'load' });
+  await page.goto(BASE + 'stena.html', { waitUntil: 'load' });
   await page.waitForTimeout(2600);
   const box = await page.locator('.slabs').boundingBox();
   const m0 = await page.evaluate(() => document.querySelector('.meter b').style.left);

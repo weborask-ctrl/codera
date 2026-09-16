@@ -250,51 +250,112 @@ def build(B):
          "v okolí Prešova, Košíc a Žiliny.", real, "realizacie", first="Realizácie")
 
     # ═══════════════════════════════════════════════════════════════════
-    # 3 — REALIZÁCIA (detail × 8)
+    # 3 — REALIZÁCIA (detail × 8) — „stavebný list"
+    #
+    # The old shape was a small photo beside a label list: the genre's
+    # default, and the reason this page read as filler. The new shape uses
+    # the one motif the site already owns — a building goes up from the
+    # ground — and turns the page into a sheet from the site.
+    #
+    #   igloo.md    mono annotation laid over the object like an engineer's
+    #               drawing: the lines carry precision, the image carries
+    #               the feeling. Every act is one environment.
+    #   basement.md density of REAL content as the credibility engine, and
+    #               the rhythm vast type ↔ hairline grid.
+    #   kpr.md      type and object share one space — the year numeral runs
+    #               BEHIND the plate instead of sitting politely beside it.
+    #   pangram.md  one numeral owns the frame and bleeds to the page edge.
+    #   exoape.md   light display weight at scale, copy at full ink.
+    #
+    # The plate develops from the bottom up when it arrives (ENTER → HOLD,
+    # never a scrub — no reload can land on a half-built frame) and each
+    # working level prints its annotation as the line passes it. The
+    # annotations are the project's own specs; nothing is invented, and the
+    # project without a photograph keeps the whole drawing and loses only
+    # the image.
     # ═══════════════════════════════════════════════════════════════════
+    SHOTSIZE = {"2008-prvotina": (800, 777), "2015-budatin": (800, 762),
+                "2019-terasa-chrastne": (800, 568), "2021-bungalov-presov": (800, 775),
+                "2021-terasa": (420, 420), "2023-kosice": (800, 670),
+                "2024-lucina": (880, 850)}
     for i, p in enumerate(C.PROJECTS):
         nxt = C.PROJECTS[(i + 1) % len(C.PROJECTS)]
         prv = C.PROJECTS[(i - 1) % len(C.PROJECTS)]
-        # the drawing convention: the photo is a plate, the facts float
-        # around it on leader lines. No photo is ever shown above 420 px —
-        # that is the archive we have, and blowing it up would show it.
-        marks = [("Rok", f'{p["month"]} {p["year"]}'), ("Miesto", p["place"]),
-                 ("Kategórie", " · ".join(p["tags"])), ("Fotografia", "Archív EcoDomček")]
-        marks_html = "".join(
-            f'<div class="mark fade d{min(4, j + 1)}"><span>{esc(k)}</span><b>{esc(v)}</b></div>'
-            for j, (k, v) in enumerate(marks))
-        chips = "".join(f"<span>{esc(v)}</span>" for _, v in p["specs"])
-        rel = "".join(
-            f'<a href="sluzby.html#s{j}"><i>{j + 1:02d}</i><span>{esc(n)}</span>{ARROW}</a>'
-            for j, (_, n, _) in enumerate(C.SERVICES) if j in p["services"])
 
-        body = (f'<section class="band crumbband" data-sec="{esc(title_of(p))}">'
-                f'<div class="wrap"><a class="crumb mono" href="realizacie.html">'
-                f'← Realizácie</a></div></section>')
-        body += masthead(
-            f'{p["year"]} <i>/</i> {esc(" · ".join(p["tags"]))}',
-            esc(p["title"]).replace(". ", ".|"),
-            f'{esc(p["place"])} <i>·</i> {esc(p["month"])} {p["year"]}',
-            name=title_of(p))
-        body += section(1, "Fotografia", "paper", f'''<div class="wrap plateset" data-reveal>
-  <figure class="plate">
-    <div class="frame clipimg">{plate_img(p, esc, eager=True)}</div>
-    {cap(p["shot"], "Fotografia realizácie" if photo_src(p) else "Bez fotografie")}
-  </figure>
-  <div class="marks">{marks_html}</div>
+        # the working levels: spec 01 sits lowest, so the sheet annotates
+        # itself from the ground up, the same direction the house builds.
+        n = len(p["specs"])
+        lns = lvs = ""
+        for j, (k, v) in enumerate(p["specs"]):
+            y = 100 - (j + 1) * 100 / (n + 1)
+            lns += (f'<span class="ln" data-t="{y:.2f}" style="top:{y:.2f}%">'
+                    f"<i>{j + 1:02d}</i></span>")
+            lvs += (f'<div class="lv" data-t="{y:.2f}" style="top:{y:.2f}%">'
+                    f'<i>{j + 1:02d}</i><b>{esc(k)}</b><em>{esc(v)}</em></div>')
+
+        # a photo is never shown above its source width — that is the
+        # archive we have, and enlarging it would show.
+        w, h = SHOTSIZE.get(p.get("photo") or "", (620, 465))
+        plate = (f'<div class="plimg" style="aspect-ratio:{w}/{h}">'
+                 f"{plate_img(p, esc, eager=True)}"
+                 f'<div class="cover"></div><div class="edge"></div>{lns}</div>')
+
+        body = f'''<section class="band sheet" data-sec="{esc(title_of(p))}">
+  <div class="wrap">
+    <div class="sheettop">
+      <a class="crumb mono" href="realizacie.html">← Realizácie</a>
+      <span class="mono">{esc(p["place"])} <i>·</i> {esc(p["month"])} {p["year"]}</span>
+    </div>
+    <div class="sheetgrid" data-reveal data-plate style="--pw:{w}px">
+      <div class="scol">
+        {f'<p class="shot fade">{esc(p["shot"])}</p>' if photo_src(p) else ''}
+        <h1 class="fade d2">{lines(esc(p["title"]).replace(". ", ".|"))}</h1>
+        <div class="syr fade d3" aria-hidden="true">{p["year"]}</div>
+      </div>
+      <figure class="pl fade d2">
+        {plate}<div class="plnotes">{lvs}</div>
+        {cap("Fotografia · archív EcoDomček" if photo_src(p) else "Fotografiu doplní EcoDomček",
+             " · ".join(p["tags"]))}
+      </figure>
+    </div>
+  </div>
+</section>'''
+
+        # the hairline sheet: only facts we can stand behind
+        tbl = [("Rok", f'{p["month"]} {p["year"]}'), ("Miesto", p["place"]),
+               ("Kategórie", " · ".join(p["tags"])), ("Realizoval", "EcoDomček, s.r.o."),
+               ("Fotografia", "Archív EcoDomček" if photo_src(p) else "Zatiaľ nemáme")]
+        rws = "".join(f'<div class="strow"><span class="mono">{esc(k)}</span>'
+                      f"<b>{esc(v)}</b></div>" for k, v in tbl)
+        svc = "".join(
+            f'<a href="sluzby.html#s{j}"><i>{j + 1:02d}</i><span>{esc(nm)}</span>{ARROW}</a>'
+            for j, (_, nm, _) in enumerate(C.SERVICES) if j in p["services"])
+        body += section(1, "Údaje", "paper", f'''<div class="wrap specs" data-reveal>
+  <div class="sttab fade">{rws}</div>
+  <div class="stwide fade d2"><span class="mono">Čo sme na stavbe robili</span>
+    <div class="svlinks">{svc}</div></div>
 </div>''')
-        body += section(2, "Klientov text", "paper", f'''<div class="wrap words" data-reveal>
-  <blockquote class="sig fade">„{esc(p["text"])}“</blockquote>
-  <div class="who fade d2"><span class="mono">{esc(C.DIRECTOR)}</span>
-    <span class="fine">EcoDomček</span></div>
-  <div class="chiprow fade d3"><span class="lbl mono">Z čoho je</span>{chips}</div>
-</div>''')
-        if rel:
-            body += section(3, "Súvisiace služby", "paper", f'''<div class="wrap" data-reveal>
-  <div class="rel fade d2">{rel}</div>
+
+        # the one big typographic moment of the page (exoape.md: light
+        # display weight at scale, copy at full ink, held — never a whisper
+        # in a corner). The stavbyvedúci's own words, verbatim.
+        # the empty half of a quote spread is where a template gives itself
+        # away, so it carries real navigation: the jobs in the same category
+        same = [q for q in C.PROJECTS
+                if q["slug"] != p["slug"] and set(q["tags"]) & set(p["tags"])][:3]
+        sim = "".join(
+            f'<a href="realizacia-{q["slug"]}.html"><i class="mono">{q["year"]}</i>'
+            f'<span>{esc(title_of(q))}</span>{ARROW}</a>' for q in same)
+        body += section(2, "Slovami stavbyvedúceho", "paper", f'''<div class="wrap words" data-reveal>
+  <blockquote class="fade">„{esc(p["text"])}“</blockquote>
+  <div class="wside">
+    <div class="simil fade d2"><span class="mono">Z rovnakej kategórie</span>{sim}</div>
+    <div class="who fade d3"><b>{esc(C.DIRECTOR)}</b>
+      <span class="mono">EcoDomček, s.r.o. <i>·</i> stavbyvedúci</span></div>
+  </div>
 </div>''')
         if p.get("hero"):
-            body += section(4, "Vizualizácia", "paper", f'''<div class="wrap wide" data-reveal>
+            body += section(3, "Vizualizácia", "paper", f'''<div class="wrap wide" data-reveal>
   <h2 style="margin:18px 0 22px">{lines("Tento dom sme|<em>nakreslili</em> znovu.")}</h2>
   <p class="lead fade d2" style="margin-bottom:34px">Pre návrh stránky sme dom z Lúčiny
     vymodelovali a vyrenderovali — aby sme na ňom mohli ukázať, ako je drevostavba poskladaná.
@@ -311,7 +372,7 @@ def build(B):
   </div>
   <div class="more fade d3">{btn("Ako je taký dom postavený", "technologia.html")}</div>
 </div>''')
-        body += section(5, "Ďalšia stavba", "paper", f'''<div class="wrap pager" data-reveal>
+        body += section(4, "Ďalšia stavba", "paper", f'''<div class="wrap pager" data-reveal>
   <a class="np prev" href="realizacia-{prv["slug"]}.html">
     <span class="pth">{plate_img(prv, esc, size=72) if photo_src(prv) else ""}</span>
     <span><i class="mono">Predchádzajúca</i><b>{esc(title_of(prv))}</b></span></a>
