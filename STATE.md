@@ -3,7 +3,7 @@
 What is live, what was decided, and what must not be relearned. One file, kept
 short. Open work does **not** live here — it lives in GitHub Issues.
 
-Last reviewed: 2026-09-16 (Iterácia 4.9, the mark measured against the approved raster) · Production: `https://www.codera.sk` ·
+Last reviewed: 2026-09-16 (Iterácia 4.10, the first passage on a GPU diet, the sky-bridge gone) · Production: `https://www.codera.sk` ·
 Open backlog: see Issues.
 
 ---
@@ -28,11 +28,21 @@ a beat early. Seams are 90 svh (4.4; 150 svh made the passages 43 % of
 the scroll). Since 4.5 the four seams are four different beats in the same
 world (`PASSAGE_KIND` in the stage): t1 the arrival through clouds (three
 plates since 4.6, the street plate resident from the first frame), t2 a
-12 % camera drift with a dissolve under a glass sky-bridge (4.6: two plates
-butted side by side showed their junction — a horizontal bar cannot hide a
-vertical edge), t3 a pane of city glass growing past the camera, t4 the
-hour turning with the camera still. The flat edition dresses its veil with
-the same four. /04 runs full width with 1.4× stations. Under 1024px or reduced motion every act carries
+12 % camera pan with a dissolve (4.6: two plates butted side by side showed
+their junction — a horizontal bar cannot hide a vertical edge; 4.10: the
+glass sky-bridge that crossed in front went — Ondrej: "prechod s tou čiarou
+nechcem"), t3 a pane of city glass growing past the camera, t4 the hour
+turning with the camera still. The flat edition dresses its veil with the
+same four. 4.10 put t1 on a GPU diet after "ešte to seká" in Chrome: idle
+plates are parked as a dot (composited, filling nothing) instead of blended
+at 0.001, the unused bank plate is gone, 2× cloud files only from 1600 px,
+the hero's drifting clouds and blend-mode glint thin out over the first
+fifth of the passage, the arriving still is held at 0.002 through the
+passage (its texture used to drop and re-upload mid-move), the hero is held
+only on the way back, haze and bloom are exactly 0 outside their bells, and
+a page whose sentinel trips (a quarter of frames over 34 ms) runs t1 as
+the plate-free light passage — decided at the seam, never mid-move. Touch
+screens promote no live-city groups and draw no glint. /04 runs full width with 1.4× stations. Under 1024px or reduced motion every act carries
 its own plate of the same world with a cloud band. Type: Bricolage Grotesque
 800 + Fraunces italic accent; palette ink #0b1a4a, coral, tangerine, mint.
 Fonts are self-hosted and subsetted since 4.7 (`app/fonts`, built by
