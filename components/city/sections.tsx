@@ -104,8 +104,15 @@ function Plate({ name, band = true }: { name: string; band?: boolean }) {
         {name === "hero" ? <LiveCity /> : null}
       </div>
       {band ? (
-        /* biome-ignore lint/performance/noImgElement: screen-blended cloud plate, decorative. */
-        <img className="city-band" src="/home/cloud-bank.webp" alt="" decoding="async" loading="lazy" />
+        /* an alpha cutout composited normally (4.11): until then the band
+           was a 13 KB opaque render screen-blended over the plate, which on
+           a 13" iPad read as a glowing, mottled smear */
+        <picture className="city-band">
+          <source media="(min-width: 768px)" type="image/avif" srcSet="/home/cloud-band-1x.avif 1x, /home/cloud-band-2x.avif 2x" />
+          <source media="(min-width: 768px)" type="image/webp" srcSet="/home/cloud-band-1x.webp 1x, /home/cloud-band-2x.webp 2x" />
+          <source type="image/avif" srcSet="/home/cloud-band-1x.avif" />
+          <img src="/home/cloud-band-1x.webp" alt="" decoding="async" loading="lazy" />
+        </picture>
       ) : null}
     </div>
   )

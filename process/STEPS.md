@@ -1143,3 +1143,52 @@ LOCAL: `npm run verify`; Playwright 102/102 in three browsers; probes at
 tower and no span; a CPU-starved page trips lite and runs t1 without
 plates. PREVIEW after merge on the production deployment. DEVICE: only
 Ondrej's Chrome can say whether it is enough — asked which machine.
+
+---
+
+## Iterácia 4.11 — The flat passage passes beside the camera (2026-09-16)
+
+**Status: DONE — gate passed locally; DEVICE pending (Ondrej's iPad).**
+
+### Mission
+
+Ondrej, 2026-09-16, a screenshot from a 13" iPad in Safari (2752×2064,
+the flat edit) in the middle of t1: "Pozri sa na to rozlíšenie tu, to jak
+keby to tu svieti, chápeš? Toto chcem opraviť." A glowing, mottled blur
+where a cloud should be.
+
+### Measured first
+
+The plate files are clean (AVIF and WebP edges compared at 1:1). What the
+screenshot shows is (1) the 1× cloud file — 4.10 had gated the 2× file to
+screens ≥ 1600 px, and a 13" iPad is 1376 px at 2×, so a 1200 px plate was
+stretched across 3300 device pixels; (2) the haze at the stage's density
+(0.88) with the bloom on top, a white glow; and, after both were fixed,
+(3) still a violet mottled field: the *interior* of the near plate. The
+desktop choreography flies through the cloud — the tower ends at scale
+2.3, 2.7 viewports wide — and hides that moment under the white-out. The
+flat edit has no scene swap to hide, so its haze was thinned, and then the
+interior showed. Also found on the way: the act plates' "cloud band" was a
+13 KB opaque 1600×900 render screen-blended over each plate, itself a
+mottled glow at 2.8× magnification.
+
+### Deliverables
+
+- `PASSAGE_CLOUDS_FLAT`: t1 on the flat edit is the far cluster drifting
+  across the sky and the tower rising from below to settle its lit top in
+  the lower half of the frame (scale 1.12 → 1.26, never through the
+  camera). The flat veil carries cluster + tower.
+- 2× cloud files from 768 px (the browser picks by density); phones 1×.
+- Flat haze 0.62 and bloom 0.55 of the stage's; no contrast/saturate
+  filter on the plates (`FLAT_CLOUD_LIGHT` removed).
+- The band is `cloud-band-{1x,2x}.{avif,webp}`, an alpha cutout of the
+  same cumulus (from the unused `cloud-bank-a.webp`: alpha eroded 2 px to
+  drop its matte line, edge pixels whitened), composited normally at 0.94.
+  The old `cloud-bank.webp`, `cloud-bank-a.webp`, `cloud-one*.webp` and
+  `cloud-wisp.webp` — none referenced — are deleted.
+
+### Validation classes
+
+LOCAL: `npm run verify`, Playwright in three browsers; frame sheets at
+1376×1032 @ 2× (touch) and 390×844 @ 3×. PREVIEW after merge. DEVICE:
+Ondrej's iPad.
