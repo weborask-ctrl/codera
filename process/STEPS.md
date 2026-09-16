@@ -929,3 +929,56 @@ window).
 
 LOCAL + CI by the gate; PREVIEW on the deployment URL; DEVICE is Ondrej —
 the t1 stutter is his GPU's verdict, and which browser he uses matters.
+
+---
+
+## Iterácia 4.7 — the font payload, self-hosted and subsetted (2026-09-16)
+
+**Status: DONE — gate passed locally; PREVIEW after merge.** Closes issue #5.
+
+### Mission
+
+Ondrej, 2026-09-16: "začni fontami, s ostatným neskôr, až keď fonty budú
+vyriešené." Issue #5: fonts were the single largest asset on every page —
+measured 2026-09-14 at 390 KB in ten files, Fraunces alone 274 KB (the
+whole 100–900 weight range, two styles, two subsets) for a site that renders
+it at italic 400 and roman 400–600.
+
+### Constraints
+
+- Nothing on the page changes shape: Fraunces keeps its optical-size axis
+  (the 118 px italic accent is designed around it), Bricolage is instanced
+  exactly where Google's static 800 sat (opsz 14, wdth 100), Geist and
+  Geist Mono keep a variable range over the weights the site uses.
+- Latin Extended-A stays whole: every Central European letter, so nothing
+  a visitor types into the demos falls back to another face.
+- The build is a script in `package.json` and `scripts/README.md`, sources
+  are fetched from pinned google/fonts URLs and never committed; only the
+  seven woff2 outputs are.
+
+### Deliverables
+
+`scripts/build-fonts.mjs` (harfbuzz through `subset-font`): one file per
+face over Basic Latin + Latin-1 + Latin Extended-A + general punctuation +
+€, arrows and the three symbols the copy uses. `app/layout.tsx` moves the
+five families to `next/font/local`. Instrument Serif gains its true italic
+(the browser used to synthesise an oblique for "Obchodné právo").
+
+| face | before | after |
+| --- | --- | --- |
+| Fraunces italic 400 (opsz 9–144) | 150 KB, 2 files | 48 KB |
+| Fraunces roman 400–600 (opsz 9–144) | 124 KB, 2 files | 68 KB |
+| Geist 400–700 | 45 KB, 2 files | 26 KB |
+| Geist Mono 400–700 | 38 KB, 2 files | 27 KB |
+| Bricolage 800 | 33 KB, 2 files | 27 KB |
+| Instrument Serif (demo only, not preloaded) | 23 KB | 23 + 24 KB (italic added) |
+| **homepage** | **390 KB, 10 requests** | **197 KB, 5 requests** |
+
+Pixel diff of a specimen of every face against production: shapes
+identical, differences sub-pixel (antialiasing), the true italic the one
+intended change.
+
+### Validation classes
+
+LOCAL + CI by the gate; PREVIEW on the deployment URL (resource timing);
+DEVICE not needed — type renders from the same outlines.

@@ -1,11 +1,5 @@
 import type { Metadata, Viewport } from "next"
-import {
-  Bricolage_Grotesque,
-  Fraunces,
-  Geist,
-  Geist_Mono,
-  Instrument_Serif,
-} from "next/font/google"
+import localFont from "next/font/local"
 
 import "./globals.css"
 import "./city.css"
@@ -13,58 +7,67 @@ import { siteConfig } from "@/lib/site-config"
 import { cn } from "@/lib/utils"
 
 /**
- * The Žiara type system: one family plus its mono (CODERA_ART_DIRECTION_V3.md).
+ * The type system, self-hosted (Iterácia 4.7, issue #5).
  *
- * Geist Sans carries everything — LIGHT weights at display sizes for the act
- * statements [exoape: confidence through lightness], regular for body — and
- * Geist Mono is the engineering voice: coordinates, measurements, annotations
- * [igloo]. Archivo and its width axis retired with v2; Fraunces stays loaded
- * only because the Meridián and Štatút concept worlds use a serif in their own
- * interior grammar.
+ * The same five families as before — Geist Sans for body and UI, Geist Mono
+ * as the engineering voice, Fraunces for the italic accent and the two
+ * serif demos, Bricolage 800 for display, Instrument Serif for Štatút — but
+ * built by `scripts/build-fonts.mjs` from the google/fonts sources with
+ * harfbuzz: the weight axis pinned or narrowed to what the site renders,
+ * Fraunces keeping its optical-size axis (the 118 px italic is designed
+ * around it), Bricolage instanced exactly where Google's static 800 sat,
+ * and one file per face covering Basic Latin, Latin-1 and Latin Extended-A
+ * instead of Google's latin + latin-ext pair. 390 KB → 196 KB on the
+ * homepage, ten requests → five, nothing on the page changes shape.
  *
- * `latin-ext` is required, not optional. Without it every Slovak diacritic
- * (č, ď, ľ, ĺ, ň, ô, ŕ, š, ť, ž) silently falls back to a different face
- * mid-word, which is unmissable at display sizes.
+ * Latin Extended-A is required, not optional: without it every Slovak
+ * diacritic (č, ď, ľ, ĺ, ň, ô, ŕ, š, ť, ž) silently falls back to a
+ * different face mid-word, which is unmissable at display sizes.
  */
-const geist = Geist({
-  subsets: ["latin", "latin-ext"],
+const geist = localFont({
+  src: "./fonts/geist.woff2",
+  weight: "400 700",
   variable: "--font-geist-sans",
   display: "swap",
 })
 
-const geistMono = Geist_Mono({
-  subsets: ["latin", "latin-ext"],
+const geistMono = localFont({
+  src: "./fonts/geist-mono.woff2",
+  weight: "400 700",
   variable: "--font-geist-mono",
   display: "swap",
 })
 
-const fraunces = Fraunces({
-  subsets: ["latin", "latin-ext"],
+/* the hero headline carries a true-italic accent — a faux oblique at 12vw
+   would read as a rendering bug, so the italic is its own file; the roman
+   spans 400–600 for the bakery's 600 and the roastery's 560 */
+const fraunces = localFont({
+  src: [
+    { path: "./fonts/fraunces.woff2", weight: "400 600", style: "normal" },
+    { path: "./fonts/fraunces-italic.woff2", weight: "400", style: "italic" },
+  ],
   variable: "--font-fraunces",
-  axes: ["opsz"],
-  /* Iterácia 0.3: the hero headline carries a true-italic accent — a faux
-     oblique at 12vw would read as a rendering bug, so both styles load */
-  style: ["normal", "italic"],
+  display: "swap",
 })
 
 /* Per-world faces (AD v3 amendment 2026-08-31): the concept worlds prove
    typographic range, not only palette range. Instrument Serif is Štatút's
-   institutional voice; Bricolage is Vlna's loud wide grotesque. The +2
-   families are a conscious spend against issue #5 — range wins. */
-/* demo pages only (Štatút): not preloaded, so the homepage never pays for a
-   face it does not render */
-const instrument = Instrument_Serif({
-  subsets: ["latin", "latin-ext"],
-  weight: "400",
+   institutional voice — demo pages only, not preloaded, so the homepage
+   never pays for a face it does not render; its true italic replaces the
+   oblique the browser used to synthesise for "Obchodné právo". */
+const instrument = localFont({
+  src: [
+    { path: "./fonts/instrument-serif.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/instrument-serif-italic.woff2", weight: "400", style: "italic" },
+  ],
   preload: false,
   variable: "--font-instrument",
   display: "swap",
 })
 
-/* every surface sets Bricolage at 800 — a single static weight instead of the
-   whole variable range */
-const bricolage = Bricolage_Grotesque({
-  subsets: ["latin", "latin-ext"],
+/* every surface sets Bricolage at 800 — one static instance */
+const bricolage = localFont({
+  src: "./fonts/bricolage-800.woff2",
   weight: "800",
   variable: "--font-bricolage",
   display: "swap",

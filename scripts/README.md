@@ -39,3 +39,7 @@ an output directory; keep it out of the repository.
 The superseded scripts (`capture-v3`, `capture-v4`, `probe-premena`,
 `probe-premena2`, `shot-offer`, `watch-ci-preview`, `capture-work-textures`)
 were deleted with the v2 experience on 2026-08-31 — git remembers them.
+
+## `npm run fonts` — `build-fonts.mjs`
+
+Builds `app/fonts/*.woff2` from the google/fonts variable sources with harfbuzz (`subset-font`): weights pinned or narrowed to what the site renders, Fraunces keeping its optical-size axis, Bricolage instanced where Google's static 800 sat, one file per face over Basic Latin + Latin-1 + Latin Extended-A. Re-run after changing which weights the site uses; commit the outputs. Sources are fetched into the OS temp dir, never committed.
