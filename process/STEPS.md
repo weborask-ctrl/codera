@@ -982,3 +982,55 @@ intended change.
 
 LOCAL + CI by the gate; PREVIEW on the deployment URL (resource timing);
 DEVICE not needed — type renders from the same outlines.
+
+---
+
+## Iterácia 4.8 — Content Security Policy with a per-request nonce (2026-09-16)
+
+**Status: DONE — gate passed locally; PREVIEW measured before merge.** Closes issue #3.
+
+### Mission
+
+Ondrej, 2026-09-16: "môžeme ísť CSP teraz." Issue #3: no CSP, and a correct
+one for the App Router needs per-request nonces.
+
+### What the site loads (measured first)
+
+Everything from its own origin: 89 scripts, 6 stylesheets, 32 fonts, 65
+images, 1 video across the six pages — no third party at all since the
+fonts went self-hosted (4.7). Inline: the RSC bootstrap scripts Next emits
+(8–11 per page), two JSON-LD blocks (data, not code), one `data:` SVG in a
+style attribute. No `<style>` elements, no on* handlers.
+
+### Deliverables
+
+- `proxy.ts`: `default-src 'self'; script-src 'self' 'nonce-…'
+  'strict-dynamic'; style-src 'self' 'unsafe-inline'; img-src 'self' data:
+  blob:; font-src / media-src / connect-src / worker-src / manifest-src
+  'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action
+  'self'; frame-ancestors 'none'; upgrade-insecure-requests`. Previews add
+  vercel.live for the toolbar; development adds `'unsafe-eval'` for React's
+  debug stacks. Matcher: pages only — static files and prefetches skip it.
+- `app/layout.tsx` awaits `connection()`: a nonce cannot live in a
+  prerendered page, so every route renders per request.
+- `vercel.json` pins the functions to `fra1` — the audience is Slovak.
+- Test "Content Security Policy": header shape, a fresh nonce per request,
+  zero violations while the stage, the walk and the 3D demo run.
+
+### The cost, measured (TTFB from Prešov, eight samples per page)
+
+| | static production | nonce, functions in iad1 | nonce, functions in fra1 |
+| --- | --- | --- | --- |
+| warm | 100–175 ms | 340–510 ms | 160–200 ms |
+| after ~2 min idle | 168 ms | 455 ms | 245 ms |
+| first hit after deploy | — | 964 ms | 753 ms |
+
+Fifty milliseconds of first byte on a warm function, a quarter second on a
+cold one, for a policy that stops any script that is not ours. Taken. If it
+ever matters, the alternative is one line: an origin-only policy without a
+nonce in `next.config.ts` and the layout static again.
+
+### Validation classes
+
+LOCAL + CI by the gate; PREVIEW measured on `codera-ka7cdnj7q` (fra1) and
+verified after merge on the production deployment.

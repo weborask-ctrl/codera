@@ -1,11 +1,9 @@
 import type { NextConfig } from "next"
 
 /**
- * Conservative security headers.
- *
- * No Content-Security-Policy yet: a correct one for the App Router needs
- * per-request nonces, and a wrong one silently breaks hydration. These four
- * are safe, static, and cover the common cases.
+ * Static security headers. The Content-Security-Policy lives in `proxy.ts`:
+ * it carries a per-request nonce, which a static header cannot (Iterácia
+ * 4.8, issue #3). These four stay static and cover the rest.
  */
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },

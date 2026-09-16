@@ -508,6 +508,40 @@ test.describe("Codera homepage", () => {
   })
 })
 
+test.describe("Content Security Policy", () => {
+  test("every page carries a nonce policy and nothing on it violates it", async ({ page, request }) => {
+    for (const path of ["/", "/ukazky/animacie-3d"]) {
+      const res = await request.get(path)
+      const csp = res.headers()["content-security-policy"] ?? ""
+      expect(csp).toMatch(/script-src 'self' 'nonce-[A-Za-z0-9+/=]+' 'strict-dynamic'/)
+      expect(csp).toContain("object-src 'none'")
+      expect(csp).toContain("frame-ancestors 'none'")
+      /* two requests, two nonces */
+      const again = (await request.get(path)).headers()["content-security-policy"] ?? ""
+      expect(again).not.toBe(csp)
+    }
+    const violations: string[] = []
+    page.on("console", (m) => {
+      if (/Content Security Policy|Refused to/.test(m.text())) {
+        violations.push(m.text())
+      }
+    })
+    await page.goto("/")
+    /* the stage, the walk and the demos all run scripts the policy must allow */
+    await page.evaluate(async () => {
+      const h = document.documentElement.scrollHeight
+      for (let y = 0; y < h; y += 600) {
+        scrollTo(0, y)
+        await new Promise((r) => setTimeout(r, 60))
+      }
+    })
+    await page.goto("/ukazky/animacie-3d")
+    await expect(page.locator("canvas").first()).toBeAttached()
+    await page.waitForTimeout(800)
+    expect(violations).toEqual([])
+  })
+})
+
 test.describe("Retired routes", () => {
   test("the old case studies redirect to their demos and dev routes are not indexable", async ({ page, request }) => {
     for (const [from, to] of [

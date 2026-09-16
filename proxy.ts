@@ -27,6 +27,11 @@ export function proxy(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64")
   const dev = process.env.NODE_ENV === "development"
   const preview = process.env.VERCEL_ENV === "preview"
+  /* WebKit honours upgrade-insecure-requests on localhost too and then fails
+     every subresource over a TLS that is not there (the Playwright webkit
+     project); production is https behind HSTS, so the directive only rides
+     on https requests */
+  const https = request.nextUrl.protocol === "https:"
 
   const policy = [
     "default-src 'self'",
@@ -43,7 +48,7 @@ export function proxy(request: NextRequest) {
     "base-uri 'self'",
     "form-action 'self'",
     "frame-ancestors 'none'",
-    "upgrade-insecure-requests",
+    ...(https ? ["upgrade-insecure-requests"] : []),
   ].join("; ")
 
   const requestHeaders = new Headers(request.headers)
