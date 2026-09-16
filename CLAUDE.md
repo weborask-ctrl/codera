@@ -3,6 +3,11 @@
 Read this before touching anything. It is short on purpose; the long form is in
 `process/CODERA_PROCESS.md`.
 
+**Marcus's standing visual rules:** read `CODERA_DESIGN_INTELLIGENCE/MARCUS_RULES.md`.
+All final websites need large, prominent headings; never retain small decorative
+section labels or numbered eyebrows such as `06 / ...`. Do not apply this change
+to the current jellyfish prototype yet — Marcus deferred it to final refinement.
+
 ## What this is
 
 The website of Codera, a Slovak creative web studio. The site is its own primary
