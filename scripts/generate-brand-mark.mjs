@@ -1,16 +1,20 @@
 /**
- * Codera ribbon-mark generator.
+ * Codera mark generator.
  *
- * The approved mark is a flat ribbon swept along a C-shaped path with a
- * LONGITUDINAL twist: through the left curve the band turns over, so the
- * viewer sees the front face (bright) on the top arm, both faces split by the
- * twist line through the curve, and the front face again on the bottom arm.
- * The terminals are straight diagonal cuts, and the negative space between
- * them reads as a chevron.
+ * Two geometries live here, and since 2026-09-16 (issue #6) they are not
+ * the same one:
  *
- * The construction is parametric so the same definition can drive the 3D
- * sweep later: `SPINE` is the centreline, `HALF_WIDTH` the band, and the
- * twist windows say where the band turns over.
+ * - The SVGs (`public/brand/codera-mark.svg`, `-mono.svg`) are rendered
+ *   from `mark-outline.mjs` — the outline measured row by row from the
+ *   approved raster. Silhouette overlap with the reference 0.972
+ *   (`npm run brand:compare`). Change the mark there.
+ * - The 3D sweep below (`SPINE`, `HALF_WIDTH`, twist windows, cuts,
+ *   creases → `sweepData()` → `lib/ribbon-geometry.json` → the GLB) is the
+ *   earlier parametric reading: a flat ribbon swept along a C with a
+ *   longitudinal twist, horizontal arms, diagonal terminals. It overlapped
+ *   the reference at 0.741 and is kept only because `/logo-lab` (a
+ *   development route) still builds the ribbon from it. If the ribbon ever
+ *   returns to the site, re-derive the sweep from the outline first.
  */
 
 // ---- Tunables --------------------------------------------------------------
@@ -179,29 +183,25 @@ function bounds() {
 }
 
 function svg({ mono }) {
-  const p = paths()
-  const b = bounds()
-  const pad = 1.5
-  const viewBox = [
-    (b.minX - pad).toFixed(1),
-    (b.minY - pad).toFixed(1),
-    (b.maxX - b.minX + 2 * pad).toFixed(1),
-    (b.maxY - b.minY + 2 * pad).toFixed(1),
-  ].join(" ")
+  const silhouette = silhouettePath()
+  const outer = outerCurvePath()
+  const shadows = shadowPaths()
 
   if (mono) {
     // One colour, two opacities: inherits currentColor, works on any ground.
     return [
-      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" fill="none" aria-hidden="true">`,
-      `  <path d="${p.back}" fill="currentColor" opacity="0.45"/>`,
-      `  <path d="${p.top}" fill="currentColor"/>`,
-      `  <path d="${p.bottom}" fill="currentColor"/>`,
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${VIEW_BOX}" fill="none" aria-hidden="true">`,
+      `  <defs><clipPath id="cmm-clip"><path d="${silhouette}"/></clipPath></defs>`,
+      `  <path d="${silhouette}" fill="currentColor" opacity="0.45"/>`,
+      `  <g clip-path="url(#cmm-clip)"><path d="${outer}" stroke="currentColor" stroke-width="7"/></g>`,
+      `  <path d="${topStrapPath()}" fill="currentColor"/>`,
+      `  <path d="${bottomStrapPath()}" fill="currentColor"/>`,
       `</svg>`,
     ].join("\n")
   }
 
   return [
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" fill="none" role="img" aria-label="Codera">`,
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${VIEW_BOX}" fill="none" role="img" aria-label="Codera">`,
     `  <title>Codera</title>`,
     `  <defs>`,
     `    <linearGradient id="cm-face" x1="0.1" y1="0" x2="0.45" y2="1">`,
@@ -210,18 +210,26 @@ function svg({ mono }) {
     `    <linearGradient id="cm-back" x1="0.15" y1="0" x2="0.5" y2="1">`,
     `      <stop offset="0" stop-color="#5c5c5e"/><stop offset="0.55" stop-color="#a3a3a1"/><stop offset="1" stop-color="#7e7e7c"/>`,
     `    </linearGradient>`,
-    `    <linearGradient id="cm-sh-top" gradientUnits="userSpaceOnUse" x1="24" y1="22" x2="12" y2="44">`,
-    `      <stop offset="0" stop-color="#000" stop-opacity="0.4"/><stop offset="1" stop-color="#000" stop-opacity="0"/>`,
+    `    <linearGradient id="cm-rim" gradientUnits="userSpaceOnUse" x1="0" y1="20" x2="0" y2="100">`,
+    `      <stop offset="0" stop-color="#e2e2e0"/><stop offset="1" stop-color="#f2f2f0"/>`,
     `    </linearGradient>`,
-    `    <linearGradient id="cm-sh-bottom" gradientUnits="userSpaceOnUse" x1="52" y1="78" x2="28" y2="82">`,
+    `    <linearGradient id="cm-sh-top" gradientUnits="userSpaceOnUse" x1="40" y1="26" x2="40" y2="38">`,
+    `      <stop offset="0" stop-color="#000" stop-opacity="0.45"/><stop offset="1" stop-color="#000" stop-opacity="0"/>`,
+    `    </linearGradient>`,
+    `    <linearGradient id="cm-sh-bottom" gradientUnits="userSpaceOnUse" x1="52" y1="82" x2="40" y2="90">`,
     `      <stop offset="0" stop-color="#000" stop-opacity="0.35"/><stop offset="1" stop-color="#000" stop-opacity="0"/>`,
     `    </linearGradient>`,
+    `    <clipPath id="cm-clip"><path d="${silhouette}"/></clipPath>`,
     `  </defs>`,
-    `  <path d="${p.back}" fill="url(#cm-back)"/>`,
-    `  <path d="${p.shadowTop}" fill="url(#cm-sh-top)"/>`,
-    `  <path d="${p.shadowBottom}" fill="url(#cm-sh-bottom)"/>`,
-    `  <path d="${p.top}" fill="url(#cm-face)"/>`,
-    `  <path d="${p.bottom}" fill="url(#cm-face)"/>`,
+    `  <path d="${silhouette}" fill="url(#cm-back)"/>`,
+    `  <path d="${shadows.top}" fill="url(#cm-sh-top)"/>`,
+    `  <path d="${shadows.bottom}" fill="url(#cm-sh-bottom)"/>`,
+    `  <g clip-path="url(#cm-clip)">`,
+    `    <path d="${outer}" stroke="url(#cm-rim)" stroke-width="16" opacity="0.35"/>`,
+    `    <path d="${outer}" stroke="url(#cm-rim)" stroke-width="5"/>`,
+    `  </g>`,
+    `  <path d="${topStrapPath()}" fill="url(#cm-face)"/>`,
+    `  <path d="${bottomStrapPath()}" fill="url(#cm-face)"/>`,
     `</svg>`,
   ].join("\n")
 }
@@ -262,6 +270,7 @@ function sweepData(samples = 240) {
 }
 
 import { writeFileSync } from "node:fs"
+import { bottomStrapPath, outerCurvePath, shadowPaths, silhouettePath, topStrapPath, VIEW_BOX } from "./mark-outline.mjs"
 
 writeFileSync("public/brand/codera-mark.svg", `${svg({ mono: false })}\n`)
 writeFileSync("public/brand/codera-mark-mono.svg", `${svg({ mono: true })}\n`)

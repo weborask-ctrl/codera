@@ -196,8 +196,9 @@ construction · the GLB passes realtime-web suitability checks.
 ### Carried debt
 
 The final side-by-side fidelity pass of the parametric reconstruction against the
-approved raster is still open — tracked as a backlog item, not as a note in a
-progress file.
+approved raster was open until 2026-09-16 (issue #6) — paid in Iterácia 4.9:
+the sweep overlapped the reference at 0.741 and was replaced, for the SVGs, by
+an outline measured from the raster (0.972).
 
 ---
 
@@ -1034,3 +1035,48 @@ nonce in `next.config.ts` and the layout static again.
 
 LOCAL + CI by the gate; PREVIEW measured on `codera-ka7cdnj7q` (fra1) and
 verified after merge on the production deployment.
+
+---
+
+## Iterácia 4.9 — The mark against the approved raster (2026-09-16)
+
+**Status: DONE — gate passed locally.** Closes issue #6, the Step 2 debt.
+
+### Mission
+
+Ondrej, 2026-09-16: "kľudne urob značku a tak pôjdeme na prechody." Issue #6:
+the parametric reconstruction had never been put side by side with
+`brand/source/02_CODERA_C_MARK_REFERENCE.png` at the same scale. Acceptance:
+one comparison image, a verdict, geometry adjusted or explicitly accepted.
+
+### Measured first
+
+`scripts/compare-brand-mark.mjs` renders both to masks, crops to the bounding
+boxes, resamples into one box and overlays them. The sweep-based SVG:
+silhouette overlap 0.741, front-face 0.533, aspect 0.914 against 0.985. The
+reference, read row by row, is not what the sweep assumed: two parallel 45°
+arms (top thicker than bottom), horizontal terminal cuts, a horizontal crease
+under the top arm, a 45° crease along the bottom arm, a rounded chevron fold
+with the outer apex at half height. The sweep had horizontal arms and
+diagonal cuts.
+
+### Verdict: geometry adjusted
+
+- `scripts/mark-outline.mjs`: the measured outline in a 100-unit box —
+  corners, the inner and outer fold curves as measured point runs
+  (Catmull-Rom through them), straps, crease shadows, the rim as the outer
+  curve stroked and clipped to the silhouette.
+- `scripts/generate-brand-mark.mjs` renders the two SVGs from it. Result:
+  silhouette 0.972, front-face 0.701, aspect 0.997. The rest of the
+  front-face difference is the reference's satin gradient; accepted.
+- Mono mark checked at 14, 20, 24, 48 and 150 px on the dark and the light
+  ground: the fold reads at every size.
+- The 3D sweep stays in the generator for the `/logo-lab` GLB only, and the
+  divergence is written down (`public/brand/BRAND.md`, STATE decision 2).
+- `docs/MARK_COMPARISON_2026-09-16.jpg`: reference · ours · overlay.
+- Favicon and OG image keep their simpler arc, deliberately.
+
+### Validation classes
+
+LOCAL (`npm run verify`, Playwright) + CI by the gate; PREVIEW on the
+production deployment after merge. No device class needed — static assets.
