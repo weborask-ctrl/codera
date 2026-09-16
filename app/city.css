@@ -259,32 +259,6 @@ main[data-city] {
   background: radial-gradient(34% 30% at 50% 38%, rgb(200 214 255 / 0.7) 0%, rgb(110 130 220 / 0.35) 45%, rgb(40 50 120 / 0) 72%);
 }
 
-/* ---- t2 · the sky-bridge the camera pans past (Iterácia 4.5) ----
-   Cut from the living city's own bridges layer. It travels two viewports
-   while the world travels one: the parallax is what says "we are walking
-   past this", and it covers the junction between the two acts. */
-.city-span {
-  position: absolute;
-  display: block;
-  left: 0;
-  top: 40%;
-  width: 78vw;
-  height: auto;
-  opacity: 0.001;
-  transform: translate3d(106vw, 0, 0);
-  will-change: transform, opacity;
-  pointer-events: none;
-  filter: saturate(1.06) contrast(1.04);
-  /* its far end thins into the air rather than stopping */
-  mask-image: linear-gradient(90deg, rgb(0 0 0 / 1) 0%, rgb(0 0 0 / 1) 74%, rgb(0 0 0 / 0) 100%);
-}
-@media (max-width: 767px) {
-  .city-span {
-    width: 150vw;
-    top: 46%;
-  }
-}
-
 /* ---- t3 · the pane of city glass that grows past the camera ----
    No blur filter anywhere: an animated blurred layer drops WebKit to 3 fps
    (measured 2026-09-12). The frost is baked into the gradient, and the
@@ -333,13 +307,9 @@ main[data-city] {
 }
 
 /* the flat edition puts the same furniture on its fixed veil */
-.city-veil .city-span,
 .city-veil .city-pane {
   position: fixed;
   z-index: 20;
-}
-.city-veil .city-span {
-  top: 44%;
 }
 .city-veil .city-bloom {
   position: fixed;
@@ -1452,11 +1422,27 @@ main[data-experience] .city-hero-copy .rise {
     display: none;
   }
 }
-/* a page that found itself slow keeps the picture and drops the ambience */
+/* a page that found itself slow keeps the picture and drops the ambience:
+   the motion pauses, and the two layers that cost a full viewport each for
+   a whisper — the wisp riding the whole journey at 0.35, the blend-mode
+   light on the tubes — go (4.10) */
 html[data-lite] .city-live-world,
-html[data-lite] .city-live-drift,
-html[data-lite] .city-live-glint {
+html[data-lite] .city-live-drift {
   animation-play-state: paused;
+}
+html[data-lite] .city-live-glint,
+html[data-lite] .city-cloud-wisp {
+  display: none;
+}
+/* no pointer, no lean: on a touch screen the four groups need no layers of
+   their own, and a blend mode is the dearest thing a mobile GPU can draw */
+@media (hover: none) {
+  .city-live-group {
+    will-change: auto;
+  }
+  .city-live-glint {
+    display: none;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .city-live,

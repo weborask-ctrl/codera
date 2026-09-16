@@ -1080,3 +1080,66 @@ diagonal cuts.
 
 LOCAL (`npm run verify`, Playwright) + CI by the gate; PREVIEW on the
 production deployment after merge. No device class needed — static assets.
+
+---
+
+## Iterácia 4.10 — The first passage on a GPU diet; the sky-bridge goes (2026-09-16)
+
+**Status: DONE — gate passed locally; DEVICE pending (Ondrej's Chrome).**
+
+### Mission
+
+Ondrej, 2026-09-16, after 4.9: "Prvý prechod, Chrome ide zle, mraky skáču
+a preskakujú, a prechod s tou čiarou nechcem, veď na to sa nedá pozerať,
+áno ešte to seká." Two things: t1 still stutters and its clouds pop in
+Chrome on his machine (4.6 had already cut a plate); the t2 sky-bridge
+reads as a bar across the picture and goes.
+
+### Measured first
+
+The stutter does not reproduce here: at 1920×1080 and at 1280×800 @ 2×,
+with the CPU throttled 4×, t1 runs 0 stalls, 0 jerks, no long frame
+(`scratchpad/probe-passage.js`). The main thread is idle — so the cost is
+the compositor's. A layer count in the middle of t1 (`dom-layers.js`, CDP
+LayerTree): 45 composited layers of at least a quarter viewport, about 11
+full viewports of alpha blending per frame at 2× on a 1280 screen — 22
+Mpx a frame — of which a third was for nothing: the unused `bank` plate
+and every idle plate blended at 0.001 (kept there so their textures stay
+resident), the bloom at 0.005 before its bell, the hero's two drifting
+clouds and a blend-mode glint (a backdrop read) under the arriving plates,
+plus the 2× cloud files (2800 px) rasterised for a 1280 px screen. A GPU
+with a small tile budget (a tablet, a laptop at 2×, an old iGPU) evicts
+and re-uploads exactly those — that is the pop — and blends the rest late,
+which is the stutter.
+
+### Deliverables
+
+- t2 is `pan`: the 12 % drift with a dissolve stays, the span plate, its
+  CSS and `public/home/live/span-bridge-*` go. Both edits.
+- Idle plates are parked (`parkPlate`: translate off, scale 0.002, opacity
+  0.001): composited, every tile resident, no fill. The `bank` plate is
+  removed from both veils; the flat veil carries puff + tower (t1's near
+  plates — it had puff + bank, of which t1 used only the puff since 4.6).
+- Cloud plates load the 2× file only on screens ≥ 1600 CSS px wide.
+- The hero's drift clouds and glint fade over the first fifth of a passage
+  leaving the hero (and return over the last fifth coming back).
+- The arriving scene is held at 0.002 through the passage (its 0 pose in
+  the first half dropped the texture the act had warmed; the upload landed
+  mid-passage). The hero is held only while the visitor scrolls back, so
+  its living city (three viewports of fill) is not drawn at 0.002 through
+  the second half of t1 or the first half of /02.
+- Haze and bloom go to exactly 0 under 0.01 (a gradient re-rasters cheaply;
+  a plate does not).
+- The sentinel forgives a quarter per good frame (it needed half the frames
+  slow); it now also runs in the flat edit; a tripped page runs t1 as the
+  light passage (`kindOf`), decided when the passage starts. Lite also
+  hides the wisp and the glint. `(hover: none)`: no promoted live groups,
+  no glint.
+
+### Validation classes
+
+LOCAL: `npm run verify`; Playwright 102/102 in three browsers; probes at
+1920 and 1280 @ 2×; tablet (touch, 1180×820 @ 2×) walks t1 with puff +
+tower and no span; a CPU-starved page trips lite and runs t1 without
+plates. PREVIEW after merge on the production deployment. DEVICE: only
+Ondrej's Chrome can say whether it is enough — asked which machine.
