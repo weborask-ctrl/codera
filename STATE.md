@@ -3,7 +3,7 @@
 What is live, what was decided, and what must not be relearned. One file, kept
 short. Open work does **not** live here — it lives in GitHub Issues.
 
-Last reviewed: 2026-09-16 (Iterácia 4.10, the first passage on a GPU diet, the sky-bridge gone) · Production: `https://www.codera.sk` ·
+Last reviewed: 2026-09-16 (Iterácia 4.11, the flat passage passes beside the camera) · Production: `https://www.codera.sk` ·
 Open backlog: see Issues.
 
 ---
@@ -42,7 +42,15 @@ passage (its texture used to drop and re-upload mid-move), the hero is held
 only on the way back, haze and bloom are exactly 0 outside their bells, and
 a page whose sentinel trips (a quarter of frames over 34 ms) runs t1 as
 the plate-free light passage — decided at the seam, never mid-move. Touch
-screens promote no live-city groups and draw no glint. /04 runs full width with 1.4× stations. Under 1024px or reduced motion every act carries
+screens promote no live-city groups and draw no glint. The flat edit's
+passage is its own choreography since 4.11 (`PASSAGE_CLOUDS_FLAT`): a
+plate that covers the camera shows its magnified interior, and with no
+scene swap to hide there is no white-out to cover it — on a 13" iPad it
+read as a glowing blur — so the tower rises beside the camera and the
+cluster drifts above, the haze and bloom run at 0.62 / 0.55 of the
+stage's, the plates carry no filter, 2× files come from 768 px, and the
+act plates' cloud band is an alpha cutout composited normally (it was a 13
+KB opaque render screen-blended). /04 runs full width with 1.4× stations. Under 1024px or reduced motion every act carries
 its own plate of the same world with a cloud band. Type: Bricolage Grotesque
 800 + Fraunces italic accent; palette ink #0b1a4a, coral, tangerine, mint.
 Fonts are self-hosted and subsetted since 4.7 (`app/fonts`, built by

@@ -55,15 +55,16 @@ function plateFile(plate: string): string {
  *  language and nothing is blended — a blend mode reads the whole backdrop
  *  back for every frame, an alpha plate is one composite. */
 function CloudPlate({ cloud, name, className = "" }: { cloud: string; name: string; className?: string }) {
-  /* the 2× plate only on screens at least 1600 CSS px wide (4.10): a plate
-     is rasterised at its displayed size, so the file's pixels beyond that
-     are texture memory for nothing — and on a tablet or a laptop at 2×,
-     four such plates were enough to overrun the compositor's tile budget,
-     which is what re-uploads mid-passage and pops */
+  /* phones get the 1× file: at 120vw of a 390 px screen even at 3× the
+     1200 px plate is more than the box. From 768 px the screen picks by its
+     own density — a 13" iPad at 2× shows a 120vw plate across 3300 device
+     pixels, and the 1× file there was the mush of 4.10 (Ondrej: "pozri sa
+     na to rozlíšenie"). A plate is rasterised at its displayed size, so the
+     bigger file costs decode and download, not compositor memory. */
   return (
     <picture data-cloud={cloud} className={`city-cloud ${className}`.trim()}>
-      <source media="(min-width: 1600px)" type="image/avif" srcSet={`${LIVE}/cloud-${name}-1x.avif 1x, ${LIVE}/cloud-${name}-2x.avif 2x`} />
-      <source media="(min-width: 1600px)" type="image/webp" srcSet={`${LIVE}/cloud-${name}-1x.webp 1x, ${LIVE}/cloud-${name}-2x.webp 2x`} />
+      <source media="(min-width: 768px)" type="image/avif" srcSet={`${LIVE}/cloud-${name}-1x.avif 1x, ${LIVE}/cloud-${name}-2x.avif 2x`} />
+      <source media="(min-width: 768px)" type="image/webp" srcSet={`${LIVE}/cloud-${name}-1x.webp 1x, ${LIVE}/cloud-${name}-2x.webp 2x`} />
       <source type="image/avif" srcSet={`${LIVE}/cloud-${name}-1x.avif`} />
       <source type="image/webp" srcSet={`${LIVE}/cloud-${name}-1x.webp`} />
       {/* eager: a plate that lazy-loads when the passage brings it on screen
@@ -134,6 +135,19 @@ const PASSAGE_CLOUDS: Record<string, CloudMove[]> = {
     { el: "cluster", x: [26, 22], y: [-12, 10], s: [0.44, 0.62], win: [0, 0.62], o: 0.85, f: LIGHT.day },
     { el: "puff", x: [-30, -66], y: [70, -50], s: [0.95, 1.85], win: [0.06, 0.92], o: 0.96, f: LIGHT.day },
     { el: "tower", x: [-14, -34], y: [80, -78], s: [1.2, 2.3], win: [0.22, 0.86], o: 1, f: LIGHT.day },
+  ],
+}
+
+/** The flat edit (phones, touch tablets) has no scene swap to hide, so its
+ *  clouds pass BESIDE the camera, never through it: the tower rises from
+ *  below and its lit top settles in the lower half of the frame, the far
+ *  cluster drifts across the sky above. A plate that covers the camera
+ *  shows its magnified interior — on a 13" iPad that read as a glowing
+ *  mottled blur (4.11, Ondrej: "pozri sa na to rozlíšenie"). */
+const PASSAGE_CLOUDS_FLAT: Record<string, CloudMove[]> = {
+  t1: [
+    { el: "cluster", x: [24, 14], y: [-4, 16], s: [0.5, 0.66], win: [0, 0.8], o: 0.9, f: LIGHT.day },
+    { el: "tower", x: [-12, -16], y: [84, 34], s: [1.12, 1.26], win: [0.1, 0.94], o: 1, f: LIGHT.day },
   ],
 }
 
@@ -296,12 +310,12 @@ const hazeAt = (haze: HTMLElement | null, name: string, e: number, gain = 1) => 
 const zeroBelow = (o: number, floor = 0.01) => (o < floor ? "0" : o.toFixed(3))
 /** the light we break out into: brightest just past the middle, then it
  *  settles into the arriving scene */
-const bloomAt = (bloom: HTMLElement | null, name: string, e: number) => {
+const bloomAt = (bloom: HTMLElement | null, name: string, e: number, gain = 1) => {
   if (!bloom) {
     return
   }
   const h = PASSAGE_LIGHT[name]
-  bloom.style.opacity = zeroBelow(h ? bell(e, 0.36, 0.58, 0.66, 0.96) * h.bloom : 0)
+  bloom.style.opacity = zeroBelow(h ? bell(e, 0.36, 0.58, 0.66, 0.96) * h.bloom * gain : 0)
   bloom.style.transform = `scale(${(0.9 + 0.5 * e).toFixed(3)})`
 }
 /** the camera banks a little through the cloud and levels out */
@@ -314,8 +328,8 @@ const rollAt = (name: string, e: number) => {
 const DEPTH: Record<string, number> = { cluster: 0.4, bank: 1.3, puff: 1.5, tower: 2.6 }
 
 /** Places the passage plates at eased progress e. */
-export function placeClouds(clouds: Plates, name: string, e: number, px = 0, py = 0) {
-  const moves = PASSAGE_CLOUDS[name] ?? []
+export function placeClouds(clouds: Plates, name: string, e: number, px = 0, py = 0, flat = false) {
+  const moves = (flat ? PASSAGE_CLOUDS_FLAT[name] : PASSAGE_CLOUDS[name]) ?? []
   const used = new Set<string>()
   for (const m of moves) {
     const el = clouds[m.el]
@@ -363,11 +377,11 @@ export function placePane(el: HTMLElement | null, e: number, px = 0, py = 0, fad
   }
 }
 
-export function lightClouds(clouds: Plates, name: string, extra = "", haze: HTMLElement | null = null, bloom: HTMLElement | null = null) {
-  for (const m of PASSAGE_CLOUDS[name] ?? []) {
+export function lightClouds(clouds: Plates, name: string, haze: HTMLElement | null = null, bloom: HTMLElement | null = null) {
+  for (const m of [...(PASSAGE_CLOUDS[name] ?? []), ...(PASSAGE_CLOUDS_FLAT[name] ?? [])]) {
     const el = clouds[m.el]
     if (el) {
-      el.style.filter = `${m.f} ${extra}`.trim()
+      el.style.filter = m.f
     }
   }
   const tone = PASSAGE_LIGHT[name]?.tone ?? "day"
@@ -378,10 +392,6 @@ export function lightClouds(clouds: Plates, name: string, extra = "", haze: HTML
     bloom.dataset.tone = tone
   }
 }
-
-/* the flat passages draw alpha cutouts on a pale sky: a touch of contrast
-   keeps their volume readable (cheap — no blur, no shadow) */
-const FLAT_CLOUD_LIGHT = "contrast(1.12) saturate(1.05)"
 
 /** Stations light up one after another as the visitor reaches them. */
 function bindStations(ScrollTrigger: ST, main: HTMLElement): ScrollTriggerType[] {
@@ -746,7 +756,7 @@ function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => voi
 
     if (cur && lit !== cur.name) {
       lit = cur.name
-      lightClouds(clouds, cur.name, "", haze, bloom)
+      lightClouds(clouds, cur.name, haze, bloom)
       curKind = kindOf(cur.name)
       restPassage(curKind)
       if (paneEl) {
@@ -1023,14 +1033,14 @@ export function CityFlatMotion() {
               flat.name = name
               flat.x = 0
               flat.v = 0
-              lightClouds(clouds, name, FLAT_CLOUD_LIGHT, haze, bloom)
+              lightClouds(clouds, name, haze, bloom)
               dress(name)
             },
             onEnterBack: () => {
               flat.name = name
               flat.x = 1
               flat.v = 0
-              lightClouds(clouds, name, FLAT_CLOUD_LIGHT, haze, bloom)
+              lightClouds(clouds, name, haze, bloom)
               dress(name)
             },
             onUpdate: (self) => {
@@ -1065,15 +1075,17 @@ export function CityFlatMotion() {
           if (running && kind === "glass") {
             placePane(paneEl, e, 0, 0, close)
           } else {
-            placeClouds(clouds, running && kind === "clouds" ? flat.name : "", e)
+            placeClouds(clouds, running && kind === "clouds" ? flat.name : "", e, 0, 0, true)
             if (paneEl && kind === "glass") {
               paneEl.style.opacity = "0"
             }
           }
-          /* the flat seam is a sky band between two plates, so its haze runs
-             a little denser than the stage's */
-          hazeAt(haze, running ? flat.name : "", e, 1.1)
-          bloomAt(bloom, running ? flat.name : "", e)
+          /* the flat seam has no swap to hide — the page scrolls on under
+             the veil — so its haze and bloom run thinner than the stage's:
+             at the stage's density a 13" iPad showed a white glow with a
+             blurred cloud in it (4.11, Ondrej: "jak keby to tu svieti") */
+          hazeAt(haze, running ? flat.name : "", e, 0.62)
+          bloomAt(bloom, running ? flat.name : "", e, 0.55)
         }
         gsap.ticker.add(tick)
         bindDepth(gsap, main, 36)
@@ -1101,8 +1113,12 @@ export function CityFlatMotion() {
       {/* the haze and the light of the hour, then the passage's furniture */}
       <div data-haze className="city-haze" />
       <div data-bloom className="city-bloom" />
-      {/* the two near plates of t1; the far cluster is not worth a layer here */}
-      <CloudPlate cloud="puff" name="puff" />
+      {/* t1 with two of its three plates: the far cluster (three small
+          clouds that stay clouds at any size) and the near tower (a
+          cumulus with texture to spare when magnified). Not the puff: its
+          soft pink interior is what a 13" iPad saw filling the frame as a
+          glowing blur (4.11) */}
+      <CloudPlate cloud="cluster" name="cluster" />
       <CloudPlate cloud="tower" name="tower" />
       <div className="city-pane" data-pane>
         <span className="city-pane-glint" />
