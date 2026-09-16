@@ -8,8 +8,9 @@ the same pull request, or it is deleted — git remembers it either way.
 
 | Script | npm | What it does |
 | --- | --- | --- |
-| `generate-brand-mark.mjs` | `npm run brand:mark` | Parametric reconstruction of the C ribbon → SVG assets in `public/brand/`. The single geometry source, shared with the 3D sweep. |
-| `build-ribbon-glb.mjs` | `npm run brand:glb` | Builds the production GLB from the same parameters → `CODERA_3D_LOGO_DELIVERABLES/`. Approved references live in `brand/source/`. |
+| `generate-brand-mark.mjs` | `npm run brand:mark` | Renders the two SVGs in `public/brand/` from `mark-outline.mjs` (the outline measured from the approved raster, issue #6) and writes `lib/ribbon-geometry.json` from the older parametric sweep, which only the `/logo-lab` GLB still uses. |
+| `compare-brand-mark.mjs` | `npm run brand:compare -- [dir]` | The SVG over `brand/source/02_CODERA_C_MARK_REFERENCE.png` at the same scale: silhouette and front-face overlap (IoU), optionally the side-by-side image for the pull request. Last: 0.972 / 0.701. |
+| `build-ribbon-glb.mjs` | `npm run brand:glb` | Builds the GLB from the sweep → `CODERA_3D_LOGO_DELIVERABLES/`. Lab only; the sweep does not match the reference as well as the outline does. |
 
 ## Capture
 

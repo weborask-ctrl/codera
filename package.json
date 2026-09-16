@@ -15,6 +15,7 @@
     "typecheck": "tsc --noEmit",
     "brand:mark": "node scripts/generate-brand-mark.mjs",
     "brand:glb": "node scripts/build-ribbon-glb.mjs",
+    "brand:compare": "node scripts/compare-brand-mark.mjs",
     "capture": "node scripts/capture-devices.mjs",
     "capture:boards": "node scripts/capture-boards.mjs",
     "measure": "node scripts/measure-experience.mjs",

@@ -3,7 +3,7 @@
 What is live, what was decided, and what must not be relearned. One file, kept
 short. Open work does **not** live here — it lives in GitHub Issues.
 
-Last reviewed: 2026-09-16 (Iterácia 4.8, CSP with a per-request nonce) · Production: `https://www.codera.sk` ·
+Last reviewed: 2026-09-16 (Iterácia 4.9, the mark measured against the approved raster) · Production: `https://www.codera.sk` ·
 Open backlog: see Issues.
 
 ---
@@ -113,8 +113,12 @@ previews, /textures) was deleted 2026-08-31 — git remembers.
 
 1. **One atmosphere, one sunrise.** Acts differ only in camera and light;
    no act returns to dark. The five-moods failure is structurally impossible.
-2. **One geometry.** The parametric mark generator feeds both the SVG assets
-   and the GLB — the logo and the cinematic object cannot diverge.
+2. **The mark is measured, not imagined.** Since 4.9 the SVGs come from an
+   outline measured off the approved raster (`scripts/mark-outline.mjs`,
+   silhouette overlap 0.972, `npm run brand:compare`). The parametric sweep
+   that once fed both SVG and GLB matched at 0.741 and now feeds only the
+   `/logo-lab` GLB; if the ribbon returns to the site, re-derive it from the
+   outline first.
 3. **DOM is the floor.** All commercial content is semantic DOM; the canvas is
    enhancement. Flat mode (SSR default, mobile, no-WebGL, reduced motion) is a
    designed experience.
