@@ -3,7 +3,7 @@
 What is live, what was decided, and what must not be relearned. One file, kept
 short. Open work does **not** live here — it lives in GitHub Issues.
 
-Last reviewed: 2026-09-16 (Iterácia 4.7, fonts self-hosted and subsetted) · Production: `https://www.codera.sk` ·
+Last reviewed: 2026-09-16 (Iterácia 4.8, CSP with a per-request nonce) · Production: `https://www.codera.sk` ·
 Open backlog: see Issues.
 
 ---
@@ -37,7 +37,10 @@ its own plate of the same world with a cloud band. Type: Bricolage Grotesque
 800 + Fraunces italic accent; palette ink #0b1a4a, coral, tangerine, mint.
 Fonts are self-hosted and subsetted since 4.7 (`app/fonts`, built by
 `npm run fonts`): 197 KB in five files on the homepage instead of 390 KB in
-ten, same outlines, Fraunces with its optical-size axis kept.
+ten, same outlines, Fraunces with its optical-size axis kept. Since 4.8
+every page renders per request behind a nonce Content Security Policy
+(`proxy.ts`, functions in fra1): +50 ms of first byte warm, a quarter second
+cold, for a policy under which only our own scripts run.
 References: activetheory, lusion, zentry, refokus. The Žiara acts, the R3F
 world and `ACT_TONES` were removed with it — git remembers.
 

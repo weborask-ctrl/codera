@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next"
 import localFont from "next/font/local"
+import { connection } from "next/server"
 
 import "./globals.css"
 import "./city.css"
@@ -129,11 +130,14 @@ export const viewport: Viewport = {
   colorScheme: "dark",
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  /* the CSP nonce is per request (proxy.ts), so every page renders per
+     request: a prerendered page could not carry it (Iterácia 4.8) */
+  await connection()
   return (
     <html
       lang="sk"
