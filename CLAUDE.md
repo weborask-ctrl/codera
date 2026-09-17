@@ -17,7 +17,7 @@ are English.
 
 ## Stack
 
-Next 16.2.6 (App Router) · React 19.2.4 · Tailwind 4 · GSAP + ScrollTrigger ·
+Next 16.3.5 (App Router) · React 19.2.4 · Tailwind 4 · GSAP + ScrollTrigger ·
 React Three Fiber + three · Biome 2.5.9 · Playwright · TypeScript.
 
 **Next 16 has breaking changes against your training data.** Read the relevant

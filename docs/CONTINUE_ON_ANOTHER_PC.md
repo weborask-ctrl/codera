@@ -1,7 +1,7 @@
 # Continue Codera on another PC
 
 Updated 2026-09-17. Branch: `design/jellyfish-study-2026-09-16`.
-The prototype, nine archived concept images, original generation prompts and Marcus's heading rules were pushed to this branch through commit `649f829`. The production `master` branch was not changed.
+The autonomous workstation pass extends the lightweight prototype with smoother camera travel, resource cleanup, failure recovery and repeatable checks. The nine earlier concept images and generation prompts remain archived style studies. See [the 2026-09-17 handoff](JELLYFISH_HANDOFF_2026-09-17.md) for the exact pushed commit and final validation evidence. These are working-branch changes; the production Codera City homepage has not been replaced or deployed from this experiment.
 
 ## Setup
 
@@ -15,7 +15,11 @@ node scripts/jellyfish-preview.mjs
 
 Open http://127.0.0.1:4317. Add the cloned folder as a local project in Codex on the new PC. If the repository is already cloned, save any local edits first, then fetch and switch to this branch instead of cloning over it.
 
-The standalone preview needs no full npm install. For full application checks on the more powerful PC, install the locked dependencies with `npm ci`, then run `npm run verify`. Full validation was unavailable on the original PC. Focused prototype and browser checks passed; see the experiment README. A pushed branch is not a verified production release.
+The standalone preview needs no full npm install or Next build. Its first launch downloads only the lockfile-pinned Three.js and GSAP browser files; later starts reuse the small local cache. On the weaker home PC, start with the default **Úsporný** setting. If needed, use `http://127.0.0.1:4317/?motion=reduce` for a readable static page, then enable 3D explicitly when ready. Stopping 3D now releases the renderer; all five examples, prices and contacts remain available.
+
+The workstation pass patched Next and its matching ESLint package to 16.3.5 on this working branch. The production test suite passed 102/102 across its three browser engines, and online full/production dependency audits reported zero vulnerabilities at the time of the check. Consult the handoff for the final full-verify, prototype-browser and GitHub synchronization results; these are separate gates, not an assertion that this branch is deployed.
+
+Full checks belong on the workstation: `npm ci`, then `npm run verify`. The new opt-in `npm run prototype:jellyfish:browser` needs the development dependencies and Playwright Chromium installed (`npx playwright install chromium`), with the standalone preview already running. It writes a JSON report and screenshots under ignored `test-results/jellyfish`. It is unnecessary for simply reviewing the prototype at home.
 
 ## Resume context
 
@@ -27,18 +31,17 @@ Never return to the C/logo centerpiece, membrane or ammonite directions. Keep ci
 
 ## Next work
 
-1. Establish the new PC's actual capabilities and run the existing prototype before changing it.
-2. Refine and agree the camera choreography using the lightweight model.
-3. Produce ONE convincing final-quality hero-to-portfolio segment before authoring the rest. A rigged jellyfish or Higgsfield video may be evaluated; no video generation has been commissioned or executed yet. Generated video identity consistency and reversible scroll seeking need testing.
-4. Extend an approved production method to the remaining transitions, then refine typography and content.
-5. Complete responsive, performance and full application checks before deployment.
-
-The previous rough estimate was 2–3 weeks of focused work with stable direction and usable production assets. It is an estimate, not a deadline or guarantee; reassess after the first final-quality segment.
+1. Read the handoff and run the existing preview on the home PC. Check the updated approach, oblique pass beside the bell, retreat and backward scroll; the camera now carries velocity through travelling waypoints and still stops for the portfolio and reading holds.
+2. Agree the cinematic pace and composition using this lightweight model. Final page layout, heading hierarchy and deferred removal of small numbered labels remain user decisions; this pass did not apply that final redesign.
+3. Follow [the production-method brief](JELLYFISH_PRODUCTION_METHOD_2026-09-17.md) to author and evaluate ONE convincing final-quality hero-to-portfolio segment. Compare one rigged master and a prerender from the same master before extending the journey. No new images or videos were generated or paid for in the workstation pass; no final rig exists yet.
+4. Validate the chosen candidate on the home PC and a physical phone. Viewport/CPU emulation and workstation measurements do not prove performance on those devices. Extend only a successful production method to the remaining major transitions, then refine final typography and content.
+5. Complete the separate release gates and review before any merge or deployment.
 
 ## Read first
 
 - `AGENTS.md`, `CLAUDE.md`, `CODERA_DESIGN_INTELLIGENCE/MARCUS_RULES.md`
 - `experiments/jellyfish/CONTRACT.md` and `experiments/jellyfish/README.md`
+- [Workstation handoff](JELLYFISH_HANDOFF_2026-09-17.md), [authorized plan](JELLYFISH_AUTONOMOUS_PLAN_2026-09-17.md) and [production-method brief](JELLYFISH_PRODUCTION_METHOD_2026-09-17.md)
 - `docs/design/jellyfish-study-2026-09-16/README.md` and `PROMPTS.md`
 - `STATE.md` for the distinction between production and the isolated experiment.
 
@@ -46,4 +49,4 @@ This document transfers decisions and the working state, not the original chat t
 
 ## Suggested first message
 
-> Pokračujeme v redizajne Codery s medúzou na výkonnejšom PC. Prečítaj docs/CONTINUE_ON_ANOTHER_PC.md a dokumenty, na ktoré odkazuje. Najprv over vetvu a spusti existujúci prototyp. Zachovaj dohodnutý smer; nové obrázky ani video zatiaľ negeneruj.
+> Pokračujeme doma na slabšom PC v Codere s medúzou. Prečítaj docs/CONTINUE_ON_ANOTHER_PC.md a docs/JELLYFISH_HANDOFF_2026-09-17.md. Over vetvu a spusti existujúci ľahký prototyp; zopakuj iba kontroly potrebné pre aktuálnu zmenu. Prejdeme kameru a rozhodnutia vyžadujúce môj názor. Zachovaj finálne rozloženie; nové obrázky ani video zatiaľ negeneruj.

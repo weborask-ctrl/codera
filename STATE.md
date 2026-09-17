@@ -3,7 +3,7 @@
 What is live, what was decided, and what must not be relearned. One file, kept
 short. Open work does **not** live here — it lives in GitHub Issues.
 
-Last reviewed: 2026-09-16 (Iterácia 4.11, the flat passage passes beside the camera) · Production: `https://www.codera.sk` ·
+Last reviewed: 2026-09-17 (isolated jellyfish workstation pass; production Iterácia 4.11 unchanged) · Production: `https://www.codera.sk` ·
 Open backlog: see Issues.
 
 ---
@@ -12,7 +12,7 @@ Open backlog: see Issues.
 
 ### Isolated jellyfish experiment (Marcus, 2026-09-16)
 
-Marcus authorized a lightweight scroll-controlled spatial prototype after rejecting generated per-section images as a motion solution. Work is in `experiments/jellyfish`, launched with `node scripts/jellyfish-preview.mjs`; it does not replace the production homepage. One procedural jellyfish, camera near/far/orbit changes, changing spaces, and a normal-scroll portfolio block with all five concepts. No animation between individual examples. See the experiment README for exact controls, measured resource use, limitations, and validation. Earlier generated images remain a style study in `docs/design/jellyfish-study-2026-09-16`, not approved motion frames. Full repo verification and remote synchronization must be confirmed separately.
+Marcus authorized a lightweight scroll-controlled spatial prototype after rejecting generated per-section images as a motion solution. Work is in `experiments/jellyfish`, launched with `node scripts/jellyfish-preview.mjs` without a full npm install; it does not replace the production homepage. One procedural jellyfish, camera near/far/orbit changes, changing spaces, and a normal-scroll portfolio block with all five concepts. No animation between individual examples. The autonomous 2026-09-17 workstation pass adds smoother bounded camera travel, an oblique bell passage, conservative pearl shading, renderer disposal/restart, resilient static content and repeatable browser checks. Existing low-PC budgets and final page layout remain; small numbered labels are still deferred to final refinement. Next/ESLint 16.3.5 is a working-branch security patch, not a production release. Earlier generated images remain style studies, not motion frames; no new media was generated. Cinematic approval and one final-quality hero-to-portfolio production segment remain pending. Read `docs/JELLYFISH_HANDOFF_2026-09-17.md` for final validation/push evidence and home-PC continuation, and `docs/JELLYFISH_PRODUCTION_METHOD_2026-09-17.md` for the first asset experiment.
 
 **Homepage — „Codera City" (Iterácia 2.0, 2026-09-05).** Ondrej approved a
 static concept, then the build: one continuous 5D world — a pastel floating

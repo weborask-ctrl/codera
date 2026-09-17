@@ -14,9 +14,11 @@ Open http://127.0.0.1:4317. Stop the server with Ctrl+C. `npm run prototype:jell
 
 Start at the hero and scroll. The camera approaches the bell, passes beside it and pulls away. All five portfolio examples form ONE ordinary document-flow section; camera time and WebGL rendering pause there. After the portfolio, scroll resumes the corridor passage, macro approach, large pullback, ascent to a top view, and return to the contact profile. Scroll backward to reverse the journey. Menu anchors also work without completing the journey first.
 
+The 2026-09-17 pass adds continuous camera interpolation through travelling waypoints and a more explicit oblique bell pass, while preserving exact portfolio, service and process holds. The pearl shader is a conservative refinement of the same proxy. Final page layout and the deferred typography/section-label decisions remain unchanged. Cinematic approval and one production-quality hero-to-portfolio segment are still pending; see [the workstation handoff](../../docs/JELLYFISH_HANDOFF_2026-09-17.md) and [production-method brief](../../docs/JELLYFISH_PRODUCTION_METHOD_2026-09-17.md).
+
 The procedural jellyfish is a temporary model for testing spatial choreography. It is not the final photographic creature, and the simple mineral geometry is spatial blocking. This experiment does not yet prove seamless production video, final 4K quality, touch-device frame pacing, or final art direction.
 
-Controls at the bottom: **Zastaviť 3D** removes the long transition spacers and leaves a static readable layout. **Výkon** shows submitted frame rate, canvas resolution, geometry count and latest free system memory. **Vyvážený** raises the pixel budget, not the frame limit. `?motion=reduce` allows the static initial-load path to be checked without changing OS preferences; the actual `prefers-reduced-motion` setting is also respected.
+Controls at the bottom: **Zastaviť 3D** removes the long transition spacers, releases the renderer and leaves a static readable layout. **Výkon** shows submitted frame rate, canvas resolution, geometry count and latest free system memory. **Vyvážený** raises the pixel budget, not the frame limit. `?motion=reduce` starts statically without changing OS preferences; the actual `prefers-reduced-motion` setting is also respected. The home PC should start with the default **Úsporný** setting; use the static URL if needed. All content and contacts are available without JavaScript or WebGL.
 
 ## Resource policy
 
@@ -29,17 +31,23 @@ Controls at the bottom: **Zastaviť 3D** removes the long transition spacers and
 
 ## Source files
 
-- `choreography.mjs`: camera, look target, object and environment keyframes; pure scroll-to-time mapping with the portfolio plateau.
+- `choreography.mjs`: camera, look target, object and environment keyframes; pure scroll-to-time mapping and bounded pose sampling with explicit reading holds.
 - `scene.mjs`: actual procedural geometry, material and one renderer.
-- `main.mjs`: GSAP orchestration, native scrolling, safeguards, source-driven business content.
+- `main.mjs`: GSAP orchestration, native scrolling, lazy scene startup, restart, page restoration and safeguards.
 - `index.html`, `style.css`: real selectable text, actual fonts and normal portfolio flow.
 - `CONTRACT.md`: user-approved implementation scope.
 
-Prices, contacts, people and response times are loaded from `lib/site-config.ts`; the existing 0 EUR nonbinding-proposal statement is preserved from `components/city/sections.tsx`. This also corrects the generated contact study: the actual email is **kontakt@codera.sk**, not the English-spelled address in the earlier generated image.
+The preview server renders prices, contacts, people and response times from `lib/site-config.ts` into the HTML, so they survive JavaScript/library failures. The existing 0 EUR nonbinding-proposal statement is preserved from `components/city/sections.tsx`. The actual email is **kontakt@codera.sk**, not the English-spelled address in the earlier generated image.
 
 Library sources: https://threejs.org/docs/ (MIT) and https://gsap.com/docs/v3/Plugins/ScrollTrigger/ (GSAP standard license, https://gsap.com/standard-license/). Libraries remain pinned by the repository lockfile and are not vendored into git.
 
-## Validation, 2026-09-16
+## Repeatable checks and current validation
+
+With the preview running, `node scripts/jellyfish-check.mjs` runs the lightweight mathematical/HTTP checks without a full application build. The opt-in `npm run prototype:jellyfish:browser` adds automated browser failure cases, navigation and lifecycle checks, viewport screenshots and frame-submission measurements. It requires installed development dependencies and Playwright Chromium (`npm ci`, `npx playwright install chromium`); output is ignored under `test-results/jellyfish`. Neither is required to view the prototype on the home PC.
+
+The 2026-09-17 workstation pass updates Next and its matching ESLint package to 16.3.5 in this branch. Production tests passed 102/102 across three browser engines; online full and production dependency audits reported zero vulnerabilities at check time. [The handoff](../../docs/JELLYFISH_HANDOFF_2026-09-17.md) records final full-verify, focused/browser prototype, hardware, commit/push and CI evidence without conflating these classes. Production Codera City remains separate and unmerged. No new images or videos were generated in this pass.
+
+## Historical validation, 2026-09-16
 
 Focused check: `node scripts/jellyfish-check.mjs` passed. It checks the portfolio pause, deterministic reversal, meaningful near/far range, exactly five projects, served dependencies/assets, path traversal boundaries, and preview-server resource use. JavaScript syntax checks passed.
 
@@ -47,4 +55,4 @@ Browser checked in the Codex in-app browser on this Windows PC, at 1280×720 and
 
 Measured machine: Intel Core i5-6500, 4 cores, 7.88 GiB RAM. Approximately 2.4–2.5 GB free system RAM during checks. Preview server about 66–85 MB resident. One browser scene used 15 draw calls before the corridor; portfolio diagnostics reported zero submitted frames. Overall browser/GPU memory and sustained 30 fps are not established by these measurements.
 
-Release classification: NOT VALIDATED as the Next.js site. The full `npm run verify` gate is unavailable on this checkout (npm and node_modules absent). No production deployment or merge. GitHub synchronization remains unconfirmed until an actual push succeeds; do not infer it from local files.
+At that historical checkpoint, the full `npm run verify` gate was unavailable because npm and node_modules were absent. Those original-PC limits are not the status of the later workstation pass: use the current handoff above for validation and remote synchronization. No production deployment or merge is implied by either checkpoint.

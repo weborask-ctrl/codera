@@ -11,7 +11,7 @@
   <script src="/vendor/gsap/ScrollTrigger.min.js" defer></script>
   <script type="module" src="/main.mjs"></script>
 </head>
-<body>
+<body class="static-mode">
   <a class="skip" href="#praca">Preskočiť na ukážky</a>
   <div id="world" aria-hidden="true"></div>
   <div class="grain" aria-hidden="true"></div>
@@ -40,13 +40,13 @@
       <div class="work-outro"><span>Každý detail má svoj dôvod.</span><span>Pokračujeme hlbšie ↓</span></div>
     </section>
     <div id="descent" class="descent" aria-hidden="true"><p class="passage-label">Z myšlienky.<br><em>Do priestoru.</em></p></div>
-    <section id="sluzby" class="services content-section" aria-labelledby="services-title"><div class="section-inner"><p class="eyebrow">03 / Služby</p><h2 id="services-title">Dobrý web sa<br>začína <em>zámerom.</em></h2><div class="offer" id="packages"></div><p class="wordpress" id="wordpress"></p></div></section>
+    <section id="sluzby" class="services content-section" aria-labelledby="services-title"><div class="section-inner"><p class="eyebrow">03 / Služby</p><h2 id="services-title">Dobrý web sa<br>začína <em>zámerom.</em></h2><div class="offer" id="packages"><!--business:packages--></div><p class="wordpress" id="wordpress"><!--business:wordpress--></p></div></section>
     <div class="ascent" aria-hidden="true"></div>
-    <section id="proces" class="process content-section" aria-labelledby="process-title"><div class="section-inner"><p class="eyebrow">04 / Spolupráca</p><h2 id="process-title">Od slov<br><em>k prvému návrhu.</em></h2><div class="steps"><div><span>01 — Rozhovor</span><strong id="response-time"></strong><p>Ozveme sa a prejdeme si, čo váš web potrebuje.</p></div><div><span>02 — Smer</span><strong id="proposal-time"></strong><p>Prvý vizuálny návrh, aby sme sa mali o čom rozprávať.</p></div><div><span>03 — Bez záväzku</span><strong>0 €</strong><p>Ak vás nezaujme, končíme — nič neplatíte a nič nepodpisujete.</p></div></div></div></section>
+    <section id="proces" class="process content-section" aria-labelledby="process-title"><div class="section-inner"><p class="eyebrow">04 / Spolupráca</p><h2 id="process-title">Od slov<br><em>k prvému návrhu.</em></h2><div class="steps"><div><span>01 — Rozhovor</span><strong id="response-time"><!--business:response--></strong><p>Ozveme sa a prejdeme si, čo váš web potrebuje.</p></div><div><span>02 — Smer</span><strong id="proposal-time"><!--business:proposal--></strong><p>Prvý vizuálny návrh, aby sme sa mali o čom rozprávať.</p></div><div><span>03 — Bez záväzku</span><strong>0 €</strong><p>Ak vás nezaujme, končíme — nič neplatíte a nič nepodpisujete.</p></div></div></div></section>
     <div class="return" aria-hidden="true"></div>
-    <section id="kontakt" class="contact content-section" aria-labelledby="contact-title"><div class="section-inner"><p class="eyebrow">05 / Váš ďalší web</p><h2 id="contact-title">Dajme tomu<br><em>život.</em></h2><a class="contact-link" id="email"></a><a class="phone" id="phone"></a><p class="people" id="people"></p><a class="text-link" href="#uvod">Späť na začiatok ↑</a></div><footer><span>Codera © 2026</span><span>Dizajn a vývoj. S charakterom.</span></footer></section>
+    <section id="kontakt" class="contact content-section" aria-labelledby="contact-title"><div class="section-inner"><p class="eyebrow">05 / Váš ďalší web</p><h2 id="contact-title">Dajme tomu<br><em>život.</em></h2><!--business:contacts--><a class="contact-link" href="https://www.codera.sk">Kontaktné údaje na codera.sk ↗</a><!--/business:contacts--><p class="people" id="people"><!--business:people--></p><a class="text-link" href="#uvod">Späť na začiatok ↑</a></div><footer><span>Codera © 2026</span><span>Dizajn a vývoj. S charakterom.</span></footer></section>
   </main>
-  <aside class="prototype-tools" aria-label="Ovládanie prototypu"><span>Priestorová štúdia / 01</span><button id="motion-toggle" type="button" aria-pressed="false">Zastaviť 3D</button><details id="diagnostics"><summary>Výkon</summary><output id="performance">Pripravujem scénu…</output><label>Detail <select id="quality"><option value="eco">Úsporný</option><option value="balanced">Vyvážený</option></select></label></details></aside>
+  <aside class="prototype-tools" aria-label="Ovládanie prototypu"><span>Priestorová štúdia / 01</span><button id="motion-toggle" type="button" aria-pressed="true" disabled>Spustiť 3D</button><details id="diagnostics"><summary>Výkon</summary><output id="performance">Pripravujem scénu…</output><label>Detail <select id="quality" disabled><option value="eco">Úsporný</option><option value="balanced">Vyvážený</option></select></label></details></aside>
   <p id="fallback" role="status" hidden>3D je pozastavené. Obsah stránky zostáva dostupný.</p>
   <noscript><p class="noscript">Pre priestorovú animáciu zapnite JavaScript. Ukážky môžete prezerať aj bez neho.</p></noscript>
 </body>

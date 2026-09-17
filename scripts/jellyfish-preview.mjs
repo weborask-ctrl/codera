@@ -55,6 +55,15 @@ for (const [name, files] of Object.entries(libraries)) {
 const mime = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.mjs': 'text/javascript', '.js': 'text/javascript', '.jpg': 'image/jpeg', '.avif': 'image/avif', '.woff2': 'font/woff2', '.png': 'image/png' };
 const fonts = new Set(['bricolage-800.woff2', 'fraunces-italic.woff2', 'geist.woff2']);
 const json = (res, body) => { res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(body)); };
+const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
+// Preserve the exact content DOM while keeping facts available without JavaScript.
+const businessHtml = (html) => html
+  .replace(/<!--business:contacts-->[\s\S]*?<!--\/business:contacts-->/, `<a class="contact-link" id="email" href="mailto:${escapeHtml(siteConfig.email)}">${escapeHtml(siteConfig.email)}</a><a class="phone" id="phone" href="tel:${escapeHtml(siteConfig.phoneHref)}">${escapeHtml(siteConfig.phone)}</a>`)
+  .replace('<!--business:packages-->', packages.map((pkg) => `<div><h3>${escapeHtml(pkg.name)}</h3><strong><small>od </small>${escapeHtml(pkg.priceFrom)}</strong><p>${escapeHtml(pkg.audience)}</p><p>${escapeHtml(pkg.scope[0])}</p></div>`).join(''))
+  .replace('<!--business:wordpress-->', escapeHtml(`${wordpressService.name} — ${wordpressService.line} Cena podľa rozsahu.`))
+  .replace('<!--business:response-->', `${commercial.responseHours} h`)
+  .replace('<!--business:proposal-->', `${commercial.firstProposalHours} h`)
+  .replace('<!--business:people-->', escapeHtml(people.map((person) => person.name).join(' · ')));
 const server = createServer(async (req, res) => {
   try {
     if (!['GET', 'HEAD'].includes(req.method)) { res.writeHead(405); res.end(); return; }
@@ -75,6 +84,12 @@ const server = createServer(async (req, res) => {
     if (!file.startsWith(base + sep)) { res.writeHead(403); res.end(); return; }
     const info = await stat(file);
     if (!info.isFile()) { res.writeHead(404); res.end(); return; }
+    if (file === resolve(root, 'experiments/jellyfish/index.html')) {
+      const html = businessHtml(await readFile(file, 'utf8'));
+      res.writeHead(200, { 'Content-Type': mime['.html'], 'Content-Length': Buffer.byteLength(html), 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' });
+      res.end(req.method === 'HEAD' ? undefined : html);
+      return;
+    }
     res.writeHead(200, { 'Content-Type': mime[extname(file)] || 'text/plain', 'Content-Length': info.size, 'Cache-Control': 'no-cache', 'X-Content-Type-Options': 'nosniff' });
     if (req.method === 'HEAD') res.end();
     else createReadStream(file).pipe(res);

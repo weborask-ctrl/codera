@@ -1,0 +1,461 @@
+{
+  "date": "2026-09-17T13:41:07.773Z",
+  "browser": "151.0.7922.34",
+  "base": "http://127.0.0.1:4317",
+  "functional": [
+    {
+      "name": "native journey reverse portfolio sleep restart",
+      "pass": true,
+      "reversalPositions": 5,
+      "portfolioFrames": 0,
+      "restartCycles": 3
+    },
+    {
+      "name": "direct anchor after initial layout settles",
+      "pass": true,
+      "anchors": 4
+    },
+    {
+      "name": "reduced motion start context loss manual recovery",
+      "pass": true
+    },
+    {
+      "name": "query static",
+      "pass": true
+    },
+    {
+      "name": "no JavaScript retains contacts offer and compact layout",
+      "pass": true
+    },
+    {
+      "name": "unavailable WebGL readable failure",
+      "pass": true
+    },
+    {
+      "name": "missing dependency gsap/gsap.min.js",
+      "pass": true
+    },
+    {
+      "name": "missing dependency gsap/ScrollTrigger.min.js",
+      "pass": true
+    },
+    {
+      "name": "missing dependency three/three.module.min.js",
+      "pass": true
+    },
+    {
+      "name": "business API failure does not remove server content",
+      "pass": true
+    },
+    {
+      "name": "low memory prevents scene allocation and later stops it",
+      "pass": true
+    },
+    {
+      "name": "unavailable health endpoint cannot stall startup",
+      "pass": true
+    },
+    {
+      "name": "pagehide pageshow and visibility lifecycle handlers",
+      "pass": true,
+      "evidence": "Synthetic persisted page transitions and visibility events; handler regression coverage, not a bfcache/device claim."
+    },
+    {
+      "name": "viewport 1440x900",
+      "pass": true,
+      "bufferPixels": 848848,
+      "horizontalOverflow": false
+    },
+    {
+      "name": "viewport 1920x1080",
+      "pass": true,
+      "bufferPixels": 849239,
+      "horizontalOverflow": false
+    },
+    {
+      "name": "viewport 1798x1216",
+      "pass": true,
+      "bufferPixels": 849718,
+      "horizontalOverflow": false
+    },
+    {
+      "name": "viewport 768x1024",
+      "pass": true,
+      "bufferPixels": 786432,
+      "horizontalOverflow": false
+    },
+    {
+      "name": "viewport 390x844",
+      "pass": true,
+      "bufferPixels": 329160,
+      "horizontalOverflow": false
+    },
+    {
+      "name": "viewport 320x740",
+      "pass": true,
+      "bufferPixels": 236800,
+      "horizontalOverflow": false
+    }
+  ],
+  "viewports": [
+    {
+      "motion": "running",
+      "stage": 0,
+      "camera": "0.00,0.70,12.00",
+      "submitted": 2,
+      "portfolio": "false",
+      "canvases": 1,
+      "width": 1166,
+      "height": 728,
+      "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 (0x00002504) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "static": false,
+      "scrollY": 0,
+      "docWidth": 1440,
+      "viewportWidth": 1440,
+      "projects": 5,
+      "sections": [
+        {
+          "id": "uvod",
+          "top": 0,
+          "height": 2970
+        },
+        {
+          "id": "praca",
+          "top": 2970,
+          "height": 5840
+        },
+        {
+          "id": "sluzby",
+          "top": 11060,
+          "height": 937
+        },
+        {
+          "id": "proces",
+          "top": 13347,
+          "height": 900
+        },
+        {
+          "id": "kontakt",
+          "top": 15417,
+          "height": 990
+        }
+      ]
+    },
+    {
+      "motion": "running",
+      "stage": 0,
+      "camera": "0.00,0.70,12.00",
+      "submitted": 2,
+      "portfolio": "false",
+      "canvases": 1,
+      "width": 1229,
+      "height": 691,
+      "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 (0x00002504) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "static": false,
+      "scrollY": 0,
+      "docWidth": 1920,
+      "viewportWidth": 1920,
+      "projects": 5,
+      "sections": [
+        {
+          "id": "uvod",
+          "top": 0,
+          "height": 3564
+        },
+        {
+          "id": "praca",
+          "top": 3564,
+          "height": 6354
+        },
+        {
+          "id": "sluzby",
+          "top": 12618,
+          "height": 1080
+        },
+        {
+          "id": "proces",
+          "top": 15318,
+          "height": 1080
+        },
+        {
+          "id": "kontakt",
+          "top": 17802,
+          "height": 1188
+        }
+      ]
+    },
+    {
+      "motion": "running",
+      "stage": 0,
+      "camera": "0.00,0.70,12.00",
+      "submitted": 2,
+      "portfolio": "false",
+      "canvases": 1,
+      "width": 1121,
+      "height": 758,
+      "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 (0x00002504) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "static": false,
+      "scrollY": 0,
+      "docWidth": 1798,
+      "viewportWidth": 1798,
+      "projects": 5,
+      "sections": [
+        {
+          "id": "uvod",
+          "top": 0,
+          "height": 4013
+        },
+        {
+          "id": "praca",
+          "top": 4013,
+          "height": 6346
+        },
+        {
+          "id": "sluzby",
+          "top": 13399,
+          "height": 1216
+        },
+        {
+          "id": "proces",
+          "top": 16439,
+          "height": 1216
+        },
+        {
+          "id": "kontakt",
+          "top": 19236,
+          "height": 1338
+        }
+      ]
+    },
+    {
+      "motion": "running",
+      "stage": 0,
+      "camera": "0.00,0.70,12.00",
+      "submitted": 2,
+      "portfolio": "false",
+      "canvases": 1,
+      "width": 768,
+      "height": 1024,
+      "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 (0x00002504) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "static": false,
+      "scrollY": 0,
+      "docWidth": 768,
+      "viewportWidth": 768,
+      "projects": 5,
+      "sections": [
+        {
+          "id": "uvod",
+          "top": 0,
+          "height": 3379
+        },
+        {
+          "id": "praca",
+          "top": 3379,
+          "height": 3804
+        },
+        {
+          "id": "sluzby",
+          "top": 9743,
+          "height": 1024
+        },
+        {
+          "id": "proces",
+          "top": 12303,
+          "height": 1024
+        },
+        {
+          "id": "kontakt",
+          "top": 14658,
+          "height": 1126
+        }
+      ]
+    },
+    {
+      "motion": "running",
+      "stage": 0,
+      "camera": "0.00,0.70,12.00",
+      "submitted": 2,
+      "portfolio": "false",
+      "canvases": 1,
+      "width": 390,
+      "height": 844,
+      "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 (0x00002504) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "static": false,
+      "scrollY": 0,
+      "docWidth": 390,
+      "viewportWidth": 390,
+      "projects": 5,
+      "sections": [
+        {
+          "id": "uvod",
+          "top": 0,
+          "height": 2785
+        },
+        {
+          "id": "praca",
+          "top": 2785,
+          "height": 2537
+        },
+        {
+          "id": "sluzby",
+          "top": 7432,
+          "height": 1344
+        },
+        {
+          "id": "proces",
+          "top": 10042,
+          "height": 1037
+        },
+        {
+          "id": "kontakt",
+          "top": 12175,
+          "height": 928
+        }
+      ]
+    },
+    {
+      "motion": "running",
+      "stage": 0,
+      "camera": "0.00,0.70,12.00",
+      "submitted": 2,
+      "portfolio": "false",
+      "canvases": 1,
+      "width": 320,
+      "height": 740,
+      "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 (0x00002504) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "static": false,
+      "scrollY": 0,
+      "docWidth": 320,
+      "viewportWidth": 320,
+      "projects": 5,
+      "sections": [
+        {
+          "id": "uvod",
+          "top": 0,
+          "height": 2442
+        },
+        {
+          "id": "praca",
+          "top": 2442,
+          "height": 2296
+        },
+        {
+          "id": "sluzby",
+          "top": 6588,
+          "height": 1443
+        },
+        {
+          "id": "proces",
+          "top": 9141,
+          "height": 1084
+        },
+        {
+          "id": "kontakt",
+          "top": 11187,
+          "height": 858
+        }
+      ]
+    }
+  ],
+  "performance": [
+    {
+      "width": 1440,
+      "height": 900,
+      "rate": 1,
+      "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 (0x00002504) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "submitted": 541,
+      "durationMs": 18020,
+      "medianMs": 33.3,
+      "p95Ms": 34.3,
+      "over50ms": 2,
+      "longTasks": 1,
+      "maxLongTaskMs": 52,
+      "finalMotion": "running",
+      "heapMB": 10,
+      "initialBuffer": [
+        1166,
+        728
+      ],
+      "finalBuffer": [
+        1166,
+        728
+      ]
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "rate": 1,
+      "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 (0x00002504) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "submitted": 541,
+      "durationMs": 18038,
+      "medianMs": 33.3,
+      "p95Ms": 34.4,
+      "over50ms": 0,
+      "longTasks": 0,
+      "maxLongTaskMs": 0,
+      "finalMotion": "running",
+      "heapMB": 10,
+      "initialBuffer": [
+        1229,
+        691
+      ],
+      "finalBuffer": [
+        1229,
+        691
+      ]
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "rate": 4,
+      "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 (0x00002504) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "submitted": 540,
+      "durationMs": 18031,
+      "medianMs": 33.5,
+      "p95Ms": 35.4,
+      "over50ms": 0,
+      "longTasks": 0,
+      "maxLongTaskMs": 0,
+      "finalMotion": "running",
+      "heapMB": 10,
+      "initialBuffer": [
+        1166,
+        728
+      ],
+      "finalBuffer": [
+        1166,
+        728
+      ]
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "rate": 4,
+      "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 (0x00002504) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "submitted": 542,
+      "durationMs": 18048,
+      "medianMs": 33.4,
+      "p95Ms": 35.5,
+      "over50ms": 0,
+      "longTasks": 0,
+      "maxLongTaskMs": 0,
+      "finalMotion": "running",
+      "heapMB": 10,
+      "initialBuffer": [
+        390,
+        844
+      ],
+      "finalBuffer": [
+        390,
+        844
+      ]
+    }
+  ],
+  "limits": [
+    "Viewport/CPU emulation is not physical-phone validation.",
+    "Frame timings measure submitted WebGL frames, not GPU completion.",
+    "Synthetic lifecycle events exercise application handlers, not browser bfcache eligibility."
+  ],
+  "filter": null,
+  "pass": true
+}

@@ -25,17 +25,20 @@ const fragment = `
   varying vec3 vWorld;
   varying vec2 vUv;
   void main(){
-    vec3 n=normalize(vNormal);
+    vec3 n=normalize(vNormal)*(gl_FrontFacing?1.0:-1.0);
     vec3 view=normalize(cameraPosition-vWorld);
     float rim=pow(1.0-abs(dot(n,view)),2.4);
-    float key=pow(max(0.0,dot(n,normalize(vec3(-.6,1.0,1.0)))),2.0);
-    float ribs=pow(.5+.5*cos(vUv.x*6.283185*32.0+sin(vUv.y*11.0)*.25),20.0);
+    vec3 keyDirection=normalize(vec3(-.6,1.0,1.0));
+    float key=pow(max(0.0,dot(n,keyDirection)),2.0);
+    float sheen=pow(max(0.0,dot(n,normalize(keyDirection+view))),18.0);
+    float ribs=pow(.5+.5*cos(vUv.x*6.283185*16.0+sin(vUv.y*11.0)*.25),12.0);
     float veins=pow(.5+.5*cos(vUv.x*6.283185*96.0+sin(vUv.y*27.0)*1.2),36.0);
+    veins*=1.0-smoothstep(.002,.014,fwidth(vUv.x));
     float scallop=pow(.5+.5*cos(vUv.y*110.0+sin(vUv.x*100.0)),12.0);
-    vec3 pearl=mix(vec3(.68,.82,.83),vec3(.91,.73,.50),uWarm*.6);
-    vec3 light=pearl*(.24+rim*1.35+key*.55+ribs*.12+veins*.07);
-    float alpha=.10+rim*.64+key*.10+ribs*.09+veins*.04;
-    alpha=mix(alpha,.14+rim*.47+scallop*.14,uLace);
+    vec3 pearl=mix(vec3(.80,.87,.86),vec3(.94,.82,.64),.10+uWarm*.45);
+    vec3 light=pearl*(.25+rim*1.05+key*.55+ribs*.09+veins*.04)+vec3(.32,.30,.25)*sheen;
+    float alpha=.13+rim*.56+key*.09+ribs*.045+veins*.02;
+    alpha=mix(alpha,.17+rim*.43+scallop*.12,uLace);
     float depth=length(cameraPosition-vWorld);
     float fog=1.0-exp(-depth*.012);
     light=mix(light,vec3(.04,.085,.09),fog);
@@ -51,7 +54,7 @@ function surface(rows, columns, fn) {
   }
   for (let y = 0; y < rows; y++) for (let x = 0; x < columns; x++) {
     const a = y * (columns + 1) + x, b = a + columns + 1;
-    indices.push(a, b, a + 1, b, b + 1, a + 1);
+    indices.push(a, a + 1, b, b, a + 1, b + 1);
   }
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
@@ -113,6 +116,7 @@ function makeJelly() {
 
 export function createWorld(container) {
   const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false, powerPreference: 'low-power', stencil: false, preserveDrawingBuffer: false });
+  let disposed = false;
   renderer.setPixelRatio(1);
   container.append(renderer.domElement);
   const scene = new THREE.Scene();
@@ -151,6 +155,7 @@ export function createWorld(container) {
   }
   let quality = 'eco', factor = 1;
   const resize = () => {
+    if (disposed) return;
     const width = innerWidth, height = innerHeight;
     const cap = quality === 'balanced' ? 1500000 : 850000;
     const scale = Math.min(1, Math.sqrt(cap / (width * height))) * factor;
@@ -160,6 +165,7 @@ export function createWorld(container) {
   resize();
   const target = new THREE.Vector3();
   const render = (state, time, stage) => {
+    if (disposed) return;
     uniforms.uTime.value = time;
     uniforms.uWarm.value = state.light;
     group.position.set(state.jx, state.jy, state.jz);
@@ -183,6 +189,17 @@ export function createWorld(container) {
     setQuality(value) { quality = value; factor = 1; resize(); },
     downgrade() { if (factor > .7) { factor = .65; resize(); return true; } return false; },
     stats() { return { calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, geometries: renderer.info.memory.geometries, width: renderer.domElement.width, height: renderer.domElement.height }; },
-    dispose() { scene.traverse((obj) => { obj.geometry?.dispose(); if (obj.material) obj.material.dispose(); }); renderer.dispose(); renderer.domElement.remove(); },
+    dispose() {
+      if (disposed) return;
+      disposed = true;
+      const geometries = new Set(), materials = new Set();
+      scene.traverse((obj) => {
+        if (obj.geometry) geometries.add(obj.geometry);
+        if (obj.material) for (const material of Array.isArray(obj.material) ? obj.material : [obj.material]) materials.add(material);
+      });
+      for (const geometry of geometries) geometry.dispose();
+      for (const material of materials) material.dispose();
+      renderer.dispose(); renderer.forceContextLoss(); renderer.domElement.remove();
+    },
   };
 }
