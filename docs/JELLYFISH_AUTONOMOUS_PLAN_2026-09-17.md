@@ -6,6 +6,8 @@ Marcus requested approximately one hour of autonomous work on the stronger PC: s
 
 Baseline: `a7ab9fa6f7e00d31e9b70305c1529ac9b5c0f684`, branch `design/jellyfish-study-2026-09-16`. Start around 13:24 UTC. The duration is a working envelope; verified work and a usable handoff take priority.
 
+Execution complete: phases 0–3 delivered in code/evidence revision `4752638`; LOCAL gates passed and GitHub CI run `35229531098` is green. The [handoff](JELLYFISH_HANDOFF_2026-09-17.md) is the final result and continuation record. The security phase also applied the narrowly scoped transitive `js-yaml` advisory fix discovered during its online audit. No final production asset or deployed redesign is claimed.
+
 ## Phase 0 — documentation discovery (about 8 minutes)
 
 Read AGENTS/CLAUDE, MARCUS_RULES, experiment CONTRACT/README, continuation documents, implementation, test patterns and LIKED Active Theory/Exo Ape records; inspect the approved hero. Confirm the remote branch, hardware, preview and live dependency advisories.

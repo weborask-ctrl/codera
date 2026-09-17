@@ -2,7 +2,7 @@
 
 ## Autonomous jellyfish workstation pass — 2026-09-17
 
-**Status: implementation and LOCAL gates DONE; repository synchronization in progress.** Authorized by Marcus in the current session. Mission: strengthen and measure the isolated jellyfish prototype and refine its camera while preserving page layout. Inputs, constraints, deliverables, phase gates and validation classes are in [the implementation plan](../docs/JELLYFISH_AUTONOMOUS_PLAN_2026-09-17.md). Full verification, 102 production tests, 21 prototype browser groups and focused checks passed. The [handoff](../docs/JELLYFISH_HANDOFF_2026-09-17.md) records changes, measurements, limits and home continuation. Production merge/deployment is outside this pass; final GitHub/CI evidence is recorded separately.
+**Status: DONE — LOCAL passed; code `4752638` pushed and CI green ([run 35229531098](https://github.com/weborask-ctrl/codera/actions/runs/35229531098)).** Authorized by Marcus in the current session. Mission: strengthen and measure the isolated jellyfish prototype and refine its camera while preserving page layout. Inputs, constraints, deliverables, phase gates and validation classes are in [the implementation plan](../docs/JELLYFISH_AUTONOMOUS_PLAN_2026-09-17.md). Full verification, 102 production tests, 21 prototype browser groups and focused checks passed. The [handoff](../docs/JELLYFISH_HANDOFF_2026-09-17.md) records changes, measurements, limits and home continuation. Production merge/deployment remains outside this pass; DEVICE validation is still pending.
 
 Faithful working transcription of `source/working-document-v0.5.docx` (Steps 1–4),
 extended with the step that was executed but never specified (Step 5) and the

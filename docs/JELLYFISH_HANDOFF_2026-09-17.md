@@ -4,7 +4,7 @@
 
 The isolated prototype has smoother, reversible camera travel, a restrained pearl-material refinement, reliable start/stop and failure handling, and repeatable browser/performance checks. The existing page composition is preserved. All five portfolio examples remain one ordinary-scroll block, with the camera and renderer asleep there. No production homepage redesign, merge or deployment was performed.
 
-Working branch: `design/jellyfish-study-2026-09-16`. Starting commit: `a7ab9fa6f7e00d31e9b70305c1529ac9b5c0f684`. The [autonomous plan](JELLYFISH_AUTONOMOUS_PLAN_2026-09-17.md) is the scope contract. Final commit, push and CI evidence are recorded below after the gates finish.
+Working branch: `design/jellyfish-study-2026-09-16`. Starting commit: `a7ab9fa6f7e00d31e9b70305c1529ac9b5c0f684`. The [autonomous plan](JELLYFISH_AUTONOMOUS_PLAN_2026-09-17.md) is the scope contract. The completed implementation/evidence revision is **`47526382aaf4c36580f55a0d2ca2b87602e473fe`**, pushed and verified on GitHub. This documentation-only follow-up records the completed gates; it does not change the verified application code.
 
 ## What changed
 
@@ -40,7 +40,7 @@ Total document height: **20,569 px** before and after. Headings, section order, 
 - Audits: `npm audit --omit=dev --json --offline=false` and `npm audit --json --offline=false`, both against the live registry with a workspace cache: **0 vulnerabilities**. Offline/cache-only audit output was not accepted as evidence.
 - Prototype browser checks: **21/21 groups passed** in Chromium 151.0.7922.34. Coverage: forward/reverse journey, zero portfolio frames and sleeping ticker, restart cycles, four direct anchors, reduced motion, real WebGL context loss/retry, no JavaScript/WebGL, missing GSAP/ScrollTrigger/Three, unavailable business/health APIs, a timed-out health request, low memory, keyboard skip/control access, lifecycle handlers, and six viewport sizes (320, 390, 768, 1440, 1798 and 1920 px wide).
 - Lifecycle pagehide/pageshow/visibility regression tests use synthetic events. They test our handlers, not actual browser bfcache eligibility. WebGL context loss was exercised through the browser's loss extension.
-- `npm run verify`: **passed** on the final code checkpoint (Biome, TypeScript and the production build, 16 routes). Biome reported 14 informational style suggestions, no failing diagnostics. Six JavaScript module syntax checks and `git diff --check` also passed. Final synchronization evidence follows below.
+- `npm run verify`: **passed**, then repeated successfully on committed revision `4752638` (Biome, TypeScript and the production build, 16 routes). The focused check also passed again on that revision. Biome reported 14 informational style suggestions, no failing diagnostics. Six JavaScript module syntax checks and `git diff --check` passed.
 
 Workstation: Intel Core i3-9100F (4 cores), approximately 15.94 GiB system RAM, NVIDIA RTX 3060 (12 GiB). Only roughly 2–3 GiB system memory was free during parts of the pass, so builds and browser measurements were sequenced. Chromium identified the actual RTX 3060 through ANGLE/D3D11, not a software renderer.
 
@@ -97,9 +97,11 @@ The prototype browser harness saves its report and images under ignored `test-re
 
 ## Validation classes and repository delivery
 
-- **LOCAL:** full verification, 102 production tests, focused checks and 21 prototype browser groups passed on the final code tree. The delivery record below identifies its committed revision.
-- **CI:** pending the push for this pass; [branch Actions](https://github.com/weborask-ctrl/codera/actions?query=branch%3Adesign%2Fjellyfish-study-2026-09-16). Branch pushes run the fast gate; the existing workflow reserves CI E2E for PRs/master.
+- **LOCAL:** full verification, 102 production tests, focused checks and 21 prototype browser groups passed on the final code tree. Full verification and the focused check were repeated on committed code revision `4752638`.
+- **CI:** **passed** for `4752638`, [run 35229531098](https://github.com/weborask-ctrl/codera/actions/runs/35229531098). Fast gate: dependency install, Biome, TypeScript and production build, 39 seconds. CI E2E was skipped by the existing branch condition, not reported as a remote pass; the 102-test result is LOCAL. Future documentation-only runs appear in [branch Actions](https://github.com/weborask-ctrl/codera/actions?query=branch%3Adesign%2Fjellyfish-study-2026-09-16).
 - **PREVIEW:** local standalone preview inspected, but no new hosted deployment was created or validated.
 - **DEVICE:** not validated on a physical phone or the home PC. That remains user/device work.
+
+The normal push ran the enabled pre-push Biome/TypeScript hooks without bypass; the remote branch SHA was confirmed equal to `47526382aaf4c36580f55a0d2ca2b87602e473fe`. A final documentation commit records these results. No force push, merge into `master` or production deployment was performed.
 
 No new AI images or videos were generated or paid for. The procedural animal is still a camera/interaction proxy, not a final photographic or 4K creature. The handoff carries project decisions and evidence, not the original chat transcript, credentials, npm cache or local servers.
