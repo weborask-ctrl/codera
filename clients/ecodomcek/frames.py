@@ -2,10 +2,16 @@
 
     python3 clients/ecodomcek/frames.py <clips.json>
 
-`clips.json` maps a clip id to a local MP4 (or a URL). For each clip the
-script writes `public/demos/ecodomcek/seq/<id>/000.webp … NNN.webp` — evenly
-spaced frames, 1280 px wide, plus `poster.jpg` from the first frame — and
-prints the frame count `components/concepts/ecodomcek.tsx` expects.
+`clips.json` maps a clip id to a local MP4 (or a URL), or to an object
+`{"src": …, "frames": 32}` when that clip wants a different count. For each
+clip the script writes `public/demos/ecodomcek/seq/<id>/000.webp … NNN.webp`
+— evenly spaced frames, 1280 px wide, plus `poster.jpg` from the first frame
+— and prints the frame count `components/concepts/ecodomcek.tsx` expects.
+
+Frame count is a bytes decision, not a smoothness one: a slow dolly over a
+dense meadow costs ~140 KB a frame at any quality (measured 2026-09-18 —
+dropping WebP quality from 62 to 42 saved 21 %, halving the frame count
+saves 50 %), so the portrait hero, the one a phone fetches first, runs at 32.
 
 Why frames and not a <video> scrubbed with currentTime: seeking a normal MP4
 is keyframe-bound and stutters under scroll; a frame sequence drawn onto a
@@ -36,7 +42,7 @@ QUALITY = 74
 QUALITY_PORTRAIT = 62  # phones fetch these on data; 48 frames must stay near 4 MB
 
 
-def extract(clip_id: str, source: str) -> int:
+def extract(clip_id: str, source: str, frames: int = FRAMES) -> int:
     ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
     work = tempfile.mkdtemp(prefix=f"eco-{clip_id}-")
     src = source
@@ -54,19 +60,19 @@ def extract(clip_id: str, source: str) -> int:
             dur = int(h) * 3600 + int(m) * 60 + float(s)
     if dur <= 0:
         raise SystemExit(f"{clip_id}: could not read duration from {source}")
-    fps = FRAMES / dur
+    fps = frames / dur
     raw = os.path.join(work, "f%03d.png")
     portrait = any(f"{w}x{h}" in probe and h > w for w, h in ((1088, 1920), (1080, 1920), (1152, 2048), (1440, 2560), (1536, 2752)))
     width = WIDTH_PORTRAIT if portrait or clip_id.endswith("-m") else WIDTH
     subprocess.run(
-        [ffmpeg, "-y", "-loglevel", "error", "-i", src, "-vf", f"fps={fps:.6f},scale={width}:-2", "-frames:v", str(FRAMES), raw],
+        [ffmpeg, "-y", "-loglevel", "error", "-i", src, "-vf", f"fps={fps:.6f},scale={width}:-2", "-frames:v", str(frames), raw],
         check=True,
     )
     dst = os.path.join(OUT, clip_id)
     shutil.rmtree(dst, ignore_errors=True)
     os.makedirs(dst)
     n = 0
-    for i in range(1, FRAMES + 1):
+    for i in range(1, frames + 1):
         p = raw % i
         if not os.path.exists(p):
             break
@@ -86,5 +92,10 @@ if __name__ == "__main__":
         raise SystemExit(__doc__)
     with open(sys.argv[1], encoding="utf-8") as f:
         clips = json.load(f)
-    counts = {cid: extract(cid, src) for cid, src in clips.items()}
+    counts = {}
+    for cid, spec in clips.items():
+        if isinstance(spec, dict):
+            counts[cid] = extract(cid, spec["src"], spec.get("frames", FRAMES))
+        else:
+            counts[cid] = extract(cid, spec)
     print(json.dumps(counts))

@@ -60,6 +60,16 @@ const FACES = [
   { out: "bricolage-800.woff2", src: "bricolagegrotesque/BricolageGrotesque[opsz,wdth,wght].ttf", axes: { opsz: 14, wdth: 100, wght: 800 } },
   { out: "instrument-serif.woff2", src: "instrumentserif/InstrumentSerif-Regular.ttf", axes: {} },
   { out: "instrument-serif-italic.woff2", src: "instrumentserif/InstrumentSerif-Italic.ttf", axes: {} },
+  /* the EcoDomček concept's own two faces (/ecodomcek, clients/ecodomcek/
+     ART_DIRECTION.md §3). They arrive here rather than through
+     next/font/google for the reason the audit gave: that route was fetching
+     14 hashed files, ~127 KB, and a second copy of Instrument Serif the site
+     already self-hosts. Instrument Sans is pinned to normal width and the
+     400-500 the copy uses; Plex Mono is static in google/fonts, so its two
+     weights are two files. */
+  { out: "instrument-sans.woff2", src: "instrumentsans/InstrumentSans[wdth,wght].ttf", axes: { wdth: 100, wght: { min: 400, max: 500 } } },
+  { out: "plex-mono.woff2", src: "ibmplexmono/IBMPlexMono-Regular.ttf", axes: {} },
+  { out: "plex-mono-500.woff2", src: "ibmplexmono/IBMPlexMono-Medium.ttf", axes: {} },
 ]
 
 async function source(rel) {

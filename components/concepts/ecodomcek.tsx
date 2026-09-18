@@ -17,8 +17,9 @@
  * CONTENT_INVENTORY.md (the live site, verbatim). The house is a concept and
  * says so on every plate: `Vzorový dom · koncept, nie realizácia`.
  *
- * Fonts (Instrument Sans, IBM Plex Mono, Instrument Serif italic) are loaded
- * by app/ecodomcek/page.tsx and arrive as --font-eco-* variables.
+ * Fonts: app/ecodomcek/page.tsx loads the client's own Instrument Sans and
+ * IBM Plex Mono (self-hosted, subsetted) as --font-eco-*; the italic serif
+ * is the site's own --font-instrument.
  */
 
 import { useEffect, useRef, useState } from "react"
@@ -39,15 +40,24 @@ const T = {
 
 const SANS = { fontFamily: "var(--font-eco-sans), var(--font-geist-sans), sans-serif" } as const
 const MONO = { fontFamily: "var(--font-eco-mono), var(--font-geist-mono), monospace" } as const
-const SERIF = { fontFamily: "var(--font-eco-serif), var(--font-instrument), Georgia, serif", fontStyle: "italic" } as const
+/* the site's own Instrument Serif, true italic — the route loads no serif of its own */
+const SERIF = { fontFamily: "var(--font-instrument), Georgia, serif", fontStyle: "italic" } as const
 
 const ASSET = "/demos/ecodomcek"
 const PAD = "px-[clamp(1.25rem,4vw,3.5rem)]"
+/* The floor-plan minimap is fixed at the bottom-left from `lg` up (12rem wide
+   plus its own padding). Anything anchored to the bottom edge has to start
+   clear of it, or its first cell is simply occluded — which is how the hero's
+   `01 EKOLOGICKÉ` disappeared. */
+const MM_GUTTER = "lg:pl-[calc(clamp(1.25rem,4vw,3.5rem)+15rem)]"
 
-/* frame counts per clip — written by clients/ecodomcek/frames.py */
+/* frame counts per clip — written by clients/ecodomcek/frames.py.
+   The portrait hero runs at 32: it is the one sequence a phone fetches
+   before anything else, and its meadow costs ~140 KB a frame whatever the
+   quality, so the count is where the bytes are. */
 const CLIPS = {
   prijazd: 48,
-  "prijazd-m": 48,
+  "prijazd-m": 32,
   obyvacka: 48,
   stena: 48,
   model: 48,
@@ -203,12 +213,36 @@ function Stage({
       canvas.style.opacity = "1"
     }
 
+    /**
+     * Two passes, four requests at a time.
+     *
+     * Asking for all 48 frames at once put the browser's queue in charge of
+     * the order, and on a phone the hero is 6.6 MB of dense meadow before a
+     * finger has moved. Here every 4th frame is fetched first, so the scrub
+     * works — coarsely — after ~1/4 of the bytes (draw() already falls back
+     * to the nearest decoded frame), and the rest fills in behind it.
+     */
     const load = () => {
       if (loading) {
         return
       }
       loading = true
+      const stride = 4
+      const order: number[] = []
+      for (let i = 0; i < n; i += stride) {
+        order.push(i)
+      }
       for (let i = 0; i < n; i++) {
+        if (i % stride !== 0) {
+          order.push(i)
+        }
+      }
+      let next = 0
+      const pull = () => {
+        if (!alive || next >= order.length) {
+          return
+        }
+        const i = order[next++]
         const img = new Image()
         img.decoding = "async"
         img.src = `${ASSET}/seq/${clipId}/${String(i).padStart(3, "0")}.webp`
@@ -219,11 +253,15 @@ function Stage({
               return
             }
             frames[i] = img
-            if (i === 0 || Math.round(progress * (n - 1)) === i) {
+            if (i === 0 || Math.abs(Math.round(progress * (n - 1)) - i) < stride) {
               draw()
             }
           })
           .catch(() => {})
+          .finally(pull)
+      }
+      for (let w = 0; w < 4; w++) {
+        pull()
       }
     }
 
@@ -265,6 +303,13 @@ function Stage({
           const tl = gsap.timeline({
             scrollTrigger: { trigger: sec, start: "top top", end: "bottom bottom", scrub: true },
           })
+          /* ScrollTrigger maps the room's scroll onto the timeline's OWN
+             length, so the positions below only mean "12 % of the room" if
+             the timeline is exactly 1 long. Without this spacer a room with
+             no exit (its tweens spanning 0.19) stretched its entrance across
+             the whole room and the copy was readable only at the far end —
+             the opposite of ENTER → HOLD → EXIT (CLAUDE.md #2). */
+          tl.to({}, { duration: 1 }, 0)
           if (enter) {
             tl.fromTo(ins, { opacity: 0, y: 28 }, { opacity: 1, y: 0, duration: 0.12, stagger: 0.01, ease: "power2.out" }, 0)
           }
@@ -489,9 +534,10 @@ export default function EcodomcekSite() {
       >
         <div className={`absolute inset-0 grid grid-cols-12 items-center gap-x-6 ${PAD} pt-24 pb-28 lg:items-start lg:pt-[15vh]`}>
           <div className="relative col-span-12 self-end md:col-span-6 md:self-center lg:col-span-4 lg:self-start">
-            <div className="md:hidden">
-              <Veil side="left" />
-            </div>
+            {/* the lead and the phone line sat on sunlit grass and failed the
+                static-frame test at 1440×900; the veil is the same device the
+                other rooms use, fading out well before the house */}
+            <Veil side="left" />
             <div className="relative flex flex-col gap-5">
               <Eyebrow>Montované drevodomy · Lúčina pri Prešove</Eyebrow>
               <h1
@@ -526,8 +572,8 @@ export default function EcodomcekSite() {
         </p>
         {/* the benefit band on the meadow */}
         <div
-          className={`absolute inset-x-0 bottom-0 hidden grid-cols-4 gap-6 border-t ${PAD} py-6 md:grid`}
-          style={{ borderColor: "rgba(43,37,32,0.25)" }}
+          className={`absolute inset-x-0 bottom-0 hidden grid-cols-4 gap-6 border-t ${PAD} ${MM_GUTTER} py-6 md:grid`}
+          style={{ borderColor: T.hair, background: "rgba(243,237,226,0.93)" }}
         >
           {[
             ["01", "Ekologické"],
@@ -802,7 +848,7 @@ export default function EcodomcekSite() {
           </div>
         </div>
         <p
-          className={`absolute inset-x-0 bottom-0 flex flex-wrap gap-x-7 gap-y-1 border-t ${PAD} py-4 text-[0.58rem] tracking-[0.14em] uppercase`}
+          className={`absolute inset-x-0 bottom-0 flex flex-wrap gap-x-7 gap-y-1 border-t ${PAD} ${MM_GUTTER} py-4 text-[0.58rem] tracking-[0.14em] uppercase`}
           style={{ ...MONO, color: "rgba(243,237,226,0.72)", borderColor: "rgba(243,237,226,0.25)" }}
         >
           <span>EcoDomček, s.r.o.</span>
