@@ -1,5 +1,7 @@
 # Current ocean study - photographic-detail pass
 
+**Approved baseline:** Marcus accepted commit `56c756b` as the visual foundation. Preserve it while developing further layers. His lower-powered PC must not set the project's maximum visual quality; see [the recorded decision](OCEAN_APPROVED_BASELINE.md).
+
 Open http://127.0.0.1:4317/ocean.html with the existing preview server.
 This is a live procedural environment, not the reference PNG displayed behind a canvas.
 
