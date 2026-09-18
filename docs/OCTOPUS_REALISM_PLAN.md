@@ -72,3 +72,15 @@ Checked frontal detail and 30-degree oblique detail in the live browser, with no
 Verified whole view and arm close-up at two idle animation phases, no console errors and no obvious detached cups in the inspected views. Syntax, binary integrity and finite anchor checks passed. Skin mesh: 149,946 vertices / 299,820 triangles / 10,195,472 bytes; 460 baked anchors (the visible subset excludes proximal dorsal web).
 
 This is a base-pose/idle check, not validation of future large scroll-driven deformations or collision-free animation. Detailed regional skin treatment remains step 4. Head, eyes and approved ocean were not redesigned in this pass.
+
+## Iteration 4 implementation — regional skin
+
+2026-09-19. Marcus requested step 4 with a photographic/cinematic target.
+
+- Added object-space anatomical masks for mantle, orbital skin, dorsal arms and ventral arm surfaces. Masks follow the existing deformation; there are no projected screen-space color patches.
+- Mantle uses a darker copper/wine palette and rougher response; dorsal arms retain finer mottling; ventral surfaces and sucker tissue are lighter and smoother.
+- Added restrained eye-surround folds and fine ventral stretch folds. Separated their amplitudes from the mantle papilla relief.
+- Tightened screen-footprint filtering of high-frequency detail to reduce unresolved sparkle. Reduced the pale ventral region near the crown after visual review.
+- Implemented as procedural material fields over the existing sculpt; this pass does not add exported image texture maps or change the geometry, eyes, ocean or motion system.
+
+Verified close-up in the natural viewport and whole material at a Full HD viewport, with no console/shader errors. Syntax and diff checks passed. Photorealism remains an artistic target rather than a completed quality claim; the next planned step is lighting/subsurface integration. No new 4K or frame-rate claim.

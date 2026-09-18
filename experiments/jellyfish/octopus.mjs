@@ -115,18 +115,28 @@ void main(){
   return;
  }
  float footprint=max(length(dFdx(local)),length(dFdy(local)));
- float detail=1.-smoothstep(.007,.035,footprint);
+ float detail=1.-smoothstep(.003,.014,footprint);
  vec3 skinPoint=local+vec3(noise(local*2.3),noise(local*2.3+17.),noise(local*2.3+41.))*.12;
  float coarse=noise(skinPoint*3.8),cells=mix(.5,noise(skinPoint*28.),1.-smoothstep(.015,.08,footprint)),fine=mix(.5,noise(skinPoint*64.),detail);
+ // Anatomical masks stay in object space and travel with the deformation.
+ float mantle=smoothstep(.55,1.10,local.y);
+ float underside=smoothstep(.25,.95,tex.x)*(1.-smoothstep(-.65,-.20,local.y));
+ vec3 eyeDelta=local-vec3(local.x<0.?-.50:.50,local.x<0.?.43:.45,.43);
+ float eyeDistance=length(eyeDelta);
+ float orbital=(1.-smoothstep(.22,.43,eyeDistance))*smoothstep(.11,.18,eyeDistance);
+ float armSkin=(1.-smoothstep(-.15,.30,local.y))*(1.-underside);
  if(kind<.5){
   float papillae=pow(smoothstep(.28,.86,noise(skinPoint*19.)),2.);
-  float fold=sin(local.y*65.+noise(skinPoint*6.)*5.)*.5+.5;
-  float folds=fold*exp(-pow((local.y-.12)*4.,2.))*.08;
-  float relief=papillae*.62+cells*.23+fine*.07+folds;
+  float foldWarp=noise(skinPoint*7.);
+  float orbitalFolds=sin(eyeDistance*115.+foldWarp*3.+atan(eyeDelta.y,eyeDelta.x)*2.)*.5+.5;
+  float stretchFolds=sin(tex.y*128.+foldWarp*4.)*.5+.5;
+  float relief=papillae*(.30+mantle*.32+armSkin*.12)*(1.-underside*.80);
+  relief+=cells*.12+fine*.035;
+  relief+=orbitalFolds*orbital*.18+stretchFolds*underside*.075;
   vec3 dx=dFdx(world),dy=dFdy(world),a=cross(dy,n),b=cross(n,dx);
   float determinant=dot(dx,a);
   vec3 gradient=sign(determinant)*(dFdx(relief)*a+dFdy(relief)*b);
-  n=normalize(abs(determinant)*n-gradient*.008);
+  n=normalize(abs(determinant)*n-gradient*.007);
  }
  float facing=max(0.,dot(n,v)),visibility=shadow();
  vec2 lightPoint=world.xz-sun.xz*world.y/sun.y;
@@ -142,12 +152,20 @@ void main(){
  pigment=mix(pigment,vec3(.64,.45,.29),pale*.05);
  float spots=smoothstep(.63,.77,noise(skinPoint*115.))*detail;
  pigment*=1.-spots*.14;
- if(kind<.5)pigment=mix(pigment,vec3(.49,.29,.21),smoothstep(.25,.95,tex.x)*.64);
+ if(kind<.5){
+  vec3 mantlePigment=mix(vec3(.22,.048,.047),vec3(.39,.113,.068),smoothstep(.18,.84,coarse));
+  pigment=mix(pigment,mantlePigment,mantle*.70);
+  vec3 ventralPigment=mix(vec3(.39,.215,.155),vec3(.57,.365,.235),coarse);
+  pigment=mix(pigment,ventralPigment,underside*.86);
+  pigment=mix(pigment,pigment*vec3(.82,.84,.90),orbital*.32);
+  float brokenMarbling=smoothstep(.63,.81,noise(skinPoint*10.)+coarse*.10);
+  pigment=mix(pigment,vec3(.55,.32,.19),brokenMarbling*(.075+mantle*.045)*(1.-underside));
+ }
  pigment=mix(pigment,vec3(.035,.16,.20),smoothstep(.73,.92,coarse)*.35);
- float roughness=.28+cells*.20;
+ float roughness=.30+cells*.14+mantle*.07-underside*.10;
  float cavity=1.;
  if(kind>.5&&kind<1.5){
-  pigment=mix(vec3(.36,.18,.13),vec3(.69,.48,.33),cells);
+  pigment=mix(vec3(.43,.255,.185),vec3(.69,.49,.34),cells*.55+.20);
   cavity=mix(.10,1.,smoothstep(.10,.80,tex.y));roughness=.27;
  }
  if(kind>1.5){
