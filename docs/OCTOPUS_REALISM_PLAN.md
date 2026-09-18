@@ -59,3 +59,16 @@ Verified front and 35-degree oblique clay views, no console errors, syntax and b
 - Lens winding corrected for front-face rendering. Existing body, arms, ocean and scroll behavior untouched.
 
 Checked frontal detail and 30-degree oblique detail in the live browser, with no console errors; JavaScript syntax and diff checks pass. This is an eye construction improvement, not a declaration that the full creature is photorealistic. Eye sockets still have a pronounced dark edge under this lighting and should be assessed by Marcus before treating the step as visually approved. No new 4K/performance claim.
+
+## Iteration 3 implementation — arms and suckers
+
+2026-09-19. Marcus approved the direction and requested step 3.
+
+- Shared curvature-based arm sections flatten in tighter bends and widen reciprocally to preserve approximate cross-sectional area. Applied consistently to the baked field and analytical tips. Added restrained radius variation and inner-bend folds; original arm paths retained.
+- Rebuilt cup anchors against the altered surface; removed the old circular-radius minimum that would leave cups floating above a flattened surface.
+- Reworked cup profile into a short stalk, soft lip and deeper cavity with slight oval/asymmetric variation. Kept one ring per authored profile station to avoid unnecessary triangles.
+- Added a functional `Detail ramien` review view in the study controls.
+
+Verified whole view and arm close-up at two idle animation phases, no console errors and no obvious detached cups in the inspected views. Syntax, binary integrity and finite anchor checks passed. Skin mesh: 149,946 vertices / 299,820 triangles / 10,195,472 bytes; 460 baked anchors (the visible subset excludes proximal dorsal web).
+
+This is a base-pose/idle check, not validation of future large scroll-driven deformations or collision-free animation. Detailed regional skin treatment remains step 4. Head, eyes and approved ocean were not redesigned in this pass.

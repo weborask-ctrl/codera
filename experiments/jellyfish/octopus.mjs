@@ -1,5 +1,5 @@
 import * as THREE from '/vendor/three/three.module.min.js';
-import {paths,armRadius,armTwist,eyes} from './octopus-anatomy.mjs';
+import {paths,armRadius,armTwist,armSection,eyes} from './octopus-anatomy.mjs';
 import {oceanFragment} from './ocean-film-shaders.mjs';
 
 // Reuse the approved water's optical functions for reflections on the animal.
@@ -238,8 +238,10 @@ export async function createOctopus(time,waves={value:null}){
   const tip=meshGrid(96,32,(u,v)=>{
    const t=.62+v*.38,c=curve.getPointAt(t),tangent=curve.getTangentAt(t),front=V([0,-.20,1]);
    front.addScaledVector(tangent,-front.dot(tangent)).normalize();
-   const lateral=new THREE.Vector3().crossVectors(tangent,front),a=u*Math.PI*2+armTwist(t,i);
-   return c.addScaledVector(front,Math.cos(a)*(radius(t,i)+.005)).addScaledVector(lateral,Math.sin(a)*(radius(t,i)+.005)).toArray();
+   const lateral=new THREE.Vector3().crossVectors(tangent,front),twist=armTwist(t,i),a=u*Math.PI*2,section=armSection(curve,t);
+   const under=front.clone().multiplyScalar(Math.cos(twist)).addScaledVector(lateral,Math.sin(twist));
+   const across=new THREE.Vector3().crossVectors(tangent,under);
+   return c.addScaledVector(under,Math.cos(a)*(radius(t,i)*section.depth+.005)).addScaledVector(across,Math.sin(a)*(radius(t,i)*section.width+.005)).toArray();
   });
   for(let j=0;j<tip.attributes.flex.count;j++){
    const u=tip.attributes.uv.getX(j),t=.62+tip.attributes.uv.getY(j)*.38;
@@ -258,13 +260,15 @@ export async function createOctopus(time,waves={value:null}){
    const x=new THREE.Vector3().crossVectors(tangent,axis).normalize(),y=new THREE.Vector3().crossVectors(axis,x).normalize();
    const r=radius(t,i),size=r*.33*(1+Math.sin(k*2.7+i)*.08),origin=c.clone().addScaledVector(axis,cupAnchors[`${i}:${k}:${side}`]??r*.96);
    // Profile: stalk base -> outer rim -> inward lip -> recessed center.
-   const profile=[[.48,0],[.73,.17],[.96,.37],[1.,.52],[.87,.56],[.66,.43],[.44,.19],[.22,.07],[0,.05]];
-   const cup=meshGrid(8,20,(u,v)=>{
-    const [rr,h]=profile[Math.round(v*8)],a=u*Math.PI*2;
-    return origin.clone().addScaledVector(x,Math.cos(a)*rr*size).addScaledVector(y,Math.sin(a)*rr*size).addScaledVector(axis,h*size).toArray();
+   const profile=[[.58,-.06],[.66,.13],[.88,.31],[1.,.48],[.98,.60],[.88,.65],[.73,.58],[.57,.40],[.40,.20],[.23,.08],[0,.055]];
+   const cup=meshGrid(10,24,(u,v)=>{
+    const f=v*10,j=Math.min(9,Math.floor(f)),blend=f-j;
+    const rr=profile[j][0]+(profile[j+1][0]-profile[j][0])*blend,h=profile[j][1]+(profile[j+1][1]-profile[j][1])*blend,a=u*Math.PI*2;
+    const oval=1+.065*Math.sin(k*1.71+i),lip=1+.035*Math.sin(a*3+k*.8);
+    return origin.clone().addScaledVector(x,Math.cos(a)*rr*size*oval*lip).addScaledVector(y,Math.sin(a)*rr*size/oval*lip).addScaledVector(axis,h*size).toArray();
    });
    const f=cup.attributes.flex,uv=cup.attributes.uv;
-   for(let n=0;n<f.count;n++){f.setXY(n,t,phase);uv.setY(n,profile[Math.round(uv.getY(n)*8)][0]);}
+   for(let n=0;n<f.count;n++){f.setXY(n,t,phase);const p=uv.getY(n)*10,j=Math.min(9,Math.floor(p));uv.setY(n,profile[j][0]+(profile[j+1][0]-profile[j][0])*(p-j));}
    cupParts.push(cup);
   }
  }

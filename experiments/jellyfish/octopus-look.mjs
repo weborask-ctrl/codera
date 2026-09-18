@@ -53,8 +53,8 @@ if(study){
  presentScene=new THREE.Scene();
  presentScene.add(new THREE.Mesh(plane.geometry,new THREE.ShaderMaterial({uniforms:{image:{value:backdrop.texture}},vertexShader:material.vertexShader,fragmentShader:'uniform sampler2D image;varying vec2 vUv;void main(){gl_FragColor=texture2D(image,vUv);\n#include <tonemapping_fragment>\n#include <colorspace_fragment>\n}',depthTest:false,depthWrite:false})));
  document.querySelectorAll('[data-view]').forEach(button=>button.onclick=()=>{
-  const detail=button.dataset.view==='detail';
-  uniforms.cameraOffset.value.set(detail?jelly.group.position.x-.3:0,detail?.45:0,detail?-2.2:0);
+  const detail=button.dataset.view!=='whole',arms=button.dataset.view==='arms';
+  uniforms.cameraOffset.value.set(detail?jelly.group.position.x-.3:0,detail?(arms?-1.1:.45):0,detail?-2.2:0);
   uniforms.pointer.value.set(0,0);uniforms.travel.value=0;moving=false;
   document.querySelector('#travel').textContent='Prelet kamery';
   document.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));

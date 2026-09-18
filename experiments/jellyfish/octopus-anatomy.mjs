@@ -9,6 +9,13 @@ export const paths=[
  [[-.48,-.13,-.22],[-1.10,-.63,-.53],[-1.90,-1.03,-.59],[-2.50,-.79,-.43],[-2.73,-.34,-.18],[-2.50,-.03,-.02],[-2.22,-.16,.07]],
  [[-.48,-.20,.21],[-1.02,-.77,.54],[-1.63,-1.39,.66],[-2.15,-1.79,.49],[-2.48,-1.65,.23],[-2.55,-1.33,.09]],
 ];
-export const armRadius=(t,i)=>(i<2?.39:.32)*(1-t)**1.22+.009;
+export const armRadius=(t,i)=>(i<2?.39:.32)*(1-t)**1.22*(1+.08*Math.sin(t*5.2+i*.47)*Math.sin(t*Math.PI))+.009;
+// Slight flattening on the sucker surface, increased through tight bends.
+// Reciprocal width keeps cross-sectional area approximately stable.
+export function armSection(curve,t){
+ const a=curve.getTangentAt(Math.max(0,t-.015)),b=curve.getTangentAt(Math.min(1,t+.015));
+ const bend=Math.min(1,a.distanceTo(b)*2.8),depth=.94-.16*bend;
+ return {depth,width:1/depth,bend};
+}
 export const armTwist=(t,i)=>[-.82,.77,.9,1.4,1.7,-1.6,-1.15,-.75][i]+Math.sin(t*3+i*.8)*.22+t*.35;
 export const eyes=[{side:-1,center:[-.50,.43,.43],normal:[-.62,.08,1]},{side:1,center:[.50,.45,.43],normal:[.62,.10,1]}];

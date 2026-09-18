@@ -2,7 +2,7 @@
 // The browser loads the baked mesh; no voxel work is done on the user's GPU.
 import * as THREE from '../.prototype-cache/jellyfish/three/three.module.min.js';
 import {writeFile} from 'node:fs/promises';
-import {paths,armRadius,armTwist,eyes} from '../experiments/jellyfish/octopus-anatomy.mjs';
+import {paths,armRadius,armTwist,armSection,eyes} from '../experiments/jellyfish/octopus-anatomy.mjs';
 
 const step=.032,lo=[-3.12,-2.65,-1.80],hi=[3.15,2.18,1.66];
 const dims=lo.map((v,i)=>Math.ceil((hi[i]-v)/step)+1),[nx,ny,nz]=dims,layer=nx*ny;
@@ -36,10 +36,18 @@ for(const side of [-1,1])ellipsoid([side*.40,.43,.20],[.24,.24,.30],.24);
 for(let i=0;i<8;i++){
  armField.fill(10);
  for(let k=0;k<100;k++){
-  const a=samples[i][k],b=samples[i][k+1],ab=b.p.map((v,j)=>v-a.p[j]),len2=ab.reduce((s,v)=>s+v*v,0),pad=a.r+.16;
+  const a=samples[i][k],b=samples[i][k+1],ab=b.p.map((v,j)=>v-a.p[j]),len2=ab.reduce((s,v)=>s+v*v,0),pad=a.r*1.35+.16;
+  const mid=(a.t+b.t)*.5,tangent=curves[i].getTangentAt(mid),front=new THREE.Vector3(0,-.2,1);
+  front.addScaledVector(tangent,-front.dot(tangent)).normalize();
+  const across=new THREE.Vector3().crossVectors(tangent,front),twist=armTwist(mid,i),under=front.clone().multiplyScalar(Math.cos(twist)).addScaledVector(across,Math.sin(twist));
+  const lateral=new THREE.Vector3().crossVectors(tangent,under),section=armSection(curves[i],mid);
+  const bendDirection=curves[i].getTangentAt(Math.min(1,mid+.015)).sub(curves[i].getTangentAt(Math.max(0,mid-.015))).normalize();
   box(a.p.map((v,j)=>Math.min(v,b.p[j])-pad),a.p.map((v,j)=>Math.max(v,b.p[j])+pad),(j,x,y,z)=>{
    const ap=[x-a.p[0],y-a.p[1],z-a.p[2]],t=Math.max(0,Math.min(1,ap.reduce((s,v,j)=>s+v*ab[j],0)/len2));
-   const d=Math.hypot(...ap.map((v,j)=>v-ab[j]*t))-(a.r+(b.r-a.r)*t);
+   const q=ap.map((v,j)=>v-ab[j]*t),dot=v=>q[0]*v.x+q[1]*v.y+q[2]*v.z;
+   const inner=Math.max(0,dot(bendDirection)/(a.r+.001));
+   const fold=Math.sin((a.t+(b.t-a.t)*t)*curves[i].getLength()*38)*.008*section.bend*inner;
+   const d=(Math.hypot(dot(under)/section.depth,dot(lateral)/section.width,dot(tangent))-(a.r+(b.r-a.r)*t)+fold)*section.depth;
    armField[j]=Math.min(armField[j],d);
   });
  }
@@ -70,7 +78,7 @@ for(let i=0;i<8;i++)for(let k=0,t=.145;k<64&&t<.93;t+=armRadius(t,i)*.95/curves[
  while(high<1.4&&sampleField(c.clone().addScaledVector(axis,high).toArray())<0)high+=.015;
  low=Math.max(0,high-.015);
  for(let n=0;n<10;n++){const mid=(low+high)*.5;if(sampleField(c.clone().addScaledVector(axis,mid).toArray())<0)low=mid;else high=mid;}
- cupAnchors[`${i}:${k}:${side}`]=Math.max(armRadius(t,i)*.96,(low+high)*.5-.004);
+ cupAnchors[`${i}:${k}:${side}`]=Math.max(armRadius(t,i)*.65,(low+high)*.5-.004);
 }
 await writeFile(new URL('../experiments/jellyfish/octopus-cup-anchors.json',import.meta.url),JSON.stringify(cupAnchors));
 
