@@ -188,6 +188,8 @@ const V=p=>new THREE.Vector3(...p);
 
 export async function createOctopus(time,waves={value:null}){
  const group=new THREE.Group(),geometries=[],materials=[];
+ const requestedAngle=Number(new URLSearchParams(location.search).get('angle')||0);
+ const reviewAngle=Number.isFinite(requestedAngle)?Math.max(-90,Math.min(90,requestedAngle))*Math.PI/180:0;
  const shadowTarget=new THREE.WebGLRenderTarget(1024,1024,{minFilter:THREE.NearestFilter,magFilter:THREE.NearestFilter,depthBuffer:true});
  const lightCamera=new THREE.OrthographicCamera(-4.5,4.5,4.5,-4.5,.1,24);
  const common={clayMode:{value:new URLSearchParams(location.search).has('clay')},clock:time,surfaceLight:waves,hasSurfaceLight:{value:Boolean(waves.value)},shadowImage:{value:shadowTarget.texture},shadowProjection:{value:new THREE.Matrix4()},shadowPixel:{value:new THREE.Vector2(1/1024,1/1024)},shadowReady:{value:false}};
@@ -261,14 +263,14 @@ export async function createOctopus(time,waves={value:null}){
  for(let j=0;j<=32;j++)for(let k=0;k<=72;k++){const a=k/72*Math.PI*2,r=j/32;eye.attributes.uv.setXY(j*73+k,.5+.5*r*Math.cos(a),.5+.5*r*Math.sin(a));}
  add(eye,iris);
  add(meshGrid(20,96,(u,v)=>{
-  const a=u*Math.PI*2,r=.148+v*.16,z=.009+Math.sin(v*Math.PI)*.015;
-  return eyePoint(Math.cos(a)*r,Math.sin(a)*r*.80,z-.17*v+Math.max(0,Math.sin(a))**2*.032);
+  const a=u*Math.PI*2,r=.148+v*.09,z=.005+Math.sin(v*Math.PI)*.009;
+  return eyePoint(Math.cos(a)*r,Math.sin(a)*r*.80,z-.095*v+Math.max(0,Math.sin(a))**2*.020);
  }),skin);
  }
  const depthMaterial=new THREE.ShaderMaterial({uniforms:{clock:time},vertexShader:vertex,fragmentShader:'#include <packing>\nvoid main(){gl_FragColor=packDepthToRGBA(gl_FragCoord.z);}',side:THREE.DoubleSide,toneMapped:false});
  const oldClear=new THREE.Color();
  return {group,setBackdrop(){},
-  update(elapsed){group.rotation.y=Math.sin(elapsed*.24)*.025;group.rotation.z=-.025+Math.sin(elapsed*.31)*.012;},
+  update(elapsed){group.rotation.y=reviewAngle+Math.sin(elapsed*.24)*.025;group.rotation.z=-.025+Math.sin(elapsed*.31)*.012;},
   renderShadow(renderer,scene){
    lightCamera.position.copy(group.position).add(V([4.1,7.3,-5.5]));lightCamera.lookAt(group.position);lightCamera.updateMatrixWorld();
    common.shadowProjection.value.multiplyMatrices(lightCamera.projectionMatrix,lightCamera.matrixWorldInverse);

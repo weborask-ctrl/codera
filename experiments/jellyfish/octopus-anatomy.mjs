@@ -11,4 +11,4 @@ export const paths=[
 ];
 export const armRadius=(t,i)=>(i<2?.39:.32)*(1-t)**1.22+.009;
 export const armTwist=(t,i)=>[-.82,.77,.9,1.4,1.7,-1.6,-1.15,-.75][i]+Math.sin(t*3+i*.8)*.22+t*.35;
-export const eyes=[{side:-1,center:[-.59,.52,.43],normal:[-.73,.08,1]},{side:1,center:[.58,.54,.44],normal:[.73,.10,1]}];
+export const eyes=[{side:-1,center:[-.50,.43,.43],normal:[-.62,.08,1]},{side:1,center:[.50,.45,.43],normal:[.62,.10,1]}];

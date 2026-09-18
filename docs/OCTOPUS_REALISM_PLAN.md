@@ -36,3 +36,15 @@ Pred každým krokom uložiť predchádzajúci stav. Porovnávať rovnakú kamer
 Po iterácii 2 porovnať detail hlavy s fotografickou referenciou. Ak stále vyzerá ako hračka, nepokračovať pridávaním efektov. Vrátiť sa k modelu a zmeniť modelovaciu metódu. Existujúci model je prototyp, nie záväzok zachovať jeho geometriu.
 
 Počet iterácií je pracovný plán, nie záruka fotorealizmu. Každý krok má priniesť konkrétny vizuálny rozdiel a uložený stav v Gite.
+
+## Iteration 1 implementation — head and silhouette
+
+2026-09-19. Marcus explicitly selected step 1 only.
+
+- Repositioned and tilted the mantle behind the head; enlarged the bake bounds to retain the rear surface.
+- Reshaped the central head mass and blended lateral eye supports. Moved the eyes inward/back and reduced the existing protruding rim geometry; detailed eyelid/iris work remains step 2.
+- Reduced crown/web volume while retaining the existing distal arm paths and material/light setup.
+- Added `angle` review parameter, clamped to -90..90 degrees. Front clay: `octopus-look.html?clay=1`; oblique clay: `octopus-look.html?clay=1&angle=35`.
+- A first transverse head shape looked like a horizontal band in the oblique review; narrowed and lengthened that transition before delivery.
+
+Verified front and 35-degree oblique clay views, no console errors, syntax and binary integrity. Mesh: 148,740 vertices, 297,400 triangles, 10,113,368 bytes. Current eye surfaces remain placeholders for step 2. This stage is ready for Marcus's visual assessment, not a declaration of photorealism or approval. No section layout, ocean or scroll choreography changes.

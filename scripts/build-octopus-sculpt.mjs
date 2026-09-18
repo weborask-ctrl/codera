@@ -4,7 +4,7 @@ import * as THREE from '../.prototype-cache/jellyfish/three/three.module.min.js'
 import {writeFile} from 'node:fs/promises';
 import {paths,armRadius,armTwist,eyes} from '../experiments/jellyfish/octopus-anatomy.mjs';
 
-const step=.032,lo=[-3.12,-2.65,-1.38],hi=[3.15,2.18,1.66];
+const step=.032,lo=[-3.12,-2.65,-1.80],hi=[3.15,2.18,1.66];
 const dims=lo.map((v,i)=>Math.ceil((hi[i]-v)/step)+1),[nx,ny,nz]=dims,layer=nx*ny;
 const size=nx*ny*nz,field=new Float32Array(size).fill(10),armField=new Float32Array(size);
 const curves=paths.map(p=>new THREE.CatmullRomCurve3(p.map(p=>new THREE.Vector3(...p))));
@@ -15,21 +15,23 @@ function box(min,max,fn){
  const a=min.map((v,i)=>Math.max(0,Math.floor((v-lo[i])/step))),b=max.map((v,i)=>Math.min(dims[i]-1,Math.ceil((v-lo[i])/step)));
  for(let z=a[2];z<=b[2];z++)for(let y=a[1];y<=b[1];y++)for(let x=a[0];x<=b[0];x++)fn(index(x,y,z),lo[0]+x*step,lo[1]+y*step,lo[2]+z*step);
 }
-function ellipsoid(c,r,blend=.15,subtract=false){
+function ellipsoid(c,r,blend=.15,subtract=false,tilt=0){
  const pad=.25;
- box(c.map((v,i)=>v-r[i]-pad),c.map((v,i)=>v+r[i]+pad),(j,x,y,z)=>{
-  const p=[x-c[0],y-c[1],z-c[2]];
+ const cs=Math.cos(tilt),sn=Math.sin(tilt),extent=[r[0],Math.abs(cs)*r[1]+Math.abs(sn)*r[2],Math.abs(sn)*r[1]+Math.abs(cs)*r[2]];
+ box(c.map((v,i)=>v-extent[i]-pad),c.map((v,i)=>v+extent[i]+pad),(j,x,y,z)=>{
+  const dy=y-c[1],dz=z-c[2],p=[x-c[0],cs*dy+sn*dz,-sn*dy+cs*dz];
   const k0=Math.hypot(...p.map((v,i)=>v/r[i])),k1=Math.hypot(...p.map((v,i)=>v/(r[i]*r[i])));
   const d=k1>1e-8?k0*(k0-1)/k1:-Math.min(...r);
   field[j]=subtract?-smin(-field[j],d,blend):smin(field[j],d,blend);
  });
 }
-// Reclined mantle, narrowed neck, broad cephalic mass: deliberately not an egg.
-ellipsoid([.075,1.17,-.34],[.85,.79,.72],.18);
-ellipsoid([-.025,.76,-.08],[.63,.59,.56],.20);
-ellipsoid([0,.22,.04],[.59,.43,.51],.20);
-ellipsoid([0,-.14,.10],[.70,.38,.63],.22);
-for(const side of [-1,1])ellipsoid([side*.49,.46,.24],[.27,.28,.35],.12);
+// Iteration 1: the mantle reclines behind the cephalic mass instead of sitting
+// vertically on it. A broad transverse head integrates the lateral eye sockets.
+ellipsoid([.06,1.02,-.57],[.78,.88,.63],.16,false,-.38);
+ellipsoid([.015,.69,-.19],[.57,.48,.51],.17,false,-.20);
+ellipsoid([0,.34,.12],[.52,.45,.42],.24);
+ellipsoid([0,-.10,.09],[.61,.34,.55],.20);
+for(const side of [-1,1])ellipsoid([side*.40,.43,.20],[.24,.24,.30],.24);
 
 for(let i=0;i<8;i++){
  armField.fill(10);
@@ -46,7 +48,7 @@ for(let i=0;i<8;i++){
 // Deep webbing between proximal arms gives the crown a continuous skirt.
 for(let i=0;i<8;i++){
  const a=curves[i].getPointAt(.12),b=curves[(i+1)%8].getPointAt(.12),c=a.clone().lerp(b,.5);
- ellipsoid(c.toArray(),[.38,.22,.29],.20);
+ ellipsoid(c.toArray(),[.31,.18,.25],.18);
 }
 for(const eye of eyes)ellipsoid(eye.center,[.205,.19,.20],.045,true);
 
