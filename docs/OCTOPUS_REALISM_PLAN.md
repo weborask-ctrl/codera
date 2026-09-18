@@ -84,3 +84,14 @@ This is a base-pose/idle check, not validation of future large scroll-driven def
 - Implemented as procedural material fields over the existing sculpt; this pass does not add exported image texture maps or change the geometry, eyes, ocean or motion system.
 
 Verified close-up in the natural viewport and whole material at a Full HD viewport, with no console/shader errors. Syntax and diff checks passed. Photorealism remains an artistic target rather than a completed quality claim; the next planned step is lighting/subsurface integration. No new 4K or frame-rate claim.
+
+## Iteration 5 implementation — tissue and water light
+
+2026-09-19. Marcus selected step 5.
+
+- Added a local thickness estimate for mantle, tapered arms and sucker rims. Backlighting uses wavelength-dependent transmission through that estimated thickness; it is a low-cost single-scattering approximation, not a volumetric tissue simulation.
+- Replaced the single reflected-sky direction with three weighted directions to soften highlights without image blur.
+- Replaced uniform fog with RGB water attenuation and the approved ocean's directional fill, separating nearer and farther portions of the animal.
+- Kept the approved ocean shader, geometry, eyes and motion unchanged.
+
+Verified whole view and arm detail in the live browser; no shader/console errors. Syntax and diff checks passed. This refines scene integration rather than declaring final photorealism. Performance and full motion validation remain part of step 6; no 4K or 60 fps claim.

@@ -182,16 +182,31 @@ void main(){
   roughness=.44;
  }
  vec3 color=directBRDF(n,v,sun,pigment,roughness,vec3(4.2,3.8,3.2)*waterLight*visibility)*cavity;
- color+=directBRDF(n,v,fillDir,pigment,clamp(roughness+.22,0.,1.),vec3(1.6,1.95,2.15))*cavity*ambientOcclusion;
+ // Three directions approximate a broad reflected-sky source, softening the
+ // skin highlight without blurring the surface or the image.
+ vec3 skyLight=directBRDF(n,v,fillDir,pigment,clamp(roughness+.22,0.,1.),vec3(1.6,1.95,2.15))*.50;
+ skyLight+=directBRDF(n,v,normalize(fillDir+vec3(.22,.08,0)),pigment,clamp(roughness+.22,0.,1.),vec3(1.6,1.95,2.15))*.25;
+ skyLight+=directBRDF(n,v,normalize(fillDir-vec3(.22,.08,0)),pigment,clamp(roughness+.22,0.,1.),vec3(1.6,1.95,2.15))*.25;
+ color+=skyLight*cavity*ambientOcclusion;
  color+=pigment*(vec3(.045,.065,.082)+oceanFill(n,-world.y)*.3)*cavity*ambientOcclusion;
  vec3 reflection=environmentReflection(reflect(-v,n),roughness);
  color+=reflection*fresnel(facing,vec3(kind>1.5?.045:.028))*(kind>1.5?2.2:1.2)*cavity*ambientOcclusion;
- // Soft subsurface fill is strongest in thin tissue; it is not emissive.
- color+=pigment*vec3(.20,.068,.030)*wrap*.48*visibility;
- float thin=kind<.5?smoothstep(.35,.9,tex.y):.0;
- color+=pigment*vec3(1.,.23,.09)*pow(max(0.,dot(-sun,v)),3.)*thin*.24;
- float fog=1.-exp(-length(cameraPosition-world)*.013);
- color=mix(color,vec3(.003,.055,.12),fog);
+ // Local thickness estimate: broad mantle, tapered arms, thin sucker rims.
+ // This is a single-scattering approximation, not a volumetric tissue solver.
+ float tissueThickness=mix(.78*pow(1.-clamp(tex.y,0.,1.),1.22)+.018,1.1,mantle);
+ if(kind>.5&&kind<1.5)tissueThickness=mix(.10,.025,smoothstep(.65,1.,tex.y));
+ if(kind<1.5){
+  vec3 penetration=exp(-vec3(4.8,10.,17.)*tissueThickness);
+  float backLight=max(dot(-n,sun),0.);
+  float forwardScatter=.35+.65*pow(max(dot(v,-sun),0.),3.);
+  color+=penetration*vec3(.64,.27,.13)*backLight*forwardScatter*waterLight*mix(.55,1.,ambientOcclusion)*cavity;
+  color+=pigment*vec3(.17,.070,.038)*wrap*.48*mix(.35,1.,visibility)*ambientOcclusion;
+ }
+ // Wavelength-dependent attenuation separates near and far arms in water.
+ float waterDistance=length(cameraPosition-world);
+ vec3 transmission=exp(-vec3(.026,.012,.008)*waterDistance);
+ vec3 waterFill=oceanFill(normalize(world-cameraPosition),-cameraPosition.y);
+ color=color*transmission+waterFill*(1.-transmission);
  if(clayMode)color=vec3(.29)*(.18+diffuse*visibility*.9+fill*.55)+vec3(.06)*pow(1.-facing,3.);
  gl_FragColor=vec4(color,1.);
  #include <tonemapping_fragment>
