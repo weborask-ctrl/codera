@@ -97,7 +97,7 @@
     if (reduce) {
       order.forEach(function (n) { gsap.set(L[n], { yPercent: +L[n].dataset.y1 }); });
       gsap.set(mats, { opacity: 1 }); gsap.set(paths, { opacity: 0 });
-      poster.classList.add('built');
+      poster.classList.add('typeset', 'built');
       return;
     }
     order.forEach(function (n) { gsap.set(L[n], { yPercent: +L[n].dataset.y0 }); });
@@ -116,15 +116,20 @@
       tl.to(mats[i], { opacity: 1, duration: dur * .6, ease: 'power1.inOut' }, at)
         .to(inks[i], { opacity: 0, duration: dur * .7, ease: 'power1.in' }, at + dur * .3);
     }
-    // 0.0–1.1 the drawing plots; then the house builds bottom to top
-    tl.to(paths, { strokeDashoffset: 0, duration: .9, ease: 'power2.inOut', stagger: { amount: .9 } }, 0);
-    ignite(0, 1.5, .6);
-    ignite(1, 1.9, .7); tl.to(L.ground, { yPercent: +L.ground.dataset.y1, duration: .7 }, 1.9); settle(['base'], 2.6);
-    ignite(2, 2.7, .7); tl.to(L.upper, { yPercent: +L.upper.dataset.y1, duration: .7 }, 2.7); settle(['ground', 'base'], 3.4);
-    ignite(3, 3.5, .75); tl.to(L.roof, { yPercent: +L.roof.dataset.y1, duration: .75 }, 3.5); settle(['upper', 'ground', 'base'], 4.25);
+    // 0.0-1.05 the drawing plots between the lines of the headline; then the
+    // house builds bottom to top and is seated by ~2.5. Halved from the first
+    // cut (4.46), which put the whole poster behind the animation.
+    tl.to(paths, { strokeDashoffset: 0, duration: .55, ease: 'power2.inOut', stagger: { amount: .5 } }, 0);
+    ignite(0, .8, .35);
+    ignite(1, 1.0, .4); tl.to(L.ground, { yPercent: +L.ground.dataset.y1, duration: .4 }, 1.0); settle(['base'], 1.4);
+    ignite(2, 1.45, .4); tl.to(L.upper, { yPercent: +L.upper.dataset.y1, duration: .4 }, 1.45); settle(['ground', 'base'], 1.85);
+    ignite(3, 1.9, .42); tl.to(L.roof, { yPercent: +L.roof.dataset.y1, duration: .42 }, 1.9); settle(['upper', 'ground', 'base'], 2.32);
     tweens.push(tl);
     houseTl = tl;
-    if (document.body.classList.contains('ready')) tl.play(); else pendingPlay = tl;
+    /* the words do not wait for the house */
+    function typeset() { poster.classList.add('typeset'); }
+    if (document.body.classList.contains('ready')) { typeset(); tl.play(); }
+    else { pendingPlay = tl; pendingTypeset = typeset; }
 
     // the way out: layers drift apart with depth as the poster scrolls off
     var drift = { roof: -14, upper: -8, ground: -3, base: 2 };
@@ -135,7 +140,7 @@
         })) }));
     });
   }
-  var houseTl = null, pendingPlay = null;
+  var houseTl = null, pendingPlay = null, pendingTypeset = null;
 
   // ── the wall: seven slabs, one number (spread 0..1), three inputs ─────
   // Drag, scroll and arrow keys all write the same target; a lerp loop
@@ -453,10 +458,14 @@
   var veil = document.getElementById('veil');
   function open() {
     document.body.classList.add('ready');
+    if (pendingTypeset) { pendingTypeset(); pendingTypeset = null; }
     if (pendingPlay) { pendingPlay.play(); pendingPlay = null; }
     if (veil) {
+      /* the router's curtain takes .9s between pages, where it hides a swap;
+         on first load it hides nothing and only delays the poster */
+      veil.style.transitionDuration = '.42s';
       veil.style.opacity = 0;
-      setTimeout(function () { veil.remove(); }, 900);
+      setTimeout(function () { veil.remove(); }, 460);
     }
   }
   if (document.readyState === 'complete') setTimeout(open, 200);
@@ -498,8 +507,10 @@
       if (hs) hs.classList.toggle('proof', pick === steps.length - 1);
     }
     var pm = location.search.match(/[?&]p=([0-9.]+)/);
-    if (houseTl) { houseTl.pause(); houseTl.progress(pm ? parseFloat(pm[1]) : 1); pendingPlay = null; }
-    var po = keep.querySelector('.poster'); if (po && (!pm || parseFloat(pm[1]) >= 1)) po.classList.add('built');
+    if (houseTl) { houseTl.pause(); houseTl.progress(pm ? parseFloat(pm[1]) : 1); pendingPlay = null; pendingTypeset = null; }
+    var po = keep.querySelector('.poster');
+    /* the copy is never a function of the house's progress any more */
+    if (po) { po.classList.add('typeset'); if (!pm || parseFloat(pm[1]) >= 1) po.classList.add('built'); }
     var wm = location.search.match(/[?&]w=([0-9.]+)/);
     if (wm && window.__wall) window.__wall(parseFloat(wm[1]), true);
     if (veil) veil.remove();
