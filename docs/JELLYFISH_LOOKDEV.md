@@ -34,3 +34,15 @@ Spustiť `npm run prototype:jellyfish` a otvoriť http://127.0.0.1:4317/jellyfis
 6. Táto štúdia ešte nie je integrovaná do scroll príbehu webu. Po doladení materiálu pokračovať dráhou kamery, zostupom a prechodmi. Medzi jednotlivými portfóliovými ukážkami ostáva obyčajný scroll.
 
 Neoznačovať tento checkpoint za dokončenú fotorealistickú medúzu. Zachovať schválený základ mora v `docs/OCEAN_APPROVED_BASELINE.md`.
+
+## Druhá iterácia — mäkšie tkanivo a nepravidelná anatómia
+
+Marcus požiadal pokračovať v dotiahnutí medúzy. Zmeny sa týkajú výlučne modelu a materiálu; schválené more sa nemení.
+
+- Šesť pravidelne zvrásnených ramien nahradili štyri dlhšie, odlišne tvarované ramená s dvanástimi jemnými okrajovými membránami. Menšie záhyby majú nezávislé fázy, obrys už netvoria pravidelné vodorovné prstence.
+- Materiál má slabšie biele odlesky, teplejšie tkanivo, lokálnu variáciu hustoty a mäkšie osvetlenie. Variácia je ukotvená na modeli, pri pohybe cez neho nepláva. Stále ide o približné presvietenie, nie fyzikálny podpovrchový rozptyl.
+- Ploché vnútorné laloky nahradili jemné podkovovité záhyby a stredová spojovacia časť. Kanáliky zvona majú 48 bočných vetiev a menšiu výraznosť.
+- Pulz zvona má druhú harmonickú zložku, väčšiu vertikálnu kontrakciu a jemný spoločný zdvih tela.
+- Celok aj detail vizuálne overené pri 1920 × 1080, bez zachytených shaderových chýb. Pred posledným obmedzením výpočtu šumu na potrebné materiály sa detail pohyboval približne pri 19–20 fps, celok pri 24 fps. Neprenášať sem staré vyššie merania z prvej iterácie.
+
+Zostáva: fyzikálne presnejší lom cez vnútorné vrstvy, lepšia čitateľnosť zvona proti jasnej hladine, menej látkový charakter ramien a overenie priehľadnosti pri oblete. Táto iterácia nie je označená ako finálny filmový výsledok.

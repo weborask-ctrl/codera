@@ -5,16 +5,19 @@ uniform float uTime;
 varying vec3 vWorld;
 varying vec3 vNormal;
 varying vec2 vUv;
+varying vec3 vLocal;
 void main(){
  vec3 p=position;
  float hanging=max(0.,-p.y);
- float pulse=sin(uTime*1.08);
- p.xz*=1.+.032*pulse*exp(-hanging*.7);
- p.y+=.025*pulse*max(0.,p.y);
+ float phase=uTime*1.08;
+ float pulse=sin(phase)+.22*sin(phase*2.-.7);
+ p.xz*=1.+.045*pulse*exp(-hanging*.7);
+ p.y+=.055*pulse*max(0.,p.y);
+ p.y+=.055*sin(phase-.65);
  p.x+=sin(uTime*.73-hanging*1.05+p.z*.6)*.052*hanging;
  p.z+=sin(uTime*.59-hanging*.78+p.x*.5)*.035*hanging;
  vec4 world=modelMatrix*vec4(p,1.);
- vWorld=world.xyz;vUv=uv;
+ vWorld=world.xyz;vUv=uv;vLocal=position;
  vNormal=normalize(mat3(modelMatrix)*normal);
  gl_Position=projectionMatrix*viewMatrix*world;
 }`;
@@ -28,38 +31,52 @@ uniform float uKind;
 varying vec3 vWorld;
 varying vec3 vNormal;
 varying vec2 vUv;
-float hash(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);}
+varying vec3 vLocal;
+float hash(vec3 p){p=fract(p*.1031);p+=dot(p,p.yzx+33.33);return fract((p.x+p.y)*p.z);}
+float noise(vec3 p){vec3 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(mix(hash(i),hash(i+vec3(1,0,0)),f.x),mix(hash(i+vec3(0,1,0)),hash(i+vec3(1,1,0)),f.x),f.y),mix(mix(hash(i+vec3(0,0,1)),hash(i+vec3(1,0,1)),f.x),mix(hash(i+vec3(0,1,1)),hash(i+vec3(1,1,1)),f.x),f.y),f.z);}
 void main(){
  vec3 eye=normalize(cameraPosition-vWorld);
- vec3 geometric=normalize(cross(dFdx(vWorld),dFdy(vWorld)));
  vec3 n=normalize(vNormal);
  if(dot(n,eye)<0.)n=-n;
- float facing=max(.001,dot(n,eye)),rim=pow(1.-facing,3.);
- vec3 sun=normalize(vec3(.285,.74,-.625));
+ float facing=max(.001,dot(n,eye));
+ float rim=pow(1.-facing,3.);
+ float shell=1.-step(.5,uKind);
+ vec3 sun=normalize(vec3(.285,.726,-.625));
  vec3 halfVector=normalize(sun+eye);
- float spec=pow(max(0.,dot(n,halfVector)),uKind<.5?110.:38.);
- float broad=pow(max(0.,dot(n,halfVector)),12.);
- float backlight=pow(max(0.,dot(-eye,sun)),3.);
- float lightField=uHasWaves?clamp(texture2D(uWaves,vWorld.xz/64.+.5).a,.25,2.):1.;
- float illumination=.85+lightField*.15;
+ float spec=pow(max(0.,dot(n,halfVector)),mix(24.,150.,shell));
+ float wrapped=clamp((dot(n,sun)+.65)/1.65,0.,1.);
+ float tissue=.5;
+ if(uKind>.5&&uKind<1.5)tissue=noise(vLocal*5.3)*.65+noise(vLocal*17.7)*.35;
+ float thickness=mix(.18,.68,tissue);
+ float backlight=pow(max(0.,dot(-eye,sun)),2.)*exp(-thickness*1.5);
+ float lightField=uHasWaves?clamp(texture2D(uWaves,vWorld.xz/64.+.5).a,.3,2.):1.;
+ float illumination=.80+lightField*.20;
  vec3 viewNormal=mat3(viewMatrix)*n;
  vec2 uv=gl_FragCoord.xy/uResolution;
- float shell=1.-step(.5,uKind);
- float bend=(.003+.013*rim)*shell;
+ float bend=(.002+.009*rim)*shell;
  vec3 background=texture2D(uBackdrop,clamp(uv+viewNormal.xy*bend,.002,.998)).rgb;
- float grain=hash(floor(vWorld*160.));
- float freckles=smoothstep(.984,1.,grain)*.035;
- vec3 pearl=mix(vec3(.63,.78,.78),vec3(.91,.80,.59),.34);
- vec3 transmitted=background*vec3(.93,.985,.97);
- vec3 flesh=pearl*(.28+.26*max(0.,dot(n,sun))+.22*backlight);
- vec3 color=mix(transmitted,flesh,shell>.5?.12:.84);
- color+=vec3(.86,.92,.88)*(rim*mix(.20,.65,shell)+spec*mix(.38,1.8,shell)+broad*.10)*illumination;
- color+=vec3(.83,.72,.51)*freckles;
- float alpha=shell>.5?(.22+rim*.57+spec*.18):(.72+rim*.22);
- if(uKind>1.5){color=pearl*(.42+rim*.42+spec*.8);alpha=.36+rim*.32;}
- if(uKind>2.5){color=vec3(.78,.67,.43)*(.43+rim*.30);alpha=.22+rim*.18;}
- float distanceToEye=length(cameraPosition-vWorld);
- float fog=1.-exp(-distanceToEye*.025);
+ // Warm transmitted tissue against cool water; thickness controls attenuation.
+ vec3 pearl=mix(vec3(.66,.48,.29),vec3(.91,.84,.64),tissue);
+ vec3 transmitted=background*exp(-vec3(.24,.12,.055)*thickness);
+ vec3 flesh=pearl*(.19+.46*wrapped)*illumination;
+ flesh+=vec3(.66,.48,.24)*backlight*.32;
+
+ vec3 color=mix(transmitted,flesh,shell>.5?.09:.88);
+ color+=vec3(.85,.93,1.)*rim*mix(.055,.30,shell);
+ color+=vec3(1.,.92,.72)*spec*mix(.10,1.6,shell)*illumination;
+ float alpha=shell>.5?(.14+rim*.51+spec*.15):(.83+thickness*.12);
+ if(uKind>.5&&uKind<.9)alpha=.54+thickness*.20;
+ if(shell>.5){
+  float micro=noise(vLocal*65.);
+  float angle=atan(vLocal.z,vLocal.x);
+  float radial=pow(.5+.5*cos(angle*24.+sin(vLocal.y*7.)*.24),32.);
+  radial*=smoothstep(.25,1.3,length(vLocal.xz));
+  color+=vec3(.48,.34,.14)*radial*.035;
+  color+=vec3(.36,.49,.44)*(micro-.5)*.018;
+ }
+ if(uKind>1.5){color=mix(vec3(.47,.62,.61),vec3(.86,.74,.48),wrapped)*(.40+rim*.22);alpha=.28+rim*.32;}
+ if(uKind>2.5){color=vec3(.56,.49,.32)*(.38+wrapped*.28);alpha=.19+rim*.12;}
+ float fog=1.-exp(-length(cameraPosition-vWorld)*.025);
  color=mix(color,background,fog*.45);
  gl_FragColor=vec4(color,alpha);
  #include <tonemapping_fragment>
@@ -111,7 +128,7 @@ export function createGelJellyfish(timeUniform,wavesUniform){
  const shared={uTime:timeUniform,uBackdrop:{value:null},uResolution:{value:new THREE.Vector2(1,1)},uWaves:wavesUniform,uHasWaves:{value:Boolean(wavesUniform.value)}};
  const materials=[];
  function material(kind){const m=new THREE.ShaderMaterial({uniforms:{...shared,uKind:{value:kind}},vertexShader:vertex,fragmentShader:fragment,side:THREE.DoubleSide,transparent:true,depthWrite:false});materials.push(m);return m;}
- const gel=material(0),flesh=material(1),thread=material(2),canal=material(3);
+ const gel=material(0),flesh=material(1),membrane=material(.75),thread=material(2),canal=material(3);
  function add(geometry,mat,order){const mesh=new THREE.Mesh(geometry,mat);mesh.renderOrder=order;group.add(mesh);return mesh;}
  const bellPoint=(u,v,inset=0)=>{
   const a=u*Math.PI*2,phi=v*Math.PI*.51;
@@ -132,31 +149,66 @@ export function createGelJellyfish(timeUniform,wavesUniform){
    const v=.10+j/54*.87,u=i/24+Math.sin(v*8+i)*.0019;
    points.push(new THREE.Vector3(...bellPoint(u,v,.025)));
   }
-  canals.push({points,radius:t=>.005*(.55+.45*t)});
+  canals.push({points,radius:t=>.0035*(.55+.45*t)});
+  for(const side of [-1,1]){
+   const branch=[];
+   for(let j=0;j<=32;j++){
+    const t=j/32,v=.46+t*.49;
+    const u=i/24+side*.014*t+Math.sin(v*12+i)*.0013*t;
+    branch.push(new THREE.Vector3(...bellPoint(u,v,.028)));
+   }
+   canals.push({points:branch,radius:t=>.0022*(1-t*.5)});
+  }
  }
  add(tubes(canals,5),canal,23);
 
- // Soft internal lobes avoid rigid, perfectly circular rings in close-up.
+ // Irregular horseshoe-shaped folds suspended inside the bell.
+ const lobes=[];
  for(let i=0;i<4;i++){
-  const a=i*Math.PI*.5,mesh=add(new THREE.SphereGeometry(.23,32,20),flesh,12);
-  mesh.position.set(Math.cos(a)*.30,.26,Math.sin(a)*.30);
-  mesh.scale.set(1,.28,.80);mesh.rotation.y=a;
+  const points=[],a=i*Math.PI*.5;
+  for(let j=0;j<=70;j++){
+   const t=j/70,phi=.25+t*Math.PI*1.65;
+   const radius=.16+.018*Math.sin(phi*3+i);
+   points.push(new THREE.Vector3(Math.cos(a)*.29+Math.cos(phi)*radius,.12+Math.sin(phi*2+i)*.025,Math.sin(a)*.29+Math.sin(phi)*radius*.78));
+  }
+  lobes.push({points,radius:t=>.014+.014*Math.sin(t*Math.PI)**.5});
  }
- // Closed, irregular folded tissue gives oral arms volume from every camera angle.
- for(let i=0;i<6;i++){
-  const angle=i/6*Math.PI*2,length=2.45+(i%3)*.19;
-  add(surface(200,48,(u,v)=>{
-   const a=u*Math.PI*2+v*3.5+i;
-   const centerAngle=angle+v*.7;
-   const center=.22+v*.24+Math.sin(v*9+i)*.12;
-   const taper=Math.sin(Math.PI*(.06+v*.90))**.6;
-   const width=(.12+.13*Math.sin(v*Math.PI))*taper;
-   const frill=1+.40*Math.sin(v*92+Math.sin(a*3+i)*2)+.21*Math.sin(v*183-a*5);
-   const radius=width*frill*(1+.20*Math.cos(a*5+v*23));
-   return [Math.cos(centerAngle)*center+Math.cos(a)*radius,
-    -.10-v*length+Math.sin(a*4+v*83)*.034*taper,
-    Math.sin(centerAngle)*center+Math.sin(a)*radius+Math.sin(v*13+i)*.065];
+ add(tubes(lobes,10),membrane,12);
+ const stalk=add(new THREE.SphereGeometry(.24,40,28),membrane,13);stalk.position.y=-.05;stalk.scale.set(1,.80,1);
+ // Four flowing oral arms: broad folds at independent phases, fine folded margins.
+ // Low frequency envelope breaks the old repeated stacked-ring silhouette.
+ for(let i=0;i<4;i++){
+  const angle=i/4*Math.PI*2,length=2.70+Math.sin(i*3.1)*.32;
+  add(surface(240,64,(u,v)=>{
+   const a=u*Math.PI*2+v*2.1+i*.71;
+   const centerAngle=angle+v*.48;
+   const center=.15+v*.40+Math.sin(v*6+i)*.10;
+   const taper=(1-v)**.6*Math.min(1,v*9+.25);
+   const width=(.12+.08*Math.sin(v*5+i*.8))*taper;
+   const phase=v*49+Math.sin(v*13+i)*2.3;
+   const lobed=1+.32*Math.sin(a*3+v*8)+.16*Math.sin(a*5-v*11+i);
+   const margin=(.5+.5*Math.sin(a*3+v*8))**3;
+   const frill=1+margin*(.28*Math.sin(phase+a*2)+.11*Math.sin(v*113+a*5+i));
+   const radius=width*lobed*frill;
+   return [Math.cos(centerAngle)*center+Math.cos(a)*radius+v*v*.22,
+    -.13-v*length+Math.sin(a*3+phase)*.019*taper,
+    Math.sin(centerAngle)*center+Math.sin(a)*radius+Math.sin(v*8+i)*.08];
   }),flesh,15+i*.01);
+  // Thin, folded membranes spread from each arm, with independently curled edges.
+  for(let fin=0;fin<3;fin++){
+   add(surface(210,16,(u,v)=>{
+    const centerAngle=angle+v*.48;
+    const center=.15+v*.40+Math.sin(v*6+i)*.10;
+    const taper=(1-v)**.6*Math.min(1,v*9+.25);
+    const a=fin*Math.PI*2/3+i*.71+v*2.1;
+    const edge=.11+u*(.13+.045*Math.sin(v*21+i+fin));
+    const r=edge*taper;
+    const flutter=(Math.sin(v*79+Math.sin(v*15+fin)*2+i)*.039+Math.sin(v*149-fin)*.015)*u*u*taper;
+    return [Math.cos(centerAngle)*center+Math.cos(a)*r+Math.sin(a)*flutter+v*v*.22,
+     -.13-v*length+flutter,
+     Math.sin(centerAngle)*center+Math.sin(a)*r+Math.cos(a)*flutter+Math.sin(v*8+i)*.08];
+   }),membrane,16+i*.01+fin*.001);
+  }
  }
  const strands=[];
  for(let i=0;i<64;i++){
