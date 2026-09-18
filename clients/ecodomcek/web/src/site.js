@@ -37,6 +37,12 @@
     // every band plays once when it arrives
     main.querySelectorAll('[data-reveal]').forEach(function (el) {
       if (reduce) { el.classList.add('on'); return; }
+      /* A block already on screen at rest is not a reveal — it is part of the
+         first frame. The 'top 84%' line left copy sitting at opacity 0 in the
+         bottom sixth of the first screen (o-nas desktop, sluzby and stena on
+         a phone), which CLAUDE.md #2 does not allow. Below the fold the
+         choreography is unchanged. */
+      if (el.getBoundingClientRect().top < innerHeight) { el.classList.add('on'); return; }
       track(ScrollTrigger.create({
         trigger: el, start: 'top 84%', once: true,
         onEnter: function () { el.classList.add('on'); }
