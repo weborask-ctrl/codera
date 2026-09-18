@@ -49,3 +49,15 @@ Celok a detail kontrolované vo Full HD; mobilná kompozícia pri 390 × 844. Pa
 Výsledok je výrazne bližší referencii tvarom a pózou, ale nie je hotovou fotorealistickou reprodukciou obrázka. Procedurálna koža v makre stále pôsobí pravidelnejšie než prirodzené tkanivo. Spoje koruny, oblet zo zadnej strany, samoprekrývanie ramien a jemný pohyb potrebujú ďalšie posúdenie. Deformácia je umelecká animácia, nie svalová simulácia; detailná dráha kamery a scroll príbeh nie sú súčasťou tohto modelového kroku.
 
 Celý kód, referencia aj tento záznam patria do repozitára. Nahradený prvý model je dohľadateľný v commite `3358d86`; nový výsledok neoznačovať za používateľom schválený, kým ho Marcus neposúdi.
+
+## Facing pose and skin refinement — 2026-09-19
+
+Marcus requested a more viewer-facing starting pose with less artificial arms, plus the previously identified skin and arm-root refinement. This is a base pose for later animation, not the final motion choreography.
+
+- Turned the animal toward the viewer (yaw -0.48 radians), with a smaller idle rotation range.
+- Re-authored all eight arm paths: open bends, varied depth and fewer repeated spirals. Varied the orientation of the sucker-bearing surfaces.
+- Added a fleshy crown over the buried roots, corrected web adjacency, and moved the first suckers away from the crowded attachment area.
+- Warped the procedural skin coordinates, softened pale mottles and relief, and varied roughness with skin detail.
+- Ocean files remain unchanged.
+
+Verified the whole pose and material close-up in the live browser at its natural viewport; no console errors. Final crown change checked in the whole view. Syntax and diff checks passed. Remaining limitation: procedural geometry still reads as CG in close-up; this is not a claim of photographic parity or a fully rigged, collision-free animation model.

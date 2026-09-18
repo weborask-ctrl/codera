@@ -64,13 +64,14 @@ void main(){
  vec3 v=normalize(cameraPosition-world),sun=normalize(vec3(.41,.73,-.55));
  float footprint=max(length(dFdx(local)),length(dFdy(local)));
  float detail=1.-smoothstep(.007,.035,footprint);
- float coarse=noise(local*3.8),cells=mix(.5,noise(local*28.),1.-smoothstep(.015,.08,footprint)),fine=mix(.5,noise(local*64.),detail);
+ vec3 skinPoint=local+vec3(noise(local*2.3),noise(local*2.3+17.),noise(local*2.3+41.))*.12;
+ float coarse=noise(skinPoint*3.8),cells=mix(.5,noise(skinPoint*28.),1.-smoothstep(.015,.08,footprint)),fine=mix(.5,noise(skinPoint*64.),detail);
  if(kind<.5){
-  float relief=noise(local*16.)*.68+cells*.26+fine*.06;
+  float relief=smoothstep(.35,.82,noise(skinPoint*16.))*.48+cells*.36+fine*.16;
   vec3 dx=dFdx(world),dy=dFdy(world),a=cross(dy,n),b=cross(n,dx);
   float determinant=dot(dx,a);
   vec3 gradient=sign(determinant)*(dFdx(relief)*a+dFdy(relief)*b);
-  n=normalize(abs(determinant)*n-gradient*.014);
+  n=normalize(abs(determinant)*n-gradient*.009);
  }
  float facing=max(0.,dot(n,v)),visibility=shadow();
  vec2 lightPoint=world.xz-sun.xz*world.y/sun.y;
@@ -79,13 +80,13 @@ void main(){
  float wrap=clamp((dot(n,sun)+.5)/1.5,0.,1.);
  vec3 fillDir=normalize(vec3(-.45,.3,.82));
  float fill=max(0.,dot(n,fillDir));
- vec3 pigment=mix(vec3(.23,.034,.014),vec3(.66,.17,.042),smoothstep(.22,.77,coarse));
+ vec3 pigment=mix(vec3(.30,.054,.022),vec3(.61,.145,.040),smoothstep(.12,.88,coarse));
  float mottles=smoothstep(.56,.75,cells+coarse*.12);
- pigment=mix(pigment,vec3(.77,.42,.21),mottles*.25);
+ pigment=mix(pigment,vec3(.68,.32,.13),mottles*.18);
  float pale=smoothstep(.69,.80,fine+coarse*.12);
- pigment=mix(pigment,vec3(.83,.71,.46),pale*.18);
+ pigment=mix(pigment,vec3(.76,.49,.25),pale*.09);
  pigment=mix(pigment,vec3(.035,.16,.20),smoothstep(.73,.92,coarse)*.35);
- float roughness=.35;
+ float roughness=.28+cells*.19;
  float cavity=1.;
  if(kind>.5&&kind<1.5){
   pigment=mix(vec3(.42,.17,.10),vec3(.82,.52,.30),cells);
@@ -139,18 +140,18 @@ function merge(parts){
 }
 const V=p=>new THREE.Vector3(...p);
 const smooth=(a,b,x)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t);};
-const papilla=(p)=>Math.max(0,Math.sin(p[0]*29+Math.sin(p[2]*17))*Math.sin(p[1]*27+Math.sin(p[0]*19))*Math.sin(p[2]*31+Math.sin(p[1]*13)))**3;
+const papilla=(p)=>Math.max(0,Math.sin(p[0]*23+Math.sin(p[2]*11)*2.1)*Math.sin(p[1]*27+Math.sin(p[0]*13)*1.7)*Math.sin(p[2]*19+Math.sin(p[1]*17)*2.3))**4;
 
 // Hand-authored spatial choreography matching the accepted image, not a radial fan.
 const paths=[
- [[.30,-.20,.55],[-.10,-.52,1.30],[-1.15,-.45,1.72],[-2.05,-.78,1.66],[-2.05,-1.55,1.46],[-1.32,-1.86,1.51],[-.88,-1.50,1.60],[-1.13,-1.19,1.67],[-1.38,-1.38,1.65]],
- [[.65,.02,.04],[1.35,.31,-.03],[2.04,1.12,.06],[2.09,1.93,.02],[1.60,2.20,.12],[1.23,1.87,.25],[1.43,1.59,.32],[1.71,1.76,.31],[1.55,1.91,.30]],
- [[.65,-.19,.23],[1.45,-.30,.62],[2.49,-.30,.43],[3.04,-.66,.21],[2.87,-1.17,.31],[2.44,-1.23,.48],[2.35,-.96,.52],[2.59,-.85,.54]],
- [[.44,-.38,.43],[1.21,-.80,1.13],[1.91,-1.47,1.39],[2.21,-2.05,1.29],[1.85,-2.45,1.03],[1.40,-2.20,1.11],[1.59,-1.94,1.19],[1.77,-2.11,1.24]],
- [[.07,-.42,.14],[-.28,-1.02,.41],[.24,-1.83,.49],[.86,-2.32,.12],[.76,-2.83,.22],[.27,-2.83,.32],[.12,-2.52,.38],[.38,-2.37,.41]],
- [[-.17,-.25,-.02],[-1.04,-.62,-.47],[-2.06,-.54,-.47],[-2.67,-.08,-.29],[-2.62,.46,-.25],[-2.14,.54,-.29],[-2.01,.18,-.29],[-2.34,.05,-.20]],
- [[-.05,-.41,-.22],[-.67,-1.23,-.76],[-1.62,-1.80,-.56],[-2.43,-1.61,-.30],[-2.72,-1.16,-.46],[-2.39,-.93,-.48],[-2.14,-1.13,-.40]],
- [[.48,-.25,-.38],[1.13,-.26,-.93],[1.94,.21,-1.06],[2.73,.15,-.81],[3.12,-.30,-.73],[2.80,-.63,-.79],[2.54,-.36,-.71]],
+ [[.38,-.14,.55],[.02,-.59,1.04],[-.95,-.88,1.50],[-1.73,-1.30,1.36],[-1.67,-1.94,1.02],[-1.12,-2.12,.81],[-.73,-1.85,.82]],
+ [[.55,.27,.18],[1.12,.51,.02],[1.85,1.08,-.18],[2.11,1.68,-.36],[1.87,2.02,-.38],[1.46,1.89,-.25],[1.43,1.57,-.10]],
+ [[.62,.05,.48],[1.35,-.04,.96],[2.24,-.39,1.02],[2.82,-1.00,.68],[2.71,-1.55,.32],[2.29,-1.67,.23]],
+ [[.45,-.40,.40],[.93,-.96,1.00],[1.38,-1.65,1.23],[1.77,-2.16,.98],[2.18,-2.24,.55],[2.44,-1.97,.31]],
+ [[.32,-.49,.06],[.20,-1.11,.23],[.42,-1.87,.24],[.55,-2.52,-.04],[.23,-2.86,-.28],[-.12,-2.71,-.27]],
+ [[.25,.05,-.24],[-.35,-.32,-.71],[-1.18,-.55,-1.08],[-1.92,-.37,-1.20],[-2.27,.07,-1.02],[-2.12,.39,-.77]],
+ [[.26,-.33,-.25],[-.33,-1.02,-.62],[-1.16,-1.62,-.87],[-1.91,-1.82,-1.11],[-2.40,-1.56,-1.32]],
+ [[.50,.01,-.28],[1.13,-.19,-.79],[1.95,-.07,-1.27],[2.68,-.39,-1.60],[2.93,-.92,-1.48],[2.70,-1.22,-1.17]],
 ];
 
 export function createOctopus(time,waves={value:null}){
@@ -171,8 +172,13 @@ export function createOctopus(time,waves={value:null}){
   const p=center.clone().addScaledVector(n,r);r+=papilla(p.toArray())*.010*Math.sin(t*Math.PI);
   return center.addScaledVector(n,r).toArray();
  }),skin);
+ // Fleshy crown covers the buried arm roots and the terminal mantle cap.
+ add(meshGrid(48,72,(u,t)=>{
+  const a=u*Math.PI*2,b=t*Math.PI,s=Math.sin(b);
+  return [.37+Math.cos(b)*.49,-.07+s*Math.cos(a)*.51,.12+s*Math.sin(a)*.47];
+ }),skin);
  const curves=paths.map(p=>new THREE.CatmullRomCurve3(p.map(V))),cupParts=[];
- const radius=(t,i)=>(i===0?.42:i===1?.32:.34)*(1-t)**1.28+.008;
+ const radius=(t,i)=>(i===0?.39:i===1?.30:.32)*(1-t)**1.12+.008;
  for(let i=0;i<8;i++){
   const curve=curves[i],frames=curve.computeFrenetFrames(180,false),phase=i*.87+.3;
   add(meshGrid(180,40,(u,t)=>{
@@ -181,11 +187,11 @@ export function createOctopus(time,waves={value:null}){
    return c.addScaledVector(n,r+papilla(p.toArray())*.006*(1-t)).toArray();
   },phase),skin);
   // Cups grow from stalks into fleshy rims and recessed closed bowls, with progressive taper.
-  for(let k=0,t=.085;k<64&&t<.93;t+=radius(t,i)*.95/curve.getLength(),k++)for(const side of [-1,1]){
+  for(let k=0,t=.145;k<64&&t<.93;t+=radius(t,i)*.95/curve.getLength(),k++)for(const side of [-1,1]){
    const c=curve.getPointAt(t),tangent=curve.getTangentAt(t),front=V([0,-.20,1]);
    front.addScaledVector(tangent,-front.dot(tangent)).normalize();
    const lateral=new THREE.Vector3().crossVectors(tangent,front).normalize();
-   const twist=Math.sin(t*4+i*.8)*.25;
+   const twist=[-.45,.65,-.32,.18,-.55,1.5,1.25,1.65][i]+Math.sin(t*3+i*.8)*.22+t*.35;
    const axis=front.clone().multiplyScalar(Math.cos(side*.48+twist)).addScaledVector(lateral,Math.sin(side*.48+twist)).normalize();
    const x=new THREE.Vector3().crossVectors(tangent,axis).normalize(),y=new THREE.Vector3().crossVectors(axis,x).normalize();
    const r=radius(t,i),size=r*.38,origin=c.clone().addScaledVector(axis,r*.91);
@@ -202,13 +208,13 @@ export function createOctopus(time,waves={value:null}){
  }
  add(merge(cupParts),sucker);
  // Short web surfaces bridge the arm crown; their outer edges follow the adjacent arms.
- const order=[5,6,4,3,2,7,1,0];
+ const order=[1,2,0,3,4,6,5,7];
  for(let k=0;k<8;k++){
   const left=order[k],right=order[(k+1)%8];
   const web=meshGrid(24,24,(u,v)=>{
-   const t=.025+v*(.16-.07*Math.sin(Math.PI*u));
+   const t=v*(.18-.08*Math.sin(Math.PI*u));
    const a=curves[left].getPointAt(t),b=curves[right].getPointAt(t);
-   const p=a.lerp(b,u);p.z+=Math.sin(u*Math.PI)*Math.sin(v*Math.PI)*.10;
+   const p=a.lerp(b,u);p.z+=Math.sin(u*Math.PI)*Math.sin(v*Math.PI)*.055;
    return p.toArray();
   });add(web,skin);
  }
@@ -229,7 +235,7 @@ export function createOctopus(time,waves={value:null}){
  const depthMaterial=new THREE.ShaderMaterial({uniforms:{clock:time},vertexShader:vertex,fragmentShader:'#include <packing>\nvoid main(){gl_FragColor=packDepthToRGBA(gl_FragCoord.z);}',side:THREE.DoubleSide,toneMapped:false});
  const oldClear=new THREE.Color();
  return {group,setBackdrop(){},
-  update(elapsed){group.rotation.y=-.10+Math.sin(elapsed*.24)*.07;group.rotation.z=-.05+Math.sin(elapsed*.31)*.022;},
+  update(elapsed){group.rotation.y=-.48+Math.sin(elapsed*.24)*.035;group.rotation.z=.04+Math.sin(elapsed*.31)*.015;},
   renderShadow(renderer,scene){
    lightCamera.position.copy(group.position).add(V([4.1,7.3,-5.5]));lightCamera.lookAt(group.position);lightCamera.updateMatrixWorld();
    common.shadowProjection.value.multiplyMatrices(lightCamera.projectionMatrix,lightCamera.matrixWorldInverse);
