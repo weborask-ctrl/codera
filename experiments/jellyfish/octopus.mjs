@@ -1,9 +1,20 @@
 import * as THREE from '/vendor/three/three.module.min.js';
 import {paths,armRadius,armTwist,eyes} from './octopus-anatomy.mjs';
+import {oceanFragment} from './ocean-film-shaders.mjs';
+
+// Reuse the approved water's optical functions for reflections on the animal.
+// This does not modify the environment shader or render another full scene.
+const oceanOptics=(
+ oceanFragment.slice(oceanFragment.indexOf('const vec3 SUN'),oceanFragment.indexOf('vec3 curvatureTensor'))+
+ oceanFragment.slice(oceanFragment.indexOf('vec3 oceanFill'),oceanFragment.indexOf('float focusing'))+
+ oceanFragment.slice(oceanFragment.indexOf('vec3 surfaceRadiance'),oceanFragment.indexOf('void main()'))
+).replace(/\btime\b/g,'clock').replace('oceanFill(reflection,depth)','oceanFill(reflection,-world.y)');
 
 const vertex = `
 uniform float clock;
 attribute vec2 flex;
+attribute float occlusion;
+varying float ambientOcclusion;
 varying vec3 local;
 varying vec3 world;
 varying vec3 norm;
@@ -19,7 +30,7 @@ vec3 deform(vec3 p){
  return p;
 }
 void main(){
- local=position;tex=uv;
+ local=position;tex=uv;ambientOcclusion=occlusion;
  vec3 baseNormal=length(normal)>.01?normalize(normal):vec3(0,0,1);
  vec3 axis=abs(baseNormal.y)<.85?vec3(0,1,0):vec3(1,0,0);
  vec3 tangent=normalize(cross(axis,baseNormal)),bitangent=cross(baseNormal,tangent);
@@ -33,6 +44,8 @@ void main(){
 const fragment = `
 uniform float kind;
 uniform bool clayMode;
+uniform float clock;
+varying float ambientOcclusion;
 uniform sampler2D surfaceLight;
 uniform bool hasSurfaceLight;
 uniform sampler2D shadowImage;
@@ -44,10 +57,32 @@ varying vec3 world;
 varying vec3 norm;
 varying vec2 tex;
 #include <packing>
+${oceanOptics}
 float hash(vec3 p){p=fract(p*.1031);p+=dot(p,p.yzx+33.33);return fract((p.x+p.y)*p.z);}
 float noise(vec3 p){
  vec3 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
  return mix(mix(mix(hash(i),hash(i+vec3(1,0,0)),f.x),mix(hash(i+vec3(0,1,0)),hash(i+vec3(1,1,0)),f.x),f.y),mix(mix(hash(i+vec3(0,0,1)),hash(i+vec3(1,0,1)),f.x),mix(hash(i+vec3(0,1,1)),hash(i+vec3(1,1,1)),f.x),f.y),f.z);
+}
+vec3 environmentReflection(vec3 direction,float roughness){
+ vec3 fill=oceanFill(direction,-world.y);
+ if(direction.y<.035||!hasSurfaceLight)return fill;
+ float distanceToWater=clamp(-world.y/direction.y,0.,90.);
+ vec3 p=world+direction*distanceToWater;
+ vec4 wave=texture2D(surfaceLight,p.xz/64.+.5,roughness*5.);
+ vec3 waterNormal=normalize(vec3(-wave.y,1.,-wave.z));
+ vec3 boundary=surfaceRadiance(p,direction,waterNormal);
+ vec3 transmission=exp(-vec3(.10,.025,.019)*distanceToWater);
+ return mix(fill,boundary*transmission+fill*(1.-transmission),1.-roughness*.55);
+}
+vec3 fresnel(float cosine,vec3 f0){return f0+(1.-f0)*pow(1.-clamp(cosine,0.,1.),5.);}
+vec3 directBRDF(vec3 n,vec3 v,vec3 l,vec3 albedo,float roughness,vec3 radiance){
+ vec3 h=normalize(v+l);float nl=max(dot(n,l),0.),nv=max(dot(n,v),.001),nh=max(dot(n,h),0.),vh=max(dot(v,h),0.);
+ float a=roughness*roughness,a2=a*a,d=nh*nh*(a2-1.)+1.;
+ float distribution=a2/(3.141593*d*d+.00001),k=(roughness+1.)*(roughness+1.)/8.;
+ float geometry=nv/(nv*(1.-k)+k)*nl/(nl*(1.-k)+k);
+ vec3 f=fresnel(vh,vec3(kind>1.5?.035:.022));
+ vec3 spec=distribution*geometry*f/max(4.*nl*nv,.001);
+ return ((1.-f)*albedo/3.141593+spec)*radiance*nl;
 }
 float shadow(){
  if(!shadowReady)return 1.;
@@ -63,7 +98,7 @@ float shadow(){
 }
 void main(){
  vec3 n=normalize(norm);if(!gl_FrontFacing)n=-n;
- vec3 v=normalize(cameraPosition-world),sun=normalize(vec3(.41,.73,-.55));
+ vec3 v=normalize(cameraPosition-world),sun=-refract(-normalize(SUN),vec3(0,1,0),1./1.333);
  float footprint=max(length(dFdx(local)),length(dFdy(local)));
  float detail=1.-smoothstep(.007,.035,footprint);
  vec3 skinPoint=local+vec3(noise(local*2.3),noise(local*2.3+17.),noise(local*2.3+41.))*.12;
@@ -94,35 +129,32 @@ void main(){
  pigment*=1.-spots*.14;
  if(kind<.5)pigment=mix(pigment,vec3(.49,.29,.21),smoothstep(.25,.95,tex.x)*.64);
  pigment=mix(pigment,vec3(.035,.16,.20),smoothstep(.73,.92,coarse)*.35);
- float roughness=.35+cells*.18;
+ float roughness=.28+cells*.20;
  float cavity=1.;
  if(kind>.5&&kind<1.5){
   pigment=mix(vec3(.36,.18,.13),vec3(.69,.48,.33),cells);
-  cavity=mix(.12,1.,smoothstep(.10,.80,tex.y));roughness=.34;
+  cavity=mix(.10,1.,smoothstep(.10,.80,tex.y));roughness=.27;
  }
  if(kind>1.5){
   vec2 p=tex*2.-1.;float r=length(p),angle=atan(p.y,p.x);
-  float fibers=.5+.5*sin(angle*95.+noise(vec3(p*25.,2.))*3.);
-  pigment=mix(vec3(.07,.055,.026),vec3(.42,.32,.13),fibers*.5+.25);
+  float fibers=.5+.5*sin(angle*43.+noise(vec3(p*16.,2.))*2.);
+  pigment=mix(vec3(.065,.029,.010),vec3(.31,.15,.036),fibers*.35+.25);
   pigment*=.52+.48*sin(clamp(r,0.,1.)*3.14159);
-  float pupil=smoothstep(.92,1.10,length(p/vec2(.80,.18)));
+  float pupil=smoothstep(.94,1.03,length(p/vec2(.83,.32)));
   pigment=mix(vec3(.001,.004,.006),pigment,pupil);
   pigment=mix(pigment,vec3(.025,.018,.01),smoothstep(.84,1.,r));
-  float catchlight=exp(-dot((p-vec2(-.30,.40))*vec2(1.,1.8),(p-vec2(-.30,.40))*vec2(1.,1.8))*95.);
-  pigment+=vec3(.75,.86,.84)*catchlight*.55;roughness=.13;
+  // Reflections come from the live water and light; the iris has no painted glint.
+  roughness=.105;
  }
- vec3 h=normalize(sun+v);
- float power=mix(180.,30.,roughness);
- float spec=pow(max(0.,dot(n,h)),power);
- float frontSpec=pow(max(0.,dot(n,normalize(fillDir+v))),kind>1.5?140.:80.);
- vec3 color=pigment*(.075+diffuse*1.50*visibility+fill*.52)*cavity;
- color+=pigment*vec3(.20,.075,.025)*wrap*.35*visibility;
- color+=vec3(.025,.075,.095)*(1.-max(0.,n.y))*.48;
- color+=vec3(.95,.88,.70)*spec*.42*visibility;
- color+=vec3(.55,.75,.90)*frontSpec*(kind>1.5?.55:.065);
+ vec3 color=directBRDF(n,v,sun,pigment,roughness,vec3(4.2,3.8,3.2)*waterLight*visibility)*cavity;
+ color+=directBRDF(n,v,fillDir,pigment,clamp(roughness+.22,0.,1.),vec3(1.6,1.95,2.15))*cavity*ambientOcclusion;
+ color+=pigment*(vec3(.045,.065,.082)+oceanFill(n,-world.y)*.3)*cavity*ambientOcclusion;
+ vec3 reflection=environmentReflection(reflect(-v,n),roughness);
+ color+=reflection*fresnel(facing,vec3(kind>1.5?.045:.028))*(kind>1.5?2.2:1.2)*cavity*ambientOcclusion;
+ // Soft subsurface fill is strongest in thin tissue; it is not emissive.
+ color+=pigment*vec3(.20,.068,.030)*wrap*.48*visibility;
  float thin=kind<.5?smoothstep(.35,.9,tex.y):.0;
  color+=pigment*vec3(1.,.23,.09)*pow(max(0.,dot(-sun,v)),3.)*thin*.24;
- color+=vec3(.025,.09,.13)*pow(1.-facing,4.);
  float fog=1.-exp(-length(cameraPosition-world)*.013);
  color=mix(color,vec3(.003,.055,.12),fog);
  if(clayMode)color=vec3(.29)*(.18+diffuse*visibility*.9+fill*.55)+vec3(.06)*pow(1.-facing,3.);
@@ -161,18 +193,19 @@ export async function createOctopus(time,waves={value:null}){
  const common={clayMode:{value:new URLSearchParams(location.search).has('clay')},clock:time,surfaceLight:waves,hasSurfaceLight:{value:Boolean(waves.value)},shadowImage:{value:shadowTarget.texture},shadowProjection:{value:new THREE.Matrix4()},shadowPixel:{value:new THREE.Vector2(1/1024,1/1024)},shadowReady:{value:false}};
  const makeMat=kind=>{const m=new THREE.ShaderMaterial({uniforms:{...common,kind:{value:kind}},vertexShader:vertex,fragmentShader:fragment,side:THREE.DoubleSide});materials.push(m);return m;};
  const skin=makeMat(0),sucker=makeMat(1),iris=makeMat(2);
- const add=(g,m)=>{geometries.push(g);const mesh=new THREE.Mesh(g,m);group.add(mesh);return mesh;};
+ const add=(g,m)=>{if(!g.hasAttribute('occlusion'))g.setAttribute('occlusion',new THREE.BufferAttribute(new Float32Array(g.attributes.position.count).fill(1),1));geometries.push(g);const mesh=new THREE.Mesh(g,m);group.add(mesh);return mesh;};
  // Baked continuous body/arm surface; regenerated by scripts/build-octopus-sculpt.mjs.
  const response=await fetch(new URL('./octopus-sculpt.bin',import.meta.url));
  if(!response.ok)throw new Error('Octopus sculpt failed to load: '+response.status);
  const binary=await response.arrayBuffer(),header=new Uint32Array(binary,0,2),count=header[0],indexCount=header[1];
- if(binary.byteLength!==8+count*40+indexCount*4)throw new Error('Invalid octopus sculpt');
+ if(binary.byteLength!==8+count*44+indexCount*4)throw new Error('Invalid octopus sculpt');
  const sculpt=new THREE.BufferGeometry();
  sculpt.setAttribute('position',new THREE.BufferAttribute(new Float32Array(binary,8,count*3),3));
  sculpt.setAttribute('normal',new THREE.BufferAttribute(new Float32Array(binary,8+count*12,count*3),3));
  sculpt.setAttribute('flex',new THREE.BufferAttribute(new Float32Array(binary,8+count*24,count*2),2));
  sculpt.setAttribute('uv',new THREE.BufferAttribute(new Float32Array(binary,8+count*32,count*2),2));
- sculpt.setIndex(new THREE.BufferAttribute(new Uint32Array(binary,8+count*40,indexCount),1));
+ sculpt.setAttribute('occlusion',new THREE.BufferAttribute(new Float32Array(binary,8+count*40,count),1));
+ sculpt.setIndex(new THREE.BufferAttribute(new Uint32Array(binary,8+count*44,indexCount),1));
  add(sculpt,skin);
  const anchorResponse=await fetch(new URL('./octopus-cup-anchors.json',import.meta.url));
  if(!anchorResponse.ok)throw new Error('Octopus cup anchors failed to load');

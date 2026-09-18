@@ -95,3 +95,15 @@ Marcus authorized the three-part plan after rejecting the frontal procedural mod
 - Binary layout, finite attributes, unit normals, valid indices and finite cup anchors checked. JavaScript syntax and diff checks passed. No browser console errors during visual checks.
 - The mesh is heavier than the previous model; observed mobile-emulated viewport was about 18 fps on this machine. This is not a real mobile GPU benchmark or a 60 fps promise. Full 4K remains untested.
 - This is a materially changed CG study, **not final cinematic photorealism**. Eyelid/head character, sculpted microdetail, retopology/LOD and physically convincing arm motion still need attention. The current field mesh is not production animation topology. Do not label it user-approved until Marcus reviews it.
+
+## Optical shading and fine relief — 2026-09-19
+
+Marcus asked to try pushing the study into cinematic photorealism. This pass changes the animal's shading and surface; it does not claim the photorealistic target has been achieved.
+
+- Replaced the previous ad-hoc specular lobes with a GGX/Smith/Schlick direct-light model. Sun direction is refracted consistently with the ocean's source.
+- Reflections reuse `oceanFill` and `surfaceRadiance` from the approved ocean module, sampling its live wave map along the reflected ray. No background shader modifications. This is a lightweight optical approximation, not path tracing or full scene reflections.
+- Removed the painted iris glint. Eye reflections respond to the same water model; iris is darker amber with a broader pupil and less grain.
+- Baked low-amplitude surface relief and local ambient occlusion into the mesh. An initially coarse relief was rejected during close-up review and reduced before delivery.
+- Binary layout is now header (vertex/index counts), position, normal, flex, UV, occlusion and indices. Final asset: 151,026 vertices, 301,984 triangles, 10,268,960 bytes. Generator remains the source of truth.
+
+Verified live whole view and close-up, no shader/console errors, JS syntax, finite binary attributes and in-range occlusion/indices. Natural viewport was 1093x646; observed rate around 14 fps during inspection, not a controlled benchmark. No new 4K claim. Remaining visual bottleneck is the sculpt and anatomical specificity (especially eyelids and arm cross-sections); material changes alone cannot establish photographic realism.

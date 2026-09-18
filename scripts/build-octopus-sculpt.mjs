@@ -73,7 +73,20 @@ for(let i=0;i<8;i++)for(let k=0,t=.145;k<64&&t<.93;t+=armRadius(t,i)*.95/curves[
 await writeFile(new URL('../experiments/jellyfish/octopus-cup-anchors.json',import.meta.url),JSON.stringify(cupAnchors));
 
 // Indexed marching tetrahedra with normals from the field gradient.
-const positions=[],normals=[],flex=[],uv=[],indices=[],edges=new Map();
+const positions=[],normals=[],flex=[],uv=[],occlusion=[],indices=[],edges=new Map();
+const hash3=(x,y,z)=>{const h=Math.sin(x*127.1+y*311.7+z*74.7)*43758.5453;return h-Math.floor(h);};
+function noise3(p){
+ const a=p.map(Math.floor),f=p.map((v,i)=>{const t=v-a[i];return t*t*(3-2*t);});let value=0;
+ for(let z=0;z<2;z++)for(let y=0;y<2;y++)for(let x=0;x<2;x++)value+=hash3(a[0]+x,a[1]+y,a[2]+z)*(x?f[0]:1-f[0])*(y?f[1]:1-f[1])*(z?f[2]:1-f[2]);
+ return value;
+}
+function relief(p){
+ const warped=p.map((v,i)=>v+Math.sin(p[(i+1)%3]*3.7+i*4)*.065);
+ const n=noise3(warped.map(v=>v*9.));
+ const papillae=Math.max(0,(n-.36)/.64)**2*.008;
+ const eyeMask=eyes.reduce((mask,e)=>mask*(1-Math.exp(-p.reduce((s,v,i)=>s+(v-e.center[i])**2,0)*24)),1);
+ return papillae*eyeMask;
+}
 const corners=[[0,0,0],[1,0,0],[1,1,0],[0,1,0],[0,0,1],[1,0,1],[1,1,1],[0,1,1]];
 const tetra=[[0,5,1,6],[0,1,2,6],[0,2,3,6],[0,3,7,6],[0,7,4,6],[0,4,5,6]];
 const gradient=j=>[(field[j+1]-field[j-1])/(2*step),(field[j+nx]-field[j-nx])/(2*step),(field[j+layer]-field[j-layer])/(2*step)];
@@ -84,7 +97,13 @@ function crossing(a,b){
  const ga=gradient(a),gb=gradient(b),n=ga.map((v,i)=>v+(gb[i]-v)*t),length=Math.hypot(...n)||1;
  let best=Infinity,nearest=null;
  if(p[1]<.1||Math.abs(p[0])>.95)for(const arm of samples)for(const sample of arm){const d=Math.hypot(...p.map((v,i)=>v-sample.p[i]))-sample.r;if(d<best){best=d;nearest=sample;}}
- const id=positions.length/3;positions.push(...p);normals.push(...n.map(v=>v/length));
+ const normal=n.map(v=>v/length),h=relief(p),epsilon=.004;
+ const g=p.map((_,i)=>{const a=[...p],b=[...p];a[i]+=epsilon;b[i]-=epsilon;return (relief(a)-relief(b))/(2*epsilon);});
+ const projection=g.reduce((s,v,i)=>s+v*normal[i],0),bumped=normal.map((v,i)=>v-g[i]+projection*v),bumpedLength=Math.hypot(...bumped);
+ let blocked=0,weight=0;
+ for(const distance of [.05,.11,.22,.42]){const d=sampleField(p.map((v,i)=>v+normal[i]*distance)),w=1/(1+distance*5);blocked+=Math.max(0,1-d/distance)*w;weight+=w;}
+ const ao=Math.max(.30,1-blocked/weight*.85);
+ const id=positions.length/3;positions.push(...p.map((v,i)=>v+normal[i]*h));normals.push(...bumped.map(v=>v/bumpedLength));occlusion.push(ao);
  flex.push(nearest?nearest.t:0,nearest?nearest.i*.87+.3:0);
  let underside=0;
  if(nearest){
@@ -112,6 +131,6 @@ for(let z=1;z<nz-2;z++)for(let y=1;y<ny-2;y++)for(let x=1;x<nx-2;x++){
   if(inside.length===2){const [a,b]=inside,[c,d]=outside,q=[crossing(a,c),crossing(a,d),crossing(b,d),crossing(b,c)];triangle(q[0],q[1],q[2]);triangle(q[0],q[2],q[3]);}
  }
 }
-const arrays=[new Uint32Array([positions.length/3,indices.length]),new Float32Array(positions),new Float32Array(normals),new Float32Array(flex),new Float32Array(uv),new Uint32Array(indices)];
+const arrays=[new Uint32Array([positions.length/3,indices.length]),new Float32Array(positions),new Float32Array(normals),new Float32Array(flex),new Float32Array(uv),new Float32Array(occlusion),new Uint32Array(indices)];
 await writeFile(new URL('../experiments/jellyfish/octopus-sculpt.bin',import.meta.url),Buffer.concat(arrays.map(a=>Buffer.from(a.buffer))));
 console.log(JSON.stringify({vertices:positions.length/3,triangles:indices.length/3,bytes:arrays.reduce((s,a)=>s+a.byteLength,0),grid:dims}));
