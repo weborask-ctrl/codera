@@ -228,6 +228,33 @@ figure{margin:0;position:relative}
 .svc i{font-family:var(--mono);font-size:10px;font-style:normal;letter-spacing:.08em;
   color:var(--ink2);width:20px;flex:none}
 
+/* ═══ the closing band ══════════════════════════════════ */
+/* Every page but kontakt.html ends here. Two things only: where to go next
+   (which differs per page, so the beat is not a repeat) and the phone. The
+   form it replaced ran 1330 px desktop / 1940 px mobile on all fourteen. */
+/* the closing band owns its own rhythm — stacked on the generic .band
+   padding it left ~120 px of nothing above the footer (rule 21).
+   kontakt.html builds its own hero and carries no #kontakt. */
+#kontakt{padding-block:clamp(52px,7vh,86px) clamp(34px,4.4vh,54px)}
+.closing{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:clamp(30px,5vw,80px);
+  align-items:end}
+.closing .mono{display:block;color:rgba(243,238,227,.5);margin-bottom:12px}
+.next{display:block;color:inherit}
+.next b{display:block;font-size:clamp(30px,4.2vw,62px);font-weight:300;line-height:1;
+  letter-spacing:-.03em;transition:color .3s}
+.next:hover b{color:var(--glow)}
+.next b svg,.next b span{transition:transform .35s var(--ease)}
+.next:hover b svg{transform:translateX(8px)}
+.reach{text-align:right;justify-self:end}
+.reach .tel-big{font-size:clamp(30px,4.2vw,62px)}
+.reachrow{display:flex;align-items:center;gap:22px;margin-top:22px;justify-content:flex-end;
+  flex-wrap:wrap}
+@media (max-width:820px){
+  .closing{grid-template-columns:1fr;gap:38px;align-items:start}
+  .reach{text-align:left;justify-self:start}
+  .reachrow{justify-content:flex-start}
+}
+
 /* ═══ contact ═══════════════════════════════════════════════════════ */
 .contact{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(30px,5vw,88px);
   align-items:start}
@@ -248,17 +275,17 @@ figure{margin:0;position:relative}
 .btn:hover svg{transform:translateX(4px)}
 
 /* ═══ footer ════════════════════════════════════════════════════════ */
-footer{background:var(--dusk);color:rgba(243,238,227,.72);padding:clamp(50px,7vh,90px) 0 30px}
-.fgrid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:clamp(24px,4vw,64px)}
+footer{background:var(--dusk);color:rgba(243,238,227,.72);padding:clamp(38px,5vh,62px) 0 26px}
+.fgrid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:clamp(24px,3.2vw,52px)}
 footer a:hover{color:var(--glow)}
-footer .big{font-family:var(--serif);font-size:clamp(24px,2.4vw,38px);line-height:1.2;
+footer .big{font-family:var(--serif);font-size:clamp(21px,1.85vw,29px);line-height:1.25;
   color:#f3eee3;font-weight:300;max-width:20ch}
 .fcol h4{margin:0 0 14px;font-family:var(--mono);font-size:10px;letter-spacing:.14em;
   text-transform:uppercase;color:rgba(243,238,227,.45);font-weight:400}
 .fcol div{padding:5px 0;font-size:15px}
 .fnav{display:flex;flex-direction:column;gap:2px}
 .fnav a{padding:4px 0;display:block}
-.fbot{margin-top:clamp(34px,5vh,60px);padding-top:20px;border-top:1px solid rgba(243,238,227,.14);
+.fbot{margin-top:clamp(24px,3.2vh,38px);padding-top:18px;border-top:1px solid rgba(243,238,227,.14);
   display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
   font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:rgba(243,238,227,.45)}
 
@@ -274,6 +301,16 @@ footer .big{font-family:var(--serif);font-size:clamp(24px,2.4vw,38px);line-heigh
 }
 @media (max-width:820px){
   nav{display:none}
+  #kontakt{padding-block:44px 26px}
+  footer{padding-top:28px}
+  footer .big{font-size:19px;line-height:1.35}
+  .fcol h4{margin-bottom:10px}
+  .fcol div{padding:3px 0;font-size:14px}
+  /* the hamburger already carries the map; a seven-item vertical list
+     down the footer was ~250 px of duplicate navigation */
+  .fnav{flex-direction:row;flex-wrap:wrap;gap:0 20px}
+  .fcol:last-child{grid-column:1/-1}
+  .fbot{margin-top:20px}
   .brand i{display:none}
   #idx{display:none}
   .split,.split.mirror{grid-template-columns:1fr;gap:0}

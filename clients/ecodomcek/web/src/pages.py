@@ -6,6 +6,7 @@ Seven page types, each with a DIFFERENT SHAPE, one shared component set.
 section, page, …) so the helpers stay in one place.
 """
 import json
+import re
 import pathlib
 
 import content as C
@@ -96,17 +97,42 @@ def build(B):
             f"<div><b>{n}</b><h3>{esc(t)}</h3><p>{esc(d)}</p></div>"
             for n, t, d in C.PROCESS) + "</div>"
 
-    def contact_band(num):
-        return section(9, "Kontakt", "dusk", f'''<div class="wrap contact" data-reveal>
-  <div>
-    <h2 style="margin:0 0 26px">{lines("Poďme si o tom|<em>pokecať</em>.")}</h2>
-    <p class="lead fade d2">Zavolajte alebo napíšte, čo staviate. Prejdeme si pozemok, predstavu
-      a rozpočet — a poradíme, aj keď z toho nakoniec nič nebude. Zadarmo.</p>
-    <a class="tel-big fade d3" href="tel:{C.PHONE_RAW}" style="margin-top:30px">{C.PHONE}</a>
-    <div class="fade d4" style="margin-top:14px">
+    def contact_band(current="index.html"):
+        """The closing beat of every page except kontakt.html.
+
+        It used to be the whole contact block — headline, lead, phone, mail
+        and a full (deliberately dead) form — repeated on all fourteen
+        pages. Measured 2026-09-18 it ran 1330 px on desktop and 1940 px on
+        mobile: 57 % of the wall page and 44 % of the thinnest project page
+        on a phone. More than half of what a visitor scrolled was a form
+        they had already scrolled past somewhere else. refokus.md (LIKED)
+        names both halves of that failure — "every scroll beat delivers a
+        different KIND of content" and REFUSE: "the sheer page length".
+
+        The form now lives on kontakt.html, where it is the page. What
+        stays here is the two things a family needs at the end of a page:
+        the phone, and where to go next — and "next" differs per page,
+        which is what turns a repeated dead end back into a beat.
+        """
+        order = [(re.sub(r"<sup>.*?</sup>", "", l).strip(), h) for l, h in C.NAV]
+        hrefs = [h for _, h in order]
+        if current in hrefs:
+            nxt = order[(hrefs.index(current) + 1) % len(order)]
+            if nxt[1] == "kontakt.html":
+                nxt = order[0]  # the right-hand column already IS the contact call
+        else:
+            nxt = order[1]  # project details lead back to the register
+        return section(9, "Kontakt", "dusk", f'''<div class="wrap closing" data-reveal>
+  <a class="next fade" href="{nxt[1]}">
+    <span class="mono">Ďalej</span>
+    <b>{esc(nxt[0])} {ARROW}</b>
+  </a>
+  <div class="reach fade d2">
+    <span class="mono">Povedzte nám, čo staviate</span>
+    <a class="tel-big" href="tel:{C.PHONE_RAW}">{C.PHONE}</a>
+    <div class="reachrow">{btn("Napíšte nám", "kontakt.html")}
       <a class="mono" href="mailto:{C.EMAIL}">{C.EMAIL}</a></div>
   </div>
-  <div class="fade d2">{form()}</div>
 </div>''', sid="kontakt")
 
     def form():
@@ -191,7 +217,7 @@ def build(B):
 </div>''') + section(5, "Ako to ide", "paper", f'''<div class="wrap" data-reveal>
   <h2 class="big fade">{lines("Od prvého telefonátu|po kolaudáciu.")}</h2>
   {process()}
-</div>''') + contact_band("")
+</div>''') + contact_band("index.html")
 
     page("index.html", "EcoDomček — drevostavby z Lúčiny",
          "Montované drevodomy, strechy, terasy a interiéry z Lúčiny pri Prešove. "
@@ -244,7 +270,7 @@ def build(B):
     EcoDomčeka, v rozlíšení, v akom ich máme. Garážo-sklado-terasu (2019) zatiaľ bez fotografie —
     ostré zábery doplníme, keď ich od klienta dostaneme.</p>
 </div>''')
-    real += contact_band("Kontakt")
+    real += contact_band("realizacie.html")
     page("realizacie.html", "Realizácie — EcoDomček",
          "Osem realizácií EcoDomčeka z rokov 2008 – 2024: drevodomy, terasy, garáž a altánky "
          "v okolí Prešova, Košíc a Žiliny.", real, "realizacie", first="Realizácie")
@@ -381,7 +407,7 @@ def build(B):
     <span><i class="mono">Ďalšia stavba</i><b>{esc(title_of(nxt))}</b></span>
     <span class="pth">{plate_img(nxt, esc, size=72) if photo_src(nxt) else ""}</span></a>
 </div>''')
-        body += contact_band("Kontakt")
+        body += contact_band()
         page(f"realizacia-{p['slug']}.html", f"{title_of(p)} ({p['year']}) — EcoDomček",
              f"{p['text'][:150]}…", body, "realizacia", first=title_of(p))
 
@@ -409,7 +435,7 @@ def build(B):
   <nav class="jump" aria-label="Zoznam služieb">{jump}</nav>
   <div class="srows">{rows}</div>
 </div>''')
-    svc += contact_band("Kontakt")
+    svc += contact_band("sluzby.html")
     page("sluzby.html", "Služby — EcoDomček",
          "Drevodomy na kľúč, strechy, altánky, terasy, sadrokartóny, obklady, renovácie, "
          "maľovanie, zatepľovanie, interiéry a konzultácie.", svc, "sluzby", first="Služby")
@@ -471,7 +497,7 @@ def build(B):
   <p class="fine fade d3" style="margin-top:22px">Vizualizácie navrhovaného interiéru —
     nie fotografie realizácie.</p>
 </div>''')
-    tech += contact_band("Kontakt")
+    tech += contact_band("technologia.html")
     page("technologia.html", "Technológia — EcoDomček",
          "Difúzne otvorená drevostavba vrstvu po vrstve: skladba steny, drevovláknitá izolácia "
          "a prečo je táto technológia v USA a Kanade overená vyše 200 rokov.",
@@ -535,7 +561,7 @@ def build(B):
     <div class="more fade d3">{btn("Pozrieť prvotinu", "realizacia-2008-prvotina.html")}</div>
   </div>
 </div>''')
-    about += contact_band("Kontakt")
+    about += contact_band("o-nas.html")
     page("o-nas.html", "O nás — EcoDomček",
          "Roman Chovanec si v roku 2007 svojpomocne postavil drevodom. Z nadšenia vznikla v roku "
          "2017 firma EcoDomček, s.r.o. z Lúčiny pri Prešove.", about, "o-nas", first="O nás")
@@ -585,7 +611,7 @@ def build(B):
   </div>
   <div class="fade d3">{btn("Celá technológia", "technologia.html")}{btn("Zavolajte " + C.PHONE, "tel:" + C.PHONE_RAW, ghost=True, arrow=False)}</div>
 </div>''')
-    wall += contact_band("")
+    wall += contact_band("stena.html")
     page("stena.html", "Stena — sedem vrstiev, ktoré môžete roztiahnuť — EcoDomček",
          "Interaktívna skladba difúzne otvorenej steny: obklad, vetraná medzera, drevovláknitá "
          "doska, nosná konštrukcia s izoláciou, parobrzda, inštalačná predstena, sadrokartón.",
