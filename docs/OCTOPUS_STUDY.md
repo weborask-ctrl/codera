@@ -70,3 +70,28 @@ Rebuilt the mantle vertically, placed both lateral eyes toward the camera, redis
 
 Live natural-viewport visual check and console check passed. This iteration establishes composition and base pose; it is not a final photorealistic asset. The user-supplied reference remains at the original Desktop/bio path; its visual intent is documented here for handoff.
 Reference copied to `docs/design/octopus-frontal-pose-reference.webp` for cross-PC handoff. It is a user-supplied pose reference, not a production site asset.
+
+## Continuous sculpt, material and lighting pass — 2026-09-19
+
+Marcus authorized the three-part plan after rejecting the frontal procedural model as plastic. Implemented an actual geometry replacement rather than only adjusting the prior tube surfaces.
+
+### Geometry
+
+- Offline implicit sculpt joins mantle, head, crown, proximal webbing and all eight arms into one indexed surface. Broader reclined mantle, narrower head transition, lateral eye sockets and less protruding eyelids.
+- Shared anatomy lives in `experiments/jellyfish/octopus-anatomy.mjs`. Rebuild with `node scripts/build-octopus-sculpt.mjs` after starting the preview once (the builder imports its pinned cached Three.js runtime).
+- Generated `octopus-sculpt.bin`: 151,026 vertices / 301,984 triangles / 9,664,856 bytes. Browser loads the result asynchronously. No voxel generation in the browser. Analytical overlays preserve thin arm tips below the voxel spacing.
+- Cup attachment distances are baked against the blended skin in `octopus-cup-anchors.json`. Exposed rows begin below the frontal web; cup bowls are deeper, slightly varied and less prominent.
+
+### Material and light
+
+- Warped multiscale relief, subtle pigment speckles, reduced broad color contrast and softer wet highlights. Lighter underside follows each arm's local orientation.
+- Darker cup cavities, quieter iris colors, restrained reflected sky fill, existing surface light and self-shadowing, stronger depth tint and a thin-edge scattering approximation.
+- Approved ocean shader unchanged. Framing raised to keep the enlarged model in the Full HD view. Existing slow idle deformation retained; a complete muscular rig and scroll choreography are still pending.
+- `octopus-look.html?clay=1` provides a neutral material check.
+
+### Verification and limits
+
+- Live gray geometry review, material close-up, Full HD 1920x1080 and mobile 390x844. Final cup-row change checked on mobile; final default viewport also reviewed.
+- Binary layout, finite attributes, unit normals, valid indices and finite cup anchors checked. JavaScript syntax and diff checks passed. No browser console errors during visual checks.
+- The mesh is heavier than the previous model; observed mobile-emulated viewport was about 18 fps on this machine. This is not a real mobile GPU benchmark or a 60 fps promise. Full 4K remains untested.
+- This is a materially changed CG study, **not final cinematic photorealism**. Eyelid/head character, sculpted microdetail, retopology/LOD and physically convincing arm motion still need attention. The current field mesh is not production animation topology. Do not label it user-approved until Marcus reviews it.

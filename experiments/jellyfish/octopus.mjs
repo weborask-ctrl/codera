@@ -1,4 +1,5 @@
 import * as THREE from '/vendor/three/three.module.min.js';
+import {paths,armRadius,armTwist,eyes} from './octopus-anatomy.mjs';
 
 const vertex = `
 uniform float clock;
@@ -31,6 +32,7 @@ void main(){
 
 const fragment = `
 uniform float kind;
+uniform bool clayMode;
 uniform sampler2D surfaceLight;
 uniform bool hasSurfaceLight;
 uniform sampler2D shadowImage;
@@ -67,35 +69,41 @@ void main(){
  vec3 skinPoint=local+vec3(noise(local*2.3),noise(local*2.3+17.),noise(local*2.3+41.))*.12;
  float coarse=noise(skinPoint*3.8),cells=mix(.5,noise(skinPoint*28.),1.-smoothstep(.015,.08,footprint)),fine=mix(.5,noise(skinPoint*64.),detail);
  if(kind<.5){
-  float relief=smoothstep(.35,.82,noise(skinPoint*16.))*.48+cells*.36+fine*.16;
+  float papillae=pow(smoothstep(.28,.86,noise(skinPoint*19.)),2.);
+  float fold=sin(local.y*65.+noise(skinPoint*6.)*5.)*.5+.5;
+  float folds=fold*exp(-pow((local.y-.12)*4.,2.))*.08;
+  float relief=papillae*.62+cells*.23+fine*.07+folds;
   vec3 dx=dFdx(world),dy=dFdy(world),a=cross(dy,n),b=cross(n,dx);
   float determinant=dot(dx,a);
   vec3 gradient=sign(determinant)*(dFdx(relief)*a+dFdy(relief)*b);
-  n=normalize(abs(determinant)*n-gradient*.009);
+  n=normalize(abs(determinant)*n-gradient*.008);
  }
  float facing=max(0.,dot(n,v)),visibility=shadow();
  vec2 lightPoint=world.xz-sun.xz*world.y/sun.y;
  float waterLight=hasSurfaceLight?mix(.82,1.30,clamp(texture2D(surfaceLight,lightPoint/64.+.5).a*.45,0.,1.)):1.;
  float diffuse=max(0.,dot(n,sun))*waterLight;
  float wrap=clamp((dot(n,sun)+.5)/1.5,0.,1.);
- vec3 fillDir=normalize(vec3(-.45,.3,.82));
+ vec3 fillDir=normalize(vec3(-.45,.65,.82));
  float fill=max(0.,dot(n,fillDir));
- vec3 pigment=mix(vec3(.30,.054,.022),vec3(.61,.145,.040),smoothstep(.12,.88,coarse));
+ vec3 pigment=mix(vec3(.25,.071,.052),vec3(.43,.142,.078),smoothstep(.08,.92,coarse));
  float mottles=smoothstep(.56,.75,cells+coarse*.12);
- pigment=mix(pigment,vec3(.68,.32,.13),mottles*.18);
+ pigment=mix(pigment,vec3(.56,.29,.16),mottles*.13);
  float pale=smoothstep(.69,.80,fine+coarse*.12);
- pigment=mix(pigment,vec3(.76,.49,.25),pale*.09);
+ pigment=mix(pigment,vec3(.64,.45,.29),pale*.05);
+ float spots=smoothstep(.63,.77,noise(skinPoint*115.))*detail;
+ pigment*=1.-spots*.14;
+ if(kind<.5)pigment=mix(pigment,vec3(.49,.29,.21),smoothstep(.25,.95,tex.x)*.64);
  pigment=mix(pigment,vec3(.035,.16,.20),smoothstep(.73,.92,coarse)*.35);
- float roughness=.28+cells*.19;
+ float roughness=.35+cells*.18;
  float cavity=1.;
  if(kind>.5&&kind<1.5){
-  pigment=mix(vec3(.42,.17,.10),vec3(.82,.52,.30),cells);
-  cavity=mix(.40,1.,smoothstep(.02,.75,tex.y));roughness=.42;
+  pigment=mix(vec3(.36,.18,.13),vec3(.69,.48,.33),cells);
+  cavity=mix(.12,1.,smoothstep(.10,.80,tex.y));roughness=.34;
  }
  if(kind>1.5){
   vec2 p=tex*2.-1.;float r=length(p),angle=atan(p.y,p.x);
   float fibers=.5+.5*sin(angle*95.+noise(vec3(p*25.,2.))*3.);
-  pigment=mix(vec3(.14,.075,.018),vec3(.77,.49,.14),fibers*.5+.25);
+  pigment=mix(vec3(.07,.055,.026),vec3(.42,.32,.13),fibers*.5+.25);
   pigment*=.52+.48*sin(clamp(r,0.,1.)*3.14159);
   float pupil=smoothstep(.92,1.10,length(p/vec2(.80,.18)));
   pigment=mix(vec3(.001,.004,.006),pigment,pupil);
@@ -107,14 +115,17 @@ void main(){
  float power=mix(180.,30.,roughness);
  float spec=pow(max(0.,dot(n,h)),power);
  float frontSpec=pow(max(0.,dot(n,normalize(fillDir+v))),kind>1.5?140.:80.);
- vec3 color=pigment*(.10+diffuse*1.28*visibility+fill*.58)*cavity;
+ vec3 color=pigment*(.075+diffuse*1.50*visibility+fill*.52)*cavity;
  color+=pigment*vec3(.20,.075,.025)*wrap*.35*visibility;
  color+=vec3(.025,.075,.095)*(1.-max(0.,n.y))*.48;
- color+=vec3(.95,.88,.70)*spec*.80*visibility;
- color+=vec3(.55,.75,.90)*frontSpec*(kind>1.5?.55:.18);
+ color+=vec3(.95,.88,.70)*spec*.42*visibility;
+ color+=vec3(.55,.75,.90)*frontSpec*(kind>1.5?.55:.065);
+ float thin=kind<.5?smoothstep(.35,.9,tex.y):.0;
+ color+=pigment*vec3(1.,.23,.09)*pow(max(0.,dot(-sun,v)),3.)*thin*.24;
  color+=vec3(.025,.09,.13)*pow(1.-facing,4.);
- float fog=1.-exp(-length(cameraPosition-world)*.007);
+ float fog=1.-exp(-length(cameraPosition-world)*.013);
  color=mix(color,vec3(.003,.055,.12),fog);
+ if(clayMode)color=vec3(.29)*(.18+diffuse*visibility*.9+fill*.55)+vec3(.06)*pow(1.-facing,3.);
  gl_FragColor=vec4(color,1.);
  #include <tonemapping_fragment>
  #include <colorspace_fragment>
@@ -139,99 +150,86 @@ function merge(parts){
  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(n,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setAttribute('flex',new THREE.Float32BufferAttribute(flex,2));g.setIndex(indices);return g;
 }
 const V=p=>new THREE.Vector3(...p);
-const smooth=(a,b,x)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t);};
-const papilla=(p)=>Math.max(0,Math.sin(p[0]*23+Math.sin(p[2]*11)*2.1)*Math.sin(p[1]*27+Math.sin(p[0]*13)*1.7)*Math.sin(p[2]*19+Math.sin(p[1]*17)*2.3))**4;
 
 // Frontal resting pose: mantle above the crown, arms distributed in depth.
-const paths=[
- [[-.23,-.24,.44],[-.50,-.90,.88],[-.85,-1.67,1.14],[-.67,-2.25,1.13],[-.13,-2.35,.98],[.17,-2.00,.77],[.03,-1.74,.65]],
- [[.24,-.24,.44],[.65,-.80,.87],[1.12,-1.42,1.02],[1.63,-1.85,.85],[2.08,-1.68,.54],[2.16,-1.24,.36],[1.91,-1.04,.33]],
- [[.49,-.17,.20],[1.10,-.52,.38],[1.96,-.79,.24],[2.62,-.61,.00],[2.80,-.14,-.16],[2.56,.08,-.12],[2.30,-.06,.03]],
- [[.47,-.12,-.23],[1.04,-.40,-.45],[1.64,-.10,-.61],[1.93,.47,-.55],[1.64,.81,-.44],[1.30,.62,-.33],[1.36,.33,-.25]],
- [[.19,-.14,-.46],[.43,-.75,-.71],[.98,-1.30,-.93],[1.50,-1.61,-.97],[1.82,-1.52,-.92]],
- [[-.20,-.14,-.46],[-.74,-.46,-.83],[-1.25,-.24,-.96],[-1.40,.20,-.85],[-1.14,.49,-.73],[-.88,.29,-.67]],
- [[-.48,-.13,-.22],[-1.10,-.63,-.53],[-1.90,-1.03,-.59],[-2.50,-.79,-.43],[-2.73,-.34,-.18],[-2.50,-.03,-.02],[-2.22,-.16,.07]],
- [[-.48,-.20,.21],[-1.02,-.77,.54],[-1.63,-1.39,.66],[-2.15,-1.79,.49],[-2.48,-1.65,.23],[-2.55,-1.33,.09]],
-];
 
-export function createOctopus(time,waves={value:null}){
+
+export async function createOctopus(time,waves={value:null}){
  const group=new THREE.Group(),geometries=[],materials=[];
  const shadowTarget=new THREE.WebGLRenderTarget(1024,1024,{minFilter:THREE.NearestFilter,magFilter:THREE.NearestFilter,depthBuffer:true});
  const lightCamera=new THREE.OrthographicCamera(-4.5,4.5,4.5,-4.5,.1,24);
- const common={clock:time,surfaceLight:waves,hasSurfaceLight:{value:Boolean(waves.value)},shadowImage:{value:shadowTarget.texture},shadowProjection:{value:new THREE.Matrix4()},shadowPixel:{value:new THREE.Vector2(1/1024,1/1024)},shadowReady:{value:false}};
+ const common={clayMode:{value:new URLSearchParams(location.search).has('clay')},clock:time,surfaceLight:waves,hasSurfaceLight:{value:Boolean(waves.value)},shadowImage:{value:shadowTarget.texture},shadowProjection:{value:new THREE.Matrix4()},shadowPixel:{value:new THREE.Vector2(1/1024,1/1024)},shadowReady:{value:false}};
  const makeMat=kind=>{const m=new THREE.ShaderMaterial({uniforms:{...common,kind:{value:kind}},vertexShader:vertex,fragmentShader:fragment,side:THREE.DoubleSide});materials.push(m);return m;};
  const skin=makeMat(0),sucker=makeMat(1),iris=makeMat(2);
  const add=(g,m)=>{geometries.push(g);const mesh=new THREE.Mesh(g,m);group.add(mesh);return mesh;};
- // Continuous mantle-to-head surface. The front contracts into the arm crown.
- const bodyCurve=new THREE.CatmullRomCurve3([V([.06,2.12,-.35]),V([.02,1.53,-.23]),V([0,.88,-.05]),V([0,.25,.06]),V([0,-.60,.03])]);
- const bodyFrames=bodyCurve.computeFrenetFrames(144,false);
- add(meshGrid(144,112,(u,t)=>{
-  const j=Math.round(t*144),center=bodyCurve.getPointAt(t),a=u*Math.PI*2;
-  const n=bodyFrames.normals[j].clone().multiplyScalar(Math.cos(a)).addScaledVector(bodyFrames.binormals[j],Math.sin(a));
-  let r=Math.sin(t*Math.PI)**.48*(.91-.22*smooth(.43,.90,t));
-  const p=center.clone().addScaledVector(n,r);r+=papilla(p.toArray())*.010*Math.sin(t*Math.PI);
-  return center.addScaledVector(n,r).toArray();
- }),skin);
- // Fleshy crown covers the buried arm roots and the terminal mantle cap.
- add(meshGrid(48,72,(u,t)=>{
-  const a=u*Math.PI*2,b=t*Math.PI,s=Math.sin(b);
-  return [s*Math.cos(a)*.60,-.11+Math.cos(b)*.48,.02+s*Math.sin(a)*.57];
- }),skin);
+ // Baked continuous body/arm surface; regenerated by scripts/build-octopus-sculpt.mjs.
+ const response=await fetch(new URL('./octopus-sculpt.bin',import.meta.url));
+ if(!response.ok)throw new Error('Octopus sculpt failed to load: '+response.status);
+ const binary=await response.arrayBuffer(),header=new Uint32Array(binary,0,2),count=header[0],indexCount=header[1];
+ if(binary.byteLength!==8+count*40+indexCount*4)throw new Error('Invalid octopus sculpt');
+ const sculpt=new THREE.BufferGeometry();
+ sculpt.setAttribute('position',new THREE.BufferAttribute(new Float32Array(binary,8,count*3),3));
+ sculpt.setAttribute('normal',new THREE.BufferAttribute(new Float32Array(binary,8+count*12,count*3),3));
+ sculpt.setAttribute('flex',new THREE.BufferAttribute(new Float32Array(binary,8+count*24,count*2),2));
+ sculpt.setAttribute('uv',new THREE.BufferAttribute(new Float32Array(binary,8+count*32,count*2),2));
+ sculpt.setIndex(new THREE.BufferAttribute(new Uint32Array(binary,8+count*40,indexCount),1));
+ add(sculpt,skin);
+ const anchorResponse=await fetch(new URL('./octopus-cup-anchors.json',import.meta.url));
+ if(!anchorResponse.ok)throw new Error('Octopus cup anchors failed to load');
+ const cupAnchors=await anchorResponse.json();
  const curves=paths.map(p=>new THREE.CatmullRomCurve3(p.map(V))),cupParts=[];
- const radius=(t,i)=>(i<2?.36:.30)*(1-t)**1.12+.008;
+ const radius=armRadius;
  for(let i=0;i<8;i++){
-  const curve=curves[i],frames=curve.computeFrenetFrames(180,false),phase=i*.87+.3;
-  add(meshGrid(180,40,(u,t)=>{
-   const j=Math.round(t*180),a=u*Math.PI*2,c=curve.getPointAt(t),n=frames.normals[j].clone().multiplyScalar(Math.cos(a)).addScaledVector(frames.binormals[j],Math.sin(a));
-   const r=radius(t,i),p=c.clone().addScaledVector(n,r);
-   return c.addScaledVector(n,r+papilla(p.toArray())*.006*(1-t)).toArray();
-  },phase),skin);
+  const curve=curves[i],phase=i*.87+.3;
+  // Analytic tips preserve a clean silhouette below the baked voxel spacing.
+  const tip=meshGrid(96,32,(u,v)=>{
+   const t=.62+v*.38,c=curve.getPointAt(t),tangent=curve.getTangentAt(t),front=V([0,-.20,1]);
+   front.addScaledVector(tangent,-front.dot(tangent)).normalize();
+   const lateral=new THREE.Vector3().crossVectors(tangent,front),a=u*Math.PI*2+armTwist(t,i);
+   return c.addScaledVector(front,Math.cos(a)*(radius(t,i)+.005)).addScaledVector(lateral,Math.sin(a)*(radius(t,i)+.005)).toArray();
+  });
+  for(let j=0;j<tip.attributes.flex.count;j++){
+   const u=tip.attributes.uv.getX(j),t=.62+tip.attributes.uv.getY(j)*.38;
+   tip.attributes.flex.setXY(j,t,phase);tip.attributes.uv.setXY(j,Math.max(0,(Math.cos(u*Math.PI*2)-.25)/.65),t);
+  }
+  add(tip,skin);
   // Cups grow from stalks into fleshy rims and recessed closed bowls, with progressive taper.
   for(let k=0,t=.145;k<64&&t<.93;t+=radius(t,i)*.95/curve.getLength(),k++)for(const side of [-1,1]){
+   // The frontal web is dorsal tissue: exposed cup rows begin below the crown.
+   if(t<(i<2?.26:.20))continue;
    const c=curve.getPointAt(t),tangent=curve.getTangentAt(t),front=V([0,-.20,1]);
    front.addScaledVector(tangent,-front.dot(tangent)).normalize();
    const lateral=new THREE.Vector3().crossVectors(tangent,front).normalize();
-   const twist=[-.72,.68,.85,1.4,1.7,-1.6,-1.15,-.75][i]+Math.sin(t*3+i*.8)*.22+t*.35;
+   const twist=armTwist(t,i);
    const axis=front.clone().multiplyScalar(Math.cos(side*.48+twist)).addScaledVector(lateral,Math.sin(side*.48+twist)).normalize();
    const x=new THREE.Vector3().crossVectors(tangent,axis).normalize(),y=new THREE.Vector3().crossVectors(axis,x).normalize();
-   const r=radius(t,i),size=r*.38,origin=c.clone().addScaledVector(axis,r*.91);
+   const r=radius(t,i),size=r*.33*(1+Math.sin(k*2.7+i)*.08),origin=c.clone().addScaledVector(axis,cupAnchors[`${i}:${k}:${side}`]??r*.96);
    // Profile: stalk base -> outer rim -> inward lip -> recessed center.
-   const profile=[[.43,0],[.64,.25],[.97,.48],[1.,.65],[.91,.75],[.70,.68],[.51,.48],[.30,.35],[0,.32]];
+   const profile=[[.48,0],[.73,.17],[.96,.37],[1.,.52],[.87,.56],[.66,.43],[.44,.19],[.22,.07],[0,.05]];
    const cup=meshGrid(8,20,(u,v)=>{
     const [rr,h]=profile[Math.round(v*8)],a=u*Math.PI*2;
     return origin.clone().addScaledVector(x,Math.cos(a)*rr*size).addScaledVector(y,Math.sin(a)*rr*size).addScaledVector(axis,h*size).toArray();
    });
    const f=cup.attributes.flex,uv=cup.attributes.uv;
-   for(let n=0;n<f.count;n++){f.setXY(n,t,phase);uv.setY(n,1-Math.abs(uv.getY(n)-.55)*1.8);}
+   for(let n=0;n<f.count;n++){f.setXY(n,t,phase);uv.setY(n,profile[Math.round(uv.getY(n)*8)][0]);}
    cupParts.push(cup);
   }
  }
  add(merge(cupParts),sucker);
- // Short web surfaces bridge the arm crown; their outer edges follow the adjacent arms.
- const order=[0,1,2,3,4,5,6,7];
- for(let k=0;k<8;k++){
-  const left=order[k],right=order[(k+1)%8];
-  const web=meshGrid(24,24,(u,v)=>{
-   const t=v*(.18-.08*Math.sin(Math.PI*u));
-   const a=curves[left].getPointAt(t),b=curves[right].getPointAt(t);
-   const p=a.lerp(b,u);p.z+=Math.sin(u*Math.PI)*Math.sin(v*Math.PI)*.055;
-   return p.toArray();
-  });add(web,skin);
- }
  // Both eyes are visible in the frontal reference; retain lateral placement.
- for(const side of [-1,1]){
- const eyeCenter=V([side*.46,.68,.79]),eyeNormal=V([side*.52,.10,1]).normalize();
+ for(const {side,center,normal} of eyes){
+ const eyeCenter=V(center),eyeNormal=V(normal).normalize();
  const eyeX=new THREE.Vector3().crossVectors(V([0,1,0]),eyeNormal).normalize(),eyeY=new THREE.Vector3().crossVectors(eyeNormal,eyeX);
  const eyePoint=(x,y,z)=>eyeCenter.clone().addScaledVector(eyeX,x).addScaledVector(eyeY,y).addScaledVector(eyeNormal,z).toArray();
  const eye=meshGrid(32,72,(u,v)=>{
-  const a=u*Math.PI*2,r=v*.17;return eyePoint(Math.cos(a)*r,Math.sin(a)*r,.060*Math.sqrt(1-v*v));
+  const a=u*Math.PI*2,r=v*.155;return eyePoint(Math.cos(a)*r,Math.sin(a)*r*.78,.042*Math.sqrt(1-v*v));
  });
  // Iris coordinates follow the face of the eye, not the body's UV layout.
  for(let j=0;j<=32;j++)for(let k=0;k<=72;k++){const a=k/72*Math.PI*2,r=j/32;eye.attributes.uv.setXY(j*73+k,.5+.5*r*Math.cos(a),.5+.5*r*Math.sin(a));}
  add(eye,iris);
  add(meshGrid(20,96,(u,v)=>{
-  const a=u*Math.PI*2,r=.163+v*.13,z=.025+Math.sin(v*Math.PI)*.075;
-  return eyePoint(Math.cos(a)*r,Math.sin(a)*r*(1+.10*Math.sin(a)),z-.16*v+Math.max(0,Math.sin(a))**2*.10);
+  const a=u*Math.PI*2,r=.148+v*.16,z=.009+Math.sin(v*Math.PI)*.015;
+  return eyePoint(Math.cos(a)*r,Math.sin(a)*r*.80,z-.17*v+Math.max(0,Math.sin(a))**2*.032);
  }),skin);
  }
  const depthMaterial=new THREE.ShaderMaterial({uniforms:{clock:time},vertexShader:vertex,fragmentShader:'#include <packing>\nvoid main(){gl_FragColor=packDepthToRGBA(gl_FragCoord.z);}',side:THREE.DoubleSide,toneMapped:false});

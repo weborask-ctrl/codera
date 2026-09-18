@@ -43,8 +43,8 @@ let jelly=null,backdrop=null,presentScene=null;
 const jellyScene=new THREE.Scene();
 if(study){
  const {createOctopus}=await import('./octopus.mjs');
- jelly=createOctopus(uniforms.time,uniforms.waveMap);
- jelly.group.position.set(0,-2.9,-6.6);
+ jelly=await createOctopus(uniforms.time,uniforms.waveMap);
+ jelly.group.position.set(0,-2.4,-6.6);
  jelly.group.rotation.set(.02,0,-.025);
  jelly.group.scale.setScalar(1.25);
  jellyScene.add(jelly.group);
