@@ -43,8 +43,10 @@ vec4 spectrum(vec2 p,int bands,float footprint){
   float ddh=-sin(phase)-.64*sin(2.*phase);
   result.x+=a*h;
   result.yz+=a*dh*gradient;
+  if(bands<9){
   result.w+=a*(ddh*dot(gradient,gradient)-dh*1.6*dot(bendVector,bendVector)*sin(bend));
   curvatureTensor+=a*(ddh*vec3(gradient.x*gradient.x,gradient.x*gradient.y,gradient.y*gradient.y)-dh*1.6*sin(bend)*vec3(bendVector.x*bendVector.x,bendVector.x*bendVector.y,bendVector.y*bendVector.y));
+  }
   frequency*=1.365;amplitude*=i<10?.735:.64;
  }
  return result;
@@ -78,8 +80,8 @@ float focusing(vec3 p){
  float focus=useWaveMap?wave.w:1./sqrt(.10+squeeze*squeeze);
  float key=exp(-dot(q-LIGHT_CENTER,q-LIGHT_CENTER)*.019);
  // Broad wave packets break up the light source; the pattern is world-locked.
- float packet=pow(noise(q*1.35+wave.yz*.4),2.)*2.4+.08;
- packet*=.20+1.35*pow(noise(q*1.7),2.);
+ float packet=1.;
+ if(!useWaveMap){packet=pow(noise(q*1.35+wave.yz*.4),2.)*2.4+.08;packet*=.20+1.35*pow(noise(q*1.7),2.);}
  return focus*key*packet*exp(p.y*.027);
 }
 vec3 surfaceRadiance(vec3 p,vec3 rd,vec3 n){
@@ -94,7 +96,10 @@ vec3 surfaceRadiance(vec3 p,vec3 rd,vec3 n){
   vec3 sky=mix(vec3(.008,.045,.10),vec3(.045,.16,.27),sqrt(max(0.,air.y)));
   float cloud=noise(air.xz*7.+vec2(time*.008,0.));
   sky*=.74+.30*cloud;
-  sky+=vec3(1.,.91,.73)*(pow(solar,65.)*.85+pow(solar,1400.)*25.);
+  // Filter the narrow solar lobe by its pixel footprint, conserving its energy.
+  float angularVariance=dot(dFdx(n),dFdx(n))+dot(dFdy(n),dFdy(n));
+  float solarPower=1./(1./1400.+angularVariance*.18);
+  sky+=vec3(1.,.94,.81)*(pow(solar,65.)*.85+pow(solar,solarPower)*25.*solarPower/1400.);
   // The underside reflects dark water, not a uniform light turquoise sheet.
   vec3 reflected=oceanFill(reflection,depth)*.65;
   float lightDistance=length(p.xz-LIGHT_CENTER);
@@ -126,7 +131,7 @@ void main(){
  if(distanceToSurface<150. && renderMode!=2){
   vec3 p=ro+rd*distanceToSurface,n=normalAt(p.xz);
   // Two nearby optical samples soften unresolved critical-angle edges without blurring geometry.
-  vec2 footprint=dFdx(p.xz)*.31+dFdy(p.xz)*.19+vec2(.026,.019);
+  vec2 footprint=dFdx(p.xz)*.38+dFdy(p.xz)*.22;
   vec3 boundary=surfaceRadiance(p,rd,n);
   if(refineSurface)boundary=boundary*.6+surfaceRadiance(p,rd,normalAt(p.xz+footprint))*.4;
   vec3 transmission=exp(-vec3(.10,.025,.019)*distanceToSurface);
@@ -149,7 +154,8 @@ void main(){
  float forwardScatter=pow(max(0.,dot(rd,source)),9.);
  color+=vec3(.035,.29,.49)*light*(.085+.24*forwardScatter);
  // Smooth forward scattering around the source; stays in world space during camera travel.
- color+=vec3(.30,.82,.86)*pow(max(0.,dot(rd,source)),20.)*exp(-depth*.04);
+ float sourceFacing=max(0.,dot(rd,source));
+ color+=(vec3(.15,.47,.57)*pow(sourceFacing,20.)+vec3(.65,.91,.84)*pow(sourceFacing,72.))*exp(-depth*.04);
  if(renderMode==2){gl_FragColor=vec4(color,1.);return;}
  }
  color*=1.-.12*dot(vUv-.5,vUv-.5);
@@ -166,5 +172,8 @@ void main(){
  // Thin-lens approximation of the refracted ray-density Jacobian at a nominal focal depth.
  float jacobian=1.+.8*coarse.w+.64*(curvatureTensor.x*curvatureTensor.z-curvatureTensor.y*curvatureTensor.y);
  float focus=min(5.,.6/sqrt(.028+jacobian*jacobian));
- gl_FragColor=vec4(fine.xyz,focus);
+ // Cache the same world-space packet field once, instead of repeating noise at every ray step.
+ float packet=pow(noise(p*1.35+fine.yz*.4),2.)*2.4+.08;
+ packet*=.20+1.35*pow(noise(p*1.7),2.);
+ gl_FragColor=vec4(fine.xyz,focus*packet);
 }`;

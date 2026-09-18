@@ -42,3 +42,17 @@ Marcus potvrdil smer a požiadal pokračovať. Zachovaná kompozícia, farebná 
 Overenie: syntax oboch modulov a diff kontrola prešli. Celok vizuálne overený pri 1920 × 1080, približne 18 fps na aktuálnom PC. Úsporný režim pri 1229 × 691 dosahoval približne 29 fps; bez zachytených shaderových chýb. Náhľad bol vrátený do plnej kvality a bežnej veľkosti okna. Ide o krátke merania, 4K a mobilný hardvér ostávajú neoverené.
 
 Ďalej doladiť prirodzenosť jasu pri zdroji, zvyšné bledé plochy a stabilitu drobných odleskov počas preletu; neoznačovať za hotovú zhodu s fotografickou referenciou.
+
+## Iterácia — čistota svetla a detail pri vyššom rozlíšení
+
+Marcus potvrdil súčasný smer a požiadal zvýšiť filmovosť a ostrosť. Upravený len shader filmovej štúdie mora; medúza a pôvodné more zostávajú bez zásahu.
+
+- Úzke slnečné odlesky sa filtrujú podľa derivácií normály v obrazovom priestore. Pri rozšírení svetelnej škvrny sa znižuje jej špička, aby sa obmedzilo blikanie subpixelových bodov. Toto je aproximácia filtrovania lesku, nie plná časová antialiasingová metóda.
+- Druhá optická vzorka sa odvodzuje od pixelového pokrytia bez predchádzajúceho pevného posunu vo svete, ktorý zbytočne zjemňoval detail aj pri vyššom rozlíšení.
+- Jediný široký svetelný závoj nahrádza slabšia široká zložka a jasnejšie užšie jadro. Zachovaný smer a farebnosť vody.
+- Vzor svetelných paketov sa počíta do alfa kanála mapy vĺn. Pri integrácii lúčov sa vzorkuje spolu so sústredením svetla; analytický priestorový útlm ostáva mimo opakujúcej sa mapy. Mip filtrovanie tejto mapy mierne mení vzhľad oproti priamemu výpočtu šumu.
+- Výpočet krivosti sa preskakuje pri jemnom spektre, kde sa používajú len výška a sklon. Krivosť sa stále počíta pre hrubé spektrum a fallback sústredenia svetla.
+
+Overenie: syntax a diff kontrola prešli. Celok skontrolovaný pri 1920 × 1080; aktivovaný prelet a skontrolovaný zmenený záber. Krátke meranie približne 18 fps vo Full HD. Skutočný drawing buffer 3840 × 2160 bol potvrdený a detail vizuálne skontrolovaný; približne 10 fps na tomto PC, bez zachytenej chyby shaderu. Nie je to prísľub plynulého 4K na tomto hardvéri. Náhľad vrátený do bežnej veľkosti a Full HD, kamera do východiskového záberu.
+
+Stále zostáva zjemniť niektoré plošné odrazy oblohy. Stabilita v pohybe potrebuje dlhší záznam na cieľovom GPU; samotné snímky a krátka kontrola preletu nepreukazujú úplné odstránenie blikania.
