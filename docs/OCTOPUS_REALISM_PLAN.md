@@ -48,3 +48,14 @@ Počet iterácií je pracovný plán, nie záruka fotorealizmu. Každý krok má
 - A first transverse head shape looked like a horizontal band in the oblique review; narrowed and lengthened that transition before delivery.
 
 Verified front and 35-degree oblique clay views, no console errors, syntax and binary integrity. Mesh: 148,740 vertices, 297,400 triangles, 10,113,368 bytes. Current eye surfaces remain placeholders for step 2. This stage is ready for Marcus's visual assessment, not a declaration of photorealism or approval. No section layout, ocean or scroll choreography changes.
+
+## Iteration 2 implementation — eyes and surrounding tissue
+
+2026-09-19. Marcus selected step 2 with photorealism as the target.
+
+- Recessed iris beneath a separate transparent corneal dome. Cornea has its own live-water reflection and direct-light specular response; excluded from opaque shadow rendering. Matte clay review suppresses the corneal overlay.
+- Refined iris fibers, amber variation and horizontal pupil edge. The iris itself is rougher and no longer serves as the outer glossy surface.
+- Replaced the uniform rim with a wider skin apron, upper/lower fold variation and subtle asymmetry. Visual review exposed an overly separated outer edge; the apron now extends deeper into the surrounding head and the opening is narrower.
+- Lens winding corrected for front-face rendering. Existing body, arms, ocean and scroll behavior untouched.
+
+Checked frontal detail and 30-degree oblique detail in the live browser, with no console errors; JavaScript syntax and diff checks pass. This is an eye construction improvement, not a declaration that the full creature is photorealistic. Eye sockets still have a pronounced dark edge under this lighting and should be assessed by Marcus before treating the step as visually approved. No new 4K/performance claim.
