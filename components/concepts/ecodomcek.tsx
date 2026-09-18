@@ -55,6 +55,16 @@ const MM_GUTTER = "lg:pl-[calc(clamp(1.25rem,4vw,3.5rem)+15rem)]"
    The portrait hero runs at 32: it is the one sequence a phone fetches
    before anything else, and its meadow costs ~140 KB a frame whatever the
    quality, so the count is where the bytes are. */
+/**
+ * Room length is a measured quantity, not a feel. Sampling each room at
+ * 10 / 35 / 60 / 85 % of its own scroll and taking the mean absolute luma
+ * change between the first and last frame (2026-09-18): Obývačka moved 15.2
+ * per screen, while Príjazd, Stena, Realizácie and Kontakt moved 4.2-4.9 and
+ * still asked for 2.8-3.8 screens each — 17.6 screens of scroll for about six
+ * screens of change, which is refokus.md's REFUSE clause ("the sheer page
+ * length") exactly. Their heights were cut until they deliver 6.6-7.3 per
+ * screen; Obývačka keeps its 300svh, it is the set piece and earns it.
+ */
 const CLIPS = {
   prijazd: 48,
   "prijazd-m": 32,
@@ -529,7 +539,7 @@ export default function EcodomcekSite() {
         poster={`${ASSET}/hero.jpg`}
         posterPortrait={`${ASSET}/hero-mobile.jpg`}
         alt="Vzorový drevodom EcoDomček v rannom svetle: smrekovcová fasáda Rhombus, antracitový vykonzolovaný box, terasa a lúka"
-        height="340svh"
+        height="230svh"
         enter={false}
       >
         <div className={`absolute inset-0 grid grid-cols-12 items-center gap-x-6 ${PAD} pt-24 pb-28 lg:items-start lg:pt-[15vh]`}>
@@ -654,7 +664,7 @@ export default function EcodomcekSite() {
         clip="stena"
         poster={`${ASSET}/wall.jpg`}
         alt="Skladba difúzne otvorenej steny rozložená do siedmich vrstiev: smrekovcový obklad, laty, drevovláknitá doska, nosný rám s izoláciou, sadrovláknité dosky, ovčia vlna"
-        height="380svh"
+        height="240svh"
         exit={false}
       >
         <div className={`absolute inset-0 grid grid-cols-12 items-center gap-x-6 ${PAD} pt-24 pb-16`}>
@@ -735,7 +745,7 @@ export default function EcodomcekSite() {
         clip="model"
         poster={`${ASSET}/model.jpg`}
         alt="Model vzorového domu so zdvihnutou strechou na svetlom stole"
-        height="280svh"
+        height="190svh"
         exit={false}
       >
         <div className={`absolute inset-0 flex flex-col justify-between ${PAD} pt-20 pb-6 md:pt-24 md:pb-8`}>
@@ -776,7 +786,7 @@ export default function EcodomcekSite() {
         clip="sumrak"
         poster={`${ASSET}/dusk.jpg`}
         alt="Vzorový dom za súmraku: okná svietia teplým svetlom, schodisko a obývačka vidno cez presklenie"
-        height="300svh"
+        height="190svh"
         exit={false}
       >
         <div className={`absolute inset-0 grid grid-cols-12 items-center gap-x-6 ${PAD} pt-20 pb-16 lg:items-start lg:pt-[13vh]`}>
