@@ -2,6 +2,8 @@
 export const oceanFragment = `
 precision highp float;
 uniform vec2 resolution;
+uniform float waveFootprint;
+uniform bool refineSurface;
 uniform vec3 cameraOffset;
 uniform float time;
 uniform float depth;
@@ -23,7 +25,7 @@ vec3 curvatureTensor;
 // Height and exact first/second derivatives of bent, non-repeating wave trains.
 vec4 spectrum(vec2 p,int bands,float footprint){
  curvatureTensor=vec3(0.);
- vec4 result=vec4(0.);float frequency=1.08,amplitude=.105;
+ vec4 result=vec4(0.);float frequency=1.65,amplitude=.080;
  for(int i=0;i<22;i++){
   if(i>=bands)break;
   float fi=float(i),angle=fi*2.399963+.41*sin(fi*1.71);
@@ -55,7 +57,9 @@ vec3 normalAt(vec2 p){
   // Additional capillary scales retain near-camera detail without rerunning the spectrum per pixel.
   vec2 capillary=texture2D(waveMap,p*5.73/64.+vec2(.17,-.31)).yz;
   vec2 micro=texture2D(waveMap,p*17.31/64.+vec2(-.23,.41)).yz;
-  w.yz+=capillary*.55+micro*.24;
+  // Keep small ripples lively nearby, but fade unresolved detail in the distance.
+  float resolved=1.-smoothstep(.025,.22,pixel);
+  w.yz+=capillary*.76+micro*.36*resolved;
  }
  return normalize(vec3(-w.y,1.,-w.z));
 }
@@ -78,6 +82,31 @@ float focusing(vec3 p){
  packet*=.20+1.35*pow(noise(q*1.7),2.);
  return focus*key*packet*exp(p.y*.027);
 }
+vec3 surfaceRadiance(vec3 p,vec3 rd,vec3 n){
+  float cosine=clamp(dot(rd,n),.0001,1.);
+  float critical=1.-1.333*1.333*(1.-cosine*cosine);
+  vec3 air=refract(rd,-n,1.333),reflection=reflect(rd,-n);
+  float ct=sqrt(max(0.,critical));
+  float rs=(1.333*cosine-ct)/(1.333*cosine+ct);
+  float rp=(cosine-1.333*ct)/(cosine+1.333*ct);
+  float fresnel=critical>0.?clamp(.5*(rs*rs+rp*rp),0.,1.):1.;
+  float solar=max(0.,dot(air,normalize(SUN)));
+  vec3 sky=mix(vec3(.008,.045,.10),vec3(.045,.16,.27),sqrt(max(0.,air.y)));
+  float cloud=noise(air.xz*7.+vec2(time*.008,0.));
+  sky*=.74+.30*cloud;
+  sky+=vec3(1.,.91,.73)*(pow(solar,65.)*.85+pow(solar,1400.)*25.);
+  // The underside reflects dark water, not a uniform light turquoise sheet.
+  vec3 reflected=oceanFill(reflection,depth)*.65;
+  float lightDistance=length(p.xz-LIGHT_CENTER);
+  float alignment=max(0.,dot(n,normalize(normalize(SUN)-rd)));
+  float grazing=pow(alignment,65.)*2.3+pow(alignment,14.)*.22;
+  reflected+=vec3(.03,.36,.48)*grazing*2.4*exp(-lightDistance*.025);
+  vec3 boundary=mix(sky,reflected,fresnel);
+  // Light transmitted across wave folds supplies cyan highlights below the critical angle.
+  float fold=pow(clamp(dot(n,normalize(SUN)),0.,1.),7.);
+  boundary+=vec3(.005,.14,.22)*fold*exp(-lightDistance*.025);
+  return boundary;
+}
 void main(){
  vec2 uv=vUv*2.-1.;uv.x*=resolution.x/resolution.y;
  vec3 ro=vec3(travel*1.4,-depth+sin(time*.23)*.055,travel*5.)+cameraOffset;
@@ -96,27 +125,10 @@ void main(){
  vec3 fill=oceanFill(rd,depth),color=fill;
  if(distanceToSurface<150. && renderMode!=2){
   vec3 p=ro+rd*distanceToSurface,n=normalAt(p.xz);
-  float cosine=clamp(dot(rd,n),.0001,1.);
-  float critical=1.-1.333*1.333*(1.-cosine*cosine);
-  vec3 air=refract(rd,-n,1.333),reflection=reflect(rd,-n);
-  float ct=sqrt(max(0.,critical));
-  float rs=(1.333*cosine-ct)/(1.333*cosine+ct);
-  float rp=(cosine-1.333*ct)/(cosine+1.333*ct);
-  float fresnel=critical>0.?clamp(.5*(rs*rs+rp*rp),0.,1.):1.;
-  float solar=max(0.,dot(air,normalize(SUN)));
-  vec3 sky=mix(vec3(.012,.07,.14),vec3(.085,.23,.36),sqrt(max(0.,air.y)));
-  float cloud=noise(air.xz*7.+vec2(time*.008,0.));
-  sky*=.65+.55*cloud;
-  sky+=vec3(1.,.91,.73)*(pow(solar,38.)*1.6+pow(solar,900.)*22.);
-  // The underside reflects dark water, not a uniform light turquoise sheet.
-  vec3 reflected=oceanFill(reflection,depth)*.65;
-  float lightDistance=length(p.xz-LIGHT_CENTER);
-  float grazing=pow(max(0.,dot(n,normalize(normalize(SUN)-rd))),24.);
-  reflected+=vec3(.03,.36,.48)*grazing*3.*exp(-lightDistance*.025);
-  vec3 boundary=mix(sky,reflected,fresnel);
-  // Light transmitted across wave folds supplies cyan highlights below the critical angle.
-  float fold=pow(clamp(dot(n,normalize(SUN)),0.,1.),7.);
-  boundary+=vec3(.005,.14,.22)*fold*exp(-lightDistance*.025);
+  // Two nearby optical samples soften unresolved critical-angle edges without blurring geometry.
+  vec2 footprint=dFdx(p.xz)*.31+dFdy(p.xz)*.19+vec2(.026,.019);
+  vec3 boundary=surfaceRadiance(p,rd,n);
+  if(refineSurface)boundary=boundary*.6+surfaceRadiance(p,rd,normalAt(p.xz+footprint))*.4;
   vec3 transmission=exp(-vec3(.10,.025,.019)*distanceToSurface);
   color=boundary*transmission+fill*(1.-transmission);
   color=mix(fill,color,exp(-distanceToSurface*.014)*(1.-smoothstep(95.,150.,distanceToSurface)));
@@ -149,7 +161,7 @@ void main(){
 export const waveMapFragment = oceanFragment.slice(0,oceanFragment.indexOf('float height(')) + `
 void main(){
  vec2 p=(vUv-.5)*64.;
- vec4 fine=spectrum(p,22,64./2048.);
+ vec4 fine=spectrum(p,22,waveFootprint);
  vec4 coarse=spectrum(p,7,.25);
  // Thin-lens approximation of the refracted ray-density Jacobian at a nominal focal depth.
  float jacobian=1.+.8*coarse.w+.64*(curvatureTensor.x*curvatureTensor.z-curvatureTensor.y*curvatureTensor.y);

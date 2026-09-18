@@ -28,3 +28,17 @@ Marcus 2026-09-18 povolil prepracovať schválený základ mora. Medúzu teraz n
 Kontrola: syntax oboch modulov prešla; prehliadač nevypísal chybu shaderu. Záber bol porovnaný pri 1672 × 941. Pauza ponechala počítadlo na 1069 medzi dvoma odčítaniami. Posledné vizuálne ladenie odstránilo pravidelný šum v lúčoch použitím 48 pevných integračných vzoriek a lokálneho filtra svetelnej vrstvy. Záverečná verzia bola vizuálne overená v aktuálnom okne; výkon poslednej úpravy pri Full HD/4K ešte nebol meraný. Predošlá varianta dosahovala pri 1672 × 941 približne 22 fps, tento údaj nie je benchmark finálnej úpravy.
 
 Referenčný obrázok má bohatšie drobné odlesky a prirodzenejšie prechody svetla na hladine. Nová verzia stále miestami vytvára väčšie bledé plochy. Lúče sú aproximáciou integrácie svetelného poľa, nie plnou simuláciou rozptylu. Pred označením za finálnu filmovú kvalitu treba tieto rozdiely odstrániť a overiť pohyb aj výkon na cieľových zariadeniach. Nepridávať globálne rozmazanie na zakrytie nedostatkov.
+
+## Ďalšia iterácia — jemnejšia hladina
+
+Marcus potvrdil smer a požiadal pokračovať. Zachovaná kompozícia, farebná hĺbka, smer svetla a medúza bez zmien.
+
+- Základná frekvencia vĺn zvýšená z 1.08 na 1.65, amplitúda znížená z 0.105 na 0.080. Menšie vlny členia predtým súvislé plochy.
+- Silnejšia jemná štruktúra normál; najmenšie detaily sa potláčajú podľa veľkosti pixelu na povrchu, aby v diaľke nekreslili nerozlíšiteľný šum.
+- Samostatný výpočet optiky povrchu umožňuje dva blízke vzorky pre plnú kvalitu. Zjemňuje prechody pri kritickom uhle; ide o aproximáciu mikronerovností, nie presný model drsného dielektrika.
+- Odrazená obloha má nižší základný jas, slnečné odlesky užšie jadro a slabšiu širokú zložku.
+- Úsporný režim teraz znižuje aj mapu vĺn na 1024² a používa jednu optickú vzorku. Full HD a natívny režim ponechávajú 2048² a dve vzorky. Rozlíšenie mapy je premietnuté do filtrovania spektra.
+
+Overenie: syntax oboch modulov a diff kontrola prešli. Celok vizuálne overený pri 1920 × 1080, približne 18 fps na aktuálnom PC. Úsporný režim pri 1229 × 691 dosahoval približne 29 fps; bez zachytených shaderových chýb. Náhľad bol vrátený do plnej kvality a bežnej veľkosti okna. Ide o krátke merania, 4K a mobilný hardvér ostávajú neoverené.
+
+Ďalej doladiť prirodzenosť jasu pri zdroji, zvyšné bledé plochy a stabilitu drobných odleskov počas preletu; neoznačovať za hotovú zhodu s fotografickou referenciou.
