@@ -2,6 +2,7 @@
 export const oceanFragment = `
 precision highp float;
 uniform vec2 resolution;
+uniform vec3 cameraOffset;
 uniform float time;
 uniform float depth;
 uniform float travel;
@@ -77,7 +78,7 @@ float focusing(vec3 p){
 }
 void main(){
  vec2 uv=vUv*2.-1.;uv.x*=resolution.x/resolution.y;
- vec3 ro=vec3(travel*1.4,-depth+sin(time*.23)*.055,travel*5.);
+ vec3 ro=vec3(travel*1.4,-depth+sin(time*.23)*.055,travel*5.)+cameraOffset;
  vec3 forward=normalize(vec3(pointer.x*.12,.35+pointer.y*.08,-1.));
  vec3 right=normalize(cross(forward,vec3(0.,1.,0.))),up=cross(right,forward);
  vec3 rd=normalize(forward+right*uv.x*.66+up*uv.y*.66);
