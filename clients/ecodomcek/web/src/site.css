@@ -392,6 +392,9 @@ body:not(.ready) #curtain{display:none}
 
 /* ── section rhythm shared by the subpages ──────────────────────────── */
 .masthead{padding-block:clamp(112px,17vh,190px) clamp(40px,7vh,86px)}
+/* the annotation line sits above the headline; p's 44ch cap is meant for
+   reading copy and broke it across two lines in 11px mono */
+.masthead .eyebrow{max-width:none;flex-wrap:wrap;margin-bottom:clamp(16px,2.2vh,28px)}
 .masthead h1{font-size:clamp(42px,6.4vw,104px);letter-spacing:-.03em;line-height:.97}
 .masthead h1 em{font-style:normal;color:var(--moss)}
 .masthead .lead{margin-top:clamp(22px,3vh,34px);max-width:46ch}

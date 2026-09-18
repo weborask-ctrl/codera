@@ -149,11 +149,20 @@ def build(B):
 </form>'''
 
     def masthead(kota, head, lead, meta=None, band="paper", name="Úvod"):
+        """Every masthead page passes an annotation line — "Realizácie /
+        2008 — 2024", "Technológia / difúzne otvorená stavba" — and until
+        2026-09-18 the template took the argument and threw it away, so all
+        four pages opened on a bare headline. The annotation layer is the
+        one the reference map asks for (industrial-architectural.md:
+        specimen-labels, kóty); `.eyebrow` was already styled for it, dark
+        bands included, and had no callers at all.
+        """
         m = ""
         if meta:
             m = '<div class="mmeta fade d2">' + "".join(
                 f"<div><span>{esc(k)}</span><b>{esc(v)}</b></div>" for k, v in meta) + "</div>"
         return section(0, name, band, f'''<div class="wrap masthead" data-reveal>
+  {f'<p class="eyebrow">{kota}</p>' if kota else ''}
   <h1>{lines(head)}</h1>
   {f'<p class="lead fade d2">{lead}</p>' if lead else ''}
   {m}

@@ -155,6 +155,7 @@
     var desc = wrap.querySelector('.tagdesc');
     var meter = wrap.querySelector('.meter b');
     var n = slabs.length, open = [], cur = 0, target = 0, dragOff = 0, scrollS = 0, raf = 0;
+    var pinned = false;
     function measure() {
       var W = stage.clientWidth;
       open = slabs.map(function (s) { return s.offsetLeft; });
@@ -212,13 +213,20 @@
     if (wide()) {
       track(ScrollTrigger.create({
         trigger: wrap, start: 'top top', end: 'bottom bottom', scrub: true,
-        onUpdate: function (self) { scrollS = self.progress; set(scrollS + dragOff); if (self.progress > .02) wrap.classList.add('touched'); }
+        onUpdate: function (self) {
+          if (pinned) return;
+          scrollS = self.progress; set(scrollS + dragOff);
+          if (self.progress > .02) wrap.classList.add('touched');
+        }
       }));
     }
     // the invitation: the wall breathes open once, then waits
     tweens.push(gsap.to({ v: 0 }, { v: .14, duration: 1.1, delay: .9, ease: 'power2.inOut', yoyo: true, repeat: 1,
-      onUpdate: function () { if (!wrap.classList.contains('touched')) set(this.targets()[0].v); } }));
-    window.__wall = set;
+      onUpdate: function () {
+        if (pinned || wrap.classList.contains('touched')) return;
+        set(this.targets()[0].v);
+      } }));
+    window.__wall = function (v, now) { pinned = true; wrap.classList.add('touched'); set(v, now); };
   }
 
   // ── parallax inside the frame: the image breathes, the frame holds ───
