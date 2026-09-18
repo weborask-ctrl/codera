@@ -1,0 +1,1128 @@
+"use client"
+
+/**
+ * Codera City — the world behind the page (Iterácia 2.7).
+ *
+ * One fixed stage under the naturally scrolling DOM: five scenes, one per
+ * act, and four passages between them.
+ *
+ * A passage is NOT a rendered flight any more. Scrubbing a frame sequence
+ * gives the camera a new picture only every ~30 px of scroll, so one wheel
+ * tick jumped three frames and the move read as stepped no matter how the
+ * frames were blended (Ondrej, 2026-09-07: "trhané a nepostupné"). Every
+ * beat is now a CONTINUOUS function of scroll — the leaving scene pushes
+ * forward and dissolves, cloud plates sweep the swap, the arriving scene
+ * settles out of a wider shot — so the picture changes on every single
+ * frame at any scroll speed, and the scenes stay at their full 4K sharpness
+ * because nothing is re-encoded. Transform and opacity only: the compositor
+ * carries the whole passage.
+ *
+ * Scroll input is native. The world alone interpolates — a critically damped
+ * spring with a ~0.4 s settle (Iterácia 3.7), so a wheel notch changes the
+ * world's acceleration and never its speed. GSAP + ScrollTrigger is the only
+ * motion engine; nothing pins, so End always reaches the footer.
+ *
+ * References (CODERA_DESIGN_REFERENCES): refokus — beat variety over effect
+ * variety, the shell never competes with the work; activetheory — conviction
+ * of a single world; lusion — input maps to motion instantly, cinematics
+ * happen around that mapping.
+ */
+
+import type { gsap as GsapType } from "gsap"
+import type { ScrollTrigger as ScrollTriggerType } from "gsap/ScrollTrigger"
+import { useEffect, useRef, useState } from "react"
+import { stage } from "@/components/experience/stage"
+import { LiveCity, liveElapsed } from "./live"
+
+type Gsap = typeof GsapType
+type ST = typeof ScrollTriggerType
+
+const HOME = "/home"
+const LIVE = "/home/live"
+
+/** The file the plate CSS will pick for this screen (the AVIF ladder in
+ *  city.css), so it can be decoded off the main thread before the class
+ *  lands and the first paint of a 4K plate is not a long frame mid-scroll. */
+function plateFile(plate: string): string {
+  const wide = window.innerWidth > 1920
+  const two = window.devicePixelRatio > 1.5
+  const w = wide ? (two ? 3840 : 1920) : two ? 2560 : 1280
+  return `${HOME}/${plate}-${w}.avif`
+}
+
+/** One cloud plate of a passage: the same alpha plates the hero arrives
+ *  through (components/city/live.tsx), so the seams speak the hero's
+ *  language and nothing is blended — a blend mode reads the whole backdrop
+ *  back for every frame, an alpha plate is one composite. */
+function CloudPlate({ cloud, name, className = "" }: { cloud: string; name: string; className?: string }) {
+  /* phones get the 1× file: at 120vw of a 390 px screen even at 3× the
+     1200 px plate is more than the box. From 768 px the screen picks by its
+     own density — a 13" iPad at 2× shows a 120vw plate across 3300 device
+     pixels, and the 1× file there was the mush of 4.10 (Ondrej: "pozri sa
+     na to rozlíšenie"). A plate is rasterised at its displayed size, so the
+     bigger file costs decode and download, not compositor memory. */
+  return (
+    <picture data-cloud={cloud} className={`city-cloud ${className}`.trim()}>
+      <source media="(min-width: 768px)" type="image/avif" srcSet={`${LIVE}/cloud-${name}-1x.avif 1x, ${LIVE}/cloud-${name}-2x.avif 2x`} />
+      <source media="(min-width: 768px)" type="image/webp" srcSet={`${LIVE}/cloud-${name}-1x.webp 1x, ${LIVE}/cloud-${name}-2x.webp 2x`} />
+      <source type="image/avif" srcSet={`${LIVE}/cloud-${name}-1x.avif`} />
+      <source type="image/webp" srcSet={`${LIVE}/cloud-${name}-1x.webp`} />
+      {/* eager: a plate that lazy-loads when the passage brings it on screen
+          arrives mid-passage as a network wait and a decode spike */}
+      <img className="city-cloud-img" src={`${LIVE}/cloud-${name}-1x.webp`} alt="" decoding="async" />
+    </picture>
+  )
+}
+
+/** The five scenes in journey order. Stills, not video: a still is sharper
+ *  than any encode of the same frame and cannot stutter on decode. Each ships
+ *  an AVIF/JPEG ladder so a 1920 screen never downloads the 4K plate. */
+/* act name -> the plate the flat edit already paints, so both edits share one
+   file per scene per device class */
+const SCENES = [
+  ["hero", "hero"],
+  ["work", "street"],
+  ["offer", "services"],
+  ["process", "bridge"],
+  ["resolution", "night"],
+] as const
+
+type PlateName = "bank" | "puff" | "tower" | "cluster"
+
+interface CloudMove {
+  /** which plate: cluster is far, puff and bank are mid, the tower is near;
+   *  the wisp rides the whole journey on its own */
+  el: PlateName
+  x: [number, number] // vw
+  y: [number, number] // vh
+  s: [number, number]
+  /** progress window over which the plate travels */
+  win: [number, number]
+  /** peak opacity */
+  o: number
+  /** the light this passage puts on the cloud */
+  f: string
+}
+
+type Tone = "day" | "warm" | "gold" | "night"
+/** the light on a plate, per hour of the journey */
+const LIGHT = {
+  day: "",
+  warm: "sepia(0.2) saturate(1.15)",
+  gold: "sepia(0.55) saturate(1.5) hue-rotate(-14deg)",
+  violet: "sepia(0.45) saturate(1.6) hue-rotate(228deg)",
+  night: "brightness(0.55) sepia(0.6) hue-rotate(178deg) saturate(1.5)",
+  nightDeep: "brightness(0.45) sepia(0.6) hue-rotate(190deg) saturate(1.5)",
+}
+
+/**
+ * Cloud choreography per passage, in depth (Iterácia 4.2, Ondrej 2026-09-12:
+ * "plynulejšie a výstižnejšie"). Four plates at four distances: the far
+ * cluster barely moves and is the first thing to go as we enter the cloud;
+ * the two mid plates come toward the camera and part; the near tower (the
+ * crispest plate, cut from a 4K render) crosses the camera in the middle
+ * and carries the white-out together with the haze. Growth reads as depth — nothing slides across at constant size.
+ * t1 descends (they rise past us), t2 flies forward (they part sideways),
+ * t3 climbs (they sink away in golden-to-violet light), t4 falls into night.
+ */
+const PASSAGE_CLOUDS: Record<string, CloudMove[]> = {
+  /* three plates, not four (4.6): the first passage is the heaviest moment
+     of the page — the living city is still under it — and the fourth plate
+     was the fill that stuttered on a weaker GPU. Since 4.5 the other seams
+     move differently (PASSAGE_KIND), so t1 is the only cloud passage and
+     the only plates that exist are its three and the wisp (4.10) */
+  t1: [
+    { el: "cluster", x: [26, 22], y: [-12, 10], s: [0.44, 0.62], win: [0, 0.62], o: 0.85, f: LIGHT.day },
+    { el: "puff", x: [-30, -66], y: [70, -50], s: [0.95, 1.85], win: [0.06, 0.92], o: 0.96, f: LIGHT.day },
+    { el: "tower", x: [-14, -34], y: [80, -78], s: [1.2, 2.3], win: [0.22, 0.86], o: 1, f: LIGHT.day },
+  ],
+}
+
+/** The flat edit (phones, touch tablets) has no scene swap to hide, so its
+ *  clouds pass BESIDE the camera, never through it: the tower rises from
+ *  below and its lit top settles in the lower half of the frame, the far
+ *  cluster drifts across the sky above. A plate that covers the camera
+ *  shows its magnified interior — on a 13" iPad that read as a glowing
+ *  mottled blur (4.11, Ondrej: "pozri sa na to rozlíšenie"). */
+const PASSAGE_CLOUDS_FLAT: Record<string, CloudMove[]> = {
+  t1: [
+    { el: "cluster", x: [24, 14], y: [-4, 16], s: [0.5, 0.66], win: [0, 0.8], o: 0.9, f: LIGHT.day },
+    { el: "tower", x: [-12, -16], y: [84, 34], s: [1.12, 1.26], win: [0.1, 0.94], o: 1, f: LIGHT.day },
+  ],
+}
+
+/** the inside of every passage: how dense the haze gets, its tone, how
+ *  bright the light we break out into, and the roll of the camera (deg) */
+const PASSAGE_LIGHT: Record<string, { haze: number; tone: Tone; bloom: number; roll: number }> = {
+  t1: { haze: 0.8, tone: "day", bloom: 0.7, roll: -1.3 },
+  /* a pan does not white out: its haze is only the air between us and the
+     far end of the street, and the bloom is the golden hour we pan toward */
+  t2: { haze: 0.34, tone: "warm", bloom: 0.42, roll: 0.4 },
+  /* the pane's own frost covers the swap, so the haze only fills its edges */
+  t3: { haze: 0.3, tone: "gold", bloom: 0.66, roll: -1 },
+  /* here the light IS the passage */
+  t4: { haze: 0.95, tone: "night", bloom: 0.8, roll: 0.7 },
+}
+
+/**
+ * Four ways through one world (Iterácia 4.5, Ondrej 2026-09-14: "urob tie
+ * štyri" — from `docs/PASSAGES_PROPOSAL_2026-09-14.md`). Four identical
+ * passages is what made the clouds tire; the beats differ, the world does
+ * not (refokus: beat variety over effect variety).
+ *
+ * - t1 `clouds`  — the arrival the hero speaks; the promise kept.
+ * - t2 `pan`     — a horizontal camera pan with a dissolve: the two acts
+ *   stand side by side and the world slides one viewport into golden light.
+ *   (Until 4.10 a glass sky-bridge crossed the frame in front of it; Ondrej,
+ *   2026-09-16: "prechod s tou čiarou nechcem" — at that speed the span read
+ *   as a bar drawn across the picture, not as a thing we walk past.)
+ * - t3 `glass`   — a pane of the city's own glass grows past the camera; the
+ *   swap happens behind its frost, and a specular sweep crosses as it goes.
+ * - t4 `light`   — the camera stands still and the hour turns: dusk floods
+ *   into night light and the hall comes out of it (igloo: acts are light).
+ */
+type PassageKind = "clouds" | "pan" | "glass" | "light"
+const PASSAGE_KIND: Record<string, PassageKind> = { t1: "clouds", t2: "pan", t3: "glass", t4: "light" }
+/** A page that measured itself slow (the sentinel in either edit) runs its
+ *  first passage as light — haze, bloom, a dissolve, no plates — the one
+ *  passage that cannot stutter on anything. Read when a passage starts,
+ *  never mid-move: a kind that changed under a running passage would drop
+ *  its plates where they stood (4.10). */
+let liteMode = false
+const goLite = () => {
+  liteMode = true
+  document.documentElement.setAttribute("data-lite", "")
+}
+const kindOf = (name: string): PassageKind => (liteMode && name === "t1" ? "light" : (PASSAGE_KIND[name] ?? "clouds"))
+
+/** where a scene sits during a passage: opacity, scale, y and x in percent
+ *  of the viewport, and the opacity of its legibility tint — which during a
+ *  pan is the share of the screen the scene actually covers, or the two
+ *  tints would stack to double strength across the middle of the move */
+interface Pose {
+  o: number
+  s: number
+  y: number
+  x: number
+  t: number
+}
+function poseFor(kind: PassageKind, side: "from" | "to", e: number, own: number): Pose {
+  /* every scene keeps its own act drift; a passage adds to it, never
+     replaces it (the 3.7 edit jumped ~0.07 in scale at both seam edges) */
+  const base = 1.1 + 0.12 * own
+  const drift = -3 * own
+  if (kind === "pan") {
+    /* a pan with a dissolve (4.6). Two plates butted side by side showed
+       their junction — a horizontal bar cannot hide a vertical edge — so the
+       world slides 12 % while the acts cross-fade, and each plate carries
+       enough overscan (scale, ramped in and out so the seam edges stay
+       continuous) that no travel ever exposes the stage */
+    const ramp = side === "from" ? Math.min(1, e / 0.15) : Math.min(1, (1 - e) / 0.15)
+    const x = side === "from" ? -12 * e : 12 * (1 - e)
+    const o = side === "from" ? 1 - smooth(span(e, 0.34, 0.62)) : smooth(span(e, 0.38, 0.66))
+    return { o, s: base + 0.18 * ramp, y: drift, x, t: o }
+  }
+  if (kind === "glass") {
+    const o = side === "from" ? 1 - smooth(span(e, 0.3, 0.52)) : smooth(span(e, 0.52, 0.76))
+    return { o, s: base + (side === "from" ? 0.2 * e : 0.1 * (1 - e)), y: drift + (side === "from" ? -4 * e : 4 * (1 - e)), x: 0, t: o }
+  }
+  if (kind === "light") {
+    /* the camera holds: almost no travel, the light does the work */
+    const o = side === "from" ? 1 - smooth(span(e, 0.22, 0.5)) : smooth(span(e, 0.5, 0.82))
+    return { o, s: base + (side === "from" ? 0.09 * e : 0.07 * (1 - e)), y: drift + (side === "from" ? -2 * e : 2 * (1 - e)), x: 0, t: o }
+  }
+  const o = side === "from" ? 1 - smooth(span(e, 0.34, 0.52)) : smooth(span(e, 0.5, 0.78))
+  return { o, s: base + (side === "from" ? 0.22 * e : 0.14 * (1 - e)), y: drift + (side === "from" ? -6 * e : 6 * (1 - e)), x: 0, t: o }
+}
+
+/**
+ * The world follows the scroll through a critically damped spring rather
+ * than a first-order filter. A wheel notch is a 100 px jump; a first-order
+ * filter turns every jump into a fresh burst of speed that decays before the
+ * next notch lands, and that sawtooth of velocity is what read as stutter
+ * (measured 2026-09-11: 10 stalls in 89 passage frames at a steady wheel).
+ * A spring keeps velocity continuous — a new target changes acceleration,
+ * never speed — so notches blend into one motion. ω sets a ~0.4 s settle.
+ */
+const SPRING_W = 11.5
+const springStep = (x: number, v: number, target: number, dt: number): [number, number] => {
+  const h = Math.min(0.064, dt / 1000)
+  const a = -2 * SPRING_W * v - SPRING_W * SPRING_W * (x - target)
+  const nv = v + a * h
+  let nx = x + nv * h
+  if (nx < 0) {
+    nx = 0
+  } else if (nx > 1) {
+    nx = 1
+  }
+  return [nx, nv]
+}
+
+interface Passage {
+  name: string
+  from: string
+  to: string
+  p: number
+}
+
+interface Scene {
+  el: HTMLElement
+  media: HTMLElement | null
+  tint: HTMLElement | null
+}
+
+const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v)
+const smooth = (t: number) => t * t * (3 - 2 * t)
+const span = (p: number, a: number, b: number) => clamp01((p - a) / (b - a))
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t
+/** eased passage curve: weighted so the camera has mass but never parks */
+const glide = (p: number) => p * 0.32 + smooth(p) * 0.68
+
+const cloudAt = (el: HTMLElement, x: number, y: number, s: number, o: number) => {
+  /* a mirrored plate reads as a second cloud, not the same one again */
+  const sx = el.dataset.flip ? -s : s
+  el.style.transform = `translate3d(${x.toFixed(2)}vw, ${y.toFixed(2)}vh, 0) scale(${sx.toFixed(3)}, ${s.toFixed(3)})`
+  el.style.opacity = o.toFixed(3)
+}
+
+export type Plates = Record<string, HTMLElement>
+export const platesOf = (root: ParentNode): Plates => {
+  const out: Plates = {}
+  for (const el of root.querySelectorAll<HTMLElement>("[data-cloud]")) {
+    out[el.dataset.cloud ?? ""] = el
+  }
+  return out
+}
+
+/** a plateau bell: up over [a, b], full, down over [c, d] */
+const bell = (e: number, a: number, b: number, c: number, d: number) => smooth(span(e, a, b)) * (1 - smooth(span(e, c, d)))
+
+/** the inside of the cloud: dense in the middle, gone at both ends */
+const hazeAt = (haze: HTMLElement | null, name: string, e: number, gain = 1) => {
+  if (!haze) {
+    return
+  }
+  const h = PASSAGE_LIGHT[name]
+  haze.style.opacity = h ? zeroBelow(Math.min(0.94, bell(e, 0.2, 0.48, 0.54, 0.82) * h.haze * gain)) : "0"
+}
+/** a gradient at 0.005 is a full viewport of blending for nothing, and a
+ *  gradient at 0 costs one cheap raster when it returns — unlike a plate */
+const zeroBelow = (o: number, floor = 0.01) => (o < floor ? "0" : o.toFixed(3))
+/** the light we break out into: brightest just past the middle, then it
+ *  settles into the arriving scene */
+const bloomAt = (bloom: HTMLElement | null, name: string, e: number, gain = 1) => {
+  if (!bloom) {
+    return
+  }
+  const h = PASSAGE_LIGHT[name]
+  bloom.style.opacity = zeroBelow(h ? bell(e, 0.36, 0.58, 0.66, 0.96) * h.bloom * gain : 0)
+  bloom.style.transform = `scale(${(0.9 + 0.5 * e).toFixed(3)})`
+}
+/** the camera banks a little through the cloud and levels out */
+const rollAt = (name: string, e: number) => {
+  const h = PASSAGE_LIGHT[name]
+  return h ? Math.sin(Math.PI * e) * h.roll : 0
+}
+
+/** how much each depth answers the pointer */
+const DEPTH: Record<string, number> = { cluster: 0.4, bank: 1.3, puff: 1.5, tower: 2.6 }
+
+/** Places the passage plates at eased progress e. */
+export function placeClouds(clouds: Plates, name: string, e: number, px = 0, py = 0, flat = false) {
+  const moves = (flat ? PASSAGE_CLOUDS_FLAT[name] : PASSAGE_CLOUDS[name]) ?? []
+  const used = new Set<string>()
+  for (const m of moves) {
+    const el = clouds[m.el]
+    if (!el) {
+      continue
+    }
+    used.add(m.el)
+    const t = smooth(span(e, m.win[0], m.win[1]))
+    /* in and out: every plate arrives over the first tenth of its window and
+       is gone by the end of it — the far one inside the cloud, the near one
+       as the arriving scene settles */
+    const env = Math.min(1, span(e, m.win[0], m.win[0] + 0.1), span(m.win[1] - e, 0, 0.1))
+    const k = DEPTH[m.el] ?? 1
+    cloudAt(el, lerp(m.x[0], m.x[1], t) + px * k, lerp(m.y[0], m.y[1], t) + py * k * 0.55, lerp(m.s[0], m.s[1], t), m.o * env)
+  }
+  for (const key of Object.keys(clouds)) {
+    if (key !== "wisp" && !used.has(key)) {
+      parkPlate(clouds[key])
+    }
+  }
+}
+
+/** An idle plate is parked, not hidden: a layer at opacity 0 drops its
+ *  texture and the first frame that needs it uploads a 4K plate mid-move —
+ *  but a layer at 0.001 still costs a full viewport of blending per frame
+ *  (4.10: three such plates plus the bloom were a third of what the GPU
+ *  drew through t1). Shrunk to a dot it keeps every tile resident — the
+ *  raster scale of a will-change layer is fixed — and fills nothing. */
+export function parkPlate(el: HTMLElement) {
+  el.style.transform = "translate3d(-40vw, -40vh, 0) scale(0.002)"
+  el.style.opacity = "0.001"
+}
+
+/** The pane of city glass in t3: it grows past the camera, its frost covers
+ *  the swap, and a specular sweep crosses it as it passes. */
+export function placePane(el: HTMLElement | null, e: number, px = 0, py = 0, fade = 1) {
+  if (!el) {
+    return
+  }
+  el.style.transform = `translate3d(${(px * 1.6).toFixed(2)}vw, ${(py * 1.2).toFixed(2)}vh, 0) scale(${lerp(0.52, 2.6, smooth(e)).toFixed(3)}) rotate(${lerp(-2.6, 2.6, e).toFixed(2)}deg)`
+  el.style.opacity = (bell(e, 0.02, 0.18, 0.62, 0.95) * fade).toFixed(3)
+  const glint = el.firstElementChild as HTMLElement | null
+  if (glint) {
+    glint.style.transform = `translate3d(${lerp(-90, 210, smooth(span(e, 0.2, 0.8))).toFixed(1)}%, 0, 0) rotate(14deg)`
+  }
+}
+
+export function lightClouds(clouds: Plates, name: string, haze: HTMLElement | null = null, bloom: HTMLElement | null = null) {
+  for (const m of [...(PASSAGE_CLOUDS[name] ?? []), ...(PASSAGE_CLOUDS_FLAT[name] ?? [])]) {
+    const el = clouds[m.el]
+    if (el) {
+      el.style.filter = m.f
+    }
+  }
+  const tone = PASSAGE_LIGHT[name]?.tone ?? "day"
+  if (haze) {
+    haze.dataset.tone = tone
+  }
+  if (bloom) {
+    bloom.dataset.tone = tone
+  }
+}
+
+/** Stations light up one after another as the visitor reaches them. */
+function bindStations(ScrollTrigger: ST, main: HTMLElement): ScrollTriggerType[] {
+  const out: ScrollTriggerType[] = []
+  for (const st of main.querySelectorAll<HTMLElement>("[data-station]")) {
+    out.push(
+      ScrollTrigger.create({
+        trigger: st,
+        start: "top 74%",
+        onEnter: () => st.setAttribute("data-lit", ""),
+        onLeaveBack: () => st.removeAttribute("data-lit"),
+      })
+    )
+  }
+  return out
+}
+
+/** Depth parallax on the glass: each panel rides at its own speed, and
+ *  panels with a shift drift sideways too. Panels that must read as one
+ *  aligned row (the price terraces) carry neither. */
+function bindDepth(gsap: Gsap, main: HTMLElement, amount: number) {
+  for (const el of main.querySelectorAll<HTMLElement>("[data-depth]")) {
+    const d = Number(el.dataset.depth ?? "1")
+    const sx = Number(el.dataset.shift ?? "0")
+    gsap.fromTo(
+      el,
+      { y: amount * d, x: amount * sx },
+      {
+        y: -amount * d,
+        x: -amount * sx,
+        ease: "none",
+        scrollTrigger: {
+          trigger: el.closest("section") ?? el,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 0.3,
+        },
+      }
+    )
+  }
+}
+
+/** The flat rail of facades: cards turn toward the visitor as they pass the
+ *  centre — the facades of the street, on a thumb. */
+function bindRail(main: HTMLElement): () => void {
+  const rail = main.querySelector<HTMLElement>(".city-rail")
+  if (!rail) {
+    return () => {}
+  }
+  const cards = Array.from(rail.querySelectorAll<HTMLElement>(".city-railcard"))
+  const dots = Array.from(main.querySelectorAll<HTMLElement>(".city-rail-dots span"))
+  let frame = 0
+  const place = () => {
+    frame = 0
+    const mid = window.innerWidth / 2
+    let nearest = 0
+    let best = Number.POSITIVE_INFINITY
+    cards.forEach((card, i) => {
+      const r = card.getBoundingClientRect()
+      const d = Math.abs(r.left + r.width / 2 - mid)
+      if (d < best) {
+        best = d
+        nearest = i
+      }
+    })
+    dots.forEach((dot, i) => {
+      if (i === nearest) {
+        dot.setAttribute("data-on", "")
+      } else {
+        dot.removeAttribute("data-on")
+      }
+    })
+    for (const card of cards) {
+      const r = card.getBoundingClientRect()
+      const d = (r.left + r.width / 2 - mid) / window.innerWidth
+      const tilt = (-d * 22).toFixed(2)
+      const shrink = (1 - Math.min(0.5, Math.abs(d)) * 0.12).toFixed(3)
+      card.style.transform = `perspective(1100px) rotateY(${tilt}deg) scale(${shrink})`
+    }
+  }
+  const onScroll = () => {
+    if (!frame) {
+      frame = requestAnimationFrame(place)
+    }
+  }
+  place()
+  rail.addEventListener("scroll", onScroll, { passive: true })
+  window.addEventListener("resize", onScroll)
+  return () => {
+    rail.removeEventListener("scroll", onScroll)
+    window.removeEventListener("resize", onScroll)
+    if (frame) {
+      cancelAnimationFrame(frame)
+    }
+  }
+}
+
+function buildStage(gsap: Gsap, ScrollTrigger: ST, root: HTMLElement): () => void {
+  const main = document.querySelector<HTMLElement>("main[data-experience]")
+  const world = root.querySelector<HTMLElement>(".city-world")
+  if (!main || !world) {
+    return () => {}
+  }
+
+  /* ---------------------------------------------------------- scenes --- */
+  const scenes: Scene[] = []
+  const byName = new Map<string, Scene>()
+  for (const el of root.querySelectorAll<HTMLElement>("[data-scene]")) {
+    const scene: Scene = {
+      el,
+      media: el.querySelector<HTMLElement>(".city-media"),
+      tint: root.querySelector<HTMLElement>(`[data-tint="${el.dataset.scene}"]`),
+    }
+    scenes.push(scene)
+    byName.set(el.dataset.scene ?? "", scene)
+  }
+
+  /* The plates are the same backgrounds the flat edit paints, so the hero is
+     one file the browser already has. Only the hero is attached at mount; the
+     rest join once the page is idle, in journey order, so the first paint
+     never queues five plates behind itself. */
+  const attach = (scene: Scene | undefined) => {
+    const el = scene?.media
+    const plate = el?.dataset.scenePlate
+    if (!el || !plate) {
+      return
+    }
+    el.removeAttribute("data-scene-plate")
+    /* decode first, then paint: img.decode() runs off the main thread, and
+       the CSS background then finds the file already in the image cache */
+    const warm = new Image()
+    warm.src = plateFile(plate)
+    const land = () => el.classList.add(`city-plate-${plate}`)
+    warm.decode().then(land, land)
+  }
+  const warmRest = () => {
+    for (const scene of scenes) {
+      attach(scene)
+    }
+  }
+  const idleWarm = window.requestIdleCallback
+    ? window.requestIdleCallback(warmRest, { timeout: 4000 })
+    : window.setTimeout(warmRest, 1500)
+  /* the very first passage cannot wait for idle: a visitor who flicks past
+     the hero within two seconds reaches t1 before the idle queue does, and
+     a 4K plate uploading mid-passage is the stutter (4.6) */
+  const firstSeam = main.querySelector<HTMLElement>("[data-seam]")
+  if (firstSeam?.dataset.to) {
+    attach(byName.get(firstSeam.dataset.to))
+  }
+
+  /* -------------------------------------------------------- passages --- */
+  const passages: Passage[] = []
+  const triggers: ScrollTriggerType[] = []
+  for (const el of main.querySelectorAll<HTMLElement>("[data-seam]")) {
+    const passage: Passage = {
+      name: el.dataset.seam ?? "",
+      from: el.dataset.from ?? "",
+      to: el.dataset.to ?? "",
+      p: 0,
+    }
+    passages.push(passage)
+    triggers.push(
+      ScrollTrigger.create({
+        trigger: el,
+        start: "top 92%",
+        end: "bottom 8%",
+        onUpdate: (self) => {
+          passage.p = self.progress
+        },
+      })
+    )
+  }
+
+  /* ------------------------------------------------ /02 the street walk --- */
+  const walk = main.querySelector<HTMLElement>("[data-walk]")
+  if (walk) {
+    const cards = Array.from(walk.querySelectorAll<HTMLElement>("[data-card]"))
+    const tl = gsap.timeline({
+      defaults: { ease: "none" },
+      scrollTrigger: { trigger: walk, start: "top top", end: "bottom bottom", scrub: 0.4 },
+    })
+    cards.forEach((card, i) => {
+      const cap = card.querySelector<HTMLElement>("[data-cap]")
+      const at = i
+      /* far and soft, then sharp and readable in front of the visitor */
+      tl.fromTo(
+        card,
+        { z: -2800, opacity: 0, yPercent: -12, filter: "blur(9px)" },
+        { z: 0, opacity: 1, yPercent: 0, filter: "blur(0px)", duration: 0.86, ease: "power2.out" },
+        at
+      )
+      if (cap) {
+        tl.fromTo(cap, { opacity: 0, y: 28 }, { opacity: 1, y: 0, duration: 0.22 }, at + 0.6)
+      }
+      /* every card sits in the same grid cell, so the transparent ones used
+         to swallow the click and open the wrong demo — only the card in
+         front of the visitor takes the pointer (Ondrej, 2026-09-07). It hands
+         the pointer over exactly when the next card takes it, so there is
+         never a moment on the street with nothing to click. */
+      tl.set(card, { pointerEvents: "auto" }, i === 0 ? 0 : at + 0.5)
+      if (i < cards.length - 1) {
+        tl.set(card, { pointerEvents: "none" }, at + 1.5)
+        tl.to(
+          card,
+          { z: 820, opacity: 0, filter: "blur(7px)", duration: 0.4, ease: "power2.in" },
+          at + 1.08
+        )
+      }
+    })
+  }
+
+  bindDepth(gsap, main, 70)
+  triggers.push(...bindStations(ScrollTrigger, main))
+
+  /* ---------------------------------------------------------- clouds --- */
+  const clouds = platesOf(root)
+  const haze = root.querySelector<HTMLElement>("[data-haze]")
+  const bloom = root.querySelector<HTMLElement>("[data-bloom]")
+  const paneEl = root.querySelector<HTMLElement>(".city-pane")
+  /* whatever this passage does not use is parked — composited, so the next
+     passage never uploads its texture mid-move, but filling nothing */
+  const restPassage = (kind: PassageKind) => {
+    if (kind !== "clouds") {
+      for (const key of Object.keys(clouds)) {
+        if (key !== "wisp") {
+          parkPlate(clouds[key])
+        }
+      }
+    }
+    if (kind !== "glass" && paneEl) {
+      paneEl.style.opacity = "0"
+    }
+  }
+  /* the living city's ambience — the two drifting clouds and the light on
+     the tubes — thins out over the first fifth of a passage that leaves the
+     hero: three full-viewport layers (one of them a blend mode, which reads
+     the whole backdrop back) gone before the plates arrive on top of them,
+     and nobody sees a cloud leave while the clouds are coming (4.10) */
+  const ambience: { el: HTMLElement; base: number }[] = []
+  for (const el of root.querySelectorAll<HTMLElement>('[data-scene="hero"] .city-live-drift, [data-scene="hero"] .city-live-glint')) {
+    ambience.push({ el, base: Number.parseFloat(getComputedStyle(el).opacity) || 1 })
+  }
+  const setAmbience = (k: number) => {
+    for (const a of ambience) {
+      a.el.style.opacity = (a.base * k).toFixed(3)
+    }
+  }
+  /* the living city's depth: each group leans with the pointer by its own
+     amount — sky least, the near island and the foreground clouds most */
+  const leans = Array.from(root.querySelectorAll<HTMLElement>("[data-lean]")).map((el) => ({
+    el,
+    k: Number(el.dataset.lean) || 0,
+  }))
+
+  /* ---------------------------------------------------------- pointer --- */
+  let tx = 0
+  let ty = 0
+  let px = 0
+  let py = 0
+  const onPointer = (e: PointerEvent) => {
+    tx = (e.clientX / window.innerWidth) * 2 - 1
+    ty = (e.clientY / window.innerHeight) * 2 - 1
+  }
+  const onPointerLeave = () => {
+    tx = 0
+    ty = 0
+  }
+  window.addEventListener("pointermove", onPointer, { passive: true })
+  document.addEventListener("pointerleave", onPointerLeave)
+
+  /* ---------------------------------------------------------- render --- */
+  /* One writer for the whole world: every scene's opacity and transform is
+     a continuous function of the damped passage progress, so there is no
+     frame to step through and no state to switch. */
+  let cur: Passage | null = null
+  let curKind: PassageKind = "clouds"
+  let sp = 0
+  let sv = 0
+  let lastP = 0
+  let back = false
+  let lastT = performance.now()
+  let lit = ""
+  /* if frames run long while the world moves, the page lightens itself once
+     and stays there: the glass drops its backdrop blur (CSS reads data-lite).
+     Never the other way round — flickering between qualities is worse. */
+  let lite = false
+  let slow = 0
+
+  const setScene = (scene: Scene, p: Pose) => {
+    scene.el.style.opacity = p.o.toFixed(3)
+    if (scene.media) {
+      scene.media.style.transform = `translate3d(${p.x.toFixed(2)}%, ${p.y.toFixed(2)}%, 0) scale(${p.s.toFixed(4)})`
+    }
+    if (scene.tint) {
+      scene.tint.style.opacity = p.t.toFixed(3)
+      /* the tint travels with the scene it makes readable */
+      scene.tint.style.transform = p.x === 0 ? "" : `translate3d(${p.x.toFixed(2)}%, 0, 0)`
+    }
+  }
+  const still = (o: number, s: number, y: number): Pose => ({ o, s, y, x: 0, t: o })
+  /* both scenes of a running passage stay composited: the arriving one
+     was warmed at 0.002 through the act before, but its pose in the first
+     half of the passage is 0, and a layer at 0 drops its texture — so the
+     plate came back mid-passage as an upload, the hitch in the middle of
+     t1 (4.10). The leaving one is held for the way back up — except the
+     hero, whose living city is a sky, four groups and their images: three
+     viewports of fill for a still at 0.002. It is held only once the
+     visitor is actually coming back, and the upload lands at the turn,
+     where nothing moves, not at the point where it becomes visible. */
+  const held = (name: string, p: Pose, back: boolean): Pose =>
+    p.o < 0.002 && (name !== "hero" || back) ? { ...p, o: 0.002 } : p
+
+  const render = () => {
+    const now = performance.now()
+    const dt = Math.min(64, now - lastT)
+    lastT = now
+    if (!lite) {
+      /* a slow frame counts one, a good frame forgives a quarter: a machine
+         dropping every fourth frame (the stutter a person sees) reaches the
+         line in a few seconds; one that only hiccups on a scroll burst never
+         does (4.10 — at one-for-one the line needed half the frames slow) */
+      slow = dt > 34 ? slow + 1 : Math.max(0, slow - 0.25)
+      if (slow > 14) {
+        lite = true
+        goLite()
+      }
+    }
+
+    let active: Passage | null = null
+    for (const p of passages) {
+      if (p.p > 0.0001 && p.p < 0.9999) {
+        active = p
+        break
+      }
+    }
+    if (active !== cur) {
+      cur = active
+      if (cur) {
+        sp = cur.p
+        sv = 0
+        lastP = cur.p
+        back = cur.p > 0.5
+      }
+    }
+    const target = cur ? cur.p : 0
+    ;[sp, sv] = springStep(sp, sv, target, dt)
+    if (Math.abs(target - sp) < 0.0004 && Math.abs(sv) < 0.002) {
+      sp = target
+      sv = 0
+    }
+    const e = cur ? glide(sp) : 0
+    /* going back up: the scroll target last moved toward the seam's start */
+    if (cur) {
+      if (cur.p < lastP - 0.0005) {
+        back = true
+      } else if (cur.p > lastP + 0.0005) {
+        back = false
+      }
+      lastP = cur.p
+    }
+
+    if (cur && lit !== cur.name) {
+      lit = cur.name
+      lightClouds(clouds, cur.name, haze, bloom)
+      curKind = kindOf(cur.name)
+      restPassage(curKind)
+      if (paneEl) {
+        paneEl.dataset.tone = PASSAGE_LIGHT[cur.name]?.tone ?? "day"
+      }
+      /* whatever the idle queue has not reached yet, the passage needs now */
+      attach(byName.get(cur.to))
+    }
+
+    /* which act is on screen when no passage is running */
+    const act = stage.act
+    const actP = stage.p[act] ?? 0
+    /* the scene the next seam will bring is composited a beat early — at
+       opacity 0.002, already in its arrival pose — so the first visible
+       frame of a passage is never the frame that rasterises a 4K layer */
+    let warmName = ""
+    let warmSeam = ""
+    let warmAhead = true
+    if (!cur) {
+      for (const p of passages) {
+        if (p.from === act && (actP > 0.5 || act === "hero")) {
+          warmName = p.to
+          warmSeam = p.name
+          warmAhead = true
+        } else if (p.to === act && actP < 0.5 && p.from !== "hero") {
+          /* the previous scene, for the way back — not the hero: its
+             living city at 0.002 is the dearest still on the page, and
+             the passage warms it at the turn instead (`held`) */
+          warmName = p.from
+          warmSeam = p.name
+          warmAhead = false
+        }
+      }
+    }
+
+    for (const scene of scenes) {
+      const name = scene.el.dataset.scene ?? ""
+      /* every scene keeps its own act drift, so a seam never changes the
+         scale it was already at — the passage adds to the drift, never
+         replaces it (the 3.7 edit jumped ~0.07 in scale at both seam edges) */
+      const own = (stage.p as Record<string, number>)[name] ?? 0
+      if (cur && name === cur.from) {
+        setScene(scene, held(name, poseFor(curKind, "from", e, own), back))
+      } else if (cur && name === cur.to) {
+        setScene(scene, held(name, poseFor(curKind, "to", e, own), back))
+      } else if (!cur && name === act) {
+        setScene(scene, still(1, 1.1 + 0.12 * own, -3 * own))
+      } else if (!cur && name === warmName) {
+        setScene(scene, poseFor(kindOf(warmSeam), warmAhead ? "to" : "from", warmAhead ? 0 : 1, own))
+      } else {
+        scene.el.style.opacity = "0"
+        if (scene.tint) {
+          scene.tint.style.opacity = "0"
+        }
+      }
+    }
+
+    /* pointer: the world leans a little toward the cursor, clouds more */
+    px += (tx - px) * (1 - Math.exp(-dt / 240))
+    py += (ty - py) * (1 - Math.exp(-dt / 240))
+    /* the world banks through the cloud; the slight overscan keeps its corners covered while it rolls */
+    const roll = cur ? rollAt(cur.name, e) : 0
+    world.style.transform = `translate3d(${(-px * 1.1).toFixed(3)}%, ${(-py * 0.7).toFixed(3)}%, 0) rotate(${roll.toFixed(3)}deg) scale(1.045)`
+    for (const { el, k } of leans) {
+      el.style.transform = `translate3d(${(-px * k * 0.9).toFixed(3)}%, ${(-py * k * 0.55).toFixed(3)}%, 0)`
+    }
+
+    /* the passage's own furniture: clouds or a pane — or, in t2 and t4,
+       nothing at all but the light */
+    const kind = cur ? curKind : "clouds"
+    if (cur && kind === "clouds") {
+      placeClouds(clouds, cur.name, e, px, py)
+    } else if (cur && kind === "glass") {
+      placePane(paneEl, e, px, py)
+    }
+    if (!cur) {
+      placeClouds(clouds, "", e, px, py)
+      if (paneEl) {
+        paneEl.style.opacity = "0"
+      }
+    }
+    hazeAt(haze, cur ? cur.name : "", e)
+    bloomAt(bloom, cur ? cur.name : "", e)
+    setAmbience(cur && cur.from === "hero" ? 1 - smooth(span(e, 0, 0.2)) : cur && cur.to === "hero" ? smooth(span(e, 0.8, 1)) : 1)
+    if (clouds.wisp) {
+      /* the wisps ride the whole journey — thin, slow, always there */
+      const y = -((window.scrollY * 0.05) % 120)
+      cloudAt(clouds.wisp, px * 3, 60 + y + py * 1.5, 1.4, 0.35)
+    }
+  }
+  gsap.ticker.add(render)
+
+  return () => {
+    gsap.ticker.remove(render)
+    if (window.cancelIdleCallback) {
+      window.cancelIdleCallback(idleWarm)
+    } else {
+      window.clearTimeout(idleWarm)
+    }
+    window.removeEventListener("pointermove", onPointer)
+    document.removeEventListener("pointerleave", onPointerLeave)
+    for (const t of triggers) {
+      t.kill()
+    }
+    for (const t of ScrollTrigger.getAll()) {
+      t.kill()
+    }
+  }
+}
+
+export function CityStage() {
+  const rootRef = useRef<HTMLDivElement>(null)
+  /* the stage mounts after hydration; its copy of the living city resumes
+     the arrival where the server-rendered plate's copy already is */
+  const [resume] = useState(() => (typeof window === "undefined" ? 0 : liveElapsed()))
+
+  useEffect(() => {
+    const root = rootRef.current
+    if (!root) {
+      return
+    }
+    let alive = true
+    let cleanup: () => void = () => {}
+    Promise.all([import("gsap"), import("gsap/ScrollTrigger")]).then(
+      ([{ gsap }, { ScrollTrigger }]) => {
+        if (!alive) {
+          return
+        }
+        gsap.registerPlugin(ScrollTrigger)
+        cleanup = buildStage(gsap, ScrollTrigger, root)
+      }
+    )
+    return () => {
+      alive = false
+      cleanup()
+    }
+  }, [])
+
+  return (
+    <div ref={rootRef} aria-hidden="true" className="city-stage">
+      <div className="city-world">
+        {SCENES.map(([name, plate], i) => (
+          <div key={name} data-scene={name} className="city-scene">
+            <div
+              className={i === 0 ? `city-media city-plate-${plate}` : "city-media"}
+              {...(i === 0 ? {} : { "data-scene-plate": plate })}
+            >
+              {i === 0 ? <LiveCity resumeFrom={resume} /> : null}
+            </div>
+          </div>
+        ))}
+      </div>
+      {SCENES.map(([name]) => (
+        <div key={name} data-tint={name} className={`city-tint city-tint-${name}`} />
+      ))}
+      {/* the haze under the plates: the inside of the cloud, dense in the middle */}
+      <div data-haze className="city-haze" />
+      {/* the light of the hour we break out into */}
+      <div data-bloom className="city-bloom" />
+      {/* the plates, far to near — paint order is depth order */}
+      <CloudPlate cloud="cluster" name="cluster" />
+      <CloudPlate cloud="puff" name="puff" />
+      <CloudPlate cloud="wisp" name="wisp" className="city-cloud-wisp" />
+      <CloudPlate cloud="tower" name="tower" />
+      {/* t3: the pane of city glass that grows past the camera */}
+      <div className="city-pane" data-pane>
+        <span className="city-pane-glint" />
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Flat edit motion (phones and touch tablets): the same world as per-act
+ * plates that ARRIVE — each plate settles from a wider shot as its act enters
+ * and the cloud band lifts away — and the seams are CLOUD PASSAGES: a fixed
+ * veil of two cloud plates sweeps the viewport while the seam scrolls
+ * through it, with the same four choreographies as the desktop passages.
+ * Transform-only, no canvas, no video. Reduced motion mounts nothing here.
+ */
+export function CityFlatMotion() {
+  const veilRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    let alive = true
+    let cleanup: () => void = () => {}
+    Promise.all([import("gsap"), import("gsap/ScrollTrigger")]).then(
+      ([{ gsap }, { ScrollTrigger }]) => {
+        if (!alive) {
+          return
+        }
+        gsap.registerPlugin(ScrollTrigger)
+        const main = document.querySelector<HTMLElement>("main[data-experience]")
+        if (!main) {
+          return
+        }
+        for (const plate of main.querySelectorAll<HTMLElement>("[data-plate]")) {
+          const section = plate.closest("section") ?? plate
+          const first = section.hasAttribute("data-zone") && section.dataset.zone === "hero"
+          if (first) {
+            gsap.fromTo(
+              plate,
+              { scale: 1.08, yPercent: 0 },
+              {
+                scale: 1.2,
+                yPercent: -6,
+                ease: "none",
+                scrollTrigger: { trigger: section, start: "top top", end: "bottom top", scrub: 0.3 },
+              }
+            )
+            continue
+          }
+          gsap
+            .timeline({
+              scrollTrigger: { trigger: section, start: "top bottom", end: "bottom top", scrub: 0.3 },
+            })
+            .fromTo(
+              plate,
+              { scale: 1.28, yPercent: -10 },
+              { scale: 1.1, yPercent: -4, duration: 0.38, ease: "power2.out" }
+            )
+            .to(plate, { yPercent: 8, duration: 0.62, ease: "none" })
+          const band = section.querySelector<HTMLElement>(".city-band")
+          if (band) {
+            gsap.fromTo(
+              band,
+              { yPercent: 22, scale: 1, xPercent: -2 },
+              {
+                yPercent: -70,
+                scale: 1.35,
+                xPercent: 2,
+                ease: "none",
+                scrollTrigger: { trigger: section, start: "top bottom", end: "top 5%", scrub: 0.3 },
+              }
+            )
+          }
+        }
+
+        /* the cloud passages */
+        const veil = veilRef.current
+        const clouds = veil ? platesOf(veil) : {}
+        const haze = veil ? veil.querySelector<HTMLElement>("[data-haze]") : null
+        const bloom = veil ? veil.querySelector<HTMLElement>("[data-bloom]") : null
+        const paneEl = veil ? veil.querySelector<HTMLElement>(".city-pane") : null
+        /* the flat edit cannot pan two acts past each other — they are in the
+           page's own flow — so a seam keeps the passage's furniture and its
+           light, and the act arrives by scrolling, as it always did */
+        const dress = (name: string) => {
+          const kind = kindOf(name)
+          flat.kind = kind
+          if (paneEl) {
+            paneEl.dataset.tone = PASSAGE_LIGHT[name]?.tone ?? "day"
+            paneEl.style.opacity = "0"
+          }
+          for (const key of Object.keys(clouds)) {
+            if (kind !== "clouds") {
+              parkPlate(clouds[key])
+            }
+          }
+        }
+        /* the veil follows the seam through the same spring as the stage:
+           a finger flick or a wheel notch never lands on the plates directly */
+        const flat = { name: "", kind: "clouds" as PassageKind, target: 0, x: 0, v: 0, last: performance.now(), slow: 0, lite: false }
+        for (const el of main.querySelectorAll<HTMLElement>("[data-seam]")) {
+          const name = el.dataset.seam ?? ""
+          ScrollTrigger.create({
+            trigger: el,
+            start: "top bottom",
+            /* the passage is over when the seam's bottom edge — and so the
+               arriving act's head, which starts right under it — reaches
+               the upper third: the head is never read through a cloud
+               (audit 2026-09-14 §2, measured on 375 px) */
+            end: "bottom 34%",
+            onEnter: () => {
+              flat.name = name
+              flat.x = 0
+              flat.v = 0
+              lightClouds(clouds, name, haze, bloom)
+              dress(name)
+            },
+            onEnterBack: () => {
+              flat.name = name
+              flat.x = 1
+              flat.v = 0
+              lightClouds(clouds, name, haze, bloom)
+              dress(name)
+            },
+            onUpdate: (self) => {
+              flat.target = self.progress
+            },
+            onLeave: () => {
+              flat.target = 1
+            },
+            onLeaveBack: () => {
+              flat.target = 0
+            },
+          })
+        }
+        const tick = () => {
+          const now = performance.now()
+          const dt = Math.min(64, now - flat.last)
+          flat.last = now
+          /* the same sentinel as the stage's: a tablet that drops a quarter
+             of its frames runs its first passage without plates */
+          if (!flat.lite) {
+            flat.slow = dt > 34 ? flat.slow + 1 : Math.max(0, flat.slow - 0.25)
+            if (flat.slow > 14) {
+              flat.lite = true
+              goLite()
+            }
+          }
+          ;[flat.x, flat.v] = springStep(flat.x, flat.v, flat.target, dt)
+          const e = flat.name ? glide(flat.x) : 0
+          const running = e > 0.001 && e < 0.999
+          const kind = flat.kind
+          const close = 1 - smooth(span(e, 0.5, 0.74))
+          if (running && kind === "glass") {
+            placePane(paneEl, e, 0, 0, close)
+          } else {
+            placeClouds(clouds, running && kind === "clouds" ? flat.name : "", e, 0, 0, true)
+            if (paneEl && kind === "glass") {
+              paneEl.style.opacity = "0"
+            }
+          }
+          /* the flat seam has no swap to hide — the page scrolls on under
+             the veil — so its haze and bloom run thinner than the stage's:
+             at the stage's density a 13" iPad showed a white glow with a
+             blurred cloud in it (4.11, Ondrej: "jak keby to tu svieti") */
+          hazeAt(haze, running ? flat.name : "", e, 0.62)
+          bloomAt(bloom, running ? flat.name : "", e, 0.55)
+        }
+        gsap.ticker.add(tick)
+        bindDepth(gsap, main, 36)
+        const stations = bindStations(ScrollTrigger, main)
+        const rail = bindRail(main)
+        cleanup = () => {
+          gsap.ticker.remove(tick)
+          rail()
+          for (const t of stations) {
+            t.kill()
+          }
+          for (const t of ScrollTrigger.getAll()) {
+            t.kill()
+          }
+        }
+      }
+    )
+    return () => {
+      alive = false
+      cleanup()
+    }
+  }, [])
+  return (
+    <div ref={veilRef} aria-hidden="true" className="city-veil">
+      {/* the haze and the light of the hour, then the passage's furniture */}
+      <div data-haze className="city-haze" />
+      <div data-bloom className="city-bloom" />
+      {/* t1 with two of its three plates: the far cluster (three small
+          clouds that stay clouds at any size) and the near tower (a
+          cumulus with texture to spare when magnified). Not the puff: its
+          soft pink interior is what a 13" iPad saw filling the frame as a
+          glowing blur (4.11) */}
+      <CloudPlate cloud="cluster" name="cluster" />
+      <CloudPlate cloud="tower" name="tower" />
+      <div className="city-pane" data-pane>
+        <span className="city-pane-glint" />
+      </div>
+    </div>
+  )
+}

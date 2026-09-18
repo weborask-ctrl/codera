@@ -10,6 +10,7 @@
  */
 
 import { useEffect, useRef, useState } from "react"
+import { siteConfig } from "@/lib/site-config"
 import { openEnquiry } from "./enquiry-bus"
 
 const LINKS = [
@@ -146,8 +147,8 @@ export function ExperienceNav() {
           </button>
         </nav>
         <div className="flex flex-col gap-1 text-[0.8rem] text-white/55">
-          <a href="mailto:coderaslovakia@gmail.com">coderaslovakia@gmail.com</a>
-          <a href="tel:+421949753556">+421 949 753 556</a>
+          <a href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a>
+          <a href={`tel:${siteConfig.phoneHref}`}>{siteConfig.phone}</a>
         </div>
       </div>
     </header>

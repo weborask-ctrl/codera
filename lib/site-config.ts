@@ -22,8 +22,9 @@ export const siteConfig = {
   locale: "sk_SK",
   title: "Codera — tvorba firemných webstránok a redizajn webu",
   description:
-    "Navrhujeme a vyvíjame firemné webstránky, ktoré pôsobia dôveryhodne, načítajú sa rýchlo a vedú návštevníka k dopytu. Weby od 1 000 €, prvý návrh do 72 hodín.",
-  email: "coderaslovakia@gmail.com",
+    "Navrhujeme a vyvíjame firemné webstránky, ktoré pôsobia dôveryhodne, načítajú sa rýchlo a vedú návštevníka k dopytu. Weby od 700 €, prvý návrh do 72 hodín.",
+  /** The studio mailbox on its own domain (Websupport), set 2026-09-07. */
+  email: "kontakt@codera.sk",
   phone: "+421 949 753 556",
   /** Digits only, for `tel:` links. */
   phoneHref: "+421949753556",
@@ -36,7 +37,8 @@ export const siteConfig = {
  */
 export const commercial = {
   /**
-   * The entry price. Raised from 699 € on 2026-08-31.
+   * The entry price. 699 € → 1 000 € on 2026-08-31; set to 700 € by Ondrej on
+   * 2026-09-07 together with the whole ladder (700 / 1 200 / 2 500 €).
    *
    * Every surface that mentions it derives from these three values — the
    * offer act, the mobile edit, the world, the conversion facts, the boards,
@@ -44,13 +46,13 @@ export const commercial = {
    * budget bands. Before this was routed, the number was hard-coded in eight
    * places and a price change meant eight edits and a chance to miss one.
    */
-  priceFrom: "1 000 €",
+  priceFrom: "700 €",
   /** The same figure as a number, for structured data and the count-up. */
-  priceFromValue: 1000,
-  priceFromLabel: "Webové projekty od 1 000 €",
+  priceFromValue: 700,
+  priceFromLabel: "Webové projekty od 700 €",
   /** The full sentence used wherever the price appears in running copy. */
   priceFromSentence:
-    "Webové projekty od 1 000 € — presnú cenu poviete po konzultácii.",
+    "Webové projekty od 700 € — presnú cenu poviete po konzultácii.",
   firstProposalHours: 72,
   responseHours: 24,
   typicalDeliveryDays: 14,
@@ -65,9 +67,9 @@ export const commercial = {
 /**
  * The offer, as three packages.
  *
- * Ladder set 2026-08-31: the 1 000 € anchor is Codera's; the steps of roughly
- * 1.8× make each rung buy something the buyer can name, which is also what
- * stops the cheapest option from being the one nobody would rationally take.
+ * Ladder reset 2026-09-07 (Ondrej): 700 / 1 200 / 2 500 €. Each rung still buys
+ * something the buyer can name, which is also what stops the cheapest option
+ * from being the one nobody would rationally take.
  * Reasoning in `CODERA_STEP6_CONTENT.md` §6.
  *
  * `notIncluded` is not a disclaimer. It is the line that proves the price is a
@@ -83,8 +85,8 @@ export const packages = [
     id: "vizitka",
     name: "Vizitka",
     audience: "Pre firmu, ktorá potrebuje jednu dôveryhodnú stránku.",
-    priceFrom: "1 000 €",
-    priceFromValue: 1000,
+    priceFrom: "700 €",
+    priceFromValue: 700,
     scope: [
       "Jedna stránka so všetkým podstatným: čo robíte, pre koho a ako vás osloviť",
       "Vlastný vizuálny smer, nie prefarbená šablóna",
@@ -98,8 +100,8 @@ export const packages = [
     id: "firemny",
     name: "Firemný web",
     audience: "Pre firmu s viacerými službami, referenciami a pravidelnými novinkami.",
-    priceFrom: "1 800 €",
-    priceFromValue: 1800,
+    priceFrom: "1 200 €",
+    priceFromValue: 1200,
     scope: [
       "Až šesť podstránok: služby, referencie, o nás, kontakt",
       "Jedna sekcia, ktorú si spravujete sami — novinky alebo referencie",
@@ -113,8 +115,8 @@ export const packages = [
     id: "5d",
     name: "5D web",
     audience: "Pre firmu, ktorá chce, aby si ju zapamätali.",
-    priceFrom: "3 200 €",
-    priceFromValue: 3200,
+    priceFrom: "2 500 €",
+    priceFromValue: 2500,
     scope: [
       "Vlastná art direction — stránka, ktorá nevyzerá ako žiadna iná",
       "Priestorová réžia: scény, kamera, materiály a pohyb viazaný na scroll",
@@ -125,6 +127,24 @@ export const packages = [
     notIncluded: "e-shop a napojenie na sklad alebo ERP",
   },
 ] as const
+
+/**
+ * WordPress work (Ondrej, 2026-09-07): edits and care for sites that already
+ * run on WordPress, offered beside the packages. No fixed price — the scope
+ * decides, and the number is said after the consultation like every other.
+ */
+export const wordpressService = {
+  name: "Úpravy WordPressu",
+  line: "Máte web na WordPresse? Upravíme vzhľad aj obsah, zrýchlime ho a naučíme vás meniť si texty, fotky a novinky bez programátora.",
+  scope: [
+    "Úpravy vzhľadu a obsahu existujúcej stránky",
+    "Redizajn alebo nová šablóna na WordPresse",
+    "Rýchlosť, aktualizácie a zabezpečenie",
+    "Zaškolenie do editora — ďalšie zmeny robíte sami",
+  ],
+  priceNote: "cena podľa rozsahu, po konzultácii",
+  demo: "/ukazky/wordpress",
+} as const
 
 /**
  * Legal identification.

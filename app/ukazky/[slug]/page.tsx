@@ -1,9 +1,6 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
-import MeridianSite from "@/components/concepts/meridian"
-import ObservatoriumSite from "@/components/concepts/observatorium"
-import StatutSite from "@/components/concepts/statut"
-import VlnaSite from "@/components/concepts/vlna"
+import { DemoSwitch } from "@/components/concepts/demo-switch"
 import { siteConfig } from "@/lib/site-config"
 import { getSkill, skills } from "@/lib/skills"
 
@@ -13,13 +10,6 @@ import { getSkill, skills } from "@/lib/skills"
  * generic nouns and the corner DEMO tag. Robots stay out; these are
  * demonstrations, not content competing with the studio.
  */
-
-const DEMOS = {
-  dizajn: StatutSite,
-  objednavky: MeridianSite,
-  rezervacie: VlnaSite,
-  animacie: ObservatoriumSite,
-} as const
 
 export function generateStaticParams() {
   return skills.filter((s) => s.ready && s.demo).map(({ slug }) => ({ slug }))
@@ -35,7 +25,8 @@ export async function generateMetadata({
     return {}
   }
   return {
-    title: `${skill.name} — živá ukážka | Codera`,
+    /* the layout template appends "— Codera" */
+    title: `${skill.name} — živá ukážka`,
     description: `${skill.line} Demo štúdia Codera.`,
     robots: { index: false, follow: true },
     alternates: { canonical: `${siteConfig.url}/ukazky/${skill.slug}` },
@@ -49,9 +40,9 @@ export default async function UkazkaPage({
 }) {
   const { slug } = await params
   const skill = getSkill(slug)
-  const Site = skill?.demo ? DEMOS[skill.demo] : undefined
-  if (!skill?.ready || !Site) {
+  if (!skill?.ready || !skill.demo) {
     notFound()
   }
-  return <Site />
+  /* the switch is a Client Component so each demo is its own chunk */
+  return <DemoSwitch demo={skill.demo} />
 }

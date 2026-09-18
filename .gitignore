@@ -43,7 +43,7 @@ node_modules/
 /playwright/.cache/
 /playwright/.auth/
 
-# Playwright MCP session logs
+# Playwright MCP session logs (another tool writes them here)
 .playwright-mcp/
 
 # python bytecode

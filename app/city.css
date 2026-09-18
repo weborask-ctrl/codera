@@ -1,0 +1,1464 @@
+/* ================================================================
+   Codera City (Iterácia 2.0) — one continuous 5D world.
+   The stage (fixed, behind), the acts (DOM, native scroll), the flat edit.
+   ================================================================ */
+
+:root {
+  --city-ink: #0b1a4a;
+  --city-coral: #ff5fa8;
+  --city-tang: #ff9f43;
+  --city-mint: #2ec4b6;
+  --city-sky: #dff1ff;
+  --city-pad: clamp(1.25rem, 5vw, 6rem);
+}
+
+.city-main {
+  color: var(--city-ink);
+  background: var(--city-sky);
+}
+main[data-city] {
+  background: transparent;
+}
+
+/* ---------------------------------------------------------- stage --- */
+.city-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background: var(--city-sky);
+  pointer-events: none;
+}
+.city-world {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+.city-scene {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  will-change: opacity;
+}
+/* the hero scene is on screen from the moment the stage mounts — the motion
+   engine loads a beat later and takes over the opacity from there */
+.city-scene[data-scene="hero"] {
+  opacity: 1;
+}
+.city-tint {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  /* it travels with its scene during the bridge pan, so transform too */
+  will-change: opacity, transform;
+}
+.city-media {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  will-change: transform;
+}
+.city-plate-img::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+/* legibility tints: light on the day scenes, ink on dusk and night */
+.city-tint-hero,
+.city-plate-hero::after {
+  background: linear-gradient(90deg, rgb(223 241 255 / 0.6) 0%, rgb(223 241 255 / 0.22) 40%, rgb(223 241 255 / 0) 62%);
+}
+.city-tint-work,
+.city-plate-street::after {
+  background: linear-gradient(180deg, rgb(223 241 255 / 0.86) 0%, rgb(223 241 255 / 0.6) 16%, rgb(223 241 255 / 0.14) 38%, rgb(223 241 255 / 0.02) 56%, rgb(223 241 255 / 0.16) 100%);
+}
+@media (max-width: 1023px) {
+  /* the flat plate is cropped so its iridescent band lands under the /02
+     head: a denser, deeper light tint on phones and tablets */
+  .city-plate-street::after {
+    background: linear-gradient(180deg, rgb(230 243 255 / 0.94) 0%, rgb(230 243 255 / 0.88) 26%, rgb(230 243 255 / 0.5) 44%, rgb(223 241 255 / 0.1) 62%, rgb(223 241 255 / 0.2) 100%);
+  }
+}
+.city-tint-offer,
+.city-plate-services::after {
+  background: linear-gradient(180deg, rgb(255 236 214 / 0.6) 0%, rgb(255 236 214 / 0.22) 26%, rgb(255 236 214 / 0.02) 50%, rgb(255 236 214 / 0.2) 100%);
+}
+.city-tint-process,
+.city-plate-bridge::after {
+  background: linear-gradient(180deg, rgb(40 18 80 / 0.42) 0%, rgb(40 18 80 / 0.06) 40%, rgb(40 18 80 / 0.34) 100%);
+}
+.city-tint-resolution,
+.city-plate-night::after {
+  background: linear-gradient(180deg, rgb(6 12 40 / 0.4) 0%, rgb(6 12 40 / 0.1) 45%, rgb(6 12 40 / 0.66) 100%);
+}
+/* the passage plates: alpha cutouts, no blend mode — a blended layer reads
+   the whole backdrop back every frame, an alpha plate is one composite */
+.city-cloud {
+  position: absolute;
+  display: block;
+  left: -10vw;
+  top: 0;
+  width: 120vw;
+  height: auto;
+  /* composited from the start at 0.001 (never 0): the texture is resident
+     before the first passage needs it */
+  opacity: 0.001;
+  transform: translate3d(0, 0, 0);
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------- type --- */
+.city-h1 {
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 0.96;
+  font-size: clamp(3.1rem, 8.2vw, 8.2rem);
+}
+.city-h2 {
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 0.98;
+  font-size: clamp(2.5rem, 6.2vw, 6rem);
+  max-width: 14em;
+}
+.city-h2-xl {
+  font-size: clamp(2.9rem, 7.4vw, 7.4rem);
+  max-width: 10em;
+}
+.city-process .city-h2 {
+  font-size: clamp(2.7rem, 6.8vw, 6.6rem);
+}
+.city-process p.city-sub,
+.city-resolution p.city-sub {
+  font-size: clamp(1.1rem, 1.4vw, 1.3rem);
+}
+.city-coral { color: var(--city-coral); }
+.city-tang { color: var(--city-tang); }
+.city-mint { color: var(--city-mint); }
+.city-lead {
+  margin-top: 1.4rem;
+  max-width: 32rem;
+  font-size: clamp(1rem, 1.3vw, 1.2rem);
+  line-height: 1.55;
+  color: rgb(11 26 74 / 0.82);
+}
+.city-sub {
+  margin-top: 1.1rem;
+  max-width: 36rem;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  opacity: 0.8;
+}
+.city-head-light {
+  color: #fff;
+}
+
+/* ---------------------------------------------------------- buttons --- */
+.city-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 1rem 1.8rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  text-decoration: none;
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s ease;
+}
+.city-btn:hover { transform: translateY(-2px); }
+.city-btn-ink {
+  background: var(--city-ink);
+  color: #fff;
+  box-shadow: 0 16px 40px -18px rgb(11 26 74 / 0.6);
+}
+.city-btn-w {
+  background: #fff;
+  color: var(--city-ink);
+}
+.city-btn-ghost {
+  border: 2px solid currentColor;
+}
+.city-btn-sm {
+  padding: 0.7rem 1.2rem;
+  font-size: 0.8rem;
+  margin-left: 0.8rem;
+}
+.city-btn-wide { width: 100%; }
+
+/* ---------------------------------------------------------- acts --- */
+.city-act { position: relative; }
+.city-inner {
+  position: relative;
+  /* above the flat edit's cloud veil (z 19/20): an act's copy is never
+     under a cloud, whatever the seam is doing (audit 2026-09-14 §2) */
+  z-index: 21;
+  padding: 12svh var(--city-pad) 10svh;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+/* 4.4: 150 svh made the four seams 43 % of the desktop scroll (audit
+   2026-09-14 §4); the spring keeps a notch smooth at 90 svh too (probed) */
+.city-seam { height: 90svh; }
+.city-seam-flat { height: 52svh; }
+/* the flat edit's cloud veil: fixed over the page, clouds only during a seam */
+/* the veil must NOT form a stacking context of its own: screen-blended
+   clouds only blend with what shares their context, so each plate is fixed
+   straight in the root and the wrapper is display: contents */
+.city-veil {
+  display: contents;
+}
+.city-cloud-img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+/* the haze in the middle of a passage: one flat layer, tinted for the light
+   the passage travels through, so the swap never shows an empty gap and the
+   plates never have to carry the whole crossing alone */
+.city-haze {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity;
+  background: radial-gradient(75% 70% at 50% 50%, rgb(255 250 246 / 0.96) 0%, rgb(236 240 252 / 0.85) 60%, rgb(223 241 255 / 0.7) 100%);
+}
+.city-haze[data-tone="warm"] {
+  background: radial-gradient(75% 70% at 50% 50%, rgb(255 244 232 / 0.96) 0%, rgb(255 232 214 / 0.85) 60%, rgb(250 226 208 / 0.7) 100%);
+}
+.city-haze[data-tone="gold"] {
+  background: radial-gradient(75% 70% at 50% 50%, rgb(255 226 190 / 0.94) 0%, rgb(214 174 208 / 0.82) 60%, rgb(120 84 150 / 0.66) 100%);
+}
+.city-haze[data-tone="night"] {
+  background: radial-gradient(75% 70% at 50% 50%, rgb(58 74 132 / 0.9) 0%, rgb(22 30 74 / 0.86) 60%, rgb(8 12 40 / 0.8) 100%);
+}
+/* the light of the hour we break out into: a soft sun behind the plates,
+   brightest just past the middle of the passage (4.2) */
+.city-bloom {
+  position: absolute;
+  inset: -10%;
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity, transform;
+  background: radial-gradient(38% 34% at 50% 40%, rgb(255 250 232 / 0.95) 0%, rgb(255 236 200 / 0.55) 45%, rgb(255 230 200 / 0) 72%);
+}
+.city-bloom[data-tone="warm"] {
+  background: radial-gradient(38% 34% at 50% 40%, rgb(255 244 224 / 0.95) 0%, rgb(255 214 170 / 0.55) 45%, rgb(255 210 170 / 0) 72%);
+}
+.city-bloom[data-tone="gold"] {
+  background: radial-gradient(40% 36% at 50% 42%, rgb(255 232 180 / 0.98) 0%, rgb(255 190 120 / 0.6) 45%, rgb(230 150 140 / 0) 72%);
+}
+.city-bloom[data-tone="night"] {
+  background: radial-gradient(34% 30% at 50% 38%, rgb(200 214 255 / 0.7) 0%, rgb(110 130 220 / 0.35) 45%, rgb(40 50 120 / 0) 72%);
+}
+
+/* ---- t3 · the pane of city glass that grows past the camera ----
+   No blur filter anywhere: an animated blurred layer drops WebKit to 3 fps
+   (measured 2026-09-12). The frost is baked into the gradient, and the
+   specular sweep is a child that crosses as the pane passes. */
+.city-pane {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 92vw;
+  height: 62vh;
+  margin: -31vh -46vw;
+  border-radius: 2.4vmin;
+  overflow: hidden;
+  opacity: 0;
+  transform: scale(0.3);
+  will-change: transform, opacity;
+  pointer-events: none;
+  background: linear-gradient(148deg, rgb(255 255 255 / 0.6) 0%, rgb(234 244 255 / 0.3) 36%, rgb(255 255 255 / 0.5) 62%, rgb(224 238 255 / 0.26) 100%);
+  box-shadow:
+    inset 0 0 0 2.5px rgb(255 255 255 / 0.82),
+    inset 0 0 0 7px rgb(255 255 255 / 0.22),
+    inset 0 6px 26px rgb(255 255 255 / 0.45),
+    0 40px 90px -34px rgb(11 26 74 / 0.6);
+}
+.city-pane[data-tone="warm"] {
+  background: linear-gradient(148deg, rgb(255 248 236 / 0.5) 0%, rgb(255 232 206 / 0.22) 36%, rgb(255 244 226 / 0.4) 62%, rgb(250 226 208 / 0.16) 100%);
+}
+.city-pane[data-tone="gold"] {
+  background: linear-gradient(148deg, rgb(255 246 224 / 0.66) 0%, rgb(255 224 184 / 0.34) 36%, rgb(255 238 212 / 0.56) 62%, rgb(226 192 214 / 0.28) 100%);
+}
+.city-pane[data-tone="night"] {
+  background: linear-gradient(148deg, rgb(206 220 255 / 0.4) 0%, rgb(90 112 190 / 0.22) 36%, rgb(180 198 255 / 0.32) 62%, rgb(40 52 120 / 0.2) 100%);
+  box-shadow:
+    inset 0 0 0 1.5px rgb(210 224 255 / 0.5),
+    0 30px 80px -34px rgb(0 0 0 / 0.6);
+}
+.city-pane-glint {
+  position: absolute;
+  top: -40%;
+  bottom: -40%;
+  left: 0;
+  width: 24%;
+  transform: translate3d(-90%, 0, 0) rotate(14deg);
+  will-change: transform;
+  background: linear-gradient(90deg, rgb(255 255 255 / 0) 0%, rgb(255 255 255 / 0.72) 50%, rgb(255 255 255 / 0) 100%);
+}
+
+/* the flat edition puts the same furniture on its fixed veil */
+.city-veil .city-pane {
+  position: fixed;
+  z-index: 20;
+}
+.city-veil .city-bloom {
+  position: fixed;
+  z-index: 19;
+}
+.city-veil .city-haze {
+  position: fixed;
+  z-index: 19;
+}
+.city-veil .city-cloud {
+  position: fixed;
+  top: 0;
+  /* big enough to cross a portrait viewport, small enough that its shape
+     stays readable — a phone should see a cloud, not its white interior */
+  width: max(150vw, 130vh);
+  left: calc(50vw - max(75vw, 65vh));
+  z-index: 20;
+}
+@media (min-width: 768px) {
+  .city-veil .city-cloud {
+    width: max(130vw, 178vh);
+    left: calc(50vw - max(65vw, 89vh));
+  }
+}
+/* the seam itself is sky with a haze in the middle, never an empty gap */
+.city-seam-flat {
+  background: linear-gradient(180deg, rgb(223 241 255 / 0) 0%, rgb(255 255 255 / 0.32) 50%, rgb(223 241 255 / 0) 100%);
+}
+
+/* /01 */
+.city-hero {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+}
+.city-hero-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(180deg, rgb(223 241 255 / 0) 40%, rgb(223 241 255 / 0.8) 64%, rgb(223 241 255 / 0.96) 100%);
+}
+.city-hero-copy {
+  position: relative;
+  z-index: 2;
+  padding: 0 var(--city-pad) 9svh;
+  max-width: 72rem;
+}
+/* Copy ground: a soft scrim UNDER the text only, never a halo on the glyphs
+   (CLAUDE.md). The world stays visible everywhere else. */
+.city-hero-copy::before,
+.city-res-copy::before {
+  content: "";
+  position: absolute;
+  inset: -12% -8% -14% -14%;
+  z-index: -1;
+  pointer-events: none;
+}
+.city-hero-copy::before {
+  inset: -14% -2% -16% -14%;
+  background: radial-gradient(74% 70% at 36% 60%, rgb(223 241 255 / 0.9) 0%, rgb(223 241 255 / 0.6) 46%, rgb(223 241 255 / 0.16) 72%, rgb(223 241 255 / 0) 88%);
+}
+.city-res-copy::before {
+  background: radial-gradient(62% 66% at 34% 52%, rgb(4 9 32 / 0.78) 0%, rgb(4 9 32 / 0.42) 54%, rgb(4 9 32 / 0) 80%);
+}
+.city-cta-row {
+  margin-top: 1.9rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+/* /02 city: the street walk */
+.city-walk { height: calc(100svh + 5 * 70svh); }
+.city-walk-sticky {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.city-walk .city-head {
+  position: relative;
+  z-index: 3;
+  padding: 7svh var(--city-pad) 0;
+}
+/* the street headline sits on the bright facades: its own ground, under the
+   text only, so the rainbow screens stay visible around it */
+.city-walk .city-head::before {
+  content: "";
+  position: absolute;
+  inset: -30% -6% -40% -6%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(70% 100% at 30% 50%, rgb(223 241 255 / 0.86) 0%, rgb(223 241 255 / 0.5) 48%, rgb(223 241 255 / 0) 80%);
+}
+.city-walk .city-h2 {
+  font-size: clamp(2.1rem, 4vw, 3.8rem);
+  max-width: 22em;
+}
+.city-walk .city-sub {
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+}
+.city-street {
+  position: relative;
+  flex: 1;
+  display: grid;
+  place-items: center;
+  perspective: 1200px;
+  perspective-origin: 50% 45%;
+}
+.city-card {
+  grid-area: 1 / 1;
+  display: block;
+  /* every card shares this cell, so a transparent one used to swallow the
+     click; the walk hands the pointer to the card in front */
+  pointer-events: none;
+  width: min(58vw, calc(104svh - 100px));
+  opacity: 0;
+  color: var(--city-ink);
+  text-decoration: none;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+}
+
+/* the demo frame: a complete production screenshot in a thin browser chrome */
+.city-card-frame {
+  display: block;
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--city-ink);
+  box-shadow:
+    0 50px 100px -40px rgb(11 26 74 / 0.65),
+    0 0 0 1px rgb(255 255 255 / 0.55);
+}
+.city-card-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 12px;
+  background: #eef3fa;
+}
+.city-card-bar > span:not(.city-card-url) {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgb(11 26 74 / 0.18);
+}
+.city-card-url {
+  margin-left: 10px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: rgb(11 26 74 / 0.5);
+}
+.city-card-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+.city-cap {
+  display: block;
+  margin-top: 0.9rem;
+  padding: 0 0.2rem;
+}
+.city-cap-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+}
+.city-cap-title {
+  font-weight: 800;
+  font-size: clamp(1.4rem, 2vw, 1.9rem);
+  letter-spacing: -0.02em;
+}
+.city-cap-skill {
+  font-size: 0.62rem;
+  letter-spacing: 0.26em;
+  color: var(--city-coral);
+}
+.city-cap-line {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  opacity: 0.78;
+  max-width: 40em;
+}
+.city-cap-go {
+  display: inline-block;
+  margin-top: 0.45rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border-bottom: 2px solid var(--city-coral);
+  padding-bottom: 1px;
+}
+
+/* /02 flat: the rail of facades */
+.city-work-flat { overflow: hidden; }
+.city-work-flat .city-inner { padding-bottom: 2svh; }
+.city-rail {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 1rem var(--city-pad) 9svh;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.city-rail::-webkit-scrollbar { display: none; }
+.city-railcard {
+  /* narrower than the viewport so the next facade peeks in: five demos
+     are promised, the peek says there are more (audit 2026-09-14 §5) */
+  flex: 0 0 min(78vw, 560px);
+  scroll-snap-align: center;
+  display: block;
+  color: var(--city-ink);
+  text-decoration: none;
+  transform-origin: 50% 60%;
+  will-change: transform;
+}
+.city-railcard .city-cap-title { font-size: 1.3rem; }
+.city-rail-dots {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: -6svh;
+  padding-bottom: 6svh;
+}
+.city-rail-dots span {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: rgb(11 26 74 / 0.25);
+  transition: background 0.25s, transform 0.25s;
+}
+.city-rail-dots span[data-on] {
+  background: var(--city-ink);
+  transform: scale(1.25);
+}
+
+/* glass panels — everything sits on the same material */
+.city-glass {
+  border-radius: 24px;
+  background: rgb(255 255 255 / 0.66);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow:
+    0 30px 70px -30px rgb(11 26 74 / 0.45),
+    inset 0 1px 0 rgb(255 255 255 / 0.9),
+    0 0 0 1px rgb(255 255 255 / 0.7);
+}
+.city-glass-dark {
+  background: rgb(11 26 74 / 0.46);
+  color: #fff;
+  box-shadow:
+    0 30px 70px -30px rgb(0 0 0 / 0.7),
+    0 0 0 1px rgb(255 255 255 / 0.18);
+}
+.city-holo { position: relative; }
+.city-holo::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(120deg, var(--city-mint), var(--city-coral), var(--city-tang));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* /03 */
+.city-signs {
+  /* the headline is two lines at display scale and the depth parallax lifts
+     this row — it needs real clearance, not a nominal gap */
+  margin-top: clamp(4.6rem, 8vw, 7.2rem);
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.city-sign { padding: 1.3rem 1.4rem; }
+.city-sign-n {
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  /* the coral darkened to 4.6:1 on the glass (audit 2026-09-14 §2) */
+  color: #b0203f;
+}
+.city-sign-t {
+  margin-top: 0.4rem;
+  font-weight: 800;
+  font-size: 1.7rem;
+  letter-spacing: -0.02em;
+}
+.city-sign-d {
+  margin-top: 0.4rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: rgb(11 26 74 / 0.92);
+}
+.city-terraces {
+  margin-top: 1.4rem;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+}
+.city-terrace { padding: 1.6rem; }
+.city-terrace-name {
+  font-weight: 800;
+  font-size: 1.25rem;
+  letter-spacing: -0.01em;
+}
+.city-terrace-price {
+  margin-top: 0.5rem;
+  font-weight: 800;
+  font-size: clamp(2.2rem, 3.2vw, 3.2rem);
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+.city-od {
+  font-size: 0.38em;
+  font-weight: 700;
+  color: rgb(11 26 74 / 0.85);
+  margin-right: 0.5em;
+  vertical-align: 0.55em;
+  letter-spacing: 0;
+}
+.city-terrace-aud {
+  margin-top: 0.6rem;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: rgb(11 26 74 / 0.9);
+}
+.city-terrace-scope {
+  margin-top: 0.9rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid rgb(11 26 74 / 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  list-style: none;
+  padding-left: 0;
+}
+.city-terrace-scope li {
+  position: relative;
+  padding-left: 1rem;
+}
+.city-terrace-scope li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 0.5rem;
+  height: 2px;
+  background: var(--city-mint);
+}
+.city-terrace-not {
+  margin-top: 0.9rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid rgb(11 26 74 / 0.12);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: rgb(11 26 74 / 0.86);
+}
+.city-offer-close {
+  margin-top: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+.city-offer-close span {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* the glass settles one panel after another */
+.city-signs > .enter:nth-child(2),
+.city-terraces > .enter:nth-child(2),
+.city-stations > .enter:nth-child(2) {
+  transition-delay: 0.14s;
+}
+.city-signs > .enter:nth-child(3),
+.city-terraces > .enter:nth-child(3),
+.city-stations > .enter:nth-child(3) {
+  transition-delay: 0.28s;
+}
+.city-wp.enter {
+  transition-delay: 0.42s;
+}
+
+/* WordPress strip */
+.city-wp {
+  margin-top: 1rem;
+  padding: 1.5rem 1.6rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) auto;
+  gap: 1.6rem 2rem;
+  align-items: center;
+}
+.city-wp-t {
+  margin-top: 0.35rem;
+  font-weight: 800;
+  font-size: 1.6rem;
+  letter-spacing: -0.02em;
+}
+.city-wp-d {
+  margin-top: 0.4rem;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  opacity: 0.8;
+}
+.city-wp-scope {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  list-style: none;
+  padding: 0;
+}
+.city-wp-scope li {
+  position: relative;
+  padding-left: 1rem;
+}
+.city-wp-scope li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 0.5rem;
+  height: 2px;
+  background: var(--city-coral);
+}
+.city-wp-act {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+.city-wp-act .city-btn-sm { margin-left: 0; }
+.city-wp-price {
+  font-size: 0.78rem;
+  opacity: 0.62;
+}
+.city-wp-demo {
+  font-size: 0.82rem;
+  font-weight: 700;
+  border-bottom: 2px solid var(--city-coral);
+  padding-bottom: 1px;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* /04 */
+.city-process { color: #fff; }
+.city-stations {
+  margin-top: 4.6rem;
+  display: grid;
+  gap: 2.2rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  list-style: none;
+  padding: 0;
+}
+/* the process act runs wider than the others: three stations on a bridge
+   want the room, not a 1280 px column in a 2000 px window (4.6) */
+.city-process .city-inner {
+  max-width: none;
+}
+.city-station {
+  position: relative;
+  padding: 3.6rem 3.2rem 3.4rem;
+  border-radius: 36px;
+  min-height: 29rem;
+}
+.city-station-dot {
+  position: absolute;
+  left: 50%;
+  top: -2.2rem;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--city-tang);
+  box-shadow:
+    0 0 24px var(--city-tang),
+    0 0 60px rgb(255 159 67 / 0.6);
+  transform: translateX(-50%) scale(0.35);
+  opacity: 0.3;
+  transition:
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.7s ease;
+}
+.city-station {
+  transition: box-shadow 0.7s ease;
+}
+.city-station[data-lit] .city-station-dot {
+  transform: translateX(-50%) scale(1);
+  opacity: 1;
+  animation: city-pulse 2.6s ease-in-out infinite;
+}
+.city-station[data-lit] {
+  box-shadow:
+    0 30px 70px -30px rgb(0 0 0 / 0.7),
+    0 0 0 1px rgb(255 159 67 / 0.5),
+    0 0 48px -12px rgb(255 159 67 / 0.4);
+}
+@keyframes city-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 24px var(--city-tang),
+      0 0 60px rgb(255 159 67 / 0.6);
+  }
+  50% {
+    box-shadow:
+      0 0 34px var(--city-tang),
+      0 0 96px rgb(255 159 67 / 0.85);
+  }
+}
+.city-station-big {
+  display: block;
+  font-weight: 800;
+  font-size: clamp(4rem, 7.4vw, 7rem);
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--city-tang);
+}
+.city-station-t {
+  display: block;
+  font-weight: 800;
+  font-size: clamp(1.8rem, 2.7vw, 2.6rem);
+  margin-top: 0.9rem;
+}
+.city-station-d {
+  display: block;
+  margin-top: 0.8rem;
+  font-size: clamp(1.1rem, 1.55vw, 1.5rem);
+  line-height: 1.55;
+  color: rgb(255 255 255 / 0.88);
+}
+@media (max-width: 1023px) {
+  .city-station {
+    padding: 2.4rem 2.2rem 2.2rem;
+    min-height: 0;
+  }
+}
+
+/* /05 */
+.city-resolution {
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+  /* the copy scrim reaches past the text block; clip it rather than let it
+     widen the document (overflow-x: clip keeps sticky and fixed intact) */
+  overflow-x: clip;
+}
+.city-res-inner {
+  flex: 1;
+  width: 100%;
+  display: grid;
+  gap: 3rem;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.9fr);
+  align-items: center;
+  padding-top: 16svh;
+  padding-bottom: 12svh;
+}
+.city-res-copy {
+  position: relative;
+  z-index: 2;
+}
+.city-res-copy .city-sub { color: rgb(255 255 255 / 0.85); opacity: 1; }
+.city-hall {
+  padding: 2.6rem 2.4rem;
+  max-width: 36rem;
+  width: 100%;
+  justify-self: end;
+  border-radius: 30px;
+}
+.city-hall-t {
+  font-weight: 800;
+  font-size: clamp(1.8rem, 2.6vw, 2.4rem);
+  letter-spacing: -0.02em;
+}
+.city-hall-d {
+  margin-top: 0.8rem;
+  font-size: clamp(1.05rem, 1.25vw, 1.2rem);
+  line-height: 1.55;
+  color: rgb(255 255 255 / 0.82);
+}
+.city-hall .city-btn {
+  margin-top: 1.6rem;
+  padding: 1.15rem 2rem;
+  font-size: 1rem;
+}
+.city-hall-links {
+  margin-top: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 1rem;
+}
+.city-hall-links a {
+  color: rgb(255 255 255 / 0.88);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.city-hall-people {
+  margin-top: 1.4rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgb(255 255 255 / 0.18);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: rgb(255 255 255 / 0.82);
+}
+.city-footer {
+  position: relative;
+  z-index: 2;
+  background: #070d2b;
+  color: rgb(242 244 246 / 0.72);
+  font-size: 0.66rem;
+  padding: 1.8rem var(--city-pad);
+}
+.city-footer-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: baseline;
+}
+.city-footer-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* adaptive lite mode (set by the stage when frames run long): no backdrop
+   blur, the glass carries more body instead */
+:root[data-lite] .city-glass {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: rgb(255 255 255 / 0.8);
+}
+:root[data-lite] .city-glass-dark {
+  background: rgb(11 26 74 / 0.74);
+}
+
+/* ---------------------------------------------------------- flat edit --- */
+.city-plate {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+}
+/* a flat plate dissolves into the sky of the seam instead of ending on a
+   line: the passage parts its clouds over the middle, and a hard edge of the
+   picture scrolling under them read as a cut (iPad, Iterácia 3.7) */
+.city-plate::before,
+.city-plate::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 22%;
+  z-index: 2;
+  pointer-events: none;
+}
+.city-plate::before {
+  top: 0;
+  background: linear-gradient(180deg, var(--city-sky) 0%, rgb(223 241 255 / 0) 100%);
+}
+.city-plate::after {
+  bottom: 0;
+  background: linear-gradient(0deg, var(--city-sky) 0%, rgb(223 241 255 / 0) 100%);
+}
+/* the first act has no seam above it, the last none below */
+.city-hero .city-plate::before,
+.city-resolution .city-plate::after {
+  display: none;
+}
+/* the hero plate holds the frame until the stage chunk mounts, then hides */
+.city-stage ~ .city-main .city-hero .city-plate {
+  display: none;
+}
+.city-plate-img {
+  position: absolute;
+  inset: -12% 0;
+  background-size: cover;
+  background-position: center;
+  will-change: transform;
+}
+/* The JPEG url is the floor every browser understands; the @supports block
+   upgrades to AVIF and to the 2x file where the screen earns it. */
+.city-plate-hero {
+  background-image: url("/home/m/hero-720.jpg");
+  background-position: center top;
+}
+.city-plate-street {
+  background-image: url("/home/m/street-720.jpg");
+}
+.city-plate-services {
+  background-image: url("/home/m/services-720.jpg");
+}
+.city-plate-bridge {
+  background-image: url("/home/m/bridge-720.jpg");
+}
+.city-plate-night {
+  background-image: url("/home/m/night-720.jpg");
+  background-position: center top;
+}
+@media (min-width: 768px) {
+  .city-plate-hero {
+    background-image: url("/home/hero-1280.jpg");
+    background-position: center 40%;
+  }
+  .city-plate-street {
+    background-image: url("/home/street-1280.jpg");
+    background-position: center;
+  }
+  .city-plate-services {
+    background-image: url("/home/services-1280.jpg");
+    background-position: center;
+  }
+  .city-plate-bridge {
+    background-image: url("/home/bridge-1280.jpg");
+    background-position: center;
+  }
+  .city-plate-night {
+    background-image: url("/home/night-1280.jpg");
+    background-position: center;
+  }
+}
+@media (min-width: 1921px) {
+  .city-plate-hero { background-image: url("/home/hero-1920.jpg"); }
+  .city-plate-street { background-image: url("/home/street-1920.jpg"); }
+  .city-plate-services { background-image: url("/home/services-1920.jpg"); }
+  .city-plate-bridge { background-image: url("/home/bridge-1920.jpg"); }
+  .city-plate-night { background-image: url("/home/night-1920.jpg"); }
+}
+@supports (background-image: image-set(url("/home/m/hero-720.avif") type("image/avif") 1x)) {
+  .city-plate-hero { background-image: image-set(url("/home/m/hero-720.avif") type("image/avif") 1x, url("/home/m/hero-1080.avif") type("image/avif") 2x, url("/home/m/hero-720.jpg") 1x, url("/home/m/hero-1080.jpg") 2x); }
+  .city-plate-street { background-image: image-set(url("/home/m/street-720.avif") type("image/avif") 1x, url("/home/m/street-1080.avif") type("image/avif") 2x, url("/home/m/street-720.jpg") 1x, url("/home/m/street-1080.jpg") 2x); }
+  .city-plate-services { background-image: image-set(url("/home/m/services-720.avif") type("image/avif") 1x, url("/home/m/services-1080.avif") type("image/avif") 2x, url("/home/m/services-720.jpg") 1x, url("/home/m/services-1080.jpg") 2x); }
+  .city-plate-bridge { background-image: image-set(url("/home/m/bridge-720.avif") type("image/avif") 1x, url("/home/m/bridge-1080.avif") type("image/avif") 2x, url("/home/m/bridge-720.jpg") 1x, url("/home/m/bridge-1080.jpg") 2x); }
+  .city-plate-night { background-image: image-set(url("/home/m/night-720.avif") type("image/avif") 1x, url("/home/m/night-1080.avif") type("image/avif") 2x, url("/home/m/night-720.jpg") 1x, url("/home/m/night-1080.jpg") 2x); }
+  @media (min-width: 768px) {
+    .city-plate-hero { background-image: image-set(url("/home/hero-1280.avif") type("image/avif") 1x, url("/home/hero-2560.avif") type("image/avif") 2x, url("/home/hero-1280.jpg") 1x, url("/home/hero-2560.jpg") 2x); }
+    .city-plate-street { background-image: image-set(url("/home/street-1280.avif") type("image/avif") 1x, url("/home/street-2560.avif") type("image/avif") 2x, url("/home/street-1280.jpg") 1x, url("/home/street-2560.jpg") 2x); }
+    .city-plate-services { background-image: image-set(url("/home/services-1280.avif") type("image/avif") 1x, url("/home/services-2560.avif") type("image/avif") 2x, url("/home/services-1280.jpg") 1x, url("/home/services-2560.jpg") 2x); }
+    .city-plate-bridge { background-image: image-set(url("/home/bridge-1280.avif") type("image/avif") 1x, url("/home/bridge-2560.avif") type("image/avif") 2x, url("/home/bridge-1280.jpg") 1x, url("/home/bridge-2560.jpg") 2x); }
+    .city-plate-night { background-image: image-set(url("/home/night-1280.avif") type("image/avif") 1x, url("/home/night-2560.avif") type("image/avif") 2x, url("/home/night-1280.jpg") 1x, url("/home/night-2560.jpg") 2x); }
+  }
+  @media (min-width: 1921px) {
+    .city-plate-hero { background-image: image-set(url("/home/hero-1920.avif") type("image/avif") 1x, url("/home/hero-3840.avif") type("image/avif") 2x, url("/home/hero-1920.jpg") 1x, url("/home/hero-3840.jpg") 2x); }
+    .city-plate-street { background-image: image-set(url("/home/street-1920.avif") type("image/avif") 1x, url("/home/street-3840.avif") type("image/avif") 2x, url("/home/street-1920.jpg") 1x, url("/home/street-3840.jpg") 2x); }
+    .city-plate-services { background-image: image-set(url("/home/services-1920.avif") type("image/avif") 1x, url("/home/services-3840.avif") type("image/avif") 2x, url("/home/services-1920.jpg") 1x, url("/home/services-3840.jpg") 2x); }
+    .city-plate-bridge { background-image: image-set(url("/home/bridge-1920.avif") type("image/avif") 1x, url("/home/bridge-3840.avif") type("image/avif") 2x, url("/home/bridge-1920.jpg") 1x, url("/home/bridge-3840.jpg") 2x); }
+    .city-plate-night { background-image: image-set(url("/home/night-1920.avif") type("image/avif") 1x, url("/home/night-3840.avif") type("image/avif") 2x, url("/home/night-1920.jpg") 1x, url("/home/night-3840.jpg") 2x); }
+  }
+}
+.city-band {
+  position: absolute;
+  display: block;
+  left: -10%;
+  width: 120%;
+  top: -16vh;
+  height: auto;
+  opacity: 0.94;
+  pointer-events: none;
+}
+.city-band img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* ---------------------------------------------------------- responsive --- */
+@media (min-width: 1024px) {
+  .city-hero-scrim { display: none; }
+}
+@media (max-width: 1023px) {
+  .city-inner { padding: 10svh var(--city-pad) 9svh; }
+  .city-res-inner {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding-top: 14svh;
+  }
+  .city-hall { justify-self: start; }
+  .city-hero-copy { padding-bottom: 7svh; }
+}
+@media (max-width: 767px) {
+  .city-wp { grid-template-columns: 1fr; gap: 1rem; }
+  .city-signs,
+  .city-terraces,
+  .city-stations {
+    grid-template-columns: 1fr;
+  }
+  .city-stations { gap: 2rem; }
+  .city-station-dot { top: -1.4rem; }
+  .city-h2 { max-width: 12em; }
+  .city-btn { padding: 0.9rem 1.4rem; font-size: 0.85rem; }
+  .city-offer-close span { flex-wrap: wrap; gap: 0.6rem; }
+  .city-btn-sm { margin-left: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .city-station-dot { transform: translateX(-50%) scale(1); opacity: 1; transition: none; }
+  .city-station[data-lit] .city-station-dot { animation: none; }
+  .city-btn { transition: none; }
+  .city-btn:hover { transform: none; }
+}
+
+/* the offer accent must break as one phrase — "a za / koľko." is a bad line
+   break for a studio that sells typography */
+.city-offer .city-h2 em {
+  white-space: nowrap;
+}
+
+/* The hero copy is the first thing on screen, so its entrance must not wait
+   for hydration. Below the fold the reveal stays observer-driven; here it is
+   a plain CSS animation, so the headline paints with the document (on a
+   throttled phone that moved LCP from ~10 s to the first frames). */
+@keyframes city-rise {
+  from { transform: translateY(112%); }
+  to { transform: none; }
+}
+main[data-experience] .city-hero-copy.enter {
+  opacity: 1;
+  transform: none;
+}
+main[data-experience] .city-hero-copy .rise {
+  animation: city-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--rise-delay, 0s) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  main[data-experience] .city-hero-copy .rise {
+    animation: none;
+    transform: none;
+  }
+}
+
+/* Fraunces italic descends deeply; the offer headline needs room under it */
+.city-offer .city-h2 {
+  padding-bottom: 0.16em;
+}
+
+/* ================================================================
+   The living city (Iterácia 3.6). The hero arrives through clouds, then
+   stays alive: depth under the pointer, drifting foreground clouds, a light
+   along the tubes, a slow breath. See components/city/live.tsx.
+   ================================================================ */
+/* a fixed 16:9 box that covers the viewport whatever its shape; the layers
+   sit in it by percent, so they always line up with the sky behind them */
+.city-live {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100vw, 177.78svh);
+  height: max(56.25vw, 100svh);
+  transform: translate(-50%, -50%);
+  overflow: hidden;
+  display: none;
+  /* A. the landing: the whole world settles down from a slightly wider shot */
+  animation: city-live-land 2.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--live-t0, 0ms);
+}
+@keyframes city-live-land {
+  from {
+    scale: 1.08;
+    translate: 0 2.4%;
+  }
+  to {
+    scale: 1;
+    translate: 0 0;
+  }
+}
+/* C. the world breathes, once it has landed */
+.city-live-world {
+  position: absolute;
+  inset: 0;
+  animation: city-live-breathe 14s ease-in-out infinite;
+  animation-delay: calc(var(--live-t0, 0ms) + 2.6s);
+}
+@keyframes city-live-breathe {
+  0%,
+  100% {
+    scale: 1;
+  }
+  50% {
+    scale: 1.012;
+  }
+}
+.city-live-sky {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-image: url("/home/live/sky-1280.jpg");
+}
+@supports (background-image: image-set(url("/home/live/sky-1280.avif") type("image/avif") 1x)) {
+  .city-live-sky {
+    background-image: image-set(url("/home/live/sky-1280.avif") type("image/avif") 1x, url("/home/live/sky-2560.avif") type("image/avif") 2x, url("/home/live/sky-1280.jpg") 1x, url("/home/live/sky-2560.jpg") 2x);
+  }
+  @media (min-width: 1921px) {
+    .city-live-sky {
+      background-image: image-set(url("/home/live/sky-1920.avif") type("image/avif") 1x, url("/home/live/sky-3840.avif") type("image/avif") 2x, url("/home/live/sky-1920.jpg") 1x, url("/home/live/sky-3840.jpg") 2x);
+    }
+  }
+}
+/* the groups lean with the pointer; the stage writes their transform */
+.city-live-group {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+.city-live-el,
+.city-live-cloud {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+}
+.city-live-img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+/* a light travels along the glass tubes: a moving highlight masked with the
+   bridges' own picture, so it exists only on the tubes */
+.city-live-glint {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+  -webkit-mask-image: var(--gm);
+  mask-image: var(--gm);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  background-image: linear-gradient(
+    100deg,
+    rgb(255 255 255 / 0) 0%,
+    rgb(255 255 255 / 0) 38%,
+    rgb(255 252 240 / 0.95) 47%,
+    rgb(214 248 255 / 0.95) 53%,
+    rgb(255 255 255 / 0) 62%,
+    rgb(255 255 255 / 0) 100%
+  );
+  background-size: 260% 100%;
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  /* overlay lifts the glass body and edges, which are mid-tones; the bright
+     cores are already white and stay as they are */
+  mix-blend-mode: overlay;
+  animation: city-live-glint 11s ease-in-out infinite;
+  animation-delay: calc(var(--live-t0, 0ms) + 3.2s);
+}
+@keyframes city-live-glint {
+  0% {
+    background-position: 0 0;
+  }
+  32%,
+  100% {
+    background-position: 100% 0;
+  }
+}
+/* foreground clouds, nearer than the city, always on the move; they animate
+   translate so the pointer lean (transform) composes with it */
+.city-live-drift {
+  will-change: translate;
+  animation: city-live-drift 52s ease-in-out infinite alternate;
+}
+.city-live-drift-far {
+  left: -6%;
+  top: 44%;
+  width: 112%;
+  opacity: 0.5;
+}
+.city-live-drift-near {
+  left: 58%;
+  top: 64%;
+  width: 62%;
+  opacity: 0.72;
+  animation-duration: 38s;
+  animation-direction: alternate-reverse;
+}
+@keyframes city-live-drift {
+  from {
+    translate: -2.5% 0.4%;
+  }
+  to {
+    translate: 2.5% -0.4%;
+  }
+}
+/* A. the veil we arrive through: a haze that clears and near cloud plates
+   that part left and right, thinning as we pass them; gone after two seconds */
+.city-live-arrive {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.city-live-haze {
+  position: absolute;
+  inset: 0;
+  /* dense enough on its own to be the inside of a cloud, so the first paint
+     never depends on a plate having decoded; the plates add the texture */
+  background: radial-gradient(70% 70% at 50% 45%, rgb(255 247 241 / 0.97) 0%, rgb(252 238 238 / 0.86) 55%, rgb(244 232 242 / 0.7) 100%);
+  animation: city-live-clear 1.9s cubic-bezier(0.45, 0, 0.2, 1) both;
+  animation-delay: calc(var(--live-t0, 0ms) + 0.3s);
+}
+@keyframes city-live-clear {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+.city-live-part {
+  will-change: transform, opacity;
+  animation-duration: 2.1s;
+  animation-timing-function: cubic-bezier(0.3, 0.6, 0.35, 1);
+  animation-fill-mode: both;
+}
+.city-live-part-l {
+  left: -28%;
+  top: -30%;
+  width: 118%;
+  animation-name: city-live-part;
+  animation-delay: calc(var(--live-t0, 0ms) + 0.12s);
+}
+.city-live-part-r {
+  right: -34%;
+  top: -22%;
+  width: 118%;
+  scale: -1 1;
+  animation-name: city-live-part;
+  animation-delay: calc(var(--live-t0, 0ms) + 0.22s);
+}
+.city-live-part-w {
+  left: -10%;
+  top: 18%;
+  width: 130%;
+  opacity: 0.7;
+  animation-name: city-live-part-w;
+  animation-duration: 1.7s;
+  animation-delay: calc(var(--live-t0, 0ms) + 0.05s);
+}
+@keyframes city-live-part {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 1;
+  }
+  40% {
+    opacity: 1;
+  }
+  to {
+    transform: translate3d(-38%, 26%, 0) scale(1.5);
+    opacity: 0;
+  }
+}
+@keyframes city-live-part-w {
+  from {
+    transform: translate3d(0, 0, 0) scale(1.05);
+    opacity: 0.7;
+  }
+  to {
+    transform: translate3d(-30%, -6%, 0) scale(1.35);
+    opacity: 0;
+  }
+}
+/* phones keep the portrait plate; they get the haze clearing and nothing else */
+.city-hero-haze {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(80% 70% at 50% 40%, rgb(255 247 241 / 0.8) 0%, rgb(252 238 238 / 0.55) 55%, rgb(244 232 242 / 0.3) 100%);
+  animation: city-live-clear 1.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation-delay: 0.15s;
+}
+/* from 768 px the living city carries the hero picture; the plate keeps no
+   image of its own (declared after the ladders, so it wins by order) */
+@media (min-width: 768px) {
+  .city-live {
+    display: block;
+  }
+  .city-plate-hero {
+    background-image: none;
+  }
+  .city-hero-haze {
+    display: none;
+  }
+}
+/* without masks the light would be a bar across the sky */
+@supports not ((-webkit-mask-image: url("/home/live/bridges-1x.avif")) or (mask-image: url("/home/live/bridges-1x.avif"))) {
+  .city-live-glint {
+    display: none;
+  }
+}
+/* a page that found itself slow keeps the picture and drops the ambience:
+   the motion pauses, and the two layers that cost a full viewport each for
+   a whisper — the wisp riding the whole journey at 0.35, the blend-mode
+   light on the tubes — go (4.10) */
+html[data-lite] .city-live-world,
+html[data-lite] .city-live-drift {
+  animation-play-state: paused;
+}
+html[data-lite] .city-live-glint,
+html[data-lite] .city-cloud-wisp {
+  display: none;
+}
+/* no pointer, no lean: on a touch screen the four groups need no layers of
+   their own, and a blend mode is the dearest thing a mobile GPU can draw */
+@media (hover: none) {
+  .city-live-group {
+    will-change: auto;
+  }
+  .city-live-glint {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .city-live,
+  .city-live-world,
+  .city-live-drift,
+  .city-live-glint,
+  .city-hero-haze {
+    animation: none;
+  }
+  .city-live-arrive,
+  .city-hero-haze {
+    display: none;
+  }
+}

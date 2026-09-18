@@ -196,8 +196,9 @@ construction · the GLB passes realtime-web suitability checks.
 ### Carried debt
 
 The final side-by-side fidelity pass of the parametric reconstruction against the
-approved raster is still open — tracked as a backlog item, not as a note in a
-progress file.
+approved raster was open until 2026-09-16 (issue #6) — paid in Iterácia 4.9:
+the sweep overlapped the reference at 0.741 and was replaced, for the SVGs, by
+an outline measured from the raster (0.972).
 
 ---
 
@@ -570,3 +571,624 @@ was too small and the ukážka framing too quiet — both fixed. What remains is
 the big one: **the three concept sites get individually redesigned to a far
 more interesting level, one at a time, each as its own session with Ondrej.**
 Order to be picked by him: Meridián / Štatút / Vlna.
+
+---
+
+## Iterácia 4.0 — the demo subpages as working systems (2026-09-12)
+
+**Status: DONE — gate passed locally, DEVICE pending.**
+
+### Mission
+
+Ondrej, 2026-09-12: "v tých podstránkach vybuduj poriadny rezervačný systém,
+prepojenie a podobne; v WordPress podstránke chcem, aby si klienti vedeli
+toho viac vyskúšať; plus uprav dizajn konca tej stránky, chcem ho viac živý."
+The demo pages must DO the thing they demonstrate, not gesture at it.
+
+### Inputs
+
+`components/concepts/vlna.tsx` (Rezervácie — Štúdio), `components/concepts/
+wordpress.tsx` (WordPress — Pekáreň Kôrka), the LIKED records othership and
+y7 (booking-first wellness, b&w energy), non-negotiable #3 (nothing invented
+about the business; demos wear the honest label).
+
+### Constraints
+
+- No backend in this repository: everything runs in the browser and is kept
+  in localStorage; nothing is sent anywhere and the pages say so.
+- Whatever cannot run for real in a demo (payment, e-mail, SMS) is shown as
+  the client will receive it and labelled as simulated; whatever can run for
+  real (calendar files, Google Calendar links, CSV export, waitlist logic,
+  capacity, revisions) runs for real.
+- The fictional studio and bakery stay fictional; the honest footer line is
+  kept and tested.
+- Mobile-first: the booking sheet is a bottom sheet on a phone; the editor
+  previews a phone.
+
+### Deliverables
+
+1. Rezervácie: booking sheet (seats, contact, reminder → card with real
+   number checks or pay at the studio → confirmation with a code), .ics and
+   Google Calendar, e-mail and SMS previews, my bookings with cancellation
+   that frees the seat, a waitlist told when a seat frees, the owner view
+   (occupancy, revenue, guest list, CSV, the map of connections).
+2. WordPress: an editor with content, look (accent, typeface, hero photo,
+   layout), sections, dishes and prices, posts, a WooCommerce product with a
+   counting cart, language, publish with revisions and restore, reset,
+   desktop and phone preview, click-to-edit from the preview, persistence.
+3. WordPress close brought alive: the visitor's own edited site on a desktop
+   and a phone, depth on the pointer, floating blocks, breathing light, a
+   ticker of its news and dishes, the changes named back to the visitor.
+
+### Completion gate
+
+`npm run verify` green; `tests/demos.spec.ts` green in chromium, firefox and
+webkit (book → confirm → reload → owner → cancel; card checks; waitlist;
+editor → publish → restore → shop → dish → post → phone → close → reload);
+the honest-label tests unchanged and green.
+
+### Validation classes
+
+LOCAL and CI by the gate; PREVIEW on the deployment URL after merge; DEVICE
+is Ondrej's on his phone and tablet.
+
+---
+
+## Iterácia 4.1 — the WordPress language switch translates the whole site (2026-09-12)
+
+**Status: DONE — gate passed locally.**
+
+### Mission
+
+Ondrej, 2026-09-12, on 4.0: "oprav ešte to preloženie do angličtiny vo
+WordPresse — preloží to len jednu vetu, to nie je dobré vôbec." The EN
+switch changed only the chrome of the preview; the visitor's own texts
+stayed Slovak.
+
+### Constraints
+
+- Still no service in the browser: the automatic translation is a
+  hand-written dictionary of the bakery's vocabulary
+  (`components/concepts/wordpress-translate.ts`) — phrases first, words
+  second, capitalisation kept, unknown words left alone and counted.
+- The model is the one a multilingual WordPress has: one content per
+  language. The English of each field is the owner's own text when they
+  wrote one for that very Slovak, otherwise the automatic pre-fill.
+- The editor says what the pre-fill is and is not.
+
+### Deliverables
+
+A Jazyk tab: the SK/EN switch, and every text side by side — Slovak, the
+English input, a badge AUTOMATICKY / SKONTROLUJTE (unknown words) /
+UPRAVENÉ, a way back to the automatic text. The preview, the phone and the
+close (ticker, a Jazyk chip) read the localized content.
+
+### Completion gate
+
+`npm run verify` green; `tests/demos.spec.ts` extended (EN turns the
+visitor's headline, dish and post English; a hand-written English shows;
+SK returns the original) green in chromium, firefox and webkit.
+
+---
+
+## Iterácia 4.2 — the WordPress hero that lands, and passages that fly (2026-09-12)
+
+**Status: DONE — gate passed locally; PREVIEW after merge; DEVICE is Ondrej.**
+
+Measured after (probe, 1920×1080 @ DPR 2, a wheel notch every 60 ms):
+t1 mean 17.3 ms, 0 jerks, 1 long frame in the passage · t2 16.9 ms, 2, 1 ·
+t3 17.0 ms, 2, 4 · t4 16.9 ms, 0, 5. The 3.7 baseline on t2 the same
+morning: 16.9 ms, 2 jerks, 4 long frames. Frame strips of t1–t4 read as one
+flight: volumes approach, the inside of the cloud, the next act revealed as
+the plates part.
+
+### Mission
+
+Ondrej, 2026-09-12, after 4.1: "to úvodné okno pri WordPresse vôbec
+nezaujme, čo je zlé, lebo je to skvelý nápad — urob to tak, aby to vyniklo,
+wau efekt; plus tie prechody s mrakmi chcem plynulejšie a výstižnejšie ako
+doteraz, daj si záležať, nech to vyzerá ako web za 10-tisíc eur."
+
+### Inputs
+
+`components/concepts/wordpress.tsx` (hero), `wordpress-editor.tsx`
+(Preview), `components/city/stage.tsx` + `app/city.css` (passages),
+`scratchpad/probe-passage.js` (wheel-input probe), `cap-passage.js`
+(frame strips). LIKED records: lusion (the exhibit IS the product demo,
+input maps to motion instantly), exoape (slow dissolves, never wipes; dusk
+light), igloo (one world, acts are camera positions and light changes,
+mono annotations), refokus (every beat delivers a different kind of
+content), activetheory (restraint: density of finish, not a showreel).
+
+### Constraints
+
+- Readability over choreography: the hero copy is readable from the first
+  frame and never lives at low opacity; the demo plays beside it.
+- One motion engine (GSAP); DOM only in the hero (no canvas); reduced
+  motion is a composed still of the edited site, not an empty frame.
+- Passages stay a continuous function of scroll through the spring; no
+  frame sequences, no blend modes; every change is measured with the probe
+  (real wheel input) before it is believed.
+- Nothing about the business is invented; the bakery stays fictional.
+
+### Deliverables
+
+1. **Hero:** the bakery site edits itself in front of the visitor — a ghost
+   cursor and a small editor card retype the headline, pick a brand colour,
+   swap the photo, add a dish, switch the whole site to English, publish
+   ("Zverejnené 22:14") — on a desktop and a phone at once, in depth on
+   the pointer, with the room light following the brand colour; then it
+   hands over ("Teraz ty"). The copy narrates the step in mono.
+2. **Passages:** (a) cheaper frames — no CSS filters on moving plates (pre-
+   toned cloud variants), the arriving scene rasterised before the seam,
+   cloud scale ranges that do not overscale the bitmaps; (b) a passage
+   that reads as a flight — a third plate for depth, the near plates
+   crossing the camera, a real "inside the cloud" beat (haze to ~0.85 with
+   the leaving scene fully gone), the arriving scene revealed by the
+   clouds parting from the centre, a light bloom for the destination's
+   hour, a touch of camera roll; longer seams so a wheel notch moves less.
+
+### Completion gate
+
+Probe on t1–t4 at DPR 2: zero stalls/jerks in the passage and fewer long
+frames than the 3.7 baseline measured today; frame strips read as one
+continuous flight; `npm run verify` green; Playwright green in three
+browsers; the WordPress tests unchanged and green.
+
+### Validation classes
+
+LOCAL + CI by the gate; PREVIEW on the deployment URL; DEVICE is Ondrej.
+
+---
+
+## Iterácia 4.3 — the audit's REBUILD list, all of it (2026-09-14)
+
+**Status: DONE — gate passed locally; PREVIEW after merge; DEVICE is Ondrej.**
+
+### Mission
+
+Ondrej, 2026-09-14, on `docs/AUDIT_2026-09-14.md`: "oprav všetky." Every
+REBUILD and REMOVE item of the audit, issues #80–#88.
+
+### Deliverables (each closes its issue)
+
+- **#80 phone seams over headings** — the flat passage ends when the seam's
+  bottom edge reaches the upper third (`end: "bottom 34%"`), the flat haze
+  gain drops to 1.1, and every act's copy stacks above the veil
+  (`.city-inner` z-index 21). Measured after: no plate above 0 and no haze
+  once the heading is above 60 % of the screen. The phone street plate gets
+  a denser light tint under the /02 head.
+- **#81 WordPress close on phones** — under 1024 px the stage is in flow:
+  one preview, the chips a row of tags, no phone frame; the stage transforms
+  moved from inline styles to CSS so nothing needs `!important`.
+- **#82 the enquiry form** — `app/actions/enquiry.ts`: a Server Action to
+  Resend (one fetch, no SDK) when `RESEND_API_KEY` is set, with a honeypot,
+  server-side validation and a per-address rate limit; three honest states
+  in the form (delivered / mail client opened / refused). **Needs Ondrej:**
+  a Resend account with the domain verified and `RESEND_API_KEY`
+  (optionally `ENQUIRY_TO`, `ENQUIRY_FROM`) in Vercel — until then the form
+  falls back to the mail client exactly as before.
+- **#83 /03 glass contrast** — solid inks instead of opacity on the
+  secondary type, the coral mono darkened, the glass at 0.66; axe reports
+  zero contrast nodes in /03.
+- **#84 payload** — Observatórium loads a 2048 px texture ladder under
+  1024 px (5.2 MB → 1.3 MB of media on a phone) and the desktop textures
+  re-encoded with mozjpeg; the studio video plays by itself only from 1024
+  px without `saveData`, otherwise a poster and a ▶ VIDEO button; every demo
+  photo re-encoded (−1.9 MB across the demos); and the demo routes split —
+  the map of five sites lived in a Server Component, which Next does not
+  code split, so every demo shipped three.js; `DemoSwitch` (a Client
+  Component) gives each demo its own chunk (WordPress JS 1.7 MB → 0.7 MB
+  uncompressed).
+- **#85 Kancelária publications** — `<details>` cards that open an abstract
+  in place; "ČÍTAŤ →" always visible, a real control on touch.
+- **#86 hygiene** — `X-Robots-Tag: noindex, nofollow` on `/v3`, `/boards`,
+  `/directions`, `/logo-lab`; the Žiara case studies retired: `/praca/*`
+  redirects (308) to the demos, the route and `lib/case-studies.ts`
+  deleted, the sitemap down to the homepage (the demos stay noindex by
+  design); demo titles no longer doubled. Test: "Retired routes".
+- **#87 touch** — 44 px targets on coarse pointers in the demos and the
+  editor, the header menu button 44 px, the honest label at 11.5 px in a
+  44 px link, no page-level mono label under 11 px (22 raised), the demo
+  footers lifted to 72 % ink.
+- **#88 people** — the contact hall names the two founders from
+  `site-config` ("zakladatelia Codery"); nothing else about them is claimed.
+- **REMOVE** — the homepage's preloads moved from the global layout into
+  `app/page.tsx`; no other page pays for them.
+- Also: the phone rail shows the next facade peeking and five dots; the
+  WordPress previews lost their `<nav>`/`<h3>` semantics (they are pictures
+  of a site, not page structure).
+
+### Completion gate
+
+`npm run verify` green; Playwright green in chromium, firefox, webkit with
+the new "Retired routes" test; `scratchpad/verify-43.js` 27/27 against the
+production build (veil timing, close composition, contrast, redirects,
+headers, payload, form fallback, publications, label size).
+
+### Validation classes
+
+LOCAL + CI by the gate; PREVIEW on the deployment URL after merge; DEVICE
+is Ondrej's phone — the veil timing and the 44 px targets especially.
+
+---
+
+## Iterácia 4.4 — shorter seams, and a proposal for passages beyond clouds (2026-09-14)
+
+**Status: seams DONE (gate passed locally); the proposal awaits Ondrej's pick.**
+
+### Mission
+
+Ondrej, 2026-09-14: "uprav švy, a navrhni iné prechody okrem mrakov… 10."
+
+### Deliverables
+
+1. **Seams 150 → 90 svh** (`app/city.css`). The four passages fall from 43 %
+   to ~31 % of the desktop scroll. Probed with real wheel input at DPR 2
+   after the change: t1 0 jerks / 0 long frames, t2 3 / 3, t3 2 / 4, t4 0 /
+   3, mean 16.8–17.2 ms — the same band as 4.2 at 150 svh; the spring, not
+   the length, is what keeps a notch smooth.
+2. **`docs/PASSAGES_PROPOSAL_2026-09-14.md`** — ten passages that are not
+   clouds, each with the camera move, a LIKED reference and an honest cost;
+   the recommendation is one world, four ways to move through it (clouds ·
+   bridge · glass · light). Nothing built until Ondrej picks.
+
+### Validation classes
+
+Seams: LOCAL + CI by the gate, PREVIEW after merge, DEVICE is Ondrej's
+feel. Proposal: n/a.
+
+---
+
+## Iterácia 4.5 — four ways through one world (2026-09-14)
+
+**Status: DONE — gate passed locally; PREVIEW after merge; DEVICE is Ondrej.**
+
+### Mission
+
+Ondrej, 2026-09-14, on `docs/PASSAGES_PROPOSAL_2026-09-14.md`: "dobre urob
+tie štyri" — the recommended set: clouds · bridge · glass · light.
+
+### Constraints carried over
+
+No frame sequences (the 2.7 lesson); every passage is a continuous function
+of the damped scroll; the arriving act's copy is never under the passage
+(4.3); a flat edition exists for phones and reduced motion; no `filter:
+blur` on an animated layer (the WebKit 3 fps lesson, 4.2).
+
+### Deliverables
+
+- **t1 `clouds`** — unchanged. The arrival the hero speaks; the first seam
+  keeps the promise.
+- **t2 `bridge`** — a horizontal camera pan. The two acts stand side by side
+  and the world slides exactly one viewport (`translate3d` in percent of the
+  scene, so the junction cannot open a gap; the plates' 8 % overscan covers
+  the subpixel); a glass sky-bridge cut from the living city's own bridges
+  layer (`public/home/live/span-bridge-*`) crosses the frame at 1.8× that
+  speed and hides the junction as a pillar hides a whip-pan. Each scene's
+  legibility tint travels with it and carries the share of the screen the
+  scene covers, or the two tints would stack to double strength.
+- **t3 `glass`** — a pane of the city's glass grows from 0.52 to 2.6 past
+  the camera, its frame readable for the first third, its frost carrying the
+  swap, a specular sweep crossing as it passes. No blur filter anywhere.
+- **t4 `light`** — the camera stands still and the hour turns: the haze to
+  0.95 in night tone, the bloom to 0.8, no plates at all, the two acts
+  crossing under the light. The cheapest passage and the truest one here.
+- `PASSAGE_KIND` + `poseFor()` in `components/city/stage.tsx` carry the four
+  beats; the flat edition dresses its veil with the same furniture.
+
+### Measured (probe, 1920×1080 @ DPR 2, a wheel notch every 60 ms)
+
+Recorded in the PR body. The pan moves two full-viewport plates at once —
+the case worth measuring — and the sampled transforms confirm each beat:
+t2 pans exactly one viewport (0 → −1425 px at 1440) while the span travels
+1.8×; t3's pane runs 0.31 → 3.86 scale under a bell of opacity; t4 shows no
+plate at all, haze 0.95 and bloom 0.8.
+
+### Validation classes
+
+LOCAL + CI by the gate; PREVIEW on the deployment URL; DEVICE is Ondrej.
+
+---
+
+## Iterácia 4.6 — t2 without the junction, t1 lighter, /04 filled (2026-09-14)
+
+**Status: DONE — gate passed locally; PREVIEW after merge; DEVICE is Ondrej.**
+
+### Mission
+
+Ondrej, 2026-09-14, two screenshots from his machine: "veľká chyba tu" (the
+t2 pan showed a raw vertical junction between the two acts, and the span
+was an opaque rectangle with a building above and trees below), "ten prvý
+prechod seká" (t1 stutters on his GPU), "zväčšiť tie boxy aspoň o 40
+percent, aby to zaplnilo priestor" (/04 stations too small in a 2000 px
+window).
+
+### Deliverables
+
+1. **t2 · the pan keeps its direction, loses its junction.** Two plates
+   butted side by side showed their edge — a horizontal bar cannot hide a
+   vertical seam, which the proposal got wrong. The world now slides 12 %
+   while the acts cross-fade under the sky-bridge; each plate carries an
+   18 % scale overscan ramped in over the first and last 15 % of the passage
+   so the seam edges stay continuous and no travel ever exposes the stage.
+2. **The span cut to the tube.** `span-clean.js`: a per-column band mask
+   follows the tube's bright run, capped at its median rim and feathered;
+   the building above and the trees below are transparent now. 78 vw, lower
+   in the frame, thinning at its far end.
+3. **t1 lighter.** Three plates instead of four (the bank went — softest,
+   most like the puff); the hero fades later and faster (0.34–0.52 instead
+   of 0.24–0.5: a fading group of 70 living-city layers is an offscreen
+   pass per frame); the first passage's street plate is decoded at mount
+   and composited at 0.002 for the whole hero act, so a visitor who flicks
+   past the hero in two seconds never meets a 4K upload mid-move.
+4. **/04 stations.** The process act runs to 1720 px, the stations get
+   min-height 24 rem, padding 3.4/3 rem, the figures 7 vw, titles 2.7 vw,
+   body 1.55 vw — about 1.4× in every dimension at 2000 px.
+
+### Validation classes
+
+LOCAL + CI by the gate; PREVIEW on the deployment URL; DEVICE is Ondrej —
+the t1 stutter is his GPU's verdict, and which browser he uses matters.
+
+---
+
+## Iterácia 4.7 — the font payload, self-hosted and subsetted (2026-09-16)
+
+**Status: DONE — gate passed locally; PREVIEW after merge.** Closes issue #5.
+
+### Mission
+
+Ondrej, 2026-09-16: "začni fontami, s ostatným neskôr, až keď fonty budú
+vyriešené." Issue #5: fonts were the single largest asset on every page —
+measured 2026-09-14 at 390 KB in ten files, Fraunces alone 274 KB (the
+whole 100–900 weight range, two styles, two subsets) for a site that renders
+it at italic 400 and roman 400–600.
+
+### Constraints
+
+- Nothing on the page changes shape: Fraunces keeps its optical-size axis
+  (the 118 px italic accent is designed around it), Bricolage is instanced
+  exactly where Google's static 800 sat (opsz 14, wdth 100), Geist and
+  Geist Mono keep a variable range over the weights the site uses.
+- Latin Extended-A stays whole: every Central European letter, so nothing
+  a visitor types into the demos falls back to another face.
+- The build is a script in `package.json` and `scripts/README.md`, sources
+  are fetched from pinned google/fonts URLs and never committed; only the
+  seven woff2 outputs are.
+
+### Deliverables
+
+`scripts/build-fonts.mjs` (harfbuzz through `subset-font`): one file per
+face over Basic Latin + Latin-1 + Latin Extended-A + general punctuation +
+€, arrows and the three symbols the copy uses. `app/layout.tsx` moves the
+five families to `next/font/local`. Instrument Serif gains its true italic
+(the browser used to synthesise an oblique for "Obchodné právo").
+
+| face | before | after |
+| --- | --- | --- |
+| Fraunces italic 400 (opsz 9–144) | 150 KB, 2 files | 48 KB |
+| Fraunces roman 400–600 (opsz 9–144) | 124 KB, 2 files | 68 KB |
+| Geist 400–700 | 45 KB, 2 files | 26 KB |
+| Geist Mono 400–700 | 38 KB, 2 files | 27 KB |
+| Bricolage 800 | 33 KB, 2 files | 27 KB |
+| Instrument Serif (demo only, not preloaded) | 23 KB | 23 + 24 KB (italic added) |
+| **homepage** | **390 KB, 10 requests** | **197 KB, 5 requests** |
+
+Pixel diff of a specimen of every face against production: shapes
+identical, differences sub-pixel (antialiasing), the true italic the one
+intended change.
+
+### Validation classes
+
+LOCAL + CI by the gate; PREVIEW on the deployment URL (resource timing);
+DEVICE not needed — type renders from the same outlines.
+
+---
+
+## Iterácia 4.8 — Content Security Policy with a per-request nonce (2026-09-16)
+
+**Status: DONE — gate passed locally; PREVIEW measured before merge.** Closes issue #3.
+
+### Mission
+
+Ondrej, 2026-09-16: "môžeme ísť CSP teraz." Issue #3: no CSP, and a correct
+one for the App Router needs per-request nonces.
+
+### What the site loads (measured first)
+
+Everything from its own origin: 89 scripts, 6 stylesheets, 32 fonts, 65
+images, 1 video across the six pages — no third party at all since the
+fonts went self-hosted (4.7). Inline: the RSC bootstrap scripts Next emits
+(8–11 per page), two JSON-LD blocks (data, not code), one `data:` SVG in a
+style attribute. No `<style>` elements, no on* handlers.
+
+### Deliverables
+
+- `proxy.ts`: `default-src 'self'; script-src 'self' 'nonce-…'
+  'strict-dynamic'; style-src 'self' 'unsafe-inline'; img-src 'self' data:
+  blob:; font-src / media-src / connect-src / worker-src / manifest-src
+  'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action
+  'self'; frame-ancestors 'none'; upgrade-insecure-requests`. Previews add
+  vercel.live for the toolbar; development adds `'unsafe-eval'` for React's
+  debug stacks. Matcher: pages only — static files and prefetches skip it.
+- `app/layout.tsx` awaits `connection()`: a nonce cannot live in a
+  prerendered page, so every route renders per request.
+- `vercel.json` pins the functions to `fra1` — the audience is Slovak.
+- Test "Content Security Policy": header shape, a fresh nonce per request,
+  zero violations while the stage, the walk and the 3D demo run.
+
+### The cost, measured (TTFB from Prešov, eight samples per page)
+
+| | static production | nonce, functions in iad1 | nonce, functions in fra1 |
+| --- | --- | --- | --- |
+| warm | 100–175 ms | 340–510 ms | 160–200 ms |
+| after ~2 min idle | 168 ms | 455 ms | 245 ms |
+| first hit after deploy | — | 964 ms | 753 ms |
+
+Fifty milliseconds of first byte on a warm function, a quarter second on a
+cold one, for a policy that stops any script that is not ours. Taken. If it
+ever matters, the alternative is one line: an origin-only policy without a
+nonce in `next.config.ts` and the layout static again.
+
+### Validation classes
+
+LOCAL + CI by the gate; PREVIEW measured on `codera-ka7cdnj7q` (fra1) and
+verified after merge on the production deployment.
+
+---
+
+## Iterácia 4.9 — The mark against the approved raster (2026-09-16)
+
+**Status: DONE — gate passed locally.** Closes issue #6, the Step 2 debt.
+
+### Mission
+
+Ondrej, 2026-09-16: "kľudne urob značku a tak pôjdeme na prechody." Issue #6:
+the parametric reconstruction had never been put side by side with
+`brand/source/02_CODERA_C_MARK_REFERENCE.png` at the same scale. Acceptance:
+one comparison image, a verdict, geometry adjusted or explicitly accepted.
+
+### Measured first
+
+`scripts/compare-brand-mark.mjs` renders both to masks, crops to the bounding
+boxes, resamples into one box and overlays them. The sweep-based SVG:
+silhouette overlap 0.741, front-face 0.533, aspect 0.914 against 0.985. The
+reference, read row by row, is not what the sweep assumed: two parallel 45°
+arms (top thicker than bottom), horizontal terminal cuts, a horizontal crease
+under the top arm, a 45° crease along the bottom arm, a rounded chevron fold
+with the outer apex at half height. The sweep had horizontal arms and
+diagonal cuts.
+
+### Verdict: geometry adjusted
+
+- `scripts/mark-outline.mjs`: the measured outline in a 100-unit box —
+  corners, the inner and outer fold curves as measured point runs
+  (Catmull-Rom through them), straps, crease shadows, the rim as the outer
+  curve stroked and clipped to the silhouette.
+- `scripts/generate-brand-mark.mjs` renders the two SVGs from it. Result:
+  silhouette 0.972, front-face 0.701, aspect 0.997. The rest of the
+  front-face difference is the reference's satin gradient; accepted.
+- Mono mark checked at 14, 20, 24, 48 and 150 px on the dark and the light
+  ground: the fold reads at every size.
+- The 3D sweep stays in the generator for the `/logo-lab` GLB only, and the
+  divergence is written down (`public/brand/BRAND.md`, STATE decision 2).
+- `docs/MARK_COMPARISON_2026-09-16.jpg`: reference · ours · overlay.
+- Favicon and OG image keep their simpler arc, deliberately.
+
+### Validation classes
+
+LOCAL (`npm run verify`, Playwright) + CI by the gate; PREVIEW on the
+production deployment after merge. No device class needed — static assets.
+
+---
+
+## Iterácia 4.10 — The first passage on a GPU diet; the sky-bridge goes (2026-09-16)
+
+**Status: DONE — gate passed locally; DEVICE pending (Ondrej's Chrome).**
+
+### Mission
+
+Ondrej, 2026-09-16, after 4.9: "Prvý prechod, Chrome ide zle, mraky skáču
+a preskakujú, a prechod s tou čiarou nechcem, veď na to sa nedá pozerať,
+áno ešte to seká." Two things: t1 still stutters and its clouds pop in
+Chrome on his machine (4.6 had already cut a plate); the t2 sky-bridge
+reads as a bar across the picture and goes.
+
+### Measured first
+
+The stutter does not reproduce here: at 1920×1080 and at 1280×800 @ 2×,
+with the CPU throttled 4×, t1 runs 0 stalls, 0 jerks, no long frame
+(`scratchpad/probe-passage.js`). The main thread is idle — so the cost is
+the compositor's. A layer count in the middle of t1 (`dom-layers.js`, CDP
+LayerTree): 45 composited layers of at least a quarter viewport, about 11
+full viewports of alpha blending per frame at 2× on a 1280 screen — 22
+Mpx a frame — of which a third was for nothing: the unused `bank` plate
+and every idle plate blended at 0.001 (kept there so their textures stay
+resident), the bloom at 0.005 before its bell, the hero's two drifting
+clouds and a blend-mode glint (a backdrop read) under the arriving plates,
+plus the 2× cloud files (2800 px) rasterised for a 1280 px screen. A GPU
+with a small tile budget (a tablet, a laptop at 2×, an old iGPU) evicts
+and re-uploads exactly those — that is the pop — and blends the rest late,
+which is the stutter.
+
+### Deliverables
+
+- t2 is `pan`: the 12 % drift with a dissolve stays, the span plate, its
+  CSS and `public/home/live/span-bridge-*` go. Both edits.
+- Idle plates are parked (`parkPlate`: translate off, scale 0.002, opacity
+  0.001): composited, every tile resident, no fill. The `bank` plate is
+  removed from both veils; the flat veil carries puff + tower (t1's near
+  plates — it had puff + bank, of which t1 used only the puff since 4.6).
+- Cloud plates load the 2× file only on screens ≥ 1600 CSS px wide.
+- The hero's drift clouds and glint fade over the first fifth of a passage
+  leaving the hero (and return over the last fifth coming back).
+- The arriving scene is held at 0.002 through the passage (its 0 pose in
+  the first half dropped the texture the act had warmed; the upload landed
+  mid-passage). The hero is held only while the visitor scrolls back, so
+  its living city (three viewports of fill) is not drawn at 0.002 through
+  the second half of t1 or the first half of /02.
+- Haze and bloom go to exactly 0 under 0.01 (a gradient re-rasters cheaply;
+  a plate does not).
+- The sentinel forgives a quarter per good frame (it needed half the frames
+  slow); it now also runs in the flat edit; a tripped page runs t1 as the
+  light passage (`kindOf`), decided when the passage starts. Lite also
+  hides the wisp and the glint. `(hover: none)`: no promoted live groups,
+  no glint.
+
+### Validation classes
+
+LOCAL: `npm run verify`; Playwright 102/102 in three browsers; probes at
+1920 and 1280 @ 2×; tablet (touch, 1180×820 @ 2×) walks t1 with puff +
+tower and no span; a CPU-starved page trips lite and runs t1 without
+plates. PREVIEW after merge on the production deployment. DEVICE: only
+Ondrej's Chrome can say whether it is enough — asked which machine.
+
+---
+
+## Iterácia 4.11 — The flat passage passes beside the camera (2026-09-16)
+
+**Status: DONE — gate passed locally; DEVICE pending (Ondrej's iPad).**
+
+### Mission
+
+Ondrej, 2026-09-16, a screenshot from a 13" iPad in Safari (2752×2064,
+the flat edit) in the middle of t1: "Pozri sa na to rozlíšenie tu, to jak
+keby to tu svieti, chápeš? Toto chcem opraviť." A glowing, mottled blur
+where a cloud should be.
+
+### Measured first
+
+The plate files are clean (AVIF and WebP edges compared at 1:1). What the
+screenshot shows is (1) the 1× cloud file — 4.10 had gated the 2× file to
+screens ≥ 1600 px, and a 13" iPad is 1376 px at 2×, so a 1200 px plate was
+stretched across 3300 device pixels; (2) the haze at the stage's density
+(0.88) with the bloom on top, a white glow; and, after both were fixed,
+(3) still a violet mottled field: the *interior* of the near plate. The
+desktop choreography flies through the cloud — the tower ends at scale
+2.3, 2.7 viewports wide — and hides that moment under the white-out. The
+flat edit has no scene swap to hide, so its haze was thinned, and then the
+interior showed. Also found on the way: the act plates' "cloud band" was a
+13 KB opaque 1600×900 render screen-blended over each plate, itself a
+mottled glow at 2.8× magnification.
+
+### Deliverables
+
+- `PASSAGE_CLOUDS_FLAT`: t1 on the flat edit is the far cluster drifting
+  across the sky and the tower rising from below to settle its lit top in
+  the lower half of the frame (scale 1.12 → 1.26, never through the
+  camera). The flat veil carries cluster + tower.
+- 2× cloud files from 768 px (the browser picks by density); phones 1×.
+- Flat haze 0.62 and bloom 0.55 of the stage's; no contrast/saturate
+  filter on the plates (`FLAT_CLOUD_LIGHT` removed).
+- The band is `cloud-band-{1x,2x}.{avif,webp}`, an alpha cutout of the
+  same cumulus (from the unused `cloud-bank-a.webp`: alpha eroded 2 px to
+  drop its matte line, edge pixels whitened), composited normally at 0.94.
+  The old `cloud-bank.webp`, `cloud-bank-a.webp`, `cloud-one*.webp` and
+  `cloud-wisp.webp` — none referenced — are deleted.
+
+### Validation classes
+
+LOCAL: `npm run verify`, Playwright in three browsers; frame sheets at
+1376×1032 @ 2× (touch) and 390×844 @ 3×. PREVIEW after merge. DEVICE:
+Ondrej's iPad.

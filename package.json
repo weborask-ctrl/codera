@@ -15,6 +15,7 @@
     "typecheck": "tsc --noEmit",
     "brand:mark": "node scripts/generate-brand-mark.mjs",
     "brand:glb": "node scripts/build-ribbon-glb.mjs",
+    "brand:compare": "node scripts/compare-brand-mark.mjs",
     "capture": "node scripts/capture-devices.mjs",
     "capture:boards": "node scripts/capture-boards.mjs",
     "capture:ecodomcek": "node clients/ecodomcek/boards/capture.mjs",
@@ -24,7 +25,8 @@
     "smoke": "node scripts/smoke-preview.mjs",
     "lint": "eslint",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx}\""
+    "format:check": "prettier --check \"**/*.{ts,tsx}\"",
+    "fonts": "node scripts/build-fonts.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
@@ -52,6 +54,7 @@
     "eslint-config-next": "16.2.6",
     "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.8.0",
+    "subset-font": "^2.7.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

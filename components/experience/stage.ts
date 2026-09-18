@@ -14,6 +14,7 @@ export type ActName =
   | "pass"
   | "work"
   | "offer"
+  | "process"
   | "resolution"
 
 export interface StageState {
@@ -35,6 +36,7 @@ export const stage: StageState = {
     pass: 0,
     work: 0,
     offer: 0,
+    process: 0,
     resolution: 0,
   },
   act: "hero",
@@ -144,19 +146,3 @@ export function bindStage(): () => void {
   }
 }
 
-/** Act tone script — the world lerps scene background between these.
- *
- * Žiara (CODERA_ART_DIRECTION_V3.md): the journey is ONE sunrise. The tones
- * only ever brighten — deep fog at /01, one stop of light per act, full
- * frost clarity at /05. No act returns to dark; the dramaturgy is the day
- * itself [igloo, exoape]. The three /03 worlds keep their interior palettes;
- * these are the ATMOSPHERE tones around their planes, rising mist-grey. */
-export const ACT_TONES: Record<ActName, string> = {
-  /* amendment 7: the hero lightens to mid graphite-grey — the black-grey
-     stones need ground to read against; the sunrise still only brightens */
-  hero: "#464C57",
-  pass: "#5A606B",
-  work: "#C4C9D1",
-  offer: "#EDF0F3",
-  resolution: "#FAFBFC",
-}

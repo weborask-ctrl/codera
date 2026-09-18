@@ -14,6 +14,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import { EnquiryForm } from "@/components/site/enquiry-form"
+import { siteConfig } from "@/lib/site-config"
 import { ENQUIRY_EVENT } from "./enquiry-bus"
 
 export function ContactDrawer() {
@@ -119,8 +120,8 @@ export function ContactDrawer() {
         <EnquiryForm />
         <p className="mt-6 text-[0.75rem] opacity-55">
           Alebo priamo:{" "}
-          <a className="underline underline-offset-4" href="mailto:coderaslovakia@gmail.com">
-            coderaslovakia@gmail.com
+          <a className="underline underline-offset-4" href={`mailto:${siteConfig.email}`}>
+            {siteConfig.email}
           </a>
         </p>
       </div>

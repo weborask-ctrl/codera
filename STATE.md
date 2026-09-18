@@ -3,12 +3,97 @@
 What is live, what was decided, and what must not be relearned. One file, kept
 short. Open work does **not** live here — it lives in GitHub Issues.
 
-Last reviewed: 2026-08-31 (evening) · Production: `https://www.codera.sk` ·
+Last reviewed: 2026-09-16 (Iterácia 4.11, the flat passage passes beside the camera) · Production: `https://www.codera.sk` ·
 Open backlog: see Issues.
 
 ---
 
 ## What is live
+
+**Homepage — „Codera City" (Iterácia 2.0, 2026-09-05).** Ondrej approved a
+static concept, then the build: one continuous 5D world — a pastel floating
+city at dawn (/01) → the street of demo facades at noon (/02, a sticky walk
+past five complete production screenshots) → glass platforms at golden hour
+(/03 services + packages) → a dusk skyway with three stations (/04 process:
+24 h · 72 h · 0 €) → the night landing hall (/05 contact). On ≥1024px with
+motion allowed the world is a fixed stage (`components/city/stage.tsx`): the
+seams between acts scrub Seedance camera flights rendered as 32-frame WebP
+strips (`public/home/flight`), clouds sweep the seams, the hero and the night
+hall are seamless video loops. Since 3.7/4.2 the seams are cloud passages
+in depth: four alpha plates (far cluster, two mid, a near tower cut from a
+4K render) come toward the camera and part, a haze and a bloom of the hour
+carry the middle, the camera banks ~1.3°, every scene keeps its own act
+drift across the seam (no scale pop), and the arriving scene is composited
+a beat early. Seams are 90 svh (4.4; 150 svh made the passages 43 % of
+the scroll). Since 4.5 the four seams are four different beats in the same
+world (`PASSAGE_KIND` in the stage): t1 the arrival through clouds (three
+plates since 4.6, the street plate resident from the first frame), t2 a
+12 % camera pan with a dissolve (4.6: two plates butted side by side showed
+their junction — a horizontal bar cannot hide a vertical edge; 4.10: the
+glass sky-bridge that crossed in front went — Ondrej: "prechod s tou čiarou
+nechcem"), t3 a pane of city glass growing past the camera, t4 the hour
+turning with the camera still. The flat edition dresses its veil with the
+same four. 4.10 put t1 on a GPU diet after "ešte to seká" in Chrome: idle
+plates are parked as a dot (composited, filling nothing) instead of blended
+at 0.001, the unused bank plate is gone, 2× cloud files only from 1600 px,
+the hero's drifting clouds and blend-mode glint thin out over the first
+fifth of the passage, the arriving still is held at 0.002 through the
+passage (its texture used to drop and re-upload mid-move), the hero is held
+only on the way back, haze and bloom are exactly 0 outside their bells, and
+a page whose sentinel trips (a quarter of frames over 34 ms) runs t1 as
+the plate-free light passage — decided at the seam, never mid-move. Touch
+screens promote no live-city groups and draw no glint. The flat edit's
+passage is its own choreography since 4.11 (`PASSAGE_CLOUDS_FLAT`): a
+plate that covers the camera shows its magnified interior, and with no
+scene swap to hide there is no white-out to cover it — on a 13" iPad it
+read as a glowing blur — so the tower rises beside the camera and the
+cluster drifts above, the haze and bloom run at 0.62 / 0.55 of the
+stage's, the plates carry no filter, 2× files come from 768 px, and the
+act plates' cloud band is an alpha cutout composited normally (it was a 13
+KB opaque render screen-blended). /04 runs full width with 1.4× stations. Under 1024px or reduced motion every act carries
+its own plate of the same world with a cloud band. Type: Bricolage Grotesque
+800 + Fraunces italic accent; palette ink #0b1a4a, coral, tangerine, mint.
+Fonts are self-hosted and subsetted since 4.7 (`app/fonts`, built by
+`npm run fonts`): 197 KB in five files on the homepage instead of 390 KB in
+ten, same outlines, Fraunces with its optical-size axis kept. Since 4.8
+every page renders per request behind a nonce Content Security Policy
+(`proxy.ts`, functions in fra1): +50 ms of first byte warm, a quarter second
+cold, for a policy under which only our own scripts run.
+References: activetheory, lusion, zentry, refokus. The Žiara acts, the R3F
+world and `ACT_TONES` were removed with it — git remembers.
+
+**Concept demos:** Observatórium (Animácie & 3D), Kancelária (Dizajn),
+Pražiareň (Objednávky), Štúdio (Rezervácie), WordPress. Since Iterácia 4.0
+(2026-09-12) two of them are working systems, not gestures: Štúdio books
+for real in the browser (sheet → card checks or pay at the studio →
+confirmation, .ics and Google Calendar that work, e-mail/SMS previews,
+cancellation that frees the seat, a waitlist, the owner view with CSV;
+`components/concepts/vlna-booking.tsx`), and WordPress is a real editor
+(content, look, sections, dishes, posts, a WooCommerce cart, language,
+publish with revisions, phone preview, click-to-edit, persistence, an
+EN version of the whole site pre-filled by a bakery dictionary and editable
+by hand (`wordpress-translate.ts`, Iterácia 4.1);
+`components/concepts/wordpress-editor.tsx`) whose close keeps the visitor's
+own site alive, and whose hero edits the bakery site by itself (ghost
+cursor + editor card, six steps, then hands over; `wordpress-hero-demo.tsx`,
+Iterácia 4.2). Each demo is its own chunk (`demo-switch.tsx`).
+
+**Audit and remediation (2026-09-14).** `docs/AUDIT_2026-09-14.md` is the
+live diagnostic pass after 4.2; Iterácia 4.3 closed its whole REBUILD list
+(issues #80–#88): phone seams never cover act copy, the WordPress close is
+composed for phones, /03 type passes contrast, demos are a third of their
+weight on phones, dev routes are noindexed, the Žiara case studies
+(`/praca/*`) are retired with redirects, touch targets are 44 px, the two
+founders are named in the contact hall. **The enquiry form delivers
+server-side through `app/actions/enquiry.ts` once `RESEND_API_KEY` is set
+in Vercel; until then it falls back to the visitor's mail client and says
+so.** Seams shortened in 4.4; `docs/PASSAGES_PROPOSAL_2026-09-14.md` holds
+ten passages beyond clouds; Ondrej picked the recommended set and 4.5 built it. The demos themselves stay client-side and say so; guarded by
+`tests/demos.spec.ts`.
+
+---
+
+### Previous line — Art Direction v3 „Žiara" (retired from the homepage 2026-09-05)
 
 **Art Direction v3 — „Žiara"** (`CODERA_ART_DIRECTION_V3.md`), derived from the
 calibrated reference library (`CODERA_DESIGN_REFERENCES/`, six LIKED records).
@@ -21,15 +106,16 @@ thins as the light rises.
 The homepage is five acts — /01 Identita (dark fog, lit C, shards) ·
 /02 Premena (Bilanc before/after, frost seam) · /03 Práca (three concept
 worlds) · /04 Ponuka (process + three packages) · /05 Kontakt (ink on frost,
-the ribbon closes). Plus three **case-study pages** (`/praca/meridian`,
-`/praca/statut`, `/praca/vlna`) — documents, no canvas, readable without JS.
+the ribbon closes). Its three case-study pages (`/praca/*`) were retired on
+2026-09-14 and redirect to the demos.
 
 **Type system:** Geist Sans (light weights carry display) + Geist Mono (the
 engineering voice: coordinates, annotations). Fraunces loads only for the
 concept worlds' interior serif. Archivo retired with v2.
 
-**The offer:** Vizitka od 1 000 € · Firemný web od 1 800 € · 5D web od
-3 200 €, declared once in `lib/site-config.ts` (`packages`) and consumed by
+**The offer (reset 2026-09-07):** Vizitka od 700 € · Firemný web od 1 200 € ·
+5D web od 2 500 € · Úpravy WordPressu (cena podľa rozsahu), declared once in
+`lib/site-config.ts` (`packages`, `wordpressService`) and consumed by
 the /04 act, the structured data and the tests — drift fails CI.
 
 **The concept worlds:** Meridián (roastery — buy) · Štatút (law practice —
@@ -56,8 +142,12 @@ previews, /textures) was deleted 2026-08-31 — git remembers.
 
 1. **One atmosphere, one sunrise.** Acts differ only in camera and light;
    no act returns to dark. The five-moods failure is structurally impossible.
-2. **One geometry.** The parametric mark generator feeds both the SVG assets
-   and the GLB — the logo and the cinematic object cannot diverge.
+2. **The mark is measured, not imagined.** Since 4.9 the SVGs come from an
+   outline measured off the approved raster (`scripts/mark-outline.mjs`,
+   silhouette overlap 0.972, `npm run brand:compare`). The parametric sweep
+   that once fed both SVG and GLB matched at 0.741 and now feeds only the
+   `/logo-lab` GLB; if the ribbon returns to the site, re-derive it from the
+   outline first.
 3. **DOM is the floor.** All commercial content is semantic DOM; the canvas is
    enhancement. Flat mode (SSR default, mobile, no-WebGL, reduced motion) is a
    designed experience.
@@ -84,6 +174,9 @@ previews, /textures) was deleted 2026-08-31 — git remembers.
   strings.** Use „…“ pairs in Slovak copy inside code.
 - **Biome reads `//` in JSX text as a suspicious comment** — wrap engineering
   annotations as string expressions.
+- **A Server Component that dynamically imports Client Components is not
+  code split** (Next 16 docs) — the switch that picks a demo must itself be
+  a Client Component, or every demo ships every other demo.
 - **A compact world is a ~490 px card on a 768 px viewport** — viewport-gated
   (`md:`) chrome inside container-sized components lets elements in that then
   collide. Gate on `compact`, not on the viewport.

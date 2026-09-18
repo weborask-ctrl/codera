@@ -4,17 +4,16 @@ import { commercial, packages } from "../lib/site-config"
 /**
  * Step 5 experience suite.
  *
- * The homepage is the /01–/05 acts experience: native scroll, ZERO
- * ScrollTrigger pins, a fixed world canvas on capable wide viewports
- * (world mode) and per-act grounds everywhere else (flat mode — the SSR
- * default, mobile/tablet edit, no-WebGL and reduced-motion fallback).
- * World-only assertions branch on the same capability probe the page
- * uses; CI's Linux Firefox has no WebGL and exercises flat mode.
+ * The homepage is Codera City (Iterácia 2.0): native scroll, ZERO
+ * ScrollTrigger pins, a fixed world stage with a flight canvas on wide
+ * viewports (city mode) and per-act plates of the same world everywhere
+ * else (flat mode — the SSR default, mobile/tablet edit, reduced motion).
+ * City-only assertions branch on the same probe the page uses.
  */
 
 async function waitForHydration(page: Page) {
   await page.waitForFunction(
-    () => document.querySelector("main[data-experience='v3'][data-hydrated]") !== null,
+    () => document.querySelector("main[data-experience='v4'][data-hydrated]") !== null,
     undefined,
     { timeout: 20_000 }
   )
@@ -26,15 +25,10 @@ async function worldPossible(page: Page): Promise<boolean> {
     if (window.innerWidth < 1024) {
       return false
     }
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
       return false
     }
-    try {
-      const canvas = document.createElement("canvas")
-      return Boolean(canvas.getContext("webgl2") ?? canvas.getContext("webgl"))
-    } catch {
-      return false
-    }
+    return !window.matchMedia("(prefers-reduced-motion: reduce)").matches
   })
 }
 
@@ -66,18 +60,15 @@ test.describe("Codera homepage", () => {
     expect(real, real.join("\n")).toHaveLength(0)
   })
 
-  test("serves a Slovak document opening on the graphite act", async ({ page }) => {
+  test("serves a Slovak document opening above the city at dawn", async ({ page }) => {
     await page.goto("/")
     await expect(page.locator("html")).toHaveAttribute("lang", "sk")
-    const heroBg = await page
-      .locator("[data-zone='hero']")
-      .evaluate((el) => getComputedStyle(el).backgroundColor)
-    /* flat mode paints the hero itself; world mode paints the canvas —
-       either way the first act must read dark. */
-    const world = await worldPossible(page)
-    if (!world) {
-      expect(lightness(heroBg)).toBeLessThan(0.35)
-    }
+    /* Codera City opens LIGHT: the flat edit paints the sky on main, the
+       city edit on the stage — the ink is dark either way */
+    const ink = await page
+      .locator("main[data-experience='v4']")
+      .evaluate((el) => getComputedStyle(el).color)
+    expect(lightness(ink)).toBeLessThan(0.35)
     /* the display headline breaks per line (Iterácia 0.3) — assert the
        opening line, not a cross-line phrase textContent can't see */
     await expect(page.getByRole("heading", { level: 1 })).toContainText(
@@ -107,7 +98,7 @@ test.describe("Codera homepage", () => {
     for (const id of ["praca", "sluzby", "kontakt"]) {
       await expect(page.locator(`#${id}`)).toHaveCount(1)
     }
-    await expect(page.locator("main[data-experience='v3']")).toHaveCount(1)
+    await expect(page.locator("main[data-experience='v4']")).toHaveCount(1)
   })
 
   test("every navigation link resolves to a real target", async ({ page }) => {
@@ -161,10 +152,12 @@ test.describe("Codera homepage", () => {
       "Vaša firma je",
       "než ukazuje",
       "Neukazujeme logá klientov.",
-      "Guji, 2 050 m",
-      "Právo je nástroj.",
-      "vo štvrtok.",
-      "STRATÉGIA",
+      "Observatórium",
+      "Kancelária",
+      "Pražiareň",
+      "Stratégia",
+      "Úpravy WordPressu",
+      "Čo bude",
       "Váš ďalší web nemusí",
     ]) {
       await expect(page.locator("main")).toContainText(text)
@@ -246,7 +239,7 @@ test.describe("Codera homepage", () => {
 
   test("secondary contact details are real and reachable", async ({ page }) => {
     await page.goto("/")
-    await expect(page.locator("a[href^='mailto:coderaslovakia']").first()).toHaveCount(1)
+    await expect(page.locator("a[href^='mailto:kontakt@codera.sk']").first()).toHaveCount(1)
     await expect(page.locator("a[href^='tel:+421']").first()).toHaveCount(1)
   })
 
@@ -307,17 +300,17 @@ test.describe("Codera homepage", () => {
     await expect(menu).toHaveAttribute("aria-hidden", "true")
   })
 
-  test("mobile is a touch edit: no pins, portal gallery stacks", async ({ page }) => {
+  test("mobile is a touch edit: no pins, the facade rail", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto("/")
     await waitForHydration(page)
     await expect(page.locator(".pin-spacer")).toHaveCount(0)
     await expect(page.locator("canvas")).toHaveCount(0)
 
-    /* the portal gallery replaced the swipe deck (AD v3 amendment 2):
-       three portals stack vertically, each linking into its concept */
+    /* the street becomes a rail of complete demo facades, one link per
+       demo — the whole card opens the concept */
     const portals = page.locator('#praca a[href^="/ukazky/"]')
-    await expect(portals).toHaveCount(9) // name link + inline portal per ready skill (4) + the desktop sticky portal (attached, lg-hidden)
+    await expect(portals).toHaveCount(5)
     await portals.first().scrollIntoViewIfNeeded()
     await expect(portals.first()).toBeVisible()
     /* the page itself must not gain horizontal scroll from the portals */
@@ -351,15 +344,14 @@ test.describe("Codera homepage", () => {
     await context.close()
   })
 
-  test("the world mounts and the acts sequence on scroll", async ({ page }) => {
+  test("the city stage mounts and the acts sequence on scroll", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 })
     await page.goto("/")
-    test.skip(
-      !(await worldPossible(page)),
-      "world mode unavailable here (no WebGL / reduced motion)"
-    )
+    test.skip(!(await worldPossible(page)), "city mode unavailable here (reduced motion)")
     await waitForHydration(page)
-    await expect(page.locator("canvas")).toHaveCount(1, { timeout: 20_000 })
+    /* the world is transform-only since Iterácia 2.7 — no canvas anywhere */
+    await expect(page.locator(".city-stage")).toHaveCount(1, { timeout: 20_000 })
+    await expect(page.locator("canvas")).toHaveCount(0)
     await expect(page.locator(".pin-spacer")).toHaveCount(0)
 
     const acts: string[] = []
@@ -380,7 +372,54 @@ test.describe("Codera homepage", () => {
     }
     expect(acts[0]).toBe("hero")
     expect(acts).toContain("work")
-    expect(acts[acts.length - 1]).toBe("resolution")
+    /* the last act is read from the live attribute — a loaded WebKit can
+       deliver the final scroll event after the fixed wait above */
+    await expect
+      .poll(() => page.evaluate(() => document.documentElement.getAttribute("data-act")), {
+        timeout: 5_000,
+      })
+      .toBe("resolution")
+  })
+
+  test("the street opens the demo the visitor is looking at", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await page.goto("/")
+    test.skip(!(await worldPossible(page)), "city mode unavailable here (reduced motion)")
+    await waitForHydration(page)
+    const walk = page.locator("[data-walk]")
+    await expect(walk).toHaveCount(1)
+    const box = await walk.boundingBox()
+    if (!box) {
+      throw new Error("the street walk has no box")
+    }
+    /* every card shares one grid cell: a transparent one must never take the
+       click (Ondrej, 2026-09-07 — it opened the wrong demo) */
+    const seen = new Set<string>()
+    for (const frac of [0.12, 0.36, 0.6, 0.84]) {
+      await page.evaluate(
+        ([top, height, f]) => window.scrollTo({ top: top + height * f, behavior: "instant" as ScrollBehavior }),
+        [box.y, box.height, frac] as const
+      )
+      await page.waitForTimeout(700)
+      const front = await page.evaluate(() =>
+        Array.from(document.querySelectorAll<HTMLAnchorElement>("[data-card]"))
+          .filter((c) => getComputedStyle(c).pointerEvents !== "none")
+          .map((c) => c.getAttribute("href"))
+      )
+      /* exactly one card may be clickable at any moment */
+      expect(front, `frac ${frac}`).toHaveLength(1)
+      const href = front[0] as string
+      if (seen.has(href)) {
+        continue
+      }
+      seen.add(href)
+      await page.mouse.click(640, 430)
+      await page.waitForURL(`**${href}`, { timeout: 10_000 })
+      await page.goBack()
+      await waitForHydration(page)
+    }
+    /* the four stops must not all land on the same demo */
+    expect(seen.size).toBeGreaterThan(1)
   })
 
   test("scroll cannot be trapped: End reaches the footer immediately", async ({ page }) => {
@@ -433,7 +472,7 @@ test.describe("Codera homepage", () => {
     expect(text).toContain("Začať projekt")
     if (browserName !== "webkit") {
       /* WebKit excludes links from the Tab order by platform convention */
-      expect(text).toContain("Práca")
+      expect(text).toContain("Ukážky")
     }
   })
 
@@ -441,18 +480,24 @@ test.describe("Codera homepage", () => {
     await page.goto("/")
     await waitForHydration(page)
     await page.locator("#sluzby").scrollIntoViewIfNeeded()
-    await page.waitForTimeout(900)
+    /* the entrance settles once (0.7 s) after the observer fires; poll the
+       resting state rather than racing a fixed wait on loaded CI hardware */
     for (const row of await page.locator("[data-offer-row]").all()) {
-      const opacity = await row.evaluate((el) => {
-        let node: HTMLElement | null = el as HTMLElement
-        let total = 1
-        while (node && node !== document.body) {
-          total *= Number.parseFloat(getComputedStyle(node).opacity)
-          node = node.parentElement
-        }
-        return total
-      })
-      expect(opacity, "offer row parked below legibility").toBeGreaterThan(0.85)
+      await expect
+        .poll(
+          () =>
+            row.evaluate((el) => {
+              let node: HTMLElement | null = el as HTMLElement
+              let total = 1
+              while (node && node !== document.body) {
+                total *= Number.parseFloat(getComputedStyle(node).opacity)
+                node = node.parentElement
+              }
+              return total
+            }),
+          { message: "offer row parked below legibility", timeout: 6_000 }
+        )
+        .toBeGreaterThan(0.85)
     }
   })
 
@@ -463,21 +508,59 @@ test.describe("Codera homepage", () => {
   })
 })
 
-test.describe("Case studies", () => {
-  test("every concept has a readable document page without JavaScript", async ({ browser }) => {
-    const context = await browser.newContext({ javaScriptEnabled: false })
-    const page = await context.newPage()
-    for (const slug of ["meridian", "statut", "vlna"]) {
-      const res = await page.goto(`/praca/${slug}`)
-      expect(res?.status()).toBe(200)
-      /* the honest label is non-negotiable — Step 6 gate */
-      await expect(page.locator("main")).toContainText("UKÁŽKOVÝ KONCEPT")
-      await expect(page.locator("main")).toContainText("ROZHODNUTIA")
-      await expect(page.locator("main")).toContainText("nejde o realizácie", { ignoreCase: true })
+test.describe("Content Security Policy", () => {
+  test("every page carries a nonce policy and nothing on it violates it", async ({ page, request }) => {
+    for (const path of ["/", "/ukazky/animacie-3d"]) {
+      const res = await request.get(path)
+      const csp = res.headers()["content-security-policy"] ?? ""
+      expect(csp).toMatch(/script-src 'self' 'nonce-[A-Za-z0-9+/=]+' 'strict-dynamic'/)
+      expect(csp).toContain("object-src 'none'")
+      expect(csp).toContain("frame-ancestors 'none'")
+      /* two requests, two nonces */
+      const again = (await request.get(path)).headers()["content-security-policy"] ?? ""
+      expect(again).not.toBe(csp)
     }
-    await context.close()
+    const violations: string[] = []
+    page.on("console", (m) => {
+      if (/Content Security Policy|Refused to/.test(m.text())) {
+        violations.push(m.text())
+      }
+    })
+    await page.goto("/")
+    /* the stage, the walk and the demos all run scripts the policy must allow */
+    await page.evaluate(async () => {
+      const h = document.documentElement.scrollHeight
+      for (let y = 0; y < h; y += 600) {
+        scrollTo(0, y)
+        await new Promise((r) => setTimeout(r, 60))
+      }
+    })
+    await page.goto("/ukazky/animacie-3d")
+    await expect(page.locator("canvas").first()).toBeAttached()
+    await page.waitForTimeout(800)
+    expect(violations).toEqual([])
   })
+})
 
+test.describe("Retired routes", () => {
+  test("the old case studies redirect to their demos and dev routes are not indexable", async ({ page, request }) => {
+    for (const [from, to] of [
+      ["/praca/meridian", "/ukazky/objednavky"],
+      ["/praca/statut", "/ukazky/dizajn"],
+      ["/praca/vlna", "/ukazky/rezervacie"],
+    ]) {
+      const res = await request.get(from, { maxRedirects: 0 })
+      expect(res.status()).toBe(308)
+      expect(res.headers().location).toContain(to)
+    }
+    for (const path of ["/v3", "/boards", "/directions", "/logo-lab"]) {
+      const res = await request.get(path)
+      expect(res.headers()["x-robots-tag"]).toContain("noindex")
+    }
+    /* the demo title is not doubled by the layout template */
+    await page.goto("/ukazky/rezervacie")
+    await expect(page).toHaveTitle(/^Rezervácie — živá ukážka — Codera$/)
+  })
 })
 
 test.describe("Concept sites", () => {
@@ -486,7 +569,7 @@ test.describe("Concept sites", () => {
        honest label lives as one quiet line in every concept footer */
     const context = await browser.newContext({ javaScriptEnabled: false })
     const page = await context.newPage()
-    for (const slug of ["dizajn", "objednavky", "rezervacie", "animacie-3d"]) {
+    for (const slug of ["dizajn", "objednavky", "rezervacie", "animacie-3d", "wordpress"]) {
       const res = await page.goto(`/ukazky/${slug}`)
       expect(res?.status()).toBe(200)
       await expect(page.locator("body")).toContainText("KONCEPT ŠTÚDIA CODERA")
@@ -496,7 +579,7 @@ test.describe("Concept sites", () => {
 
   test("the portal gallery links into the concepts", async ({ page }) => {
     await page.goto("/")
-    for (const slug of ["dizajn", "objednavky", "rezervacie"]) {
+    for (const slug of ["dizajn", "objednavky", "rezervacie", "wordpress"]) {
       await expect(
         page.locator(`a[href="/ukazky/${slug}"]`).first(),
         `no portal link to /ukazky/${slug}`
