@@ -132,7 +132,7 @@ Higgsfield and cut into frame sequences (`clients/ecodomcek/HIGGSFIELD.md`,
 fact comes from the client's live site. Route-scoped fonts (Instrument
 Sans, IBM Plex Mono, Instrument Serif italic), self-hosted and subsetted by
 `scripts/build-fonts.mjs` like every other face — next/font/google cost 14
-hashed files and ~127 KB and undid Iterácia 4.7. 17 MB of media under
+hashed files and ~127 KB and undid Iterácia 4.7. 20.1 MB of media under
 `public/demos/ecodomcek/`, loaded per room as it nears the viewport: each
 sequence takes every 4th frame first, so the hero is scrubbable after
 1.04 MB / 378 ms instead of its full 4.14 MB.
