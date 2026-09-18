@@ -12,8 +12,8 @@ vec3 deform(vec3 p){
  p.x+=sin(clock*.63+flex.y-flex.x*2.7)*.10*w;
  p.y+=sin(clock*.71+flex.y*.77-flex.x*3.1)*.13*w;
  p.z+=sin(clock*.57+flex.y*1.13-flex.x*3.6)*.19*w;
- float breath=sin(clock*.85)*.012*(1.-smoothstep(-.4,.55,p.x));
- p.y+=breath*(p.y-.55);p.z+=breath*p.z;
+ float breath=sin(clock*.85)*.012*smoothstep(.0,.9,p.y);
+ p.x+=breath*p.x;p.z+=breath*p.z;
  p.y+=sin(clock*.43)*.035;
  return p;
 }
@@ -142,16 +142,16 @@ const V=p=>new THREE.Vector3(...p);
 const smooth=(a,b,x)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t);};
 const papilla=(p)=>Math.max(0,Math.sin(p[0]*23+Math.sin(p[2]*11)*2.1)*Math.sin(p[1]*27+Math.sin(p[0]*13)*1.7)*Math.sin(p[2]*19+Math.sin(p[1]*17)*2.3))**4;
 
-// Hand-authored spatial choreography matching the accepted image, not a radial fan.
+// Frontal resting pose: mantle above the crown, arms distributed in depth.
 const paths=[
- [[.38,-.14,.55],[.02,-.59,1.04],[-.95,-.88,1.50],[-1.73,-1.30,1.36],[-1.67,-1.94,1.02],[-1.12,-2.12,.81],[-.73,-1.85,.82]],
- [[.55,.27,.18],[1.12,.51,.02],[1.85,1.08,-.18],[2.11,1.68,-.36],[1.87,2.02,-.38],[1.46,1.89,-.25],[1.43,1.57,-.10]],
- [[.62,.05,.48],[1.35,-.04,.96],[2.24,-.39,1.02],[2.82,-1.00,.68],[2.71,-1.55,.32],[2.29,-1.67,.23]],
- [[.45,-.40,.40],[.93,-.96,1.00],[1.38,-1.65,1.23],[1.77,-2.16,.98],[2.18,-2.24,.55],[2.44,-1.97,.31]],
- [[.32,-.49,.06],[.20,-1.11,.23],[.42,-1.87,.24],[.55,-2.52,-.04],[.23,-2.86,-.28],[-.12,-2.71,-.27]],
- [[.25,.05,-.24],[-.35,-.32,-.71],[-1.18,-.55,-1.08],[-1.92,-.37,-1.20],[-2.27,.07,-1.02],[-2.12,.39,-.77]],
- [[.26,-.33,-.25],[-.33,-1.02,-.62],[-1.16,-1.62,-.87],[-1.91,-1.82,-1.11],[-2.40,-1.56,-1.32]],
- [[.50,.01,-.28],[1.13,-.19,-.79],[1.95,-.07,-1.27],[2.68,-.39,-1.60],[2.93,-.92,-1.48],[2.70,-1.22,-1.17]],
+ [[-.23,-.24,.44],[-.50,-.90,.88],[-.85,-1.67,1.14],[-.67,-2.25,1.13],[-.13,-2.35,.98],[.17,-2.00,.77],[.03,-1.74,.65]],
+ [[.24,-.24,.44],[.65,-.80,.87],[1.12,-1.42,1.02],[1.63,-1.85,.85],[2.08,-1.68,.54],[2.16,-1.24,.36],[1.91,-1.04,.33]],
+ [[.49,-.17,.20],[1.10,-.52,.38],[1.96,-.79,.24],[2.62,-.61,.00],[2.80,-.14,-.16],[2.56,.08,-.12],[2.30,-.06,.03]],
+ [[.47,-.12,-.23],[1.04,-.40,-.45],[1.64,-.10,-.61],[1.93,.47,-.55],[1.64,.81,-.44],[1.30,.62,-.33],[1.36,.33,-.25]],
+ [[.19,-.14,-.46],[.43,-.75,-.71],[.98,-1.30,-.93],[1.50,-1.61,-.97],[1.82,-1.52,-.92]],
+ [[-.20,-.14,-.46],[-.74,-.46,-.83],[-1.25,-.24,-.96],[-1.40,.20,-.85],[-1.14,.49,-.73],[-.88,.29,-.67]],
+ [[-.48,-.13,-.22],[-1.10,-.63,-.53],[-1.90,-1.03,-.59],[-2.50,-.79,-.43],[-2.73,-.34,-.18],[-2.50,-.03,-.02],[-2.22,-.16,.07]],
+ [[-.48,-.20,.21],[-1.02,-.77,.54],[-1.63,-1.39,.66],[-2.15,-1.79,.49],[-2.48,-1.65,.23],[-2.55,-1.33,.09]],
 ];
 
 export function createOctopus(time,waves={value:null}){
@@ -163,22 +163,22 @@ export function createOctopus(time,waves={value:null}){
  const skin=makeMat(0),sucker=makeMat(1),iris=makeMat(2);
  const add=(g,m)=>{geometries.push(g);const mesh=new THREE.Mesh(g,m);group.add(mesh);return mesh;};
  // Continuous mantle-to-head surface. The front contracts into the arm crown.
- const bodyCurve=new THREE.CatmullRomCurve3([V([-1.96,.87,-.40]),V([-1.23,.86,-.30]),V([-.42,.54,-.04]),V([.29,.15,.24]),V([.69,-.05,.24])]);
+ const bodyCurve=new THREE.CatmullRomCurve3([V([.06,2.12,-.35]),V([.02,1.53,-.23]),V([0,.88,-.05]),V([0,.25,.06]),V([0,-.60,.03])]);
  const bodyFrames=bodyCurve.computeFrenetFrames(144,false);
  add(meshGrid(144,112,(u,t)=>{
   const j=Math.round(t*144),center=bodyCurve.getPointAt(t),a=u*Math.PI*2;
   const n=bodyFrames.normals[j].clone().multiplyScalar(Math.cos(a)).addScaledVector(bodyFrames.binormals[j],Math.sin(a));
-  let r=Math.sin(t*Math.PI)**.48*(1.-.39*smooth(.43,.90,t));
+  let r=Math.sin(t*Math.PI)**.48*(.91-.22*smooth(.43,.90,t));
   const p=center.clone().addScaledVector(n,r);r+=papilla(p.toArray())*.010*Math.sin(t*Math.PI);
   return center.addScaledVector(n,r).toArray();
  }),skin);
  // Fleshy crown covers the buried arm roots and the terminal mantle cap.
  add(meshGrid(48,72,(u,t)=>{
   const a=u*Math.PI*2,b=t*Math.PI,s=Math.sin(b);
-  return [.37+Math.cos(b)*.49,-.07+s*Math.cos(a)*.51,.12+s*Math.sin(a)*.47];
+  return [s*Math.cos(a)*.60,-.11+Math.cos(b)*.48,.02+s*Math.sin(a)*.57];
  }),skin);
  const curves=paths.map(p=>new THREE.CatmullRomCurve3(p.map(V))),cupParts=[];
- const radius=(t,i)=>(i===0?.39:i===1?.30:.32)*(1-t)**1.12+.008;
+ const radius=(t,i)=>(i<2?.36:.30)*(1-t)**1.12+.008;
  for(let i=0;i<8;i++){
   const curve=curves[i],frames=curve.computeFrenetFrames(180,false),phase=i*.87+.3;
   add(meshGrid(180,40,(u,t)=>{
@@ -191,7 +191,7 @@ export function createOctopus(time,waves={value:null}){
    const c=curve.getPointAt(t),tangent=curve.getTangentAt(t),front=V([0,-.20,1]);
    front.addScaledVector(tangent,-front.dot(tangent)).normalize();
    const lateral=new THREE.Vector3().crossVectors(tangent,front).normalize();
-   const twist=[-.45,.65,-.32,.18,-.55,1.5,1.25,1.65][i]+Math.sin(t*3+i*.8)*.22+t*.35;
+   const twist=[-.72,.68,.85,1.4,1.7,-1.6,-1.15,-.75][i]+Math.sin(t*3+i*.8)*.22+t*.35;
    const axis=front.clone().multiplyScalar(Math.cos(side*.48+twist)).addScaledVector(lateral,Math.sin(side*.48+twist)).normalize();
    const x=new THREE.Vector3().crossVectors(tangent,axis).normalize(),y=new THREE.Vector3().crossVectors(axis,x).normalize();
    const r=radius(t,i),size=r*.38,origin=c.clone().addScaledVector(axis,r*.91);
@@ -208,7 +208,7 @@ export function createOctopus(time,waves={value:null}){
  }
  add(merge(cupParts),sucker);
  // Short web surfaces bridge the arm crown; their outer edges follow the adjacent arms.
- const order=[1,2,0,3,4,6,5,7];
+ const order=[0,1,2,3,4,5,6,7];
  for(let k=0;k<8;k++){
   const left=order[k],right=order[(k+1)%8];
   const web=meshGrid(24,24,(u,v)=>{
@@ -218,8 +218,9 @@ export function createOctopus(time,waves={value:null}){
    return p.toArray();
   });add(web,skin);
  }
- // Recessed near-side eye, warm radial iris and horizontal pupil, integrated skin hood.
- const eyeCenter=V([.27,.53,.68]),eyeNormal=V([.65,.17,1]).normalize();
+ // Both eyes are visible in the frontal reference; retain lateral placement.
+ for(const side of [-1,1]){
+ const eyeCenter=V([side*.46,.68,.79]),eyeNormal=V([side*.52,.10,1]).normalize();
  const eyeX=new THREE.Vector3().crossVectors(V([0,1,0]),eyeNormal).normalize(),eyeY=new THREE.Vector3().crossVectors(eyeNormal,eyeX);
  const eyePoint=(x,y,z)=>eyeCenter.clone().addScaledVector(eyeX,x).addScaledVector(eyeY,y).addScaledVector(eyeNormal,z).toArray();
  const eye=meshGrid(32,72,(u,v)=>{
@@ -232,10 +233,11 @@ export function createOctopus(time,waves={value:null}){
   const a=u*Math.PI*2,r=.163+v*.13,z=.025+Math.sin(v*Math.PI)*.075;
   return eyePoint(Math.cos(a)*r,Math.sin(a)*r*(1+.10*Math.sin(a)),z-.16*v+Math.max(0,Math.sin(a))**2*.10);
  }),skin);
+ }
  const depthMaterial=new THREE.ShaderMaterial({uniforms:{clock:time},vertexShader:vertex,fragmentShader:'#include <packing>\nvoid main(){gl_FragColor=packDepthToRGBA(gl_FragCoord.z);}',side:THREE.DoubleSide,toneMapped:false});
  const oldClear=new THREE.Color();
  return {group,setBackdrop(){},
-  update(elapsed){group.rotation.y=-.48+Math.sin(elapsed*.24)*.035;group.rotation.z=.04+Math.sin(elapsed*.31)*.015;},
+  update(elapsed){group.rotation.y=Math.sin(elapsed*.24)*.025;group.rotation.z=-.025+Math.sin(elapsed*.31)*.012;},
   renderShadow(renderer,scene){
    lightCamera.position.copy(group.position).add(V([4.1,7.3,-5.5]));lightCamera.lookAt(group.position);lightCamera.updateMatrixWorld();
    common.shadowProjection.value.multiplyMatrices(lightCamera.projectionMatrix,lightCamera.matrixWorldInverse);

@@ -61,3 +61,12 @@ Marcus requested a more viewer-facing starting pose with less artificial arms, p
 - Ocean files remain unchanged.
 
 Verified the whole pose and material close-up in the live browser at its natural viewport; no console errors. Final crown change checked in the whole view. Syntax and diff checks passed. Remaining limitation: procedural geometry still reads as CG in close-up; this is not a claim of photographic parity or a fully rigged, collision-free animation model.
+
+## Frontal reference correction — 2026-09-19
+
+Marcus supplied a white-background frontal octopus reference and clarified that the desired view has the mantle above the arms and both eyes visible. The earlier three-quarter turn did not satisfy that intent.
+
+Rebuilt the mantle vertically, placed both lateral eyes toward the camera, redistributed all eight arm paths around a frontal crown, and biased the larger foreground arms downward. Retained the copper skin and approved ocean. Increased model scale (1.25 at narrow desktop, 1.42 wide desktop, 0.72 portrait) and centered the subject. Extended the mantle into the crown to conceal the neck seam. Idle movement stays restrained; full cinematic material and motion polish is deferred per Marcus.
+
+Live natural-viewport visual check and console check passed. This iteration establishes composition and base pose; it is not a final photorealistic asset. The user-supplied reference remains at the original Desktop/bio path; its visual intent is documented here for handoff.
+Reference copied to `docs/design/octopus-frontal-pose-reference.webp` for cross-PC handoff. It is a user-supplied pose reference, not a production site asset.
