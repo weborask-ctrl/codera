@@ -424,7 +424,8 @@ function Mark({ size = 28 }: { size?: number }) {
 export default function EcodomcekSite() {
   const rootRef = useRef<HTMLElement>(null)
   const [act, setAct] = useState<ActId>("prijazd")
-  const [sent, setSent] = useState(false)
+  /* the composed mailto, once the visitor has submitted — null until then */
+  const [sent, setSent] = useState<string | null>(null)
   const reduced = useReducedMotion()
 
   useEffect(() => {
@@ -811,8 +812,15 @@ export default function EcodomcekSite() {
                 e.preventDefault()
                 const f = new FormData(e.currentTarget)
                 const body = `${f.get("sprava") ?? ""}\n\n${f.get("meno") ?? ""}\n${f.get("email") ?? ""}`
-                window.location.href = `mailto:dobryden@ecodomcek.sk?subject=${encodeURIComponent("Dopyt z webu")}&body=${encodeURIComponent(body)}`
-                setSent(true)
+                /* A concept page does not get to imply it sent anything. This
+                   used to hijack window.location to a mailto and relabel the
+                   button "Otvára sa e-mail…" — a claim that is simply false
+                   when the visitor has no mail client, and a dead end with no
+                   way back either way. The draft is composed here and handed
+                   over as a link the visitor chooses to follow. */
+                setSent(
+                  `mailto:dobryden@ecodomcek.sk?subject=${encodeURIComponent("Dopyt z webu")}&body=${encodeURIComponent(body)}`,
+                )
               }}
             >
               <div className="grid gap-2.5 sm:grid-cols-2">
@@ -842,18 +850,39 @@ export default function EcodomcekSite() {
                   style={{ ...SANS, borderColor: T.hair, color: T.ink, outlineColor: T.moss }}
                 />
               </label>
-              <div className="flex flex-wrap items-center gap-4 pt-1">
-                <button
-                  type="submit"
-                  className="rounded-[6px] px-6 py-3 text-[0.95rem] font-medium transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2"
-                  style={{ ...SANS, background: T.moss, color: T.snow, outlineColor: T.moss }}
-                >
-                  {sent ? "Otvára sa e-mail…" : "Odoslať správu"}
-                </button>
-                <span className="text-[0.6rem] tracking-[0.14em] uppercase" style={{ ...MONO, color: T.ink2 }}>
-                  Ozveme sa. Keď už nič iné, skúsime poradiť.
-                </span>
-              </div>
+              {sent ? (
+                <div className="flex flex-col gap-2.5 pt-1" role="status">
+                  <p className="text-[0.95rem] leading-[1.4]" style={{ ...SANS, color: T.ink }}>
+                    Toto je koncept — správa sa odtiaľto nikam neodosiela. Váš text je pripravený,
+                    stačí ho odoslať z vlastnej pošty.
+                  </p>
+                  <div className="flex flex-wrap items-center gap-4">
+                    <a
+                      href={sent}
+                      className="rounded-[6px] px-6 py-3 text-[0.95rem] font-medium transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2"
+                      style={{ ...SANS, background: T.moss, color: T.snow, outlineColor: T.moss }}
+                    >
+                      Otvoriť v e-maile
+                    </a>
+                    <a href="tel:+421908704281" className="tnum text-[0.95rem]" style={{ ...SANS, color: T.moss }}>
+                      alebo zavolajte 0908 704 281
+                    </a>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-wrap items-center gap-4 pt-1">
+                  <button
+                    type="submit"
+                    className="rounded-[6px] px-6 py-3 text-[0.95rem] font-medium transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2"
+                    style={{ ...SANS, background: T.moss, color: T.snow, outlineColor: T.moss }}
+                  >
+                    Odoslať správu
+                  </button>
+                  <span className="text-[0.6rem] tracking-[0.14em] uppercase" style={{ ...MONO, color: T.ink2 }}>
+                    Ozveme sa. Keď už nič iné, skúsime poradiť.
+                  </span>
+                </div>
+              )}
             </form>
           </div>
         </div>
