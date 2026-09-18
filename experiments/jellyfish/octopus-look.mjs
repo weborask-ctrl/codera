@@ -43,10 +43,10 @@ let jelly=null,backdrop=null,presentScene=null;
 const jellyScene=new THREE.Scene();
 if(study){
  const {createOctopus}=await import('./octopus.mjs');
- jelly=createOctopus(uniforms.time);
- jelly.group.position.set(.9,-2.5,-7.0);
- jelly.group.rotation.set(.03,-.20,-.12);
- jelly.group.scale.setScalar(1.05);
+ jelly=createOctopus(uniforms.time,uniforms.waveMap);
+ jelly.group.position.set(.9,-2.75,-6.6);
+ jelly.group.rotation.set(.02,-.10,-.05);
+ jelly.group.scale.setScalar(1.12);
  jellyScene.add(jelly.group);
  uniforms.cameraOffset.value.y=0;
  backdrop=new THREE.WebGLRenderTarget(1,1,{type:waveTarget?THREE.HalfFloatType:THREE.UnsignedByteType,depthBuffer:false});
@@ -72,12 +72,13 @@ const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new T
 const particles=new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,uniforms:{time:uniforms.time,pixels:{value:1}},vertexShader:'uniform float time;uniform float pixels;varying float fade;void main(){vec3 p=position;p.x+=sin(time*.18+p.z)*.13;p.y+=sin(time*.23+p.x)*.10;vec4 mv=modelViewMatrix*vec4(p,1.);fade=exp(-length(mv.xyz)*.040)*.32;gl_PointSize=clamp(38.*pixels/max(1.,-mv.z),.65,12.*pixels);gl_Position=projectionMatrix*mv;}',fragmentShader:'varying float fade;void main(){float r=length(gl_PointCoord-.5)*2.;gl_FragColor=vec4(.45,.87,1.,(1.-smoothstep(.1,1.,r))*fade);}'});
 particleScene.add(new THREE.Points(geometry,particles));
 let playing=!reduced.matches, moving=false, travelPhase=0, elapsed=0,last=0,raf=0,frames=0,report=performance.now(),dirty=true;
-function resize(){if(jelly){jelly.group.position.x=innerWidth/innerHeight<.8?0:.9;jelly.group.scale.setScalar(innerWidth/innerHeight<.8?.65:1.05);if(document.body.classList.contains('detail'))uniforms.cameraOffset.value.x=jelly.group.position.x-.3;}const budget=Number(document.querySelector('#quality').value);const waveSize=budget<1000000?1024:2048;if(waveTarget&&waveTarget.width!==waveSize)waveTarget.setSize(waveSize,waveSize);uniforms.waveFootprint.value=64/waveSize;uniforms.refineSurface.value=budget>=1000000;const ratio=Math.min(devicePixelRatio,2,Math.sqrt(budget/(innerWidth*innerHeight)));renderer.setPixelRatio(ratio);renderer.setSize(innerWidth,innerHeight,false);if(volumeTarget)volumeTarget.setSize(Math.max(1,Math.ceil(innerWidth*ratio*.5)),Math.max(1,Math.ceil(innerHeight*ratio*.5)));if(backdrop){const size=renderer.getDrawingBufferSize(new THREE.Vector2());backdrop.setSize(size.x,size.y);jelly.setBackdrop(backdrop.texture,size.x,size.y);}uniforms.resolution.value.set(innerWidth,innerHeight);particleCamera.aspect=innerWidth/innerHeight;particleCamera.updateProjectionMatrix();particles.uniforms.pixels.value=ratio;dirty=true;wake();}
+function resize(){if(jelly){jelly.group.position.x=innerWidth/innerHeight<.8?0:.9;jelly.group.scale.setScalar(innerWidth/innerHeight<.8?.60:1.12);if(document.body.classList.contains('detail'))uniforms.cameraOffset.value.x=jelly.group.position.x-.3;}const budget=Number(document.querySelector('#quality').value);const waveSize=budget<1000000?1024:2048;if(waveTarget&&waveTarget.width!==waveSize)waveTarget.setSize(waveSize,waveSize);uniforms.waveFootprint.value=64/waveSize;uniforms.refineSurface.value=budget>=1000000;const ratio=Math.min(devicePixelRatio,2,Math.sqrt(budget/(innerWidth*innerHeight)));renderer.setPixelRatio(ratio);renderer.setSize(innerWidth,innerHeight,false);if(volumeTarget)volumeTarget.setSize(Math.max(1,Math.ceil(innerWidth*ratio*.5)),Math.max(1,Math.ceil(innerHeight*ratio*.5)));if(backdrop){const size=renderer.getDrawingBufferSize(new THREE.Vector2());backdrop.setSize(size.x,size.y);jelly.setBackdrop(backdrop.texture,size.x,size.y);}uniforms.resolution.value.set(innerWidth,innerHeight);particleCamera.aspect=innerWidth/innerHeight;particleCamera.updateProjectionMatrix();particles.uniforms.pixels.value=ratio;dirty=true;wake();}
 function draw(){
- uniforms.time.value=elapsed;const t=uniforms.travel.value;
+ uniforms.time.value=elapsed;jelly?.update?.(elapsed);const t=uniforms.travel.value;
  particleCamera.position.set(t*1.4,-uniforms.depth.value+Math.sin(elapsed*.23)*.055,t*5).add(uniforms.cameraOffset.value);
  particleCamera.lookAt(particleCamera.position.clone().add(new THREE.Vector3(uniforms.pointer.value.x*.12,.08+uniforms.pointer.value.y*.08,-1)));
  renderer.autoClear=true;
+ jelly?.renderShadow?.(renderer,jellyScene);
  if(waveTarget){renderer.setRenderTarget(waveTarget);renderer.render(waveScene,camera);renderer.setRenderTarget(null);}
  if(volumeTarget){
   uniforms.renderMode.value=2;
