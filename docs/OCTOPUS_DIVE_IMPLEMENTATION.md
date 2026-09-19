@@ -87,3 +87,27 @@ right-side idle during portfolio.
 The current coral/den geometry is deliberately a coarse composition proxy.
 Precise gripping, soft-body contact and muscular swimming still require the
 future Blender rig. No claim of final photorealistic or collision-free motion.
+
+## Continuous reef refinement — Marcus's feedback
+
+Marcus rejected the static-feeling creature animation and floating-boulder
+environment. Final swimming, final creature appearance and the den-entry
+performance are now explicitly deferred to the Blender production pass.
+
+The local refinement replaces the detached boulders with `reef.mjs`: a continuous
+height-field seabed and broad connected rock face with an irregular opening.
+The throat shares the opening's exact boundary. Interior geometry stays behind
+the face. The reef extends below the seabed and laterally beyond the shot.
+
+Added one generated 256px repeatable texture shared by rock, sand and coral,
+with mipmaps and restrained bump relief; no high-resolution image downloads or
+extra full-screen render passes. Coral colonies have seven branch segments plus
+low rounded growth, instanced across 90 surface-sampled roots. The environment
+has stronger distance fog. The approved ocean shader and current character
+motion are untouched by this pass.
+
+Reviewed hero and close reef composition in browser. Removed the first regular
+stripe pattern and adjusted interior geometry that initially protruded through
+the face. Working mode showed 28 fps at 819 x 484 in one UI sample, not a full
+benchmark. No shader/console errors in the inspected scene; syntax checks pass.
+This is a more coherent textured environment study, not a photographic reef.
