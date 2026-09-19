@@ -18,7 +18,7 @@ export async function createOctopus(time,waves){
   mixer.clipAction(new THREE.AnimationClip(source.name,source.duration,tracks)).play();
  }
  const diagnostic=new URLSearchParams(location.search).get('surface');
- const materials=new Set(),geometries=new Set(),skeletons=new Set();
+ const materials=new Set(),geometries=new Set(),skeletons=new Set(),textures=new Set();
  rig.traverse(object=>{
   if(!object.isMesh)return;
   geometries.add(object.geometry);
@@ -32,8 +32,11 @@ export async function createOctopus(time,waves){
   const name=object.name.toLowerCase();
   const skin=name.includes('continuous')||name.startsWith('eye')||name.includes('siphon');
   const pupil=name.includes('pupil'),iris=name.includes('iris');
-  const mat=new THREE.MeshStandardMaterial({color:skin?'#c47849':pupil?'#03171c':iris?'#a69b6c':'#c4a187',roughness:skin?.56:pupil?.20:.54,metalness:0});
-  if(!pupil&&!diagnostic)underwaterMaterial(mat,time,waves,{skin});
+  // Keep the authored glTF PBR maps. The ocean contributes lighting/fog only;
+  // replacing these materials used to erase the entire baked skin treatment.
+  const mat=old.clone();
+  for(const value of Object.values(mat))if(value?.isTexture){value.anisotropy=4;textures.add(value);}
+  if(!pupil&&!diagnostic)underwaterMaterial(mat,time,waves,{skin:skin&&!mat.map});
   if(diagnostic==='unlit'){mat.dispose();}
   const selected=diagnostic==='unlit'?new THREE.MeshBasicMaterial({color:'#e6af83'}):mat;
   materials.add(selected);object.material=selected;
@@ -48,6 +51,9 @@ export async function createOctopus(time,waves){
  const foldedMorph=skinMesh?.morphTargetInfluences?.slice();
  mixer.setTime(.95);
  const resting=bones.map(b=>b.quaternion.clone());
+ // Avoid Repeat wrapping the exact 14-second endpoint back to frame zero.
+ mixer.setTime(13.999);
+ const landed=bones.map(b=>b.quaternion.clone());
  const tipTurns=bones.map(()=>new THREE.Quaternion());
  const tipAxis=new THREE.Vector3(1,0,0);
  const boneArm=bones.map(b=>/ARM_(\d+)_(\d+)/.exec(b.name));
@@ -71,33 +77,20 @@ export async function createOctopus(time,waves){
  const groundArms=Array.from({length:8},(_,i)=>{const arm=String(i+1).padStart(2,'0');return {chain:Array.from({length:21},(_,j)=>rig.getObjectByName(`ARM_${arm}_${String(j+3).padStart(2,'0')}`)),tip:rig.getObjectByName(`ARM_${arm}_23`),joints:[19,15,11,7,3].map(n=>rig.getObjectByName(`ARM_${arm}_${String(n).padStart(2,'0')}`))};});
  function groundPose(weight){
   if(!weight)return;
+  // Authored whole-chain pose: no per-joint terrain projection that can kink
+  // or collapse the arms. Root clearance adapts the pose to the local seabed.
+  for(let i=0;i<bones.length;i++)bones[i].quaternion.slerp(landed[i],weight);
   group.updateMatrixWorld(true);
+  let lift=-Infinity;
   for(const c of groundArms){
-   if(!c.tip)continue;
-   c.tip.getWorldPosition(endpoint);
-   const target=endpoint.clone();target.y=shelfHeight(target.x,target.z)+.09;
-   for(let pass=0;pass<4;pass++)for(const joint of c.joints){
-    if(!joint)continue;
-    joint.getWorldPosition(origin);c.tip.getWorldPosition(endpoint);
-    a.copy(endpoint).sub(origin).normalize();b.copy(target).sub(origin).normalize();
-    delta.setFromUnitVectors(a,b);const angle=identity.angleTo(delta);
-    delta.slerp(identity,1-Math.min(weight,.18/Math.max(angle,.00001)));
-    joint.parent.getWorldQuaternion(parentQ);delta.premultiply(parentQ.clone().invert()).multiply(parentQ);
-    joint.quaternion.premultiply(delta);joint.updateWorldMatrix(false,true);
-   }
-   // Keep intermediate arm centres above the local sand as well as the tip.
-   // Bounded joint projection is a contact approximation, not soft-body physics.
-   for(let pass=0;pass<2;pass++)for(const bone of c.chain){
-    if(!bone?.parent?.isBone)continue;
-    bone.getWorldPosition(endpoint);const ground=shelfHeight(endpoint.x,endpoint.z)+.18;
-    if(endpoint.y>=ground)continue;
-    const joint=bone.parent;joint.getWorldPosition(origin);
-    a.copy(endpoint).sub(origin).normalize();b.copy(endpoint);b.y=ground;b.sub(origin).normalize();
-    delta.setFromUnitVectors(a,b);delta.slerp(identity,1-weight);
-    joint.parent.getWorldQuaternion(parentQ);delta.premultiply(parentQ.clone().invert()).multiply(parentQ);
-    joint.quaternion.premultiply(delta);joint.updateWorldMatrix(false,true);
+   for(let j=2;j<c.chain.length;j++){
+    const bone=c.chain[j];if(!bone)continue;
+    bone.getWorldPosition(endpoint);
+    const radius=(.065*Math.pow(1-(j+3)/24,1.2)+.012)*model.scale.x*group.scale.x;
+    lift=Math.max(lift,shelfHeight(endpoint.x,endpoint.z)+radius-endpoint.y);
    }
   }
+  if(Number.isFinite(lift))group.position.y+=THREE.MathUtils.clamp(lift,-.8,.8)*weight;
  }
  let elapsed=0;
  return {group,kind:'blender',setBackdrop:setOceanBackdrop,setQuality(){},
@@ -107,13 +100,13 @@ export async function createOctopus(time,waves){
   },
   setMotion(strength,phase,tucks,options={}){
    const reduced=Boolean(options.reduced),effort=reduced?0:THREE.MathUtils.clamp(strength,0,1);
-   mixer.setTime(phase);
+   mixer.setTime(((phase%12)+12)%12);
    for(let i=0;i<bones.length;i++){
     const b=bones[i];b.quaternion.slerp(resting[i],1-effort);
     const match=boneArm[i];
     if(match&&Number(match[2])>17&&!reduced){
      const amount=(Number(match[2])-17)/6;
-     tipTurns[i].setFromAxisAngle(tipAxis,Math.sin(elapsed*.57+Number(match[1])*1.9-amount)*.008*amount*(1-effort));
+     tipTurns[i].setFromAxisAngle(tipAxis,Math.sin(elapsed*.57+Number(match[1])*1.9-amount)*.022*amount*(1-effort)*(1-(options.settle||0)));
      b.quaternion.multiply(tipTurns[i]);
     }
    }
@@ -148,6 +141,6 @@ export async function createOctopus(time,waves){
    }
    if(options.settle)groundPose(options.settle);
   },
-  dispose(){mixer.stopAllAction();mixer.uncacheRoot(rig);skeletons.forEach(s=>s.dispose());geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());}
+  dispose(){mixer.stopAllAction();mixer.uncacheRoot(rig);skeletons.forEach(s=>s.dispose());geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());}
  };
 }
