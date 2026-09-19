@@ -43,13 +43,13 @@ diffuseColor.rgb*=.96+.035*grain+.045*folds;`:''}`);
  gl_FragColor.rgb=mix(gl_FragColor.rgb,waterBehind.rgb,waterFog);
  #endif`);
   if(skin)shader.fragmentShader=shader.fragmentShader
-   .replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\nroughnessFactor=clamp(roughnessFactor+(patches-.5)*.10,.45,.68);')
+   .replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\nroughnessFactor=clamp(roughnessFactor+(patches-.5)*.17+(grain-.5)*.025,.45,.68);')
    .replace('#include <normal_fragment_maps>',`#include <normal_fragment_maps>
-float skinHeight=(folds-.5)*.003*(1.-smoothstep(.004,.015,length(fwidth(seaLocal))));
+float skinHeight=((folds-.5)*.002+(grain-.5)*.0015)*(1.-smoothstep(.004,.015,length(fwidth(seaLocal))));
 vec3 skinX=dFdx(-vViewPosition),skinY=dFdy(-vViewPosition),skinR1=cross(skinY,normal),skinR2=cross(normal,skinX);
 float skinDet=dot(skinX,skinR1);
 normal=normalize(abs(skinDet)*normal-sign(skinDet)*(dFdx(skinHeight)*skinR1+dFdy(skinHeight)*skinR2));`);
  };
- material.customProgramCacheKey=()=>`codera-water-v6-${skin}`;
+ material.customProgramCacheKey=()=>`codera-water-v7-${skin}`;
  return material;
 }

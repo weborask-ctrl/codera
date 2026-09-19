@@ -24,12 +24,20 @@ export function createReef(time={value:0},waves={value:null}){
  const sand=mat(new THREE.MeshStandardMaterial({color:'#9caa92',map:texture,bumpMap:texture,bumpScale:.025,roughness:.98}));
  const dark=mat(new THREE.MeshStandardMaterial({color:'#153d44',map:texture,bumpMap:texture,bumpScale:.1,roughness:.98,side:THREE.DoubleSide}));
  const floorY=shelfHeight;
- const floor=geo(new THREE.PlaneGeometry(140,200,100,160));floor.rotateX(-Math.PI/2);floor.translate(0,0,-80);
+ const floor=geo(new THREE.PlaneGeometry(140,340,100,272));floor.rotateX(-Math.PI/2);floor.translate(0,0,-145);
  const fp=floor.attributes.position;
  for(let i=0;i<fp.count;i++){const x=fp.getX(i),z=fp.getZ(i);fp.setY(i,floorY(x,z));floor.attributes.uv.setXY(i,x*.19,z*.19);}
  floor.computeVertexNormals();
  const terrainMaterial=photographicRock(time,waves,{sandMap:texture});materials.push(terrainMaterial);
  const seabed=new THREE.Mesh(floor,terrainMaterial);seabed.name='continuous-terrace-and-drop';seabed.receiveShadow=true;group.add(seabed);
+ const dummy=new THREE.Object3D(),color=new THREE.Color(),up=new THREE.Vector3(0,1,0);
+ const savedSeed=seed;
+ const grains=new THREE.InstancedMesh(geo(new THREE.IcosahedronGeometry(1,1)),stone,110);
+ for(let i=0;i<110;i++){
+  const x=-4+random()*46,z=-128-random()*43,s=.025+random()*.09;
+  dummy.position.set(x,shelfHeight(x,z)+s*.25,z);dummy.rotation.set(random(),random()*6,random());dummy.scale.set(s*1.4,s*.55,s);dummy.updateMatrix();grains.setMatrixAt(i,dummy.matrix);
+ }
+ grains.name='seabed-shell-fragments';group.add(grains);seed=savedSeed;
  const surface=(a,t)=>{
   const c=Math.cos(a),s=Math.sin(a),edge=1+.07*Math.sin(a*3)+.05*Math.cos(a*7);
   const innerX=c*2.65*edge,innerY=s*2.25*edge;
@@ -63,7 +71,7 @@ export function createReef(time={value:0},waves={value:null}){
  for(let i=0;i<sp.count;i++){const x=sp.getX(i),y=sp.getY(i),z=sp.getZ(i),relief=.32*Math.sin(x*.85+y*.9+z*.3)+.10*Math.sin(x*2.1-y*1.3+z*.9);sp.setXYZ(i,x+sn.getX(i)*relief,y+sn.getY(i)*relief,z+sn.getZ(i)*relief);}
  sealed.computeVertexNormals();joined.dispose();shellCopies.forEach(g=>g.dispose());
  shellParts.forEach(o=>group.remove(o));const shellMesh=new THREE.Mesh(sealed,stone);shellMesh.name='reef-shell-closed';shellMesh.castShadow=true;group.add(shellMesh);
- const dummy=new THREE.Object3D(),color=new THREE.Color(),up=new THREE.Vector3(0,1,0);
+
  const rawRock=new THREE.IcosahedronGeometry(1,5);rawRock.deleteAttribute('normal');rawRock.deleteAttribute('uv');const rockGeo=geo(mergeVertices(rawRock)),rp=rockGeo.attributes.position;rawRock.dispose();
  for(let i=0;i<rp.count;i++){const x=rp.getX(i),y=rp.getY(i),z=rp.getZ(i),f=1+.10*Math.sin(x*8+y*3)+.08*Math.sin(z*11-x*5);rp.setXYZ(i,x*f,y*f,z*f);}
  rockGeo.computeVertexNormals();
@@ -89,5 +97,5 @@ export function createReef(time={value:0},waves={value:null}){
  branchRecords.forEach((b,i)=>{const d=b.end.clone().sub(b.base);dummy.position.copy(b.base).lerp(b.end,.5);dummy.quaternion.setFromUnitVectors(up,d.clone().normalize());dummy.scale.set(b.radius,d.length(),b.radius);dummy.updateMatrix();branches.setMatrixAt(i,dummy.matrix);branches.setColorAt(i,color.set(b.hue));});
  [...tips,...lobes.map(l=>({p:l.p,r:l.r,hue:l.hue}))].forEach((b,i)=>{dummy.position.copy(b.p);dummy.rotation.set(0,0,0);dummy.scale.set(b.r,b.r*.9,b.r*.8);dummy.updateMatrix();ends.setMatrixAt(i,dummy.matrix);ends.setColorAt(i,color.set(b.hue));});
  branches.castShadow=true;branches.receiveShadow=true;ends.castShadow=true;ends.receiveShadow=true;group.add(branches,ends);
- return {group,dispose(){for(const o of [rocks,branches,ends,deepRocks])o.dispose();geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());}};
+ return {group,dispose(){for(const o of [rocks,branches,ends,deepRocks,grains])o.dispose();geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());}};
 }

@@ -9,7 +9,7 @@ export function photographicRock(time,waves,{vertexColors=false,sandMap=null}={}
  const base=mat.onBeforeCompile;
  mat.onBeforeCompile=shader=>{
   base(shader);shader.uniforms.rockColor={value:maps[0]};shader.uniforms.rockHeight={value:maps[1]};shader.uniforms.rockRough={value:maps[2]};if(sandMap)shader.uniforms.terrainSand={value:sandMap};
-  shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 rockNormal;').replace('#include <begin_vertex>','#include <begin_vertex>\nrockNormal=normalize(mat3(modelMatrix)*normal);');
+  shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 rockNormal;').replace('#include <begin_vertex>','#include <begin_vertex>\nvec3 mappedNormal=normal;\n#ifdef USE_INSTANCING\nmappedNormal=mat3(instanceMatrix)*mappedNormal;\n#endif\nrockNormal=normalize(mat3(modelMatrix)*mappedNormal);');
   shader.fragmentShader=shader.fragmentShader.replace('#include <common>',`#include <common>
 varying vec3 rockNormal;
 uniform sampler2D rockColor,rockHeight,rockRough;
@@ -20,17 +20,22 @@ vec3 rockWeights=pow(abs(normalize(rockNormal)),vec3(4.));rockWeights/=max(.001,
 vec3 rockUV=seaWorld*.55;
 vec3 stoneAlbedo=rockSample(rockColor,rockUV,rockWeights).rgb;
 ${sandMap?`float slopeMix=smoothstep(.60,.94,abs(normalize(rockNormal).y));
-vec3 sandAlbedo=texture2D(terrainSand,seaWorld.xz*.19).rgb*vec3(.65,.70,.57);
+float sandRidge=.5+.5*sin(seaWorld.z*9.+sin(seaWorld.x*.7)*1.8+seaNoise(seaWorld*.4)*2.);
+vec3 sandAlbedo=texture2D(terrainSand,seaWorld.xz*.19).rgb*vec3(.85,.81,.65);
+sandAlbedo*=.92+.08*sandRidge;
 stoneAlbedo=mix(stoneAlbedo,sandAlbedo,slopeMix);`:''}
 diffuseColor.rgb*=stoneAlbedo;`)
   .replace('#include <roughnessmap_fragment>',`#include <roughnessmap_fragment>
 roughnessFactor=clamp(rockSample(rockRough,rockUV,rockWeights).r,.58,.98);`)
   .replace('#include <normal_fragment_maps>',`#include <normal_fragment_maps>
 float elevation=rockSample(rockHeight,rockUV,rockWeights).r*.045;
+${sandMap?`float rippleFilter=1.-smoothstep(.25,1.,fwidth(seaWorld.z*9.));
+float sandRelief=sin(seaWorld.z*9.+sin(seaWorld.x*.7)*1.8+seaNoise(seaWorld*.4)*2.)*.023*rippleFilter;
+elevation=mix(elevation,sandRelief,slopeMix);`:''}
 vec3 sx=dFdx(-vViewPosition),sy=dFdy(-vViewPosition),r1=cross(sy,normal),r2=cross(normal,sx);
 float det=dot(sx,r1);
 normal=normalize(abs(det)*normal-sign(det)*(dFdx(elevation)*r1+dFdy(elevation)*r2));`);
  };
- mat.customProgramCacheKey=()=>`photographic-rock-2-${vertexColors}-${Boolean(sandMap)}`;
+ mat.customProgramCacheKey=()=>`photographic-rock-3-${vertexColors}-${Boolean(sandMap)}`;
  return mat;
 }

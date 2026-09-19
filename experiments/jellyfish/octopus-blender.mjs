@@ -1,5 +1,6 @@
 import * as THREE from '/vendor/three/three.module.min.js';
 import {GLTFLoader} from '/vendor/three/GLTFLoader.js';
+import {shelfHeight} from './deep-path.mjs';
 import {underwaterMaterial,setOceanBackdrop} from './underwater-material.mjs';
 
 // The authoring scene stays in Blender. Only its character and deforming clips
@@ -66,6 +67,37 @@ export async function createOctopus(time,waves){
    joint.quaternion.premultiply(delta);joint.updateWorldMatrix(false,true);
   }
  }
+ const groundArms=Array.from({length:8},(_,i)=>{const arm=String(i+1).padStart(2,'0');return {chain:Array.from({length:21},(_,j)=>rig.getObjectByName(`ARM_${arm}_${String(j+3).padStart(2,'0')}`)),tip:rig.getObjectByName(`ARM_${arm}_23`),joints:[19,15,11,7,3].map(n=>rig.getObjectByName(`ARM_${arm}_${String(n).padStart(2,'0')}`))};});
+ function groundPose(weight){
+  if(!weight)return;
+  group.updateMatrixWorld(true);
+  for(const c of groundArms){
+   if(!c.tip)continue;
+   c.tip.getWorldPosition(endpoint);
+   const target=endpoint.clone();target.y=shelfHeight(target.x,target.z)+.09;
+   for(let pass=0;pass<4;pass++)for(const joint of c.joints){
+    if(!joint)continue;
+    joint.getWorldPosition(origin);c.tip.getWorldPosition(endpoint);
+    a.copy(endpoint).sub(origin).normalize();b.copy(target).sub(origin).normalize();
+    delta.setFromUnitVectors(a,b);const angle=identity.angleTo(delta);
+    delta.slerp(identity,1-Math.min(weight,.18/Math.max(angle,.00001)));
+    joint.parent.getWorldQuaternion(parentQ);delta.premultiply(parentQ.clone().invert()).multiply(parentQ);
+    joint.quaternion.premultiply(delta);joint.updateWorldMatrix(false,true);
+   }
+   // Keep intermediate arm centres above the local sand as well as the tip.
+   // Bounded joint projection is a contact approximation, not soft-body physics.
+   for(let pass=0;pass<2;pass++)for(const bone of c.chain){
+    if(!bone?.parent?.isBone)continue;
+    bone.getWorldPosition(endpoint);const ground=shelfHeight(endpoint.x,endpoint.z)+.18;
+    if(endpoint.y>=ground)continue;
+    const joint=bone.parent;joint.getWorldPosition(origin);
+    a.copy(endpoint).sub(origin).normalize();b.copy(endpoint);b.y=ground;b.sub(origin).normalize();
+    delta.setFromUnitVectors(a,b);delta.slerp(identity,1-weight);
+    joint.parent.getWorldQuaternion(parentQ);delta.premultiply(parentQ.clone().invert()).multiply(parentQ);
+    joint.quaternion.premultiply(delta);joint.updateWorldMatrix(false,true);
+   }
+  }
+ }
  let elapsed=0;
  return {group,kind:'blender',setBackdrop:setOceanBackdrop,setQuality(){},
   update(value){
@@ -95,6 +127,7 @@ export async function createOctopus(time,waves){
     root.position.copy(rootPosition);root.quaternion.copy(rootRotation);
    }
    if(options.contact!==false)contactPose(options.progress||0);
+   if(options.settle)groundPose(options.settle);
   },
   dispose(){mixer.stopAllAction();mixer.uncacheRoot(rig);skeletons.forEach(s=>s.dispose());geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());}
  };

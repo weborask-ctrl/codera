@@ -1,6 +1,7 @@
 import * as THREE from '/vendor/three/three.module.min.js';
 import {createReef} from './reef.mjs';
 import {createRockGate} from './rock-gate.mjs';
+import {finalePose} from './finale-path.mjs';
 import {deepPose} from './deep-path.mjs';
 import {gatePose} from './gate-path.mjs';
 import {SwimController} from './swim-controller.mjs';
@@ -46,14 +47,15 @@ export function createDiveJourney(time,waves){
  const tails=new THREE.InstancedMesh(geometry(new THREE.ConeGeometry(.12,.22,3)),fishMaterial,42);
  fish.name='reef-fish-proxies';tails.name='reef-fish-tail-proxies';scene.add(fish,tails);
  const fishData=Array.from({length:42},()=>({x:(random()-.5)*16,y:-11.5+random()*4,z:-21-random()*14,phase:random()*6.28,size:.7+random()*.7}));
- let workTop=0,gateTop=0,servicesTop=0,deepTop=0,offerTop=0,lastTime=0;
+ let workTop=0,gateTop=0,servicesTop=0,deepTop=0,offerTop=0,processTop=0,processEnd=0,landingTop=0,contactTop=0,lastTime=0;
+ const processController=new SwimController(),landingController=new SwimController();
  const deepController=new SwimController();
  const gateController=new SwimController();
  const controller=new SwimController();
  const tucks=new Float32Array(8);
- function measure(){workTop=document.querySelector('#praca').getBoundingClientRect().top+scrollY;gateTop=document.querySelector('#brana').getBoundingClientRect().top+scrollY;servicesTop=document.querySelector('#sluzby').getBoundingClientRect().top+scrollY;deepTop=document.querySelector('#hrana').getBoundingClientRect().top+scrollY;offerTop=document.querySelector('#ponuka').getBoundingClientRect().top+scrollY;}
+ function measure(){workTop=document.querySelector('#praca').getBoundingClientRect().top+scrollY;gateTop=document.querySelector('#brana').getBoundingClientRect().top+scrollY;servicesTop=document.querySelector('#sluzby').getBoundingClientRect().top+scrollY;deepTop=document.querySelector('#hrana').getBoundingClientRect().top+scrollY;offerTop=document.querySelector('#ponuka').getBoundingClientRect().top+scrollY;processTop=document.querySelector('#spolupraca').offsetTop;processEnd=document.querySelector('#postup').offsetTop;landingTop=document.querySelector('#dno').offsetTop;contactTop=document.querySelector('#kontakt').offsetTop;}
  measure();
- const layoutObserver=new ResizeObserver(measure);layoutObserver.observe(document.querySelector('#praca'));layoutObserver.observe(document.querySelector('#sluzby'));
+ const layoutObserver=new ResizeObserver(measure);layoutObserver.observe(document.querySelector('#praca'));layoutObserver.observe(document.querySelector('#sluzby'));layoutObserver.observe(document.querySelector('#ponuka'));layoutObserver.observe(document.querySelector('#postup'));
  return {scene,measure,setQuality(eco){const n=eco?512:1024;if(light.shadow.mapSize.x!==n){light.shadow.map?.dispose();light.shadow.map=null;light.shadow.mapSize.set(n,n);}},
   update({octopus,uniforms,time,reduced}){
    const mobile=innerWidth<700;
@@ -62,7 +64,9 @@ export function createDiveJourney(time,waves){
    const motion=controller.update(progress,dt,reduced);
    const gateStart=gateTop-innerHeight*.7,gateEnd=servicesTop-innerHeight*.65;
    const next=gateController.update(clamp((scrollY-gateStart)/Math.max(1,gateEnd-gateStart)),dt,reduced);
-   const descent=deepController.update(clamp((scrollY-deepTop+innerHeight*.7)/Math.max(1,offerTop-deepTop+innerHeight*.05)),dt,reduced);lastTime=time;
+   const descent=deepController.update(clamp((scrollY-deepTop+innerHeight*.7)/Math.max(1,offerTop-deepTop+innerHeight*.05)),dt,reduced);
+   const processMotion=processController.update(clamp((scrollY-processTop+innerHeight*.7)/Math.max(1,processEnd-processTop+innerHeight*.05)),dt,reduced);
+   const landingMotion=landingController.update(clamp((scrollY-landingTop+innerHeight*.7)/Math.max(1,contactTop-landingTop+innerHeight*.05)),dt,reduced);lastTime=time;
    const p=motion.progress;scene.fog.color.set('#063e54');
    // Approach, then continuous descent. The same object persists throughout.
    const travel=ease(clamp((p-.16)/.53)),approach=Math.sin(clamp(p/.58)*Math.PI)*.85;
@@ -103,10 +107,18 @@ export function createDiveJourney(time,waves){
     octopus.group.position.fromArray(pose.character);octopus.group.rotation.set(pose.pitch,pose.yaw,-Math.sin(d*Math.PI)*.08);
     octopus.setMotion(descent.effort,descent.clock,tucks,{progress:0,reduced,contact:false});
    }
+   const f=processMotion.progress,l=landingMotion.progress;
+   if(f>0){
+    const finalMotion=l>0?landingMotion:processMotion,pose=finalePose(l>0?l:f,mobile,l>0);
+    uniforms.depth.value=-pose.camera[1];uniforms.cameraOffset.value.set(pose.camera[0],0,pose.camera[2]);uniforms.pointer.value.set(0,(pose.lookY-.08)/.08);
+    scene.fog.density=.031-f*.007-l*.006;
+    octopus.group.position.fromArray(pose.character);octopus.group.rotation.set(pose.pitch,pose.yaw,0);
+    octopus.setMotion(finalMotion.effort*(1-pose.settle),finalMotion.clock,tucks,{progress:0,reduced,contact:false,settle:pose.settle});
+   }
    if(inspect&&p<.01){uniforms.cameraOffset.value.set(3.1,0,-4);uniforms.pointer.value.set(0,0);}
-   light.intensity=2.8*(1-.8*ease(clamp((p-.80)/.2)))*(1-ease(clamp(q/.4)))+2.5*ease(clamp(q/.4));light.intensity*=1-d*.3;light.target.position.copy(octopus.group.position);light.position.copy(octopus.group.position).add(new THREE.Vector3(11,8,-14.66));
+   light.intensity=2.8*(1-.8*ease(clamp((p-.80)/.2)))*(1-ease(clamp(q/.4)))+2.5*ease(clamp(q/.4));light.intensity*=1-d*.3;light.target.position.copy(octopus.group.position);light.position.copy(octopus.group.position).add(new THREE.Vector3(11-16*f,8+4*f,-14.66+22.66*f));
    document.documentElement.style.setProperty('--reading',String(ease(clamp((scrollY-workTop+innerHeight*.3)/(innerHeight*.6)))*(1-ease(clamp(q/.19)))));
-   document.querySelector('canvas').dataset.journey=JSON.stringify({progress:p,gateProgress:q,deepProgress:d,position:octopus.group.position.toArray(),phase:d>0?(d<1?'descent-'+descent.state:'offer'):q>0?(q<1?'gate-'+next.state:'services'):p<.64?motion.state:p<.82?'approach':p<.995?'enter':'hidden',effort:d>0?descent.effort:q>0?next.effort:motion.effort,speed:d>0?descent.speed:q>0?next.speed:motion.speed,clock:d>0?descent.clock:q>0?next.clock:motion.clock});
+   document.querySelector('canvas').dataset.journey=JSON.stringify({progress:p,gateProgress:q,deepProgress:d,processProgress:f,landingProgress:l,position:octopus.group.position.toArray(),phase:l>0?(l<1?'landing-'+landingMotion.state:'seabed'):f>0?(f<1?'process-'+processMotion.state:'process'):d>0?(d<1?'descent-'+descent.state:'offer'):q>0?(q<1?'gate-'+next.state:'services'):p<.64?motion.state:p<.82?'approach':p<.995?'enter':'hidden',effort:l>0?landingMotion.effort:f>0?processMotion.effort:d>0?descent.effort:q>0?next.effort:motion.effort,speed:l>0?landingMotion.speed:f>0?processMotion.speed:d>0?descent.speed:q>0?next.speed:motion.speed,clock:l>0?landingMotion.clock:f>0?processMotion.clock:d>0?descent.clock:q>0?next.clock:motion.clock});
    // The reef exists at the same world coordinates even before we reach it.
    // Do not reveal it with a visibility switch during the descent.
    for(let i=0;i<fishData.length;i++){
