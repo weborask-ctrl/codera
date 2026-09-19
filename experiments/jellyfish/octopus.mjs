@@ -12,6 +12,7 @@ const oceanOptics=(
 
 const vertex = `
 uniform float clock;
+uniform vec3 armRoots[8];
 attribute vec2 flex;
 attribute float occlusion;
 varying float ambientOcclusion;
@@ -19,23 +20,29 @@ varying vec3 local;
 varying vec3 world;
 varying vec3 norm;
 varying vec2 tex;
-vec3 deform(vec3 p){
- float w=flex.x*flex.x;
- p.x+=sin(clock*.63+flex.y-flex.x*2.7)*.10*w;
- p.y+=sin(clock*.71+flex.y*.77-flex.x*3.1)*.13*w;
- p.z+=sin(clock*.57+flex.y*1.13-flex.x*3.6)*.19*w;
- float breath=sin(clock*.85)*.012*smoothstep(.0,.9,p.y);
- p.x+=breath*p.x;p.z+=breath*p.z;
+vec3 deform(vec3 p,inout vec3 n){
+ if(flex.y>.01){
+  int arm=int(clamp(floor((flex.y-.3)/.87+.5),0.,7.));
+  float w=flex.x*flex.x,lag=flex.x*2.5;
+  float az=sin(clock*.49+flex.y*.73-lag)*.075*w;
+  float ay=sin(clock*.37+flex.y-lag*.8)*.105*w;
+  float cz=cos(az),sz=sin(az),cy=cos(ay),sy=sin(ay);
+  mat3 rz=mat3(cz,sz,0.,-sz,cz,0.,0.,0.,1.);
+  mat3 ry=mat3(cy,0.,-sy,0.,1.,0.,sy,0.,cy);
+  mat3 rotation=ry*rz;
+  p=armRoots[arm]+rotation*(p-armRoots[arm]);n=rotation*n;
+ }else{
+  float breath=sin(clock*.70)*.018*smoothstep(.15,.95,p.y);
+  float scale=1.+breath;vec3 stretch=vec3(scale,1./(scale*scale),scale),center=vec3(.03,.9,-.35);
+  p=center+(p-center)*stretch;n/=stretch;
+ }
  p.y+=sin(clock*.43)*.035;
  return p;
 }
 void main(){
  local=position;tex=uv;ambientOcclusion=occlusion;
- vec3 baseNormal=length(normal)>.01?normalize(normal):vec3(0,0,1);
- vec3 axis=abs(baseNormal.y)<.85?vec3(0,1,0):vec3(1,0,0);
- vec3 tangent=normalize(cross(axis,baseNormal)),bitangent=cross(baseNormal,tangent);
- vec3 p=deform(position);
- vec3 n=normalize(cross(deform(position+tangent*.006)-p,deform(position+bitangent*.006)-p));
+ vec3 n=length(normal)>.01?normalize(normal):vec3(0,0,1);
+ vec3 p=deform(position,n);n=normalize(n);
  vec4 wp=modelMatrix*vec4(p,1.);
  world=wp.xyz;norm=normalize(mat3(modelMatrix)*n);
  gl_Position=projectionMatrix*viewMatrix*wp;
@@ -242,7 +249,7 @@ export async function createOctopus(time,waves={value:null}){
  const reviewAngle=Number.isFinite(requestedAngle)?Math.max(-90,Math.min(90,requestedAngle))*Math.PI/180:0;
  const shadowTarget=new THREE.WebGLRenderTarget(1024,1024,{minFilter:THREE.NearestFilter,magFilter:THREE.NearestFilter,depthBuffer:true});
  const lightCamera=new THREE.OrthographicCamera(-4.5,4.5,4.5,-4.5,.1,24);
- const common={clayMode:{value:new URLSearchParams(location.search).has('clay')},clock:time,surfaceLight:waves,hasSurfaceLight:{value:Boolean(waves.value)},shadowImage:{value:shadowTarget.texture},shadowProjection:{value:new THREE.Matrix4()},shadowPixel:{value:new THREE.Vector2(1/1024,1/1024)},shadowReady:{value:false}};
+ const common={armRoots:{value:paths.map(path=>V(path[0]))},clayMode:{value:new URLSearchParams(location.search).has('clay')},clock:time,surfaceLight:waves,hasSurfaceLight:{value:Boolean(waves.value)},shadowImage:{value:shadowTarget.texture},shadowProjection:{value:new THREE.Matrix4()},shadowPixel:{value:new THREE.Vector2(1/1024,1/1024)},shadowReady:{value:false}};
  const makeMat=kind=>{const m=new THREE.ShaderMaterial({uniforms:{...common,kind:{value:kind}},vertexShader:vertex,fragmentShader:fragment,side:THREE.DoubleSide});materials.push(m);return m;};
  const skin=makeMat(0),sucker=makeMat(1),iris=makeMat(2),cornea=makeMat(3);
  cornea.transparent=true;cornea.depthWrite=false;cornea.side=THREE.FrontSide;
@@ -336,11 +343,15 @@ export async function createOctopus(time,waves={value:null}){
  lens.geometry.computeVertexNormals();corneas.push(lens);
  lens.renderOrder=2;
  }
- const depthMaterial=new THREE.ShaderMaterial({uniforms:{clock:time},vertexShader:vertex,fragmentShader:'#include <packing>\nvoid main(){gl_FragColor=packDepthToRGBA(gl_FragCoord.z);}',side:THREE.DoubleSide,toneMapped:false});
+ const depthMaterial=new THREE.ShaderMaterial({uniforms:{clock:time,armRoots:common.armRoots},vertexShader:vertex,fragmentShader:'#include <packing>\nvoid main(){gl_FragColor=packDepthToRGBA(gl_FragCoord.z);}',side:THREE.DoubleSide,toneMapped:false});
+ let shadowInterval=0,lastShadow=-Infinity;
  const oldClear=new THREE.Color();
  return {group,setBackdrop(){},
+  setQuality(eco){const size=eco?512:1024;shadowTarget.setSize(size,size);common.shadowPixel.value.set(1/size,1/size);shadowInterval=eco?1/15:0;common.shadowReady.value=false;lastShadow=-Infinity;},
   update(elapsed){group.rotation.y=reviewAngle+Math.sin(elapsed*.24)*.025;group.rotation.z=-.025+Math.sin(elapsed*.31)*.012;},
   renderShadow(renderer,scene){
+   if(common.shadowReady.value&&time.value-lastShadow<shadowInterval)return;
+   lastShadow=time.value;
    lightCamera.position.copy(group.position).add(V([4.1,7.3,-5.5]));lightCamera.lookAt(group.position);lightCamera.updateMatrixWorld();
    common.shadowProjection.value.multiplyMatrices(lightCamera.projectionMatrix,lightCamera.matrixWorldInverse);
    const target=renderer.getRenderTarget(),override=scene.overrideMaterial,alpha=renderer.getClearAlpha();renderer.getClearColor(oldClear);

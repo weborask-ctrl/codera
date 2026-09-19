@@ -95,3 +95,18 @@ Verified close-up in the natural viewport and whole material at a Full HD viewpo
 - Kept the approved ocean shader, geometry, eyes and motion unchanged.
 
 Verified whole view and arm detail in the live browser; no shader/console errors. Syntax and diff checks passed. This refines scene integration rather than declaring final photorealism. Performance and full motion validation remain part of step 6; no 4K or 60 fps claim.
+
+## Iteration 6 implementation — idle motion and performance
+
+2026-09-19. Marcus requested step 6.
+
+- Replaced independent positional arm offsets with phase-delayed rotations around each arm root. Tips move more than proximal sections; skin, analytical tips and cups share the same deformation parameters.
+- Slowed mantle breathing and compensated transverse expansion with longitudinal contraction. This is an approximate local deformation, not a muscle or volume simulation.
+- Rotate normals with the local arm section instead of evaluating the deformation three times per vertex. Both visible and shadow passes use the same motion.
+- Strengthened the optional economy mode: pixel ratio capped at 0.75, smaller volumetric buffer, 512px creature shadows updated at most 15 times per second. Full quality retains 1024px shadows and the existing ocean quality settings. Approved ocean shader unchanged.
+
+Verified whole view and arm close-up at two idle phases; no obvious detached cups or torn joins in those inspected views. No browser shader/console errors; syntax and diff checks pass. Pause held the canvas frame counter at 2620 across separate checks; resume and quality switching worked.
+
+On the current machine/browser at a 740 x 646 viewport, observed approximately 11–13 fps in the Full HD mode (actual buffer 740 x 646), and 19 fps in economy (555 x 484). These are UI samples, not a controlled benchmark or a 1080p/4K performance claim. The render loop remains capped at 30 fps. Full quality restored for review.
+
+This completes the scoped idle/performance pass, not final photorealism or the future scroll rig. Large pose changes, arm self-collisions, scroll-driven entrances/exits and performance at production resolutions still need dedicated work. The current eyes and overall creature remain visibly CG; artistic approval belongs to Marcus.
