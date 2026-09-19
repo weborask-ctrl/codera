@@ -1,5 +1,7 @@
 # First swim cycle
 
+Historical iterations I and II are documented below. The current `codera-octopus-swim.blend` / `.glb` contain Motion III; see [MOTION_III.md](MOTION_III.md) for the repaired weights, 12-second steering sequence and current verification.
+
 19 September 2026. Work in progress on the accepted crown geometry.
 
 `scripts/animate-octopus-swim.py` adds a three-second in-place cycle in Blender 5.2. The original static master remains in `codera-octopus-rig.blend`; the animation is saved separately as `codera-octopus-swim.blend` and `.glb`.
