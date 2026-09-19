@@ -41,11 +41,12 @@ export function createMarineWorld(waves,vents,library=null,surfaces=[]){
   rotation.premultiply(new THREE.Quaternion().slerp(lean,.58));
   return {...r,p:hit.point.addScaledVector(normal,-.035).toArray(),r:new THREE.Euler().setFromQuaternion(rotation).toArray().slice(0,3)};
  };
- const mountGround=r=>{
-  if(!surfaces.length)return r;
-  surfaces.forEach(o=>o.updateMatrixWorld(true));
+ const shellSurfaces=surfaces.filter(o=>o.name!=='continuous-eroded-stone-gateway');
+ const mountGround=(r,targets=surfaces)=>{
+  if(!targets.length)return r;
+  targets.forEach(o=>o.updateMatrixWorld(true));
   const ray=new THREE.Raycaster(new THREE.Vector3(r.p[0],r.p[1]+9,r.p[2]),new THREE.Vector3(0,-1,0),0,16);
-  const hit=ray.intersectObjects(surfaces,true)[0];
+  const hit=ray.intersectObjects(targets,true)[0];
   return hit?{...r,p:[r.p[0],hit.point.y+.008,r.p[2]]}:r;
  };
  // Anchors are on the front shelf or buried into its ledges; leave the den clear.
@@ -74,31 +75,43 @@ export function createMarineWorld(waves,vents,library=null,surfaces=[]){
   plants.push({p:[px,shelfHeight(px,pz)-.1,pz],s:.55+random()*.8,r:[0,random()*6.28,0]});
  }
  for(const [x,z] of [[11.7,-149],[23,-151],[19.8,-161]])plants.push({p:[x-.2,shelfHeight(x,z),z],s:.65,r:[0,0,0]});
- assetBatch('Plant0','plant',plants.map(mountGround),'current-driven-seagrass',plantGeometry,plantMat);
+ assetBatch('Plant0','plant',plants.map(r=>mountGround(r)),'current-driven-seagrass',plantGeometry,plantMat);
  for(let variant=0;variant<3;variant++){
   const records=[];
-  for(let i=0;i<38;i++){
-   const section=i%3,px=(section===0?18:section===1?23:18)+(random()-.5)*(section===0?22:16),pz=(section===0?-45:section===1?-127:-151)+(random()-.5)*15;
-   records.push(mountGround({p:[px,shelfHeight(px,pz)+.02,pz],s:.16+random()*.48,r:[(random()-.5)*.25,random()*6.28,0]}));
+  // Loose shells follow the seabed throughout the descent. Around the gateway
+  // they stay on the sand in its open centre; the arch is never a mount target.
+  const beds=[[0,-18,26,10],[18,-47,6,11],[18,-64,20,12],[21,-91,16,12],[21,-113,22,15],[23,-131,20,12],[17,-148,22,12],[19,-165,22,12]];
+  for(const [cx,cz,width,depth] of beds)for(let i=0;i<6;i++){
+   const px=cx+(random()-.5)*width,pz=cz+(random()-.5)*depth;
+   records.push(mountGround({p:[px,shelfHeight(px,pz)+.02,pz],s:.12+random()**1.5*.34,r:[(random()-.5)*.14,random()*6.28,0]},shellSurfaces));
   }
-  // Attached clusters on the camera-facing arch surface. Parametric points use
-  // the same arch formula as rock-gate, with shells facing toward the viewer.
-  for(let i=0;i<24;i++){
-   const a=.19+random()*2.76,around=Math.PI*.5;
-   const erosion=.22*Math.sin(a*17+around*3)+.13*Math.sin(a*39-around*7)+.08*Math.sin(a*71+around*13);
-   const x=18+Math.cos(a)*8+.55*Math.sin(a*2),y=-20+Math.sin(a)*(12+.65*Math.sin(a*3)),z=-47+3.2+erosion+Math.sin(a*4)*.65;
-   records.push({p:[x,y,z+.01],s:.18+random()*.25,r:[Math.PI*.48,0,random()*6.28]});
+  // Attached shells live on the original reef, outside the octopus den.
+  // Orient the valve against the actual rock normal, not an arbitrary plane.
+  for(let i=0;i<16;i++){
+   const x=2+(i%2?1:-1)*(4.4+random()*16),y=-10-random()*6;
+   const ray=new THREE.Raycaster(new THREE.Vector3(x,y,-8),new THREE.Vector3(0,0,-1),0,30);
+   const hit=ray.intersectObjects(shellSurfaces,true)[0];if(!hit)continue;
+   const transform=hit.object.matrixWorld.clone();
+   if(hit.object.isInstancedMesh){const matrix=new THREE.Matrix4();hit.object.getMatrixAt(hit.instanceId,matrix);transform.multiply(matrix);}
+   const normal=hit.face.normal.clone().applyNormalMatrix(new THREE.Matrix3().getNormalMatrix(transform));
+   const rotation=new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0),normal).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),random()*Math.PI*2));
+   records.push({p:hit.point.addScaledVector(normal,.006).toArray(),s:.14+random()*.21,r:new THREE.Euler().setFromQuaternion(rotation).toArray().slice(0,3)});
   }
   assetBatch(`Shell${variant}`,'shell',records,`ribbed-shells-${variant}`,()=>shellGeometry(variant),shellMat);
  }
  const fishSchools=[];
  for(let type=0;type<4;type++){
-  // Separate open-water lanes flank the route. The final landing corridor stays
-  // clear for every phase, rather than pushing a central swarm aside at runtime.
-  const lanes=[[-7,-8.5,-15],[10,-7,-18],[9,-12,-40],[28,-12.5,-43],[4,-47.5,-150],[30,-48,-155],[15,-45.5,-166]];
-  const data=Array.from({length:type===0?14:7},(_,i)=>{
-   const lane=(i+type*2)%lanes.length,base=lanes[lane],center=[base[0]+(random()-.5)*2.6,base[1]+(random()-.5)*1.8,base[2]+(random()-.5)*4.2];
-   return {center,radius:1.5+random()*1.6,depthRadius:.6+random()*1.2,phase:random()*6.28,level:(random()-.5)*2.5,scale:(type===0?.36:.46)+random()*.25,speed:.055+random()*.065};
+  // Continuous coverage follows the CAMERA journey, including its right-hand
+  // bypass of the first reef and the previously empty deep-water transitions.
+  // [route centre x, water height, z, lateral spacing]. Final side lanes retain
+  // an empty landing corridor on desktop and mobile at every swim phase.
+  const lanes=[[0,-3.5,-10,4.2],[1,-7,-19,7],[34,-10,-23,4],[32,-12,-41,4],[18,-12,-53,4],[19,-12,-65,4.5],[20,-13,-76,5],[21,-23,-91,4.7],[21,-30,-106,5],[23,-36,-121,6],[22,-42,-136,7],[17.5,-47,-149,12],[18,-47.5,-161,12],[17,-45.5,-174,6]];
+  const data=Array.from({length:type===0?28:21},(_,i)=>{
+   const lane=(i+type*3)%lanes.length,[cx,cy,cz,spread]=lanes[lane];
+   const side=(i+type+Math.floor(i/lanes.length))%2?1:-1;
+   const distant=(i+type)%3===0;
+   const center=[cx+side*(spread+(random()-.5)*1.3),cy+(random()-.5)*2.8,cz+(random()-.5)*3.6-(distant?3.2:0)];
+   return {center,radius:1.0+random()*1.05,depthRadius:.65+random()*1.25,phase:random()*6.28,level:(random()-.5)*1.4,scale:((type===0?.30:.40)+random()*.20)*(distant?.72:1),speed:.055+random()*.07,direction:random()>.5?1:-1};
   });
   const meshes=assetBatch(`Fish${type}`,'fish',data.map(()=>({p:[0,0,0]})),`reef-fish-species-${type}`,()=>fishGeometry(type),fishMat);fishSchools.push({meshes,data});
  }
@@ -122,12 +135,12 @@ export function createMarineWorld(waves,vents,library=null,surfaces=[]){
    const t=clock.value;
    for(const {meshes,data} of fishSchools){
     data.forEach((f,i)=>{
-     const a=f.phase+t*f.speed,x=f.center[0]+Math.cos(a)*f.radius,z=f.center[2]+Math.sin(a)*f.depthRadius;
+     const a=f.phase+t*f.speed*f.direction,x=f.center[0]+Math.cos(a)*f.radius,z=f.center[2]+Math.sin(a)*f.depthRadius;
      const finalMobile=mobile&&f.center[2]<-140;
      dummy.position.set(x,Math.max(shelfHeight(x,z)+1.3,f.center[1]+f.level+Math.sin(a*2)*.18),z);
      const away=new THREE.Vector3().subVectors(dummy.position,octopus.position),distance=away.length();
      if(distance<2.5&&distance>.001)dummy.position.addScaledVector(away,(2.5-distance)*.36/distance);
-     dummy.rotation.set(0,Math.atan2(-Math.cos(a)*f.depthRadius,-Math.sin(a)*f.radius),Math.cos(a)*.035);dummy.scale.setScalar(f.scale*(finalMobile?.85:1));dummy.updateMatrix();for(const mesh of meshes)mesh.setMatrixAt(i,dummy.matrix);
+     dummy.rotation.set(0,Math.atan2(-Math.cos(a)*f.depthRadius*f.direction,-Math.sin(a)*f.radius*f.direction),Math.cos(a)*.035);dummy.scale.setScalar(f.scale*(finalMobile?.85:1));dummy.updateMatrix();for(const mesh of meshes)mesh.setMatrixAt(i,dummy.matrix);
     });for(const mesh of meshes)mesh.instanceMatrix.needsUpdate=true;
    }
    horseRoots.forEach(([x,z],i)=>{

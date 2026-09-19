@@ -26,15 +26,30 @@ world.group.traverse(o=>{if(o.isInstancedMesh)assert(o.instanceMatrix.array.ever
 world.update(17,true,octopus,0);const first=world.group.getObjectByName('reef-fish-species-0').instanceMatrix.array.slice();
 world.update(29,true,octopus,0);assert.deepEqual(world.group.getObjectByName('reef-fish-species-0').instanceMatrix.array,first,'reduced motion should be deterministic');
 const transform=new THREE.Matrix4(),position=new THREE.Vector3();
+const depthBands=[[-18,0],[-39,-18],[-58,-39],[-83,-58],[-111,-83],[-141,-111],[-185,-141]];
 for(let time=0;time<600;time+=3){
  world.update(time,false,octopus,1);
+ const coverage=depthBands.map(()=>0);
  for(let type=0;type<4;type++){
   const fish=world.group.getObjectByName(`reef-fish-species-${type}`);
   for(let i=0;i<fish.count;i++){
    fish.getMatrixAt(i,transform);position.setFromMatrixPosition(transform);
+   depthBands.forEach(([near,far],index)=>{if(position.z>=near&&position.z<far)coverage[index]++;});
    if(position.z<-140)for(const x of [15,18])assert(Math.hypot(position.x-x,position.z+151)>5,'finale swim lanes must leave landing clear');
   }
  }
+ assert(coverage.every(n=>n>=3),`fish must populate the whole journey: ${coverage}`);
 }
 const n=world.group.children.length;world.dispose();
-console.log(`PASS: ${vertices} library vertices, ${n} world batches; finite geometry/transforms, index bounds, reduced motion, disposal.`);
+// A deliberately broad raised gateway catches every accidental upward mount.
+// Shells must hit the separate seabed, while plants may still use the gateway.
+const reef=new THREE.Group(),gate=new THREE.Group();gate.name='continuous-eroded-stone-gateway';
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(200,400),new THREE.MeshBasicMaterial({side:THREE.DoubleSide}));floor.rotation.x=-Math.PI/2;floor.position.set(0,-18,-100);reef.add(floor);
+const arch=new THREE.Mesh(new THREE.BoxGeometry(36,5,22),floor.material);arch.position.set(18,-12,-47);gate.add(arch);
+const mounted=createMarineWorld({value:null},[],null,[reef,gate]);let sandShells=0;
+mounted.group.traverse(o=>{if(o.name.startsWith('ribbed-shells-'))for(let i=0;i<o.count;i++){
+ o.getMatrixAt(i,transform);position.setFromMatrixPosition(transform);
+ if(position.z>-58&&position.z<-36){assert(Math.abs(position.y+17.992)<.001,'no shell may mount the gateway');sandShells++;}
+}});
+assert(sandShells>=18,'shells remain on sand beneath the gateway');mounted.dispose();floor.geometry.dispose();arch.geometry.dispose();floor.material.dispose();
+console.log(`PASS: ${vertices} library vertices, ${n} world batches; finite geometry, reduced motion, 7 populated depth bands, clear landing, shells exclude gateway.`);

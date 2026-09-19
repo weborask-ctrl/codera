@@ -7,8 +7,9 @@
 - Štyri ryby inšpirované útesovými druhmi: odlišné proporcie, plynulý profil tela, zaoblený predok, oči, žiabrové viečka, ústa, chvost a samostatné plutvy. Farba a jemné šupiny sú v zabalených 1024² mapách farby a normál. Nie sú to fotografické skeny.
 - Plutvy majú vlastný materiál, štruktúru lúčov a miernu priehľadnosť. Web zachováva exportované PBR materiály. Nezamieňa ich za jednotnú farbu.
 - Chvost sa ohýba plynulo smerom od tela, prsné plutvy majú jemný samostatný pohyb. Každý jedinec má vlastnú fázu. Normály povrchu sa deformujú spolu s geometriou.
-- Ryby plávajú v oddelených priestoroch po stranách trasy, v odlišných hĺbkach. Záverečné pristátie má vyhradený voľný koridor. Nie je to plná simulácia húfu či kolízií.
+- Ryby plávajú v oddelených priestoroch po stranách trasy, v odlišných hĺbkach. Po Marcusovej úprave rozmiestnenia je 91 jedincov rozdelených do 14 úsekov od hladiny cez obchádzku útesu, bránu, terasu a hlbokú stenu až po dno. Vzdialenejšie ryby sú menšie, jedince majú rôzne smery plávania. Záverečné pristátie má vyhradený voľný koridor. Nie je to plná simulácia húfu či kolízií.
 - Mušle: hrebenatka, slávka a ustrica majú rozdielnu geometriu, materiál a rastové vrstvy. Hrebenatka/ustrica majú hrúbku okraja; už nejde o tri prefarbené kópie jedného tvaru.
+- **Mušle nepatria na skalnú bránu.** Sú iba na piesku a útesoch. Brána je explicitne vylúčená z cieľov osádzania mušlí. Dno má osem priestorov s voľne roztrúsenými menšími mušľami; na prvom útese sa orientujú podľa jeho povrchu, mimo vstupu chobotnice.
 - Riasa má uchytenie, stonky, vzduchové mechúriky a zvlnené listy. Pohyb sa zvyšuje smerom od koreňa. Rastliny sú štylizáciou chaluhy pre túto výtvarnú scénu, nie rekonštrukciou presného biotopu.
 - Korály: vetvená kolónia, nepravidelný prepojený vejár a tenké tanierové kolónie. Pôvodné pomocné valčeky v útesoch a bráne boli odstránené. Nové korály sa uchytávajú raycastom na skutočnom povrchu.
 - Skaly si zachovávajú fotografické CC0 textúry. Geometria má plochejšie zlomy a vrstvy; materiál pridáva jemné škáry a teplejšie povrchové usadeniny. Priechody a uzavretý plášť útesu sú zachované.
@@ -45,6 +46,8 @@ Referenčné fotografie neboli skopírované do produkčných textúr.
 ## Overenie a zostávajúca práca
 
 Integračný test načíta skutočné binárne geometrie z GLB a zapojí ich do sveta. Overuje aj to, že všetkých päť materiálových častí každej ryby má počas pohybu rovnaké transformácie; oči a plutvy teda nezostávajú za telom. Priehľadnosť plutiev je prítomná v exporte. Export obsahuje 157 464 vrcholov naprieč 11 modelmi.
+
+Test rozmiestnenia overuje počas 600 sekúnd prítomnosť rýb vo všetkých siedmich širokých hĺbkových pásmach aj voľné finálne pristátie. Samostatná geometrická situácia s vyvýšenou bránou overuje, že mušle zostanú na dne a neuchytia sa na bránu.
 
 `check-marine-film.mjs` overuje skutočný GLB: všetkých 11 koreňov modelov, metre/orientáciu, platnú geometriu, UV a vložené PBR mapy. `check-marine-assets.mjs` overuje aj konečné rozmiestnenie rýb počas 600 sekúnd a voľný koridor okolo oboch miest pristátia. Test uzavretia útesu zachováva 16 000 trojuholníkov a 24 000 hrán s presne dvoma susednými plochami. Testy trás brány, zostupu a finále prešli.
 
