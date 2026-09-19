@@ -7,10 +7,13 @@ Created 2026-09-19 in Blender 5.2 through cloud Blender execution. The local PC 
 - `scripts/build-octopus-blender.py`: authored rest curves, arm surfaces, paired suckers, mantle/head, eyes, membranes, initial deformation chains and studio setup.
 - `scripts/refine-octopus-blender.py`: continuous skin, transferred weights, smaller eyes, independent siphon/gaze controls and material refinement.
 - `scripts/check-octopus-blender.py`: temporary bend/ventilation inspection. Do not save the tested pose over the neutral master.
-- `scripts/create-octopus-blender.py`: local command-line wrapper to run both passes and save the final `.blend`, `.glb` and render; requires Blender 5.2.
+- `scripts/blend-octopus-crown.py`: shared fleshy crown and local smoothing of the head/arm transition.
+- `scripts/check-octopus-crown-weights.py`: rebind outer arms independently of the crown and check weight sums.
+- `scripts/check-octopus-crown-pose.py`: temporary proximal bend and three-quarter render.
+- `scripts/create-octopus-blender.py`: local command-line wrapper to run all modelling passes and save the final `.blend`, `.glb` and render; requires Blender 5.2.
 - `docs/OCTOPUS_MOTION_RESEARCH.md`: sourced research, observations, proposed direction matrix, unresolved reference work.
 
-In a fresh Blender file execute build, then refine and save, or run `blender --background --python scripts/create-octopus-blender.py -- --output assets/blender/octopus` from the repository root. Cloud execution skips the build script's initial render when rebuilding both passes together. Scripts are the source of the procedural geometry; no downloaded animal mesh was used. New mathematical geometry is based on the project's existing authored arm paths and Marcus's frontal composition reference.
+In a fresh Blender file execute build, refine, blend-crown and check-crown-weights in that order, then save; or run `blender --background --python scripts/create-octopus-blender.py -- --output assets/blender/octopus` from the repository root. Scripts are the source of the procedural geometry; no downloaded animal mesh was used. New mathematical geometry is based on the project's existing authored arm paths and Marcus's frontal composition reference.
 
 ## Scope
 
@@ -34,21 +37,25 @@ Only a downloaded, verified final revision should be used. Intermediate renders 
 
 ## Downloaded master
 
-Committed cloud revision **3**, operation `closed-volumes-rebuild-03`.
+Committed cloud revision **6**, operation `surface-weight-transfer-06`. Marcus requested a visibly smooth connection from head to arms; the shared crown volume removes the cut-off cylinder appearance of revision 3. The final arm weights are interpolated from sampled arm surfaces rather than their centre lines, to reduce incorrect ownership at overlaps.
 
-- `codera-octopus-rig.blend`: 49,761,109 bytes, Blender source with editable materials, weights and 197 bones.
-- `codera-octopus-rig.glb`: 23,225,008 bytes, 16 meshes, one skin, 197 joints, 631,724 triangles. This is too dense to treat as the approved low-budget web asset.
-- `octopus-refined-front.png`: actual Eevee render of revision 3.
-- The cloud exporter emitted two animation containers covering the rest frame range. All 592 output samplers were checked and are constant. These are not authored swimming or crawling clips.
+- `codera-octopus-rig.blend`: 47,562,107 bytes, Blender source with editable materials, weights and 197 bones.
+- `codera-octopus-rig.glb`: 22,066,416 bytes, 16 meshes, 599,368 triangles. This is too dense to treat as the approved low-budget web asset.
+- `octopus-crown-front.png`: actual Eevee render after the geometric crown edit (revision 4); revisions 5 and 6 change weights only and preserve this rest shape.
+- Older renders remain as iteration evidence. No authored swimming or crawling clips yet.
 
 SHA-256:
 
 ```text
-blend 4d00ce1324ba216a2d0995a39faa9b973e192a351594726dc4d71c4cfc2ae9a8
-glb   4be8122ae8724b1c3756f2802b6f4d2ebc5c0bd227d1237ea008368217b203bc
+blend ba29cdf4776cda0cace1f2660e2f683cec32f75545df042a2e815899afe20e38
+glb   576ed763ae3bbf934c623510dbc5915e94e81b4a593c19d09ae2e14ef23b2b35
 ```
 
 ## Verification
+
+Current crown pass: 259,518 skin vertices; 160,263 outer-arm vertices rebound; no unweighted vertices and all weight sums normalized. Frontal crown render inspected. Historical revision-3 checks below are retained as development evidence and do not establish full-range validation of the current rig.
+
+`verify-crown-pose-06` passed and its three-quarter render was inspected. The proximal arm bend retains the head/crown connection; the conspicuous stretched flap seen with nearest-centreline binding is reduced after surface-based transfer. All evaluated coordinates are finite. The saved master remains in the rest pose. Thin inter-arm webbing still needs full-range contact/pose validation before production animation.
 
 Revision 3 numerical deformation query `verify-numerical-03` passed:
 
