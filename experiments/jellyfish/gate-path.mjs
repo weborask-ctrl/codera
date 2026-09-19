@@ -16,7 +16,7 @@ export function gatePose(progress,mobile=false){
  const emerge=ease(q/.34),swim=ease((q-.22)/.78);
  return {
   camera:track(q,[[0,.7,-12,-9],[.18,34,-12,-12],[.4,34,-13,-34],[.58,18,-14,-39],[.76,18,-14,-47],[1,18,-14,-55]]),
-  character:track(q,[[0,9,-12.7,-32],[.23,29,-12.7,-33],[.4,29,-13.1,-40],[.58,18,-13.7,-46],[1,mobile?18:21,-14.5,-61]]),
+  character:track(q,[[0,9,-12.7,-32],[.08,9,-12.7,-38],[.23,29,-12.7,-39],[.4,29,-13.1,-40],[.58,18,-13.7,-46],[1,mobile?18:21,-14.5,-61]]),
   pitch:1.23*(1-emerge),yaw:-.6*emerge+.25*swim,
   fold:1-emerge,progress:q,
  };

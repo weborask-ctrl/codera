@@ -1,32 +1,13 @@
 import * as THREE from '/vendor/three/three.module.min.js';
 import {mergeVertices} from '/vendor/three/BufferGeometryUtils.js';
+import {photographicRock} from './photographic-rock.mjs';
 import {underwaterMaterial} from './underwater-material.mjs';
 
 export function createRockGate(time,waves){
  const group=new THREE.Group();group.name='continuous-eroded-stone-gateway';
  const geometries=[],materials=[];
  const geo=g=>(geometries.push(g),g);
- const stone=underwaterMaterial(new THREE.MeshStandardMaterial({color:'#b4b8a9',roughness:.89,vertexColors:true}),time,waves);
- materials.push(stone);
- // Large sediment strata plus small mineral breakup in object space. No image plane.
- const compile=stone.onBeforeCompile;
- stone.onBeforeCompile=shader=>{
-  compile(shader);
-  shader.fragmentShader=shader.fragmentShader.replace('#include <roughnessmap_fragment>',`#include <roughnessmap_fragment>
-float strata=sin(seaLocal.y*9.+seaNoise(seaLocal*.7)*5.);
-float mineral=seaNoise(seaLocal*23.);
-diffuseColor.rgb*=.84+.12*strata+.12*mineral;
-roughnessFactor=clamp(.83+.12*mineral,.7,.98);
-float seams=smoothstep(.90,.99,abs(strata));
-diffuseColor.rgb*=1.-seams*.16;`)
-  .replace('#include <normal_fragment_maps>',`#include <normal_fragment_maps>
-float rockRelief=seaNoise(seaLocal*4.)*.010+seaNoise(seaLocal*14.)*.002;
-vec3 surfaceX=dFdx(vViewPosition),surfaceY=dFdy(vViewPosition);
-vec3 crossY=cross(surfaceY,normal),crossX=cross(normal,surfaceX);
-float determinant=dot(surfaceX,crossY);
-normal=normalize(abs(determinant)*normal-sign(determinant)*(dFdx(rockRelief)*crossY+dFdy(rockRelief)*crossX));`);
- };
- stone.customProgramCacheKey=()=> 'codera-stratified-gate-v1';
+ const stone=photographicRock(time,waves,{vertexColors:true});materials.push(stone);
  const pos=[],colors=[],indices=[],uCount=128,vCount=28;
  const color=new THREE.Color();
  for(let u=0;u<=uCount;u++){
@@ -34,13 +15,13 @@ normal=normalize(abs(determinant)*normal-sign(determinant)*(dFdx(rockRelief)*cro
   for(let v=0;v<=vCount;v++){
    const around=v/vCount*Math.PI*2;
    const erosion=.22*Math.sin(angle*17+around*3)+.13*Math.sin(angle*39-around*7)+.08*Math.sin(angle*71+around*13);
-   const radius=2.15+erosion+.28*Math.sin(angle*5);
-   const x=18+Math.cos(angle)*(8+Math.cos(around)*radius);
-   const y=-20+Math.sin(angle)*(12+Math.cos(around)*radius);
+   const radius=2.15+erosion+.50*Math.sin(angle*3+.6)+.25*Math.cos(angle*7);
+   const x=18+Math.cos(angle)*(8+Math.cos(around)*radius)+.55*Math.sin(angle*2);
+   const y=-20+Math.sin(angle)*(12+Math.cos(around)*radius+.65*Math.sin(angle*3));
    const z=-47+Math.sin(around)*(3.2+erosion)+Math.sin(angle*4)*.65;
    pos.push(x,y,z);
    const strata=.5+.5*Math.sin(y*3.2+Math.sin(x*.8));
-   color.set('#869b91').lerp(new THREE.Color('#c0ad85'),strata*.45);
+   color.setRGB(.8+strata*.15,.84+strata*.12,.8+strata*.10);
    color.multiplyScalar(.72+.28*Math.max(0,Math.cos(around)));
    colors.push(color.r,color.g,color.b);
   }
@@ -56,7 +37,7 @@ normal=normalize(abs(determinant)*normal-sign(determinant)*(dFdx(rockRelief)*cro
  const bc=[];
  for(let i=0;i<bp.count;i++){
   const x=bp.getX(i),y=bp.getY(i),z=bp.getZ(i),r=1+.065*Math.sin(x*8+y*4)+.025*Math.sin(z*15-y*5);
-  bp.setXYZ(i,x*r,y*r,z*r);const shade=.70+.2*(y+1)/2;color.set('#869b91').multiplyScalar(shade);bc.push(color.r,color.g,color.b);
+  bp.setXYZ(i,x*r,y*r,z*r);const shade=.70+.2*(y+1)/2;color.setRGB(shade,shade,shade);bc.push(color.r,color.g,color.b);
  }
  boulderGeo.setAttribute('color',new THREE.Float32BufferAttribute(bc,3));boulderGeo.computeVertexNormals();
  const rocks=new THREE.InstancedMesh(boulderGeo,stone,18),dummy=new THREE.Object3D();

@@ -16,6 +16,7 @@ export async function createOctopus(time,waves){
   const tracks=source.tracks.filter(track=>!/^ROOT\.(position|quaternion|scale)$/.test(track.name));
   mixer.clipAction(new THREE.AnimationClip(source.name,source.duration,tracks)).play();
  }
+ const diagnostic=new URLSearchParams(location.search).get('surface');
  const materials=new Set(),geometries=new Set(),skeletons=new Set();
  rig.traverse(object=>{
   if(!object.isMesh)return;
@@ -30,9 +31,11 @@ export async function createOctopus(time,waves){
   const name=object.name.toLowerCase();
   const skin=name.includes('continuous')||name.startsWith('eye')||name.includes('siphon');
   const pupil=name.includes('pupil'),iris=name.includes('iris');
-  const mat=new THREE.MeshStandardMaterial({color:skin?'#c47849':pupil?'#03171c':iris?'#a69b6c':'#c4a187',roughness:skin?.43:pupil?.20:.54,metalness:0});
-  if(!pupil)underwaterMaterial(mat,time,waves,{skin});
-  materials.add(mat);object.material=mat;
+  const mat=new THREE.MeshStandardMaterial({color:skin?'#c47849':pupil?'#03171c':iris?'#a69b6c':'#c4a187',roughness:skin?.56:pupil?.20:.54,metalness:0});
+  if(!pupil&&!diagnostic)underwaterMaterial(mat,time,waves,{skin});
+  if(diagnostic==='unlit'){mat.dispose();}
+  const selected=diagnostic==='unlit'?new THREE.MeshBasicMaterial({color:'#e6af83'}):mat;
+  materials.add(selected);object.material=selected;
   for(const m of Array.isArray(old)?old:[old])m?.dispose();
  });
  const root=rig.getObjectByName('ROOT');

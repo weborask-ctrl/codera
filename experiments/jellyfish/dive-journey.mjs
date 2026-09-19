@@ -28,6 +28,7 @@ export function sampleSwim(p,mobile=false){
 }
 
 export function createDiveJourney(time,waves){
+ const inspect=new URLSearchParams(location.search).has('inspect');
  const scene=new THREE.Scene();scene.fog=new THREE.FogExp2('#063e54',.066);
  scene.add(new THREE.HemisphereLight('#9acfdc','#102d39',1.8));
  const light=new THREE.DirectionalLight('#ffddad',2.8);light.position.set(11,8,-14.66);light.castShadow=true;light.shadow.mapSize.set(512,512);Object.assign(light.shadow.camera,{left:-9,right:9,top:9,bottom:-9,near:.1,far:60});light.shadow.bias=-.0004;light.shadow.normalBias=.035;scene.add(light,light.target);
@@ -91,6 +92,7 @@ export function createDiveJourney(time,waves){
     octopus.group.rotation.set(pose.pitch,pose.yaw,-Math.sin(q*Math.PI)*.10);
     octopus.setMotion(next.effort,next.clock,tucks,{progress:.66+pose.fold*.34,reduced,contact:false});
    }
+   if(inspect&&p<.01){uniforms.cameraOffset.value.set(3.1,0,-4);uniforms.pointer.value.set(0,0);}
    light.intensity=2.8*(1-.8*ease(clamp((p-.80)/.2)))*(1-ease(clamp(q/.4)))+2.5*ease(clamp(q/.4));light.target.position.copy(octopus.group.position);light.position.copy(octopus.group.position).add(new THREE.Vector3(11,8,-14.66));
    document.documentElement.style.setProperty('--reading',String(ease(clamp((scrollY-workTop+innerHeight*.3)/(innerHeight*.6)))*(1-ease(clamp(q/.19)))));
    document.querySelector('canvas').dataset.journey=JSON.stringify({progress:p,gateProgress:q,position:octopus.group.position.toArray(),phase:q>0?(q<1?'gate-'+next.state:'services'):p<.64?motion.state:p<.82?'approach':p<.995?'enter':'hidden',effort:q>0?next.effort:motion.effort,speed:q>0?next.speed:motion.speed,clock:q>0?next.clock:motion.clock});
