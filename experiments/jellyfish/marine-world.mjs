@@ -1,16 +1,52 @@
 import * as THREE from '/vendor/three/three.module.min.js';
 import {shelfHeight} from './deep-path.mjs';
 import {rng,organicMaterial,shellGeometry,plantGeometry,coralGeometry,fishGeometry,seahorseGeometry,crabGeometry} from './marine-assets.mjs';
+import {marineFilmMaterial} from './marine-film.mjs';
 
-export function createMarineWorld(waves,vents){
+export function createMarineWorld(waves,vents,library=null,surfaces=[]){
  const group=new THREE.Group();group.name='living-reef';
  const clock={value:0},random=rng(908),dummy=new THREE.Object3D(),geometries=[],materials=[],instances=[];
  const geo=g=>(geometries.push(g),g),mat=k=>{const m=organicMaterial(clock,waves,k);materials.push(m);return m;};
  const coralMat=mat('coral'),shellMat=mat('shell'),plantMat=mat('plant'),fishMat=mat('fish');
  const batch=(g,m,records,name)=>{
+  g.setAttribute('marinePhase',new THREE.InstancedBufferAttribute(Float32Array.from(records,(_,i)=>i*2.399963),1));
   const mesh=new THREE.InstancedMesh(g,m,records.length);mesh.name=name;
   records.forEach((r,i)=>{dummy.position.set(...r.p);dummy.rotation.set(...(r.r||[0,0,0]));if(Array.isArray(r.s))dummy.scale.set(...r.s);else dummy.scale.setScalar(r.s||1);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix);});
   mesh.castShadow=false;mesh.frustumCulled=false;group.add(mesh);instances.push(mesh);return mesh;
+ };
+ const assetBatch=(asset,kind,records,name,fallback,fallbackMaterial)=>{
+  const parts=library?.get(asset);
+  if(!parts)return [batch(geo(fallback()),fallbackMaterial,records,name)];
+  // Bound stationary gardens independently so distant high-detail plants/shells
+  // leave the GPU workload as the camera descends to the next environment.
+  const zones=new Map();for(const r of records){const key=kind==='fish'?0:Math.floor(r.p[2]/35);if(!zones.has(key))zones.set(key,[]);zones.get(key).push(r);}
+  let index=0;const meshes=[];
+  for(const zone of zones.values())for(const p of parts){
+   const material=marineFilmMaterial(p.material,kind,clock,waves);materials.push(material);
+   const mesh=batch(geo(p.geometry.clone()),material,zone,index?`${name}-${index}-${p.name}`:name);index++;
+   if(kind!=='fish'){mesh.computeBoundingSphere();mesh.boundingSphere.radius+=.65;mesh.frustumCulled=true;}
+   meshes.push(mesh);
+  }return meshes;
+ };
+ const mountColony=r=>{
+  if(!surfaces.length)return r;
+  surfaces.forEach(o=>o.updateMatrixWorld(true));
+  const ray=new THREE.Raycaster(new THREE.Vector3(r.p[0],r.p[1],r.p[2]+12),new THREE.Vector3(0,0,-1),0,25);
+  const hit=ray.intersectObjects(surfaces,true)[0];if(!hit)return r;
+  const transform=hit.object.matrixWorld.clone();
+  if(hit.object.isInstancedMesh){const instance=new THREE.Matrix4();hit.object.getMatrixAt(hit.instanceId,instance);transform.multiply(instance);}
+  const normal=hit.face.normal.clone().applyNormalMatrix(new THREE.Matrix3().getNormalMatrix(transform));
+  const lean=new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0),normal);
+  const rotation=new THREE.Quaternion().setFromEuler(new THREE.Euler(...(r.r||[0,0,0])));
+  rotation.premultiply(new THREE.Quaternion().slerp(lean,.58));
+  return {...r,p:hit.point.addScaledVector(normal,-.035).toArray(),r:new THREE.Euler().setFromQuaternion(rotation).toArray().slice(0,3)};
+ };
+ const mountGround=r=>{
+  if(!surfaces.length)return r;
+  surfaces.forEach(o=>o.updateMatrixWorld(true));
+  const ray=new THREE.Raycaster(new THREE.Vector3(r.p[0],r.p[1]+9,r.p[2]),new THREE.Vector3(0,-1,0),0,16);
+  const hit=ray.intersectObjects(surfaces,true)[0];
+  return hit?{...r,p:[r.p[0],hit.point.y+.008,r.p[2]]}:r;
  };
  // Anchors are on the front shelf or buried into its ledges; leave the den clear.
  const colonies=[
@@ -26,7 +62,9 @@ export function createMarineWorld(waves,vents){
  for(let type=0;type<3;type++){
   const records=colonies.filter((_,i)=>i%3===type);
   for(let i=0;i<7;i++)records.push({p:[(i%2?1:-1)*(7+random()*8),-15.5+random()*3,-23-random()*3],s:.6+random()*.55,r:[-.25,random()*6,.1]});
-  const mesh=batch(geo(coralGeometry(type)),type===2?shellMat:coralMat,records,`coral-colonies-${type}`);mesh.computeBoundingSphere();mesh.boundingSphere.radius+=.6;mesh.frustumCulled=true;
+  for(let i=0;i<3;i++)records.push({p:[18+(i%2?1:-1)*(7.6+random()*1.6),-17+random()*2,-43],s:.55+random()*.7,r:[0,random()*3,.1]});
+  const meshes=assetBatch(`Coral${type}`,type===1?'fan':'coral',records.map(mountColony),`coral-colonies-${type}`,()=>coralGeometry(type),type===2?shellMat:coralMat);
+  for(const mesh of meshes){mesh.computeBoundingSphere();mesh.boundingSphere.radius+=.6;mesh.frustumCulled=true;}
  }
  const plants=[];
  // Gate side gardens, right-hand rocky stop, then islands around the final clearing.
@@ -36,12 +74,12 @@ export function createMarineWorld(waves,vents){
   plants.push({p:[px,shelfHeight(px,pz)-.1,pz],s:.55+random()*.8,r:[0,random()*6.28,0]});
  }
  for(const [x,z] of [[11.7,-149],[23,-151],[19.8,-161]])plants.push({p:[x-.2,shelfHeight(x,z),z],s:.65,r:[0,0,0]});
- batch(geo(plantGeometry()),plantMat,plants,'current-driven-seagrass');
+ assetBatch('Plant0','plant',plants.map(mountGround),'current-driven-seagrass',plantGeometry,plantMat);
  for(let variant=0;variant<3;variant++){
   const records=[];
   for(let i=0;i<38;i++){
    const section=i%3,px=(section===0?18:section===1?23:18)+(random()-.5)*(section===0?22:16),pz=(section===0?-45:section===1?-127:-151)+(random()-.5)*15;
-   records.push({p:[px,shelfHeight(px,pz)+.02,pz],s:.16+random()*.48,r:[(random()-.5)*.25,random()*6.28,0]});
+   records.push(mountGround({p:[px,shelfHeight(px,pz)+.02,pz],s:.16+random()*.48,r:[(random()-.5)*.25,random()*6.28,0]}));
   }
   // Attached clusters on the camera-facing arch surface. Parametric points use
   // the same arch formula as rock-gate, with shells facing toward the viewer.
@@ -51,15 +89,18 @@ export function createMarineWorld(waves,vents){
    const x=18+Math.cos(a)*8+.55*Math.sin(a*2),y=-20+Math.sin(a)*(12+.65*Math.sin(a*3)),z=-47+3.2+erosion+Math.sin(a*4)*.65;
    records.push({p:[x,y,z+.01],s:.18+random()*.25,r:[Math.PI*.48,0,random()*6.28]});
   }
-  batch(geo(shellGeometry(variant)),shellMat,records,`ribbed-shells-${variant}`);
+  assetBatch(`Shell${variant}`,'shell',records,`ribbed-shells-${variant}`,()=>shellGeometry(variant),shellMat);
  }
  const fishSchools=[];
  for(let type=0;type<4;type++){
-  const data=Array.from({length:type===0?22:9},(_,i)=>{
-   const section=i%3,center=section===0?[0,-9.4,-16.5]:section===1?[18,-13.9,-43]:[18,-49.2,-151];
-   return {center,radius:section===1?1.5+random()*2:2+random()*6,phase:random()*6.28,level:(random()-.5)*3,scale:(type===0?.35:.48)+random()*.22,speed:.10+random()*.08};
+  // Separate open-water lanes flank the route. The final landing corridor stays
+  // clear for every phase, rather than pushing a central swarm aside at runtime.
+  const lanes=[[-7,-8.5,-15],[10,-7,-18],[9,-12,-40],[28,-12.5,-43],[4,-47.5,-150],[30,-48,-155],[15,-45.5,-166]];
+  const data=Array.from({length:type===0?14:7},(_,i)=>{
+   const lane=(i+type*2)%lanes.length,base=lanes[lane],center=[base[0]+(random()-.5)*2.6,base[1]+(random()-.5)*1.8,base[2]+(random()-.5)*4.2];
+   return {center,radius:1.5+random()*1.6,depthRadius:.6+random()*1.2,phase:random()*6.28,level:(random()-.5)*2.5,scale:(type===0?.36:.46)+random()*.25,speed:.055+random()*.065};
   });
-  const mesh=batch(geo(fishGeometry(type)),fishMat,data.map(()=>({p:[0,0,0]})),`reef-fish-species-${type}`);fishSchools.push({mesh,data});
+  const meshes=assetBatch(`Fish${type}`,'fish',data.map(()=>({p:[0,0,0]})),`reef-fish-species-${type}`,()=>fishGeometry(type),fishMat);fishSchools.push({meshes,data});
  }
  const seahorses=batch(geo(seahorseGeometry()),mat('shell'),[{p:[11.7,shelfHeight(11.7,-149)+.7,-149],s:1.0},{p:[23,shelfHeight(23,-151)+.75,-151],s:1.1},{p:[19.8,shelfHeight(19.8,-161)+.6,-161],s:.9}], 'seahorses');
  const horseRoots=[[11.7,-149],[23,-151],[19.8,-161]];
@@ -79,15 +120,15 @@ export function createMarineWorld(waves,vents){
   update(time,reduced,octopus,settle,mobile=false){
    clock.value=reduced?0:time;
    const t=clock.value;
-   for(const {mesh,data} of fishSchools){
+   for(const {meshes,data} of fishSchools){
     data.forEach((f,i)=>{
-     const a=f.phase+t*f.speed,x=f.center[0]+Math.cos(a)*f.radius,z=f.center[2]+Math.sin(a)*f.radius*.47;
+     const a=f.phase+t*f.speed,x=f.center[0]+Math.cos(a)*f.radius,z=f.center[2]+Math.sin(a)*f.depthRadius;
      const finalMobile=mobile&&f.center[2]<-140;
-     dummy.position.set(x,f.center[1]+f.level+Math.sin(a*2)*.18-(finalMobile?1.1:0),z);
+     dummy.position.set(x,Math.max(shelfHeight(x,z)+1.3,f.center[1]+f.level+Math.sin(a*2)*.18),z);
      const away=new THREE.Vector3().subVectors(dummy.position,octopus.position),distance=away.length();
      if(distance<2.5&&distance>.001)dummy.position.addScaledVector(away,(2.5-distance)*.36/distance);
-     dummy.rotation.set(0,Math.atan2(-Math.cos(a)*.47,-Math.sin(a)),Math.cos(a)*.035);dummy.scale.setScalar(f.scale*(finalMobile?.7:1));dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix);
-    });mesh.instanceMatrix.needsUpdate=true;
+     dummy.rotation.set(0,Math.atan2(-Math.cos(a)*f.depthRadius,-Math.sin(a)*f.radius),Math.cos(a)*.035);dummy.scale.setScalar(f.scale*(finalMobile?.85:1));dummy.updateMatrix();for(const mesh of meshes)mesh.setMatrixAt(i,dummy.matrix);
+    });for(const mesh of meshes)mesh.instanceMatrix.needsUpdate=true;
    }
    horseRoots.forEach(([x,z],i)=>{
     dummy.position.set(x+Math.sin(t*.19+i)*.06,shelfHeight(x,z)+.70+Math.sin(t*.29+i)*.025,z);dummy.rotation.set(0,i*1.8,Math.sin(t*.33+i)*.035);dummy.scale.setScalar(i===1?1.1:1);dummy.updateMatrix();seahorses.setMatrixAt(i,dummy.matrix);
@@ -109,6 +150,6 @@ export function createMarineWorld(waves,vents){
     dustSeeds.forEach(([a,r,h],i)=>{const x=octopus.position.x+Math.cos(a)*(r*1.7+age*.22),z=octopus.position.z+Math.sin(a)*(r*1.7+age*.22);dust[i*3]=x;dust[i*3+1]=shelfHeight(x,z)+.04+h*.3+Math.sin(age/4*Math.PI)*.35;dust[i*3+2]=z;});sedimentGeometry.attributes.position.needsUpdate=true;
    }
   },
-  dispose(){instances.forEach(m=>m.dispose());geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());}
+  dispose(){instances.forEach(m=>m.dispose());geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());library?.dispose();}
  };
 }

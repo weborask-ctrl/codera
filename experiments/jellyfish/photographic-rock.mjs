@@ -19,6 +19,11 @@ vec4 rockSample(sampler2D tex,vec3 p,vec3 w){return texture2D(tex,p.yz)*w.x+text
 vec3 rockWeights=pow(abs(normalize(rockNormal)),vec3(4.));rockWeights/=max(.001,dot(rockWeights,vec3(1.)));
 vec3 rockUV=seaWorld*.55;
 vec3 stoneAlbedo=rockSample(rockColor,rockUV,rockWeights).rgb;
+float rockStrata=seaWorld.y*3.2+seaNoise(seaWorld*.31)*2.6;
+float seams=pow(.5+.5*sin(rockStrata),16.);
+float crust=smoothstep(.56,.72,seaNoise(seaWorld*1.4+seaNoise(seaWorld*4.)*.7));
+stoneAlbedo*=mix(vec3(1.06,1.00,.91),vec3(.83,.77,.67),seams*.55);
+stoneAlbedo=mix(stoneAlbedo,stoneAlbedo*vec3(1.14,.75,.68),crust*.25);
 ${sandMap?`float slopeMix=smoothstep(.60,.94,abs(normalize(rockNormal).y));
 float sandRidge=.5+.5*sin(seaWorld.z*9.+sin(seaWorld.x*.7)*1.8+seaNoise(seaWorld*.4)*2.);
 vec3 sandAlbedo=texture2D(terrainSand,seaWorld.xz*.19).rgb*vec3(.85,.81,.65);
@@ -29,13 +34,14 @@ diffuseColor.rgb*=stoneAlbedo;`)
 roughnessFactor=clamp(rockSample(rockRough,rockUV,rockWeights).r,.58,.98);`)
   .replace('#include <normal_fragment_maps>',`#include <normal_fragment_maps>
 float elevation=rockSample(rockHeight,rockUV,rockWeights).r*.045;
+elevation+=seams*.018*(1.-smoothstep(.15,.65,fwidth(rockStrata)));
 ${sandMap?`float rippleFilter=1.-smoothstep(.25,1.,fwidth(seaWorld.z*9.));
 float sandRelief=sin(seaWorld.z*9.+sin(seaWorld.x*.7)*1.8+seaNoise(seaWorld*.4)*2.)*.023*rippleFilter;
 elevation=mix(elevation,sandRelief,slopeMix);`:''}
 vec3 sx=dFdx(-vViewPosition),sy=dFdy(-vViewPosition),r1=cross(sy,normal),r2=cross(normal,sx);
 float det=dot(sx,r1);
-normal=normalize(abs(det)*normal-sign(det)*(dFdx(elevation)*r1+dFdy(elevation)*r2));`);
+if(abs(det)>1e-9)normal=normalize(abs(det)*normal-sign(det)*(dFdx(elevation)*r1+dFdy(elevation)*r2));`);
  };
- mat.customProgramCacheKey=()=>`photographic-rock-3-${vertexColors}-${Boolean(sandMap)}`;
+ mat.customProgramCacheKey=()=>`photographic-rock-4-${vertexColors}-${Boolean(sandMap)}`;
  return mat;
 }

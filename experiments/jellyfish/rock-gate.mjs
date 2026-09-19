@@ -1,7 +1,6 @@
 import * as THREE from '/vendor/three/three.module.min.js';
 import {mergeVertices} from '/vendor/three/BufferGeometryUtils.js';
 import {photographicRock} from './photographic-rock.mjs';
-import {underwaterMaterial} from './underwater-material.mjs';
 
 export function createRockGate(time,waves){
  const group=new THREE.Group();group.name='continuous-eroded-stone-gateway';
@@ -36,7 +35,7 @@ export function createRockGate(time,waves){
  const boulderGeo=geo(mergeVertices(rawBoulder)),bp=boulderGeo.attributes.position;rawBoulder.dispose();
  const bc=[];
  for(let i=0;i<bp.count;i++){
-  const x=bp.getX(i),y=bp.getY(i),z=bp.getZ(i),r=1+.065*Math.sin(x*8+y*4)+.025*Math.sin(z*15-y*5);
+  const x=bp.getX(i),y=bp.getY(i),z=bp.getZ(i),plane=Math.min(1.10,.91/Math.max(.01,Math.abs(x*.8+y*.32+z*.49))),r=plane+.035*Math.tanh(Math.sin(y*18+x*3)*4)+.035*Math.sin(z*11-y*5);
   bp.setXYZ(i,x*r,y*r,z*r);const shade=.70+.2*(y+1)/2;color.setRGB(shade,shade,shade);bc.push(color.r,color.g,color.b);
  }
  boulderGeo.setAttribute('color',new THREE.Float32BufferAttribute(bc,3));boulderGeo.computeVertexNormals();
@@ -48,15 +47,5 @@ export function createRockGate(time,waves){
   dummy.rotation.set(rand()*.8,rand()*6,rand()*.5);dummy.scale.set(1.3+rand()*2,1.3+rand()*3,1.6+rand()*2);dummy.updateMatrix();rocks.setMatrixAt(i,dummy.matrix);
  }
  rocks.castShadow=true;rocks.receiveShadow=false;group.add(rocks);
- const coralMat=underwaterMaterial(new THREE.MeshStandardMaterial({color:'#bc8067',roughness:.7}),time,waves);materials.push(coralMat);
- const coral=new THREE.InstancedMesh(geo(new THREE.CylinderGeometry(.025,.07,1,7)),coralMat,144);
- const up=new THREE.Vector3(0,1,0),dir=new THREE.Vector3();
- for(let i=0;i<144;i++){
-  const colony=Math.floor(i/6),side=colony%2?-1:1;
-  const x=18+side*(7.9+Math.sin(colony*19)*.7),z=-45+Math.cos(colony*7)*1.5;
-  dummy.position.set(x+Math.sin(i*9)*.3,-16+Math.sin(colony*3)*1.8+(i%6)*.13,z);
-  dir.set(Math.sin(i*2)*.4,1,Math.cos(i*3)*.25).normalize();dummy.quaternion.setFromUnitVectors(up,dir);dummy.scale.setScalar(1);dummy.scale.y=.4+rand()*.7;dummy.updateMatrix();coral.setMatrixAt(i,dummy.matrix);
- }
- coral.receiveShadow=true;group.add(coral);
- return {group,dispose(){rocks.dispose();coral.dispose();geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());}};
+ return {group,dispose(){rocks.dispose();geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());}};
 }

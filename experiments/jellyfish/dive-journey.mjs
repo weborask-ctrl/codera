@@ -2,6 +2,7 @@ import * as THREE from '/vendor/three/three.module.min.js';
 import {createReef} from './reef.mjs';
 import {createRockGate} from './rock-gate.mjs';
 import {createMarineWorld} from './marine-world.mjs';
+import {loadMarineFilm} from './marine-film.mjs';
 import {finalePose} from './finale-path.mjs';
 import {deepPose} from './deep-path.mjs';
 import {gatePose} from './gate-path.mjs';
@@ -30,7 +31,7 @@ export function sampleSwim(p,mobile=false){
  });
 }
 
-export function createDiveJourney(time,waves){
+export async function createDiveJourney(time,waves){
  const inspect=new URLSearchParams(location.search).has('inspect');
  const scene=new THREE.Scene();scene.fog=new THREE.FogExp2('#063e54',.066);
  scene.add(new THREE.HemisphereLight('#d6e9e7','#536b68',1.65));
@@ -39,7 +40,7 @@ export function createDiveJourney(time,waves){
  const gateBounce=new THREE.PointLight('#73bfd3',0,35,1.5);gateBounce.position.set(18,-9,-39);scene.add(gateBounce);
  const reef=createReef(time,waves);scene.add(reef.group);
  const gate=createRockGate(time,waves);scene.add(gate.group);
- const marine=createMarineWorld(waves,reef.vents);scene.add(marine.group);
+ const marine=createMarineWorld(waves,reef.vents,await loadMarineFilm(),[reef.group,gate.group]);scene.add(marine.group);
  let workTop=0,gateTop=0,servicesTop=0,deepTop=0,offerTop=0,processTop=0,processEnd=0,landingTop=0,contactTop=0,lastTime=0;
  const processController=new SwimController(),landingController=new SwimController();
  const deepController=new SwimController();

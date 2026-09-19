@@ -2,6 +2,8 @@
 
 **Current octopus experiment (2026-09-19):** open `/dive.html` on the same preview server. It now uses the animated Blender model in the approved ocean. See [integration and measured limits](../../docs/OCTOPUS_WEB_INTEGRATION.md). Resource figures below describe the older jellyfish page, not this denser Blender character.
 
+**Marine Film I (2026-09-19):** the dive now loads a separate Blender library for fish, shells, kelp and corals. Inspect the actual exported assets at `/marine-look.html`. [Sources, reproduction and remaining visual work](../../docs/MARINE_FILM_I.md).
+
 ## Run on another PC
 
 Requires Node 22.18+ or 24 LTS. From the repository root:

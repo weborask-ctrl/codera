@@ -30,7 +30,7 @@ export function createReef(time={value:0},waves={value:null}){
  floor.computeVertexNormals();
  const terrainMaterial=photographicRock(time,waves,{sandMap:texture});materials.push(terrainMaterial);
  const seabed=new THREE.Mesh(floor,terrainMaterial);seabed.name='continuous-terrace-and-drop';seabed.receiveShadow=true;group.add(seabed);
- const dummy=new THREE.Object3D(),color=new THREE.Color(),up=new THREE.Vector3(0,1,0);
+ const dummy=new THREE.Object3D();
  const savedSeed=seed;
  const grains=new THREE.InstancedMesh(geo(new THREE.IcosahedronGeometry(1,1)),stone,110);
  for(let i=0;i<110;i++){
@@ -73,7 +73,14 @@ export function createReef(time={value:0},waves={value:null}){
  shellParts.forEach(o=>group.remove(o));const shellMesh=new THREE.Mesh(sealed,stone);shellMesh.name='reef-shell-closed';shellMesh.castShadow=true;group.add(shellMesh);
 
  const rawRock=new THREE.IcosahedronGeometry(1,5);rawRock.deleteAttribute('normal');rawRock.deleteAttribute('uv');const rockGeo=geo(mergeVertices(rawRock)),rp=rockGeo.attributes.position;rawRock.dispose();
- for(let i=0;i<rp.count;i++){const x=rp.getX(i),y=rp.getY(i),z=rp.getZ(i),f=1+.10*Math.sin(x*8+y*3)+.08*Math.sin(z*11-x*5);rp.setXYZ(i,x*f,y*f,z*f);}
+ for(let i=0;i<rp.count;i++){
+  const x=rp.getX(i),y=rp.getY(i),z=rp.getZ(i);
+  // Broad planar breaks and bedding ledges replace the inflated pebble outline.
+  const plane=Math.min(1.12,.92/Math.max(.01,Math.abs(x*.78+y*.25+z*.56)),.94/Math.max(.01,Math.abs(x*-.34+y*.90+z*.26)));
+  const bedding=.032*Math.tanh(Math.sin(y*19+x*3+z*2)*4);
+  const f=plane+.055*Math.sin(x*7+y*3)*Math.sin(z*9-x*4)+bedding;
+  rp.setXYZ(i,x*f,y*f,z*f);
+ }
  rockGeo.computeVertexNormals();
  const rocks=new THREE.InstancedMesh(rockGeo,stone,65);rocks.castShadow=true;rocks.receiveShadow=false;
  for(let i=0;i<65;i++){const a=random()*Math.PI*2,t=.18+random()*.72,p=surface(a,t),s=.4+random()*1.2;dummy.position.copy(p);dummy.position.z-=s*.25;dummy.rotation.set(random(),random()*6,random());dummy.scale.set(s*(1.3+random()),s*(.45+random()*.5),s*.9);dummy.updateMatrix();rocks.setMatrixAt(i,dummy.matrix);}
@@ -96,22 +103,6 @@ export function createReef(time={value:0},waves={value:null}){
   const p=hit.point.addScaledVector(normal,.025),ring=new THREE.Mesh(ventRing,stone);ring.position.copy(p);ring.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),normal);group.add(ring);
   const recess=new THREE.Mesh(geo(new THREE.CircleGeometry(.17,18)),ventDark);recess.position.copy(p).addScaledVector(normal,-.018);recess.quaternion.copy(ring.quaternion);group.add(recess);vents.push(p.toArray());
  }
- const coral=mat(new THREE.MeshStandardMaterial({color:'white',roughness:.72,bumpMap:texture,bumpScale:.018}));
- const branchRecords=[],tips=[],lobes=[],palette=['#ad785f','#98716c','#9a876b','#75938b'];
- for(let colony=0;colony<35;colony++){
-  const a=random()*Math.PI*2,t=.13+random()*.61,root=surface(a,t);root.z+=.02;
-  const hue=palette[colony%palette.length],height=.5+random()*1.3;
-  const grow=(base,direction,length,radius,level)=>{
-   const end=base.clone().addScaledVector(direction,length);branchRecords.push({base,end,radius,hue});tips.push({p:end,r:radius,hue});
-   if(level<3){for(let j=0;j<2;j++){const dir=direction.clone().add(new THREE.Vector3((j?1:-1)*(.32+random()*.35),.1,(random()-.5)*.8)).normalize();grow(end,dir,length*(.61+random()*.14),radius*.68,level+1);}}
-  };
-  grow(root,new THREE.Vector3((random()-.5)*.35,.8,.4).normalize(),height*.5,.09*height,0);
-  if(colony%3===0)for(let j=0;j<7;j++)lobes.push({p:root.clone().add(new THREE.Vector3((random()-.5)*.6,random()*.45,(random()-.5)*.3)),r:.18+random()*.25,hue});
- }
- const branches=new THREE.InstancedMesh(geo(new THREE.CylinderGeometry(.65,1,1,7)),coral,branchRecords.length);
- const ends=new THREE.InstancedMesh(geo(new THREE.IcosahedronGeometry(1,1)),coral,tips.length+lobes.length);
- branchRecords.forEach((b,i)=>{const d=b.end.clone().sub(b.base);dummy.position.copy(b.base).lerp(b.end,.5);dummy.quaternion.setFromUnitVectors(up,d.clone().normalize());dummy.scale.set(b.radius,d.length(),b.radius);dummy.updateMatrix();branches.setMatrixAt(i,dummy.matrix);branches.setColorAt(i,color.set(b.hue));});
- [...tips,...lobes.map(l=>({p:l.p,r:l.r,hue:l.hue}))].forEach((b,i)=>{dummy.position.copy(b.p);dummy.rotation.set(0,0,0);dummy.scale.set(b.r,b.r*.9,b.r*.8);dummy.updateMatrix();ends.setMatrixAt(i,dummy.matrix);ends.setColorAt(i,color.set(b.hue));});
- branches.castShadow=true;branches.receiveShadow=true;ends.castShadow=true;ends.receiveShadow=true;group.add(branches,ends);
- return {group,wallTargets,vents,dispose(){for(const o of [rocks,branches,ends,deepRocks,grains])o.dispose();geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());}};
+ // Living colonies are the shared Blender assets in marine-world; no proxy rods.
+ return {group,wallTargets,vents,dispose(){for(const o of [rocks,deepRocks,grains])o.dispose();geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());}};
 }

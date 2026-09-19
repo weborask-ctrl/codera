@@ -40,7 +40,7 @@ if(renderer.extensions.has('EXT_color_buffer_float')){
  material.needsUpdate=true;
 }
 
-if(journeyMode)journey=(await import('./dive-journey.mjs')).createDiveJourney(uniforms.time,uniforms.waveMap);
+if(journeyMode)journey=await (await import('./dive-journey.mjs')).createDiveJourney(uniforms.time,uniforms.waveMap);
 renderer.shadowMap.enabled=journeyMode;renderer.shadowMap.type=THREE.PCFShadowMap;
 renderer.shadowMap.autoUpdate=false;let lastShadow=-1;
 // Optional look-development scene. The standalone approved ocean keeps its own path.
