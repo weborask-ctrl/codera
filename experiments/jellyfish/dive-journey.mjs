@@ -1,5 +1,7 @@
 import * as THREE from '/vendor/three/three.module.min.js';
 import {createReef} from './reef.mjs';
+import {createRockGate} from './rock-gate.mjs';
+import {gatePose} from './gate-path.mjs';
 import {SwimController} from './swim-controller.mjs';
 
 const clamp=v=>Math.max(0,Math.min(1,v));
@@ -30,9 +32,11 @@ export function createDiveJourney(time,waves){
  scene.add(new THREE.HemisphereLight('#9acfdc','#102d39',1.8));
  const light=new THREE.DirectionalLight('#ffddad',2.8);light.position.set(11,8,-14.66);light.castShadow=true;light.shadow.mapSize.set(512,512);Object.assign(light.shadow.camera,{left:-9,right:9,top:9,bottom:-9,near:.1,far:60});light.shadow.bias=-.0004;light.shadow.normalBias=.035;scene.add(light,light.target);
  const fill=new THREE.DirectionalLight('#a6d9e5',1.2);fill.position.set(-4,4,8);scene.add(fill);
+ const gateBounce=new THREE.PointLight('#73bfd3',0,35,1.5);gateBounce.position.set(18,-9,-39);scene.add(gateBounce);
  const geometries=[],materials=[];
  const geometry=g=>(geometries.push(g),g),material=m=>(materials.push(m),m);
  const reef=createReef(time,waves);scene.add(reef.group);
+ const gate=createRockGate(time,waves);scene.add(gate.group);
  let seed=829;const random=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
  const dummy=new THREE.Object3D();
  const fishMaterial=material(new THREE.MeshStandardMaterial({color:'#afd8d9',roughness:.55,metalness:.12}));
@@ -40,16 +44,21 @@ export function createDiveJourney(time,waves){
  const tails=new THREE.InstancedMesh(geometry(new THREE.ConeGeometry(.12,.22,3)),fishMaterial,42);
  fish.name='reef-fish-proxies';tails.name='reef-fish-tail-proxies';scene.add(fish,tails);
  const fishData=Array.from({length:42},()=>({x:(random()-.5)*16,y:-11.5+random()*4,z:-21-random()*14,phase:random()*6.28,size:.7+random()*.7}));
- let workTop=0,lastTime=0;
+ let workTop=0,gateTop=0,servicesTop=0,lastTime=0;
+ const gateController=new SwimController();
  const controller=new SwimController();
  const tucks=new Float32Array(8);
- function measure(){workTop=document.querySelector('#praca').getBoundingClientRect().top+scrollY;}
+ function measure(){workTop=document.querySelector('#praca').getBoundingClientRect().top+scrollY;gateTop=document.querySelector('#brana').getBoundingClientRect().top+scrollY;servicesTop=document.querySelector('#sluzby').getBoundingClientRect().top+scrollY;}
  measure();
+ const layoutObserver=new ResizeObserver(measure);layoutObserver.observe(document.querySelector('#praca'));
  return {scene,measure,setQuality(eco){const n=eco?512:1024;if(light.shadow.mapSize.x!==n){light.shadow.map?.dispose();light.shadow.map=null;light.shadow.mapSize.set(n,n);}},
   update({octopus,uniforms,time,reduced}){
    const mobile=innerWidth<700;
    const progress=clamp(scrollY/Math.max(1,workTop-innerHeight*1.05));
-   const motion=controller.update(progress,Math.max(0,time-lastTime),reduced);lastTime=time;
+   const dt=Math.max(0,time-lastTime);
+   const motion=controller.update(progress,dt,reduced);
+   const gateStart=gateTop-innerHeight*.7,gateEnd=servicesTop-innerHeight*.65;
+   const next=gateController.update(clamp((scrollY-gateStart)/Math.max(1,gateEnd-gateStart)),dt,reduced);lastTime=time;
    const p=motion.progress;
    // Approach, then continuous descent. The same object persists throughout.
    const travel=ease(clamp((p-.16)/.53)),approach=Math.sin(clamp(p/.58)*Math.PI)*.85;
@@ -72,9 +81,19 @@ export function createDiveJourney(time,waves){
    // draw and bone work during the portfolio, restore before any reverse travel.
    octopus.group.visible=p<1;
    if(p<1)octopus.setMotion(reduced?0:swimming,phase,tucks,{progress:p,reduced});
-   light.intensity=2.8*(1-.8*ease(clamp((p-.80)/.2)));light.target.position.copy(octopus.group.position);light.position.copy(octopus.group.position).add(new THREE.Vector3(11,8,-14.66));
-   document.documentElement.style.setProperty('--reading',String(ease(clamp((scrollY-workTop+innerHeight*.3)/(innerHeight*.6)))));
-   document.querySelector('canvas').dataset.journey=JSON.stringify({progress:p,position,phase:p<.64?motion.state:p<.82?'approach':p<.995?'enter':'hidden',effort:motion.effort,speed:motion.speed,clock:motion.clock});
+   const q=next.progress;gateBounce.intensity=30*ease(clamp((q-.32)/.3));
+   if(q>0){
+    const pose=gatePose(q,mobile);
+    uniforms.cameraOffset.value.set(pose.camera[0],0,pose.camera[2]);uniforms.depth.value=-pose.camera[1];
+    const aim=mobile?(pose.character[0]-pose.camera[0])/Math.max(2,pose.camera[2]-pose.character[2]):-.65*Math.sin(clamp((q-.15)/.48)*Math.PI);
+    uniforms.pointer.value.set(aim/.12,-.3);scene.fog.density=.045;
+    octopus.group.visible=true;octopus.group.position.fromArray(pose.character);octopus.group.scale.setScalar(mobile?.62:1.02);
+    octopus.group.rotation.set(pose.pitch,pose.yaw,-Math.sin(q*Math.PI)*.10);
+    octopus.setMotion(next.effort,next.clock,tucks,{progress:.66+pose.fold*.34,reduced,contact:false});
+   }
+   light.intensity=2.8*(1-.8*ease(clamp((p-.80)/.2)))*(1-ease(clamp(q/.4)))+2.5*ease(clamp(q/.4));light.target.position.copy(octopus.group.position);light.position.copy(octopus.group.position).add(new THREE.Vector3(11,8,-14.66));
+   document.documentElement.style.setProperty('--reading',String(ease(clamp((scrollY-workTop+innerHeight*.3)/(innerHeight*.6)))*(1-ease(clamp(q/.19)))));
+   document.querySelector('canvas').dataset.journey=JSON.stringify({progress:p,gateProgress:q,position:octopus.group.position.toArray(),phase:q>0?(q<1?'gate-'+next.state:'services'):p<.64?motion.state:p<.82?'approach':p<.995?'enter':'hidden',effort:q>0?next.effort:motion.effort,speed:q>0?next.speed:motion.speed,clock:q>0?next.clock:motion.clock});
    // The reef exists at the same world coordinates even before we reach it.
    // Do not reveal it with a visibility switch during the descent.
    for(let i=0;i<fishData.length;i++){
@@ -85,6 +104,6 @@ export function createDiveJourney(time,waves){
    }
    fish.instanceMatrix.needsUpdate=true;tails.instanceMatrix.needsUpdate=true;
   },
-  dispose(){reef.dispose();geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());fish.dispose();tails.dispose();}
+  dispose(){layoutObserver.disconnect();gate.dispose();reef.dispose();geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());fish.dispose();tails.dispose();}
  };
 }

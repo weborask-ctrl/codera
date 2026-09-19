@@ -25,9 +25,8 @@ ${skin?`float patches=seaNoise(seaLocal*35.);float grain=seaNoise(seaLocal*190.)
 diffuseColor.rgb*=mix(vec3(.69,.63,.57),vec3(1.12,1.06,.97),smoothstep(.15,.86,patches));
 diffuseColor.rgb*=.97+.06*grain;`:''}`);
   if(skin)shader.fragmentShader=shader.fragmentShader
-   .replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\nroughnessFactor=clamp(roughnessFactor+(patches-.5)*.13,.29,.61);')
-   .replace('#include <normal_fragment_maps>','#include <normal_fragment_maps>\nnormal=normalize(normal+vec3(dFdx(grain),dFdy(grain),0.)*.09);');
+   .replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\nroughnessFactor=clamp(roughnessFactor+(patches-.5)*.13,.29,.61);');
  };
- material.customProgramCacheKey=()=>`codera-water-v2-${skin}`;
+ material.customProgramCacheKey=()=>`codera-water-v3-${skin}`;
  return material;
 }

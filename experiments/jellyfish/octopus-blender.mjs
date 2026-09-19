@@ -24,12 +24,13 @@ export async function createOctopus(time,waves){
   // Avoid per-frame CPU bounds recomputation over the dense sculpt. The journey
   // controls visibility as one character; the GPU still clips its triangles.
   object.frustumCulled=false;
-  object.castShadow=true;object.receiveShadow=true;
+  // Avoid low-resolution self-shadow acne on the dense deforming skin.
+  object.castShadow=true;object.receiveShadow=false;
   const old=object.material;
   const name=object.name.toLowerCase();
   const skin=name.includes('continuous')||name.startsWith('eye')||name.includes('siphon');
   const pupil=name.includes('pupil'),iris=name.includes('iris');
-  const mat=new THREE.MeshStandardMaterial({color:skin?'#b86d48':pupil?'#03171c':iris?'#a69b6c':'#ad937e',roughness:skin?.43:pupil?.20:.54,metalness:0});
+  const mat=new THREE.MeshStandardMaterial({color:skin?'#c47849':pupil?'#03171c':iris?'#a69b6c':'#c4a187',roughness:skin?.43:pupil?.20:.54,metalness:0});
   if(!pupil)underwaterMaterial(mat,time,waves,{skin});
   materials.add(mat);object.material=mat;
   for(const m of Array.isArray(old)?old:[old])m?.dispose();
@@ -90,7 +91,7 @@ export async function createOctopus(time,waves){
     if(foldedMorph)for(let i=0;i<foldedMorph.length;i++)skinMesh.morphTargetInfluences[i]=THREE.MathUtils.lerp(skinMesh.morphTargetInfluences[i],foldedMorph[i],u);
     root.position.copy(rootPosition);root.quaternion.copy(rootRotation);
    }
-   contactPose(options.progress||0);
+   if(options.contact!==false)contactPose(options.progress||0);
   },
   dispose(){mixer.stopAllAction();mixer.uncacheRoot(rig);skeletons.forEach(s=>s.dispose());geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());}
  };
