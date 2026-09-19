@@ -1,5 +1,9 @@
 # Codera — octopus site storyboard
 
+Superseded direction: Marcus rejected the disappear/reappear framing below.
+Use `OCTOPUS_DIVE_IMPLEMENTATION.md` for the current continuous-descent plan.
+The six-act text below is retained only as the earlier proposal.
+
 Working draft, 2026-09-20. This document defines the page journey before the
 production octopus is sculpted, rigged or animated. It is not an approved final
 design. The approved ocean remains the visual baseline.

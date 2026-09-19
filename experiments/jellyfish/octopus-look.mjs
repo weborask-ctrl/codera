@@ -5,13 +5,15 @@ import { oceanFragment as fragment, waveMapFragment } from './ocean-film-shaders
 
 const canvas=document.querySelector('canvas');
 const study=document.body.hasAttribute('data-octopus');
+const journeyMode=document.body.hasAttribute('data-journey');
+const journey=journeyMode?(await import('./dive-journey.mjs')).createDiveJourney():null;
 const stats=document.querySelector('#stats');
 const pause=document.querySelector('#pause');
 const controls=document.querySelector('#controls');
 controls.onclick=()=>{const clean=document.body.classList.toggle('clean');controls.textContent=clean?'Zobrazi\u0165 ovl\u00e1danie':'Skry\u0165 ovl\u00e1danie';controls.setAttribute('aria-expanded',String(!clean));};
 const reduced=matchMedia('(prefers-reduced-motion: reduce)');
 let renderer;
-try { renderer=new THREE.WebGLRenderer({canvas,antialias:study,alpha:false,powerPreference:'high-performance'}); }
+try { renderer=new THREE.WebGLRenderer({canvas,antialias:study&&!journeyMode,alpha:false,powerPreference:'high-performance'}); }
 catch { document.querySelector('#error').textContent='WebGL nie je dostupné. Živé more potrebuje hardvérové vykresľovanie v prehliadači.'; }
 if(renderer){
 renderer.outputColorSpace=THREE.SRGBColorSpace;
@@ -75,6 +77,7 @@ let playing=!reduced.matches, moving=false, travelPhase=0, elapsed=0,last=0,raf=
 function resize(){if(jelly){jelly.group.position.x=0;jelly.group.scale.setScalar(innerWidth/innerHeight<.8?.72:innerWidth/innerHeight<1.3?1.25:1.42);if(document.body.classList.contains('detail'))uniforms.cameraOffset.value.x=jelly.group.position.x-.3;}const budget=Number(document.querySelector('#quality').value);const eco=budget<1000000;jelly?.setQuality?.(eco);const waveSize=budget<1000000?1024:2048;if(waveTarget&&waveTarget.width!==waveSize)waveTarget.setSize(waveSize,waveSize);uniforms.waveFootprint.value=64/waveSize;uniforms.refineSurface.value=budget>=1000000;const ratio=Math.min(devicePixelRatio,eco?.75:2,Math.sqrt(budget/(innerWidth*innerHeight)));renderer.setPixelRatio(ratio);renderer.setSize(innerWidth,innerHeight,false);if(volumeTarget)volumeTarget.setSize(Math.max(1,Math.ceil(innerWidth*ratio*(eco?.35:.5))),Math.max(1,Math.ceil(innerHeight*ratio*(eco?.35:.5))));if(backdrop){const size=renderer.getDrawingBufferSize(new THREE.Vector2());backdrop.setSize(size.x,size.y);jelly.setBackdrop(backdrop.texture,size.x,size.y);}uniforms.resolution.value.set(innerWidth,innerHeight);particleCamera.aspect=innerWidth/innerHeight;particleCamera.updateProjectionMatrix();particles.uniforms.pixels.value=ratio;dirty=true;wake();}
 function draw(){
  uniforms.time.value=elapsed;jelly?.update?.(elapsed);const t=uniforms.travel.value;
+ journey?.update({octopus:jelly,uniforms,time:elapsed,reduced:reduced.matches});
  particleCamera.position.set(t*1.4,-uniforms.depth.value+Math.sin(elapsed*.23)*.055,t*5).add(uniforms.cameraOffset.value);
  particleCamera.lookAt(particleCamera.position.clone().add(new THREE.Vector3(uniforms.pointer.value.x*.12,.08+uniforms.pointer.value.y*.08,-1)));
  renderer.autoClear=true;
@@ -92,13 +95,14 @@ function draw(){
  if(backdrop){
   renderer.setRenderTarget(null);renderer.toneMapping=THREE.ACESFilmicToneMapping;
   renderer.autoClear=true;renderer.render(presentScene,camera);renderer.autoClear=false;
+  if(journey)renderer.render(journey.scene,particleCamera);
   renderer.render(jellyScene,particleCamera);
  }
  canvas.dataset.ready=String(!document.querySelector('#error').textContent);
  canvas.dataset.frames=String(Number(canvas.dataset.frames||0)+1);
  canvas.dataset.waveMap=String(Boolean(waveTarget));
 }
-function tick(now){raf=0;if(document.hidden)return;if(now-last>=1000/30||dirty){const dt=last?Math.min((now-last)/1000,.08):0;last=now;if(playing){elapsed+=dt;if(moving){travelPhase+=dt*.16;uniforms.travel.value=Math.sin(travelPhase)*2.;}}draw();dirty=false;frames++;if(!playing){const size=renderer.getDrawingBufferSize(new THREE.Vector2());stats.textContent=`Pozastaven\u00e9 · ${size.x} × ${size.y}`;}if(playing&&now-report>1000){const size=renderer.getDrawingBufferSize(new THREE.Vector2());stats.textContent=`${Math.round(frames*1000/(now-report))} fps · ${size.x} × ${size.y} · procedurálne 3D`;frames=0;report=now;}}if(playing)raf=requestAnimationFrame(tick);}
+function tick(now){raf=0;if(document.hidden)return;if(now-last>=1000/30||(!playing&&dirty)){const dt=last?Math.min((now-last)/1000,.08):0;last=now;if(playing){elapsed+=dt;if(moving){travelPhase+=dt*.16;uniforms.travel.value=Math.sin(travelPhase)*2.;}}draw();dirty=false;frames++;if(!playing){const size=renderer.getDrawingBufferSize(new THREE.Vector2());stats.textContent=`Pozastaven\u00e9 · ${size.x} × ${size.y}`;}if(playing&&now-report>1000){const size=renderer.getDrawingBufferSize(new THREE.Vector2());stats.textContent=`${Math.round(frames*1000/(now-report))} fps · ${size.x} × ${size.y} · procedurálne 3D`;frames=0;report=now;}}if(playing)raf=requestAnimationFrame(tick);}
 function wake(){if(!raf&&!document.hidden)raf=requestAnimationFrame(tick);}
 pause.textContent=playing?'Zastaviť':'Spustiť';
 pause.onclick=()=>{playing=!playing;pause.textContent=playing?'Zastaviť':'Spustiť';last=0;frames=0;report=performance.now();dirty=true;wake();};
@@ -107,13 +111,18 @@ document.querySelector('#depth').oninput=(event)=>{uniforms.depth.value=Number(e
 document.querySelector('#quality').onchange=resize;
 addEventListener('pointermove',event=>{if(event.target!==canvas)return;uniforms.pointer.value.set(event.clientX/innerWidth-.5,.5-event.clientY/innerHeight);dirty=true;wake();});
 addEventListener('resize',resize);
+if(journey){
+ addEventListener('scroll',()=>{dirty=true;wake();},{passive:true});
+ addEventListener('resize',()=>journey.measure());
+ document.fonts.ready.then(()=>{journey.measure();dirty=true;wake();});
+}
 document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(raf);raf=0;}else{last=0;dirty=true;wake();}});
 canvas.addEventListener('webglcontextlost',event=>{event.preventDefault();playing=false;cancelAnimationFrame(raf);document.querySelector('#error').textContent='Grafický kontext sa prerušil. Obnov stránku a použi úspornú kvalitu.';});
 renderer.debug.onShaderError=(gl,program,vs,fs)=>{console.error(gl.getShaderInfoLog(fs));document.querySelector('#error').textContent='Shader sa nepodarilo skompilovať. Táto verzia potrebuje opravu pre tento grafický ovládač.';};
 reduced.addEventListener('change',()=>{if(reduced.matches){playing=false;pause.textContent='Spusti\u0165';dirty=true;wake();}});
 addEventListener('pagehide',event=>{
  cancelAnimationFrame(raf);raf=0;
- if(!event.persisted){jelly?.dispose();backdrop?.dispose();presentScene?.traverse(object=>object.material?.dispose());waveTarget?.dispose();volumeTarget?.dispose();volumeScene.traverse(object=>object.material?.dispose());waveScene.traverse(object=>object.material?.dispose());material.dispose();plane.geometry.dispose();particles.dispose();geometry.dispose();renderer.dispose();}
+ if(!event.persisted){journey?.dispose();jelly?.dispose();backdrop?.dispose();presentScene?.traverse(object=>object.material?.dispose());waveTarget?.dispose();volumeTarget?.dispose();volumeScene.traverse(object=>object.material?.dispose());waveScene.traverse(object=>object.material?.dispose());material.dispose();plane.geometry.dispose();particles.dispose();geometry.dispose();renderer.dispose();}
 });
 addEventListener('pageshow',()=>{last=0;dirty=true;wake();});
 resize();
