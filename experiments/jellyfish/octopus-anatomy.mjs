@@ -18,4 +18,4 @@ export function armSection(curve,t){
  return {depth,width:1/depth,bend};
 }
 export const armTwist=(t,i)=>[-.82,.77,.9,1.4,1.7,-1.6,-1.15,-.75][i]+Math.sin(t*3+i*.8)*.22+t*.35;
-export const eyes=[{side:-1,center:[-.50,.43,.43],normal:[-.62,.08,1]},{side:1,center:[.50,.45,.43],normal:[.62,.10,1]}];
+export const eyes=[{side:-1,center:[-.49,.43,.405],normal:[-.48,.08,1]},{side:1,center:[.49,.45,.405],normal:[.48,.10,1]}];

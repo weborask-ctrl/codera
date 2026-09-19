@@ -110,3 +110,16 @@ Verified whole view and arm close-up at two idle phases; no obvious detached cup
 On the current machine/browser at a 740 x 646 viewport, observed approximately 11–13 fps in the Full HD mode (actual buffer 740 x 646), and 19 fps in economy (555 x 484). These are UI samples, not a controlled benchmark or a 1080p/4K performance claim. The render loop remains capped at 30 fps. Full quality restored for review.
 
 This completes the scoped idle/performance pass, not final photorealism or the future scroll rig. Large pose changes, arm self-collisions, scroll-driven entrances/exits and performance at production resolutions still need dedicated work. The current eyes and overall creature remain visibly CG; artistic approval belongs to Marcus.
+
+## Post-step-6 sculpt refinement and editable export
+
+2026-09-19. Marcus authorized meaningful further model work within this PC's capacity.
+
+- Changed the mantle into a narrower reclining upper volume blended with a second lower mass.
+- Sculpted upper/lower orbital tissue into the head, reduced socket cutouts, moved the eyes slightly inward/back and reduced iris/cornea diameter. Lowered corneal protrusion and adjusted the surrounding skin apron to meet the new tissue.
+- Rebuilt skin and cup anchors offline. Skin now has 151,710 vertices / 303,348 triangles (about 1.2% more triangles than the previous skin); binary 10,315,424 bytes. No added rendering passes or higher ocean settings.
+- Added `scripts/export-octopus-sculpt.mjs` and `assets/models/octopus-skin-study.glb` (7,282,436 bytes) as an editable static skin handoff. Explicit exclusions and regeneration instructions are in `assets/models/README.md`. This is not a complete textured/rigged character export.
+
+Verified frontal material detail and a 35-degree clay view; orbital forms connect more continuously with the head. No browser/shader errors. Observed 12 fps at 740 x 646 in Full HD mode, comparable to prior samples rather than a controlled performance benchmark. Syntax/diff checks and independent GLB structure/buffer/finite-value validation passed. The GLB has not been visually imported into Blender on this machine.
+
+Remaining: the eyes still need artistic refinement, the skin looks procedural, and the current triangular sculpt needs retopology and a deliberate rig for large scroll poses. This refinement does not claim final photorealism. Approved ocean unchanged.

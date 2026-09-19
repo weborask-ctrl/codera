@@ -319,7 +319,7 @@ export async function createOctopus(time,waves={value:null}){
  const eyeX=new THREE.Vector3().crossVectors(V([0,1,0]),eyeNormal).normalize(),eyeY=new THREE.Vector3().crossVectors(eyeNormal,eyeX);
  const eyePoint=(x,y,z)=>eyeCenter.clone().addScaledVector(eyeX,x).addScaledVector(eyeY,y).addScaledVector(eyeNormal,z).toArray();
  const eye=meshGrid(32,72,(u,v)=>{
-  const a=u*Math.PI*2,r=v*.155;return eyePoint(Math.cos(a)*r,Math.sin(a)*r*.73,-.010+.020*v*v);
+  const a=u*Math.PI*2,r=v*.135;return eyePoint(Math.cos(a)*r,Math.sin(a)*r*.73,-.010+.020*v*v);
  });
  // Iris coordinates follow the face of the eye, not the body's UV layout.
  for(let j=0;j<=32;j++)for(let k=0;k<=72;k++){const a=k/72*Math.PI*2,r=j/32;eye.attributes.uv.setXY(j*73+k,.5+.5*r*Math.cos(a),.5+.5*r*Math.sin(a));}
@@ -327,16 +327,16 @@ export async function createOctopus(time,waves={value:null}){
  // Broad skin apron and asymmetric folds replace the uniform circular bezel.
  add(meshGrid(40,112,(u,v)=>{
   const a=u*Math.PI*2,upper=Math.max(0,Math.sin(a)),lower=Math.max(0,-Math.sin(a));
-  const r=.151+v*.135,asym=1+side*.035*Math.cos(a);
+  const r=.132+v*.145,asym=1+side*.035*Math.cos(a);
   const fold=Math.exp(-(((v-.24)/.14)**2))*.019+Math.exp(-(((v-.62)/.13)**2))*.009;
   const wrinkle=Math.sin(a*9+side+v*7)*.003*Math.sin(v*Math.PI);
-  const z=.012+fold*(.45+upper)-v*.23+wrinkle;
+  const z=.008+fold*(.45+upper)-v*.13+wrinkle;
   const y=Math.sin(a)*r*(.66+.05*lower)*asym-upper*.015*(1-v);
   return eyePoint(Math.cos(a)*r,y,z);
  }),skin);
  const lens=add(meshGrid(40,96,(u,v)=>{
-  const a=u*Math.PI*2,r=v*.151;
-  return eyePoint(Math.cos(a)*r,Math.sin(a)*r*.60,.013+.053*Math.sqrt(1-v*v));
+  const a=u*Math.PI*2,r=v*.131;
+  return eyePoint(Math.cos(a)*r,Math.sin(a)*r*.60,.010+.034*Math.sqrt(1-v*v));
  }),cornea);
  const lensIndices=lens.geometry.index;
  for(let j=0;j<lensIndices.count;j+=3){const b=lensIndices.getX(j+1);lensIndices.setX(j+1,lensIndices.getX(j+2));lensIndices.setX(j+2,b);}

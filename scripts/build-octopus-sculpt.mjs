@@ -27,11 +27,17 @@ function ellipsoid(c,r,blend=.15,subtract=false,tilt=0){
 }
 // Iteration 1: the mantle reclines behind the cephalic mass instead of sitting
 // vertically on it. A broad transverse head integrates the lateral eye sockets.
-ellipsoid([.06,1.02,-.57],[.78,.88,.63],.16,false,-.38);
+ellipsoid([.045,1.07,-.60],[.73,.85,.62],.19,false,-.43);
+ellipsoid([-.025,.82,-.40],[.65,.56,.56],.20,false,-.24);
 ellipsoid([.015,.69,-.19],[.57,.48,.51],.17,false,-.20);
 ellipsoid([0,.34,.12],[.52,.45,.42],.24);
 ellipsoid([0,-.10,.09],[.61,.34,.55],.20);
-for(const side of [-1,1])ellipsoid([side*.40,.43,.20],[.24,.24,.30],.24);
+// Orbital tissue is part of the sculpt, rather than a raised eye bezel.
+for(const side of [-1,1]){
+ ellipsoid([side*.40,.43,.22],[.27,.245,.31],.20);
+ ellipsoid([side*.455,.555,.36],[.225,.135,.20],.10);
+ ellipsoid([side*.445,.335,.34],[.21,.13,.18],.10);
+}
 
 for(let i=0;i<8;i++){
  armField.fill(10);
@@ -58,7 +64,7 @@ for(let i=0;i<8;i++){
  const a=curves[i].getPointAt(.12),b=curves[(i+1)%8].getPointAt(.12),c=a.clone().lerp(b,.5);
  ellipsoid(c.toArray(),[.31,.18,.25],.18);
 }
-for(const eye of eyes)ellipsoid(eye.center,[.205,.19,.20],.045,true);
+for(const eye of eyes)ellipsoid(eye.center,[.155,.12,.155],.035,true);
 
 // Attach cups to the actual blended skin, including the thicker proximal crown.
 function sampleField(p){
