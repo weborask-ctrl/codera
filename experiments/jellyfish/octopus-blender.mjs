@@ -1,9 +1,10 @@
 import * as THREE from '/vendor/three/three.module.min.js';
 import {GLTFLoader} from '/vendor/three/GLTFLoader.js';
+import {underwaterMaterial} from './underwater-material.mjs';
 
 // The authoring scene stays in Blender. Only its character and deforming clips
 // enter the ocean: studio cameras/lights and the demonstration root path do not.
-export async function createOctopus(time){
+export async function createOctopus(time,waves){
  const gltf=await new GLTFLoader().loadAsync('/octopus-swim.glb');
  const rig=gltf.scene.getObjectByName('OCTOPUS_RIG');
  if(!rig)throw new Error('Blender asset has no OCTOPUS_RIG');
@@ -23,27 +24,13 @@ export async function createOctopus(time){
   // Avoid per-frame CPU bounds recomputation over the dense sculpt. The journey
   // controls visibility as one character; the GPU still clips its triangles.
   object.frustumCulled=false;
+  object.castShadow=true;object.receiveShadow=true;
   const old=object.material;
   const name=object.name.toLowerCase();
   const skin=name.includes('continuous')||name.startsWith('eye')||name.includes('siphon');
   const pupil=name.includes('pupil'),iris=name.includes('iris');
-  const mat=new THREE.MeshStandardMaterial({color:skin?'#b45b2c':pupil?'#03171c':iris?'#b9a66a':'#d6b18b',roughness:skin?.43:pupil?.20:.49,metalness:0});
-  if(skin){
-   mat.onBeforeCompile=shader=>{
-    shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 skinPoint;').replace('#include <begin_vertex>','#include <begin_vertex>\nskinPoint=position;');
-    shader.fragmentShader=shader.fragmentShader.replace('#include <common>',`#include <common>
-varying vec3 skinPoint;
-float skinHash(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);}
-float skinNoise(vec3 p){vec3 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
- return mix(mix(mix(skinHash(i),skinHash(i+vec3(1,0,0)),f.x),mix(skinHash(i+vec3(0,1,0)),skinHash(i+vec3(1,1,0)),f.x),f.y),mix(mix(skinHash(i+vec3(0,0,1)),skinHash(i+vec3(1,0,1)),f.x),mix(skinHash(i+vec3(0,1,1)),skinHash(i+vec3(1,1,1)),f.x),f.y),f.z);}`)
-     .replace('#include <color_fragment>',`#include <color_fragment>
-float mottling=skinNoise(skinPoint*48.);
-float pores=skinNoise(skinPoint*240.);
-diffuseColor.rgb*=mix(vec3(.40,.36,.32),vec3(1.32,1.17,.96),smoothstep(.22,.78,mottling));
-diffuseColor.rgb*=.9+.16*pores;`);
-   };
-   mat.customProgramCacheKey=()=> 'codera-blender-skin-v1';
-  }
+  const mat=new THREE.MeshStandardMaterial({color:skin?'#b86d48':pupil?'#03171c':iris?'#a69b6c':'#ad937e',roughness:skin?.43:pupil?.20:.54,metalness:0});
+  if(!pupil)underwaterMaterial(mat,time,waves,{skin});
   materials.add(mat);object.material=mat;
   for(const m of Array.isArray(old)?old:[old])m?.dispose();
  });
@@ -54,20 +41,47 @@ diffuseColor.rgb*=.9+.16*pores;`);
  const folded=bones.map(b=>b.quaternion.clone());
  const skinMesh=rig.getObjectByName('Octopus_|_continuous_deforming_skin');
  const foldedMorph=skinMesh?.morphTargetInfluences?.slice();
- let lastTime=0,clock=0,reduced=false;
- mixer.setTime(1.5);
+ mixer.setTime(.95);
+ const resting=bones.map(b=>b.quaternion.clone());
+ const tipTurns=bones.map(()=>new THREE.Quaternion());
+ const tipAxis=new THREE.Vector3(1,0,0);
+ // Bounded CCD: two leading arms reach fixed points on the cave lip.
+ const contacts=[{arm:'01',target:new THREE.Vector3(-.55,-13.15,-19)},{arm:'02',target:new THREE.Vector3(4.5,-13.15,-19)}].map(c=>({...c,tip:rig.getObjectByName(`ARM_${c.arm}_23`),joints:[18,14,10,6,3].map(n=>rig.getObjectByName(`ARM_${c.arm}_${String(n).padStart(2,'0')}`))}));
+ const origin=new THREE.Vector3(),endpoint=new THREE.Vector3(),a=new THREE.Vector3(),b=new THREE.Vector3(),parentQ=new THREE.Quaternion(),delta=new THREE.Quaternion(),identity=new THREE.Quaternion();
+ function contactPose(progress){
+  const weight=THREE.MathUtils.smoothstep(progress,.70,.77)*(1-THREE.MathUtils.smoothstep(progress,.81,.88));
+  if(weight<=0)return;
+  group.updateMatrixWorld(true);
+  for(const c of contacts)for(let pass=0;pass<2;pass++)for(const joint of c.joints){
+   if(!joint||!c.tip)continue;
+   joint.getWorldPosition(origin);c.tip.getWorldPosition(endpoint);
+   a.copy(endpoint).sub(origin).normalize();b.copy(c.target).sub(origin).normalize();
+   delta.setFromUnitVectors(a,b);const angle=identity.angleTo(delta);
+   delta.slerp(identity,1-Math.min(weight,.16/Math.max(angle,.00001)));
+   joint.parent.getWorldQuaternion(parentQ);delta.premultiply(parentQ.clone().invert()).multiply(parentQ);
+   joint.quaternion.premultiply(delta);joint.updateWorldMatrix(false,true);
+  }
+ }
+ let elapsed=0;
  return {group,kind:'blender',setBackdrop(){},setQuality(){},
-  update(elapsed){
-   const dt=Math.max(0,Math.min(.1,elapsed-lastTime));lastTime=elapsed;
-   if(!reduced)clock+=dt;
-   mixer.setTime(reduced?1.5:clock);
-   // Seeking the clip must never reintroduce the Blender showcase trajectory.
-   root.position.copy(rootPosition);root.quaternion.copy(rootRotation);
+  update(value){
+   elapsed=value;
    group.rotation.set(0,0,0);
   },
   setMotion(strength,phase,tucks,options={}){
-   reduced=Boolean(options.reduced);
-   if(reduced){mixer.setTime(1.5);root.position.copy(rootPosition);root.quaternion.copy(rootRotation);}
+   const reduced=Boolean(options.reduced),effort=reduced?0:THREE.MathUtils.clamp(strength,0,1);
+   mixer.setTime(phase);
+   for(let i=0;i<bones.length;i++){
+    const b=bones[i];b.quaternion.slerp(resting[i],1-effort);
+    const match=/ARM_(\d+)_(\d+)/.exec(b.name);
+    if(match&&Number(match[2])>17&&!reduced){
+     const amount=(Number(match[2])-17)/6;
+     tipTurns[i].setFromAxisAngle(tipAxis,Math.sin(elapsed*.57+Number(match[1])*1.9-amount)*.008*amount*(1-effort));
+     b.quaternion.multiply(tipTurns[i]);
+    }
+   }
+   if(skinMesh?.morphTargetInfluences)skinMesh.morphTargetInfluences[0]=THREE.MathUtils.lerp(.24+(reduced?0:Math.sin(elapsed*.85)*.035),skinMesh.morphTargetInfluences[0],effort);
+   root.position.copy(rootPosition);root.quaternion.copy(rootRotation);
    // Freeze a folded pose as it enters the actual cave; never scale the mesh
    // down to fake disappearance. The reef's depth buffer provides occlusion.
    if(options.progress>.66){
@@ -76,6 +90,7 @@ diffuseColor.rgb*=.9+.16*pores;`);
     if(foldedMorph)for(let i=0;i<foldedMorph.length;i++)skinMesh.morphTargetInfluences[i]=THREE.MathUtils.lerp(skinMesh.morphTargetInfluences[i],foldedMorph[i],u);
     root.position.copy(rootPosition);root.quaternion.copy(rootRotation);
    }
+   contactPose(options.progress||0);
   },
   dispose(){mixer.stopAllAction();mixer.uncacheRoot(rig);skeletons.forEach(s=>s.dispose());geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());}
  };

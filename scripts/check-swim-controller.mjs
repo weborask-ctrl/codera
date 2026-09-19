@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import {SwimController} from '../experiments/jellyfish/swim-controller.mjs';
+const c=new SwimController();c.update(0,0);
+for(let i=0;i<300;i++)c.update(0,1/30);
+assert.equal(c.effort,0);assert.equal(c.clock,1.35,'Idle must not cycle propulsion');
+for(let i=1;i<=30;i++)c.update(i*.006,1/30);
+assert.ok(c.effort>.6,'Scrolling must drive a stroke');
+const drivenClock=c.clock;
+for(let i=0;i<90;i++)c.update(.18,1/30);
+assert.ok(c.effort<.001,'Stop must settle into idle');assert.ok(c.clock>drivenClock,'Coast must not snap to a frozen start frame');
+const beforeReverse=c.clock;
+for(let i=0;i<=30;i++)c.update(.18-i*.006,1/30);
+assert.ok(c.speed<0);assert.ok(c.clock>beforeReverse,'Reverse travel must not reverse biological stroke');
+for(let i=0;i<120;i++)c.update(0,1/30);
+assert.equal(c.progress,0);assert.equal(c.effort,0);
+c.update(.8,0);assert.equal(c.progress,.8);assert.equal(c.effort,0,'Paused seek must stay still');
+c.update(.5,1/30,true);assert.equal(c.progress,.5);assert.equal(c.effort,0);
+console.log('PASS: idle, acceleration, coast, reverse, pause and reduced motion');

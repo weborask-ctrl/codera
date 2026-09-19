@@ -6,7 +6,7 @@ import { oceanFragment as fragment, waveMapFragment } from './ocean-film-shaders
 const canvas=document.querySelector('canvas');
 const study=document.body.hasAttribute('data-octopus');
 const journeyMode=document.body.hasAttribute('data-journey');
-const journey=journeyMode?(await import('./dive-journey.mjs')).createDiveJourney():null;
+let journey=null;
 const stats=document.querySelector('#stats');
 const pause=document.querySelector('#pause');
 const controls=document.querySelector('#controls');
@@ -40,6 +40,9 @@ if(renderer.extensions.has('EXT_color_buffer_float')){
  material.needsUpdate=true;
 }
 
+if(journeyMode)journey=(await import('./dive-journey.mjs')).createDiveJourney(uniforms.time,uniforms.waveMap);
+renderer.shadowMap.enabled=journeyMode;renderer.shadowMap.type=THREE.PCFShadowMap;
+renderer.shadowMap.autoUpdate=false;let lastShadow=-1;
 // Optional look-development scene. The standalone approved ocean keeps its own path.
 let jelly=null,backdrop=null,presentScene=null;
 const jellyScene=new THREE.Scene();
@@ -54,8 +57,8 @@ if(study){
  jelly.group.position.set(0,-2.4,-6.6);
  jelly.group.rotation.set(.02,0,-.025);
  jelly.group.scale.setScalar(1.25);
- jellyScene.add(jelly.group);
- if(jelly.kind==='blender'){
+ (journey?.scene||jellyScene).add(jelly.group);
+ if(jelly.kind==='blender'&&!journey){
   jellyScene.fog=new THREE.FogExp2('#07506b',.028);
   jellyScene.add(new THREE.HemisphereLight('#abebf3','#063548',2.5));
   const sun=new THREE.DirectionalLight('#ffdcba',3.3);sun.position.set(-4,12,5);jellyScene.add(sun);
@@ -78,14 +81,15 @@ if(study){
 // Sparse particles are actual world-space points; camera travel produces parallax.
 const particleScene=new THREE.Scene();
 const particleCamera=new THREE.PerspectiveCamera(77.3196,1,.1,100);
-const positions=new Float32Array(3200*3);
+const particleCount=journeyMode?1900:3200;
+const positions=new Float32Array(particleCount*3);
 let seed=27183;const random=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
-for(let i=0;i<3200;i++){positions[i*3]=(random()-.5)*38;positions[i*3+1]=-random()*19;positions[i*3+2]=8-random()*65;}
+for(let i=0;i<particleCount;i++){positions[i*3]=(random()-.5)*38;positions[i*3+1]=-random()*19;positions[i*3+2]=8-random()*65;}
 const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.BufferAttribute(positions,3));
 const particles=new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,uniforms:{time:uniforms.time,pixels:{value:1}},vertexShader:'uniform float time;uniform float pixels;varying float fade;void main(){vec3 p=position;p.x+=sin(time*.18+p.z)*.13;p.y+=sin(time*.23+p.x)*.10;vec4 mv=modelViewMatrix*vec4(p,1.);fade=exp(-length(mv.xyz)*.040)*.32;gl_PointSize=clamp(38.*pixels/max(1.,-mv.z),.65,12.*pixels);gl_Position=projectionMatrix*mv;}',fragmentShader:'varying float fade;void main(){float r=length(gl_PointCoord-.5)*2.;gl_FragColor=vec4(.45,.87,1.,(1.-smoothstep(.1,1.,r))*fade);}'});
 particleScene.add(new THREE.Points(geometry,particles));
 let playing=!reduced.matches, moving=false, travelPhase=0, elapsed=0,last=0,raf=0,frames=0,report=performance.now(),dirty=true;
-function resize(){if(jelly){jelly.group.position.x=0;jelly.group.scale.setScalar(innerWidth/innerHeight<.8?.72:innerWidth/innerHeight<1.3?1.25:1.42);if(document.body.classList.contains('detail'))uniforms.cameraOffset.value.x=jelly.group.position.x-.3;}const budget=Number(document.querySelector('#quality').value);const eco=budget<1000000;jelly?.setQuality?.(eco);const waveSize=budget<1000000?1024:2048;if(waveTarget&&waveTarget.width!==waveSize)waveTarget.setSize(waveSize,waveSize);uniforms.waveFootprint.value=64/waveSize;uniforms.refineSurface.value=budget>=1000000;const ratio=Math.min(devicePixelRatio,eco?.75:2,Math.sqrt(budget/(innerWidth*innerHeight)));renderer.setPixelRatio(ratio);renderer.setSize(innerWidth,innerHeight,false);if(volumeTarget)volumeTarget.setSize(Math.max(1,Math.ceil(innerWidth*ratio*(eco?.35:.5))),Math.max(1,Math.ceil(innerHeight*ratio*(eco?.35:.5))));if(backdrop){const size=renderer.getDrawingBufferSize(new THREE.Vector2());backdrop.setSize(size.x,size.y);jelly.setBackdrop(backdrop.texture,size.x,size.y);}uniforms.resolution.value.set(innerWidth,innerHeight);particleCamera.aspect=innerWidth/innerHeight;particleCamera.updateProjectionMatrix();particles.uniforms.pixels.value=ratio;dirty=true;wake();}
+function resize(){if(jelly){jelly.group.position.x=0;jelly.group.scale.setScalar(innerWidth/innerHeight<.8?.72:innerWidth/innerHeight<1.3?1.25:1.42);if(document.body.classList.contains('detail'))uniforms.cameraOffset.value.x=jelly.group.position.x-.3;}const budget=Number(document.querySelector('#quality').value);const eco=budget<1000000;jelly?.setQuality?.(eco);journey?.setQuality?.(eco);const waveSize=budget<1000000?1024:2048;if(waveTarget&&waveTarget.width!==waveSize)waveTarget.setSize(waveSize,waveSize);uniforms.waveFootprint.value=64/waveSize;uniforms.refineSurface.value=budget>=1000000;const ratio=Math.min(devicePixelRatio,eco?.75:2,Math.sqrt(budget/(innerWidth*innerHeight)));renderer.setPixelRatio(ratio);renderer.setSize(innerWidth,innerHeight,false);if(volumeTarget)volumeTarget.setSize(Math.max(1,Math.ceil(innerWidth*ratio*(eco?.35:.5))),Math.max(1,Math.ceil(innerHeight*ratio*(eco?.35:.5))));if(backdrop){const size=renderer.getDrawingBufferSize(new THREE.Vector2());backdrop.setSize(size.x,size.y);jelly.setBackdrop(backdrop.texture,size.x,size.y);}uniforms.resolution.value.set(innerWidth,innerHeight);particleCamera.aspect=innerWidth/innerHeight;particleCamera.updateProjectionMatrix();particles.uniforms.pixels.value=ratio;dirty=true;wake();}
 function draw(){
  uniforms.time.value=elapsed;jelly?.update?.(elapsed);const t=uniforms.travel.value;
  journey?.update({octopus:jelly,uniforms,time:elapsed,reduced:reduced.matches});
@@ -106,7 +110,7 @@ function draw(){
  if(backdrop){
   renderer.setRenderTarget(null);renderer.toneMapping=THREE.ACESFilmicToneMapping;
   renderer.autoClear=true;renderer.render(presentScene,camera);renderer.autoClear=false;
-  if(journey)renderer.render(journey.scene,particleCamera);
+  if(journey){renderer.shadowMap.needsUpdate=elapsed-lastShadow>.12||!playing;if(renderer.shadowMap.needsUpdate)lastShadow=elapsed;renderer.render(journey.scene,particleCamera);}
   renderer.render(jellyScene,particleCamera);
  }
  canvas.dataset.ready=String(!document.querySelector('#error').textContent);
