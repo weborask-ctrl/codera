@@ -42,7 +42,7 @@ Committed cloud revision **6**, operation `surface-weight-transfer-06`. Marcus r
 - `codera-octopus-rig.blend`: 47,562,107 bytes, Blender source with editable materials, weights and 197 bones.
 - `codera-octopus-rig.glb`: 22,066,416 bytes, 16 meshes, 599,368 triangles. This is too dense to treat as the approved low-budget web asset.
 - `octopus-crown-front.png`: actual Eevee render after the geometric crown edit (revision 4); revisions 5 and 6 change weights only and preserve this rest shape.
-- Older renders remain as iteration evidence. No authored swimming or crawling clips yet.
+- Older renders remain as iteration evidence. This static master has no authored swimming or crawling clips; the separate revision-9 swimming study is documented in [SWIM_STUDY.md](SWIM_STUDY.md).
 
 SHA-256:
 
