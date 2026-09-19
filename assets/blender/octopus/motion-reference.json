@@ -1,0 +1,18 @@
+{
+  "status": "reference_only_not_an_animation_clip",
+  "species_context": "Octopus vulgaris, one reported 180 g female sequence",
+  "source": "https://doi.org/10.1109/ICRA.2015.7139340",
+  "duration_seconds": 1.32,
+  "phases": [
+    { "name": "recovery_open", "start": 0.0, "end": 0.66 },
+    { "name": "power_close", "start": 0.66, "end": 1.10 },
+    { "name": "deceleration", "start": 1.10, "end": 1.32 }
+  ],
+  "recovery_to_power_duration_ratio": 1.5,
+  "limitations": [
+    "Not a universal octopus swimming frequency.",
+    "Not calibrated for the scale of the Codera character.",
+    "No sampled arm trajectories are included; do not invent them from these phase boundaries.",
+    "Crawling and den entry require separate contact-driven clips."
+  ]
+}
