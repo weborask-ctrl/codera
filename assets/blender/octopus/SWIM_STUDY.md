@@ -33,3 +33,22 @@ The GLB header and byte length were checked: two animation clips, each with 73 s
 - `octopus-swim-power.png`: actual cloud render of the closing pose, visually inspected.
 
 No website integration or GitHub push performed.
+
+## Refinement: revision 10
+
+`scripts/refine-octopus-swim.py` preserves the first actions inside the Blender file and creates Swim II actions. It repairs cross-arm influences on 2,613 outer skin vertices with a smooth transition outside the crown. Closing strength is reduced from 0.79 to 0.70, proximal influence is gentler, the streaming directions spread further apart and distal delay increases from 0.055 to 0.085 cycles. Twist amplitude is slightly reduced.
+
+`verify-refined-swim-10` checked frames 1, 19, 37, 49, 61 and 73: all evaluated skin coordinates finite, weights normalized, endpoint bone matrix difference zero. The actual Eevee closing-pose render was inspected. Arms spread more clearly and the large stretched patches are reduced, but a thin residual strip at an arm overlap remains. Full animation playback/contact validation remains outstanding; this is not a claim that the fused crossing topology has been completely repaired.
+
+GLB still contains two 3-second clips (skeletal and mantle morph). Both should run together. Dense geometry and procedural material portability limitations remain unchanged.
+
+Revision 9 hashes above are historical; current files are updated with the refined study. Previous files remain recoverable from local commit `221ae71`.
+
+### Current downloaded files: revision 11
+
+Revision 11 changes only the delivery camera to an orthographic 2.8 m framing for the wider silhouette; the revision-10 geometry and motion remain identical.
+
+- Blender: 56,202,967 bytes; SHA-256 `14410fdaabd41efc95e3a1d8b8e47347375a320af2da1504b1378eb67fc895b8`.
+- GLB: 22,293,524 bytes; SHA-256 `7293bbfca3c31c7646fe0d416f6f6e70c264c361e544881420d48f45cabfad4c`.
+- GLB byte length/header verified, 591 rig channels plus one mantle morph channel.
+- `render-delivery-swim-11`: 400 px Eevee render inspected at frame 61; full silhouette fits the delivery camera. Thin overlap strip remains visible and is not considered fixed.
