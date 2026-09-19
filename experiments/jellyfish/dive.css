@@ -5,3 +5,16 @@
 header{position:absolute;top:0;left:0;right:0;z-index:3;padding:32px 5vw;display:flex;justify-content:space-between;align-items:center}.brand{font-size:24px;font-weight:800;letter-spacing:.16em}nav{display:flex;gap:32px;font-size:15px}main{position:relative;z-index:1}.hero{height:110svh;min-height:640px;display:flex;align-items:center;padding:6vw}.hero-copy{width:58%;text-shadow:0 3px 26px #002c4560}.hero-copy p{font-size:clamp(16px,1.5vw,21px);line-height:1.7}h1,h2,h3{font-family:Bricolage,Geist,sans-serif;font-weight:800;letter-spacing:-.055em;line-height:.98;margin:0}h1{font-size:clamp(64px,7.7vw,126px)}em{font-family:Fraunces,serif;font-weight:400;color:#ffccaa}h2{font-size:clamp(52px,6.8vw,108px)}h3{font-size:clamp(34px,4.4vw,68px)}.cta{display:inline-block;margin-top:20px;padding:14px 0;border-bottom:1px solid #ffffff70}.passage{height:155svh;pointer-events:none}.work{padding:10vh 5vw 6vh;width:62%;min-height:100vh}.work-heading{padding-bottom:10vh}.work p{font-size:clamp(16px,1.3vw,20px);line-height:1.65;max-width:40ch}.work article{margin-bottom:16vh}.work article>a{display:block;position:relative;margin-top:26px}.work img{display:block;width:100%;height:auto;aspect-ratio:1.6;object-fit:cover;border-radius:4px;box-shadow:0 20px 60px #00172450}.work article span{display:block;padding:16px 0;font-size:16px;border-bottom:1px solid #ffffff35}footer{padding-bottom:80px}.reading-shade{position:fixed;inset:0;pointer-events:none;background:linear-gradient(90deg,#012638bc,transparent 80%);opacity:var(--reading,0);z-index:1}#controls{position:fixed;right:18px;bottom:18px;z-index:5}button,select{font:inherit;color:#fff;background:#073949;border:1px solid #ffffff45;border-radius:8px;padding:10px 12px;cursor:pointer}aside{position:fixed;bottom:68px;right:18px;z-index:5;display:flex;flex-wrap:wrap;max-width:440px;gap:12px;padding:18px;background:#042b3aee;border-radius:12px}aside output{width:100%;font-size:13px}body.clean aside{display:none}#error{position:fixed;bottom:130px;left:20px;right:20px;z-index:6}#error:empty{display:none}noscript{position:relative;z-index:2}
 @media(max-width:700px){header{padding:24px 6vw}.brand{font-size:20px}nav{gap:16px;font-size:13px}.hero{align-items:flex-start;padding-top:22svh;min-height:720px}.hero-copy{width:100%}h1{font-size:clamp(57px,12vw,82px)}.hero-copy p{max-width:26ch}.work{width:100%;padding:10vh 6vw}.work-heading{padding-right:18%}.work article{margin-bottom:12vh}.reading-shade{background:linear-gradient(90deg,#012638cf,#01263850)}.passage{height:130svh}}
 @media(prefers-reduced-motion:reduce){.passage{height:20vh}}
+
+/* Full-width work after the creature has entered its den. */
+.passage{height:230svh}
+.work{width:100%;padding:8vh 3vw 6vh}
+.work-heading{padding:0 2vw 8vh}
+.work article{min-height:100svh;margin:0 0 10vh;display:flex;flex-direction:column;justify-content:center}
+.work article>p{margin:14px 0 0;max-width:none}
+.work article>a{margin-top:24px}
+.work img{width:100%;height:auto;aspect-ratio:auto;object-fit:contain;border-radius:3px}
+.work article span{padding:16px 0 22px}
+.reading-shade{background:linear-gradient(180deg,#012638dd,#011b29eb)}
+@media(max-width:700px){.passage{height:210svh}.work{padding-inline:4vw}.work-heading{padding-right:0}.work article{min-height:90svh;margin-bottom:6vh}}
+@media(prefers-reduced-motion:reduce){.passage{height:20vh}}

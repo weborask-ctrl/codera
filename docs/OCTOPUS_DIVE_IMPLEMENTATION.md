@@ -59,3 +59,31 @@ Mobile and final production resolutions still need their own visual review.
 Review hero spacing, how much the first approach enlarges the animal, descent
 length, reef composition and the space left for project previews. Keep all
 future model/environment source work in this repository for transfer between PCs.
+
+## Swimming, den entrance and full-width work — next implemented pass
+
+Marcus approved full entry into a coral-covered rock opening before the first
+project, followed by five much larger examples. This supersedes the earlier
+right-side idle during portfolio.
+
+- Added a continuous cubic position track with tangent-led body turning. Scroll
+  chooses the path/entry phase; time adds a restrained swimming cycle outside
+  the den. Reduced motion keeps discrete settled poses.
+- Shared deformation uniforms drive arm strokes, mantle pulses and eight
+  staggered arm contractions in both visible and shadow passes. Cups follow the
+  same deformation. One front arm contracts later. This is a procedural proxy
+  animation, not an anatomical rig, collision solver or planted-arm IK.
+- The den has a rocky opening, throat and opaque interior. The octopus enters,
+  turns behind the side rock and ends fully occluded. No visibility or opacity
+  switch hides the animal. Full entry finishes before the work heading enters
+  the viewport. The reading shade starts later and is not used to hide it.
+- Expanded desktop work from 62% to 100% section width with 3vw gutters. Each
+  article occupies at least one viewport in height, with uncropped images and
+  native vertical scrolling. Mobile has 4vw gutters and 90svh minimum articles.
+- Visual checks in the live browser: approach, partial entry, complete hidden
+  state without the reading shade, reverse scroll back to partial entry, and
+  the enlarged first example. No console/shader errors; syntax/diff checks pass.
+
+The current coral/den geometry is deliberately a coarse composition proxy.
+Precise gripping, soft-body contact and muscular swimming still require the
+future Blender rig. No claim of final photorealistic or collision-free motion.

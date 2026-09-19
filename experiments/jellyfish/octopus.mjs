@@ -13,6 +13,9 @@ const oceanOptics=(
 const vertex = `
 uniform float clock;
 uniform vec3 armRoots[8];
+uniform float swim;
+uniform float swimClock;
+uniform float armTuck[8];
 attribute vec2 flex;
 attribute float occlusion;
 varying float ambientOcclusion;
@@ -26,13 +29,20 @@ vec3 deform(vec3 p,inout vec3 n){
   float w=flex.x*flex.x,lag=flex.x*2.5;
   float az=sin(clock*.49+flex.y*.73-lag)*.075*w;
   float ay=sin(clock*.37+flex.y-lag*.8)*.105*w;
+  az+=sin(swimClock-flex.x*2.4+flex.y*.32)*.24*swim*w;
+  ay+=sin(swimClock-flex.x*2.8+flex.y*.5)*.30*swim*w;
   float cz=cos(az),sz=sin(az),cy=cos(ay),sy=sin(ay);
   mat3 rz=mat3(cz,sz,0.,-sz,cz,0.,0.,0.,1.);
   mat3 ry=mat3(cy,0.,-sy,0.,1.,0.,sy,0.,cy);
   mat3 rotation=ry*rz;
   p=armRoots[arm]+rotation*(p-armRoots[arm]);n=rotation*n;
+  // Contract arm spread around the crown; cups use the same arm parameter.
+  float fold=armTuck[arm]*smoothstep(0.,.48,flex.x);
+  vec3 squeeze=vec3(1.-fold*.72,1.-fold*.30,1.);
+  p=armRoots[arm]+(p-armRoots[arm])*squeeze;n/=squeeze;
  }else{
   float breath=sin(clock*.70)*.018*smoothstep(.15,.95,p.y);
+  breath+=sin(swimClock)*.022*swim*smoothstep(.15,.95,p.y);
   float scale=1.+breath;vec3 stretch=vec3(scale,1./(scale*scale),scale),center=vec3(.03,.9,-.35);
   p=center+(p-center)*stretch;n/=stretch;
  }
@@ -249,7 +259,8 @@ export async function createOctopus(time,waves={value:null}){
  const reviewAngle=Number.isFinite(requestedAngle)?Math.max(-90,Math.min(90,requestedAngle))*Math.PI/180:0;
  const shadowTarget=new THREE.WebGLRenderTarget(1024,1024,{minFilter:THREE.NearestFilter,magFilter:THREE.NearestFilter,depthBuffer:true});
  const lightCamera=new THREE.OrthographicCamera(-4.5,4.5,4.5,-4.5,.1,24);
- const common={armRoots:{value:paths.map(path=>V(path[0]))},clayMode:{value:new URLSearchParams(location.search).has('clay')},clock:time,surfaceLight:waves,hasSurfaceLight:{value:Boolean(waves.value)},shadowImage:{value:shadowTarget.texture},shadowProjection:{value:new THREE.Matrix4()},shadowPixel:{value:new THREE.Vector2(1/1024,1/1024)},shadowReady:{value:false}};
+ const motion={swim:{value:0},swimClock:{value:0},armTuck:{value:new Float32Array(8)}};
+ const common={...motion,armRoots:{value:paths.map(path=>V(path[0]))},clayMode:{value:new URLSearchParams(location.search).has('clay')},clock:time,surfaceLight:waves,hasSurfaceLight:{value:Boolean(waves.value)},shadowImage:{value:shadowTarget.texture},shadowProjection:{value:new THREE.Matrix4()},shadowPixel:{value:new THREE.Vector2(1/1024,1/1024)},shadowReady:{value:false}};
  const makeMat=kind=>{const m=new THREE.ShaderMaterial({uniforms:{...common,kind:{value:kind}},vertexShader:vertex,fragmentShader:fragment,side:THREE.DoubleSide});materials.push(m);return m;};
  const skin=makeMat(0),sucker=makeMat(1),iris=makeMat(2),cornea=makeMat(3);
  cornea.transparent=true;cornea.depthWrite=false;cornea.side=THREE.FrontSide;
@@ -343,10 +354,16 @@ export async function createOctopus(time,waves={value:null}){
  lens.geometry.computeVertexNormals();corneas.push(lens);
  lens.renderOrder=2;
  }
- const depthMaterial=new THREE.ShaderMaterial({uniforms:{clock:time,armRoots:common.armRoots},vertexShader:vertex,fragmentShader:'#include <packing>\nvoid main(){gl_FragColor=packDepthToRGBA(gl_FragCoord.z);}',side:THREE.DoubleSide,toneMapped:false});
- let shadowInterval=0,lastShadow=-Infinity;
+ const depthMaterial=new THREE.ShaderMaterial({uniforms:{...motion,clock:time,armRoots:common.armRoots},vertexShader:vertex,fragmentShader:'#include <packing>\nvoid main(){gl_FragColor=packDepthToRGBA(gl_FragCoord.z);}',side:THREE.DoubleSide,toneMapped:false});
+ let shadowInterval=0,lastShadow=-Infinity,lastMotionTime=-Infinity;
  const oldClear=new THREE.Color();
  return {group,setBackdrop(){},
+  setMotion(strength,phase,tuck){
+   if(lastMotionTime===time.value&&motion.swimClock.value!==phase)common.shadowReady.value=false;
+   lastMotionTime=time.value;
+   motion.swim.value=strength;motion.swimClock.value=phase;
+   motion.armTuck.value.set(tuck);
+  },
   setQuality(eco){const size=eco?512:1024;shadowTarget.setSize(size,size);common.shadowPixel.value.set(1/size,1/size);shadowInterval=eco?1/15:0;common.shadowReady.value=false;lastShadow=-Infinity;},
   update(elapsed){group.rotation.y=reviewAngle+Math.sin(elapsed*.24)*.025;group.rotation.z=-.025+Math.sin(elapsed*.31)*.012;},
   renderShadow(renderer,scene){
