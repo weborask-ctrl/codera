@@ -1,5 +1,6 @@
 import * as THREE from '/vendor/three/three.module.min.js';
 import {mergeVertices,mergeGeometries} from '/vendor/three/BufferGeometryUtils.js';
+import {shelfHeight} from './deep-path.mjs';
 import {photographicRock} from './photographic-rock.mjs';
 import {underwaterMaterial} from './underwater-material.mjs';
 
@@ -22,11 +23,13 @@ export function createReef(time={value:0},waves={value:null}){
  const stone=photographicRock(time,waves);materials.push(stone);
  const sand=mat(new THREE.MeshStandardMaterial({color:'#9caa92',map:texture,bumpMap:texture,bumpScale:.025,roughness:.98}));
  const dark=mat(new THREE.MeshStandardMaterial({color:'#153d44',map:texture,bumpMap:texture,bumpScale:.1,roughness:.98,side:THREE.DoubleSide}));
- const floorY=(x,z)=>-17.8+.38*Math.sin(x*.45+z*.16)+.19*Math.cos(z*.62)+2*Math.exp(-(((Math.abs(x)-12)/4)**2));
- const floor=geo(new THREE.PlaneGeometry(90,95,70,80));floor.rotateX(-Math.PI/2);floor.translate(0,0,-40);
+ const floorY=shelfHeight;
+ const floor=geo(new THREE.PlaneGeometry(140,200,100,160));floor.rotateX(-Math.PI/2);floor.translate(0,0,-80);
  const fp=floor.attributes.position;
  for(let i=0;i<fp.count;i++){const x=fp.getX(i),z=fp.getZ(i);fp.setY(i,floorY(x,z));floor.attributes.uv.setXY(i,x*.19,z*.19);}
- floor.computeVertexNormals();const seabed=new THREE.Mesh(floor,sand);seabed.receiveShadow=true;group.add(seabed);
+ floor.computeVertexNormals();
+ const terrainMaterial=photographicRock(time,waves,{sandMap:texture});materials.push(terrainMaterial);
+ const seabed=new THREE.Mesh(floor,terrainMaterial);seabed.name='continuous-terrace-and-drop';seabed.receiveShadow=true;group.add(seabed);
  const surface=(a,t)=>{
   const c=Math.cos(a),s=Math.sin(a),edge=1+.07*Math.sin(a*3)+.05*Math.cos(a*7);
   const innerX=c*2.65*edge,innerY=s*2.25*edge;
@@ -67,6 +70,8 @@ export function createReef(time={value:0},waves={value:null}){
  const rocks=new THREE.InstancedMesh(rockGeo,stone,65);rocks.castShadow=true;rocks.receiveShadow=false;
  for(let i=0;i<65;i++){const a=random()*Math.PI*2,t=.18+random()*.72,p=surface(a,t),s=.4+random()*1.2;dummy.position.copy(p);dummy.position.z-=s*.25;dummy.rotation.set(random(),random()*6,random());dummy.scale.set(s*(1.3+random()),s*(.45+random()*.5),s*.9);dummy.updateMatrix();rocks.setMatrixAt(i,dummy.matrix);}
  group.add(rocks);
+ const deepRocks=new THREE.InstancedMesh(rockGeo,stone,7);
+ [[-7,-45,-98,8,19,12],[43,-46,-103,8,22,15],[-15,-51,-120,12,20,17],[50,-51,-128,15,24,17],[35,-51,-147,12,12,10],[12,-50,-97,5,16,9],[30,-50,-101,5,15,11]].forEach((r,i)=>{dummy.position.set(...r.slice(0,3));dummy.rotation.set(.05*i,.3*i,.08*i);dummy.scale.set(...r.slice(3));dummy.updateMatrix();deepRocks.setMatrixAt(i,dummy.matrix);});group.add(deepRocks);
  const coral=mat(new THREE.MeshStandardMaterial({color:'white',roughness:.72,bumpMap:texture,bumpScale:.018}));
  const branchRecords=[],tips=[],lobes=[],palette=['#ad785f','#98716c','#9a876b','#75938b'];
  for(let colony=0;colony<35;colony++){
@@ -84,5 +89,5 @@ export function createReef(time={value:0},waves={value:null}){
  branchRecords.forEach((b,i)=>{const d=b.end.clone().sub(b.base);dummy.position.copy(b.base).lerp(b.end,.5);dummy.quaternion.setFromUnitVectors(up,d.clone().normalize());dummy.scale.set(b.radius,d.length(),b.radius);dummy.updateMatrix();branches.setMatrixAt(i,dummy.matrix);branches.setColorAt(i,color.set(b.hue));});
  [...tips,...lobes.map(l=>({p:l.p,r:l.r,hue:l.hue}))].forEach((b,i)=>{dummy.position.copy(b.p);dummy.rotation.set(0,0,0);dummy.scale.set(b.r,b.r*.9,b.r*.8);dummy.updateMatrix();ends.setMatrixAt(i,dummy.matrix);ends.setColorAt(i,color.set(b.hue));});
  branches.castShadow=true;branches.receiveShadow=true;ends.castShadow=true;ends.receiveShadow=true;group.add(branches,ends);
- return {group,dispose(){for(const o of [rocks,branches,ends])o.dispose();geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());}};
+ return {group,dispose(){for(const o of [rocks,branches,ends,deepRocks])o.dispose();geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());}};
 }

@@ -7,8 +7,9 @@ import {resolve} from 'node:path';
 const three=pathToFileURL(resolve('.prototype-cache/jellyfish/three/three.module.min.js')).href;
 const utils=(await readFile('.prototype-cache/jellyfish/three/BufferGeometryUtils.js','utf8')).replace(/from 'three'/g,`from '${three}'`);
 const utilsURL=`data:text/javascript;base64,${Buffer.from(utils).toString('base64')}`;
+const deepURL=pathToFileURL(resolve('experiments/jellyfish/deep-path.mjs')).href;
 let source=await readFile('experiments/jellyfish/reef.mjs','utf8');
-source=source.replace("'/vendor/three/three.module.min.js'",JSON.stringify(three))
+source=source.replace("'./deep-path.mjs'",JSON.stringify(deepURL)).replace("'/vendor/three/three.module.min.js'",JSON.stringify(three))
  .replace(/^import \{mergeVertices,mergeGeometries\}.*$/m,`const {mergeVertices,mergeGeometries}=await import('${utilsURL}');`)
  .replace(/^import \{photographicRock\}.*$/m,'const photographicRock=()=>new THREE.MeshStandardMaterial();')
  .replace(/^import \{underwaterMaterial\}.*$/m,'const underwaterMaterial=m=>m;');

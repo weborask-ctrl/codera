@@ -59,6 +59,7 @@ const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (character) => (
 // Preserve the exact content DOM while keeping facts available without JavaScript.
 const businessHtml = (html) => html
   .replace(/<!--business:contacts-->[\s\S]*?<!--\/business:contacts-->/, `<a class="contact-link" id="email" href="mailto:${escapeHtml(siteConfig.email)}">${escapeHtml(siteConfig.email)}</a><a class="phone" id="phone" href="tel:${escapeHtml(siteConfig.phoneHref)}">${escapeHtml(siteConfig.phone)}</a>`)
+  .replace('<!--business:dive-offers-->', packages.map(pkg=>`<article><h3>${escapeHtml(pkg.name)}</h3><strong class="offer-price">od ${escapeHtml(pkg.priceFrom)}</strong><p>${escapeHtml(pkg.audience)}</p><ul>${pkg.scope.map(line=>`<li>${escapeHtml(line)}</li>`).join('')}</ul><p class="offer-exclusions">Nezahŕňa: ${escapeHtml(pkg.notIncluded)}.</p></article>`).join(''))
   .replace('<!--business:packages-->', packages.map((pkg) => `<div><h3>${escapeHtml(pkg.name)}</h3><strong><small>od </small>${escapeHtml(pkg.priceFrom)}</strong><p>${escapeHtml(pkg.audience)}</p><p>${escapeHtml(pkg.scope[0])}</p></div>`).join(''))
   .replace('<!--business:wordpress-->', escapeHtml(`${wordpressService.name} — ${wordpressService.line} Cena podľa rozsahu.`))
   .replace('<!--business:response-->', `${commercial.responseHours} h`)
@@ -86,7 +87,7 @@ const server = createServer(async (req, res) => {
     if (!file.startsWith(base + sep)) { res.writeHead(403); res.end(); return; }
     const info = await stat(file);
     if (!info.isFile()) { res.writeHead(404); res.end(); return; }
-    if (file === resolve(root, 'experiments/jellyfish/index.html')) {
+    if (['index.html','dive.html'].some(name=>file===resolve(root,'experiments/jellyfish',name))) {
       const html = businessHtml(await readFile(file, 'utf8'));
       res.writeHead(200, { 'Content-Type': mime['.html'], 'Content-Length': Buffer.byteLength(html), 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' });
       res.end(req.method === 'HEAD' ? undefined : html);

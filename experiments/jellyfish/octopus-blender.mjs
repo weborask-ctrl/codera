@@ -1,6 +1,6 @@
 import * as THREE from '/vendor/three/three.module.min.js';
 import {GLTFLoader} from '/vendor/three/GLTFLoader.js';
-import {underwaterMaterial} from './underwater-material.mjs';
+import {underwaterMaterial,setOceanBackdrop} from './underwater-material.mjs';
 
 // The authoring scene stays in Blender. Only its character and deforming clips
 // enter the ocean: studio cameras/lights and the demonstration root path do not.
@@ -67,7 +67,7 @@ export async function createOctopus(time,waves){
   }
  }
  let elapsed=0;
- return {group,kind:'blender',setBackdrop(){},setQuality(){},
+ return {group,kind:'blender',setBackdrop:setOceanBackdrop,setQuality(){},
   update(value){
    elapsed=value;
    group.rotation.set(0,0,0);
