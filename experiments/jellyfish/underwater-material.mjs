@@ -27,12 +27,17 @@ float ca=clamp(1.-abs(sin(seaWorld.x*1.5+seaWorld.z*.95+waterSlope.x*8.+seaTime*
 float cb=clamp(1.-abs(sin(seaWorld.z*1.2-seaWorld.x*.7+waterSlope.y*9.)),.001,1.);
 float ca2=ca*ca,ca4=ca2*ca2,ca8=ca4*ca4;
 float sunlight=ca8*ca8*ca2*cb*cb*cb;
-diffuseColor.rgb*=mix(vec3(1.),vec3(.63,.87,1.),clamp(seaDepth/30.,0.,.6));
+// Preserve near-field pigment. The sampled ocean fog handles distance loss.
+diffuseColor.rgb*=mix(vec3(1.),vec3(.85,.95,1.),clamp(seaDepth/60.,0.,.45));
 diffuseColor.rgb*=1.+sunlight*.22*exp(-seaDepth*.045);
 ${skin?`float patches=seaNoise(seaLocal*14.+seaNoise(seaLocal*7.)*2.);float grain=seaNoise(seaLocal*95.);
 float folds=.5+.5*sin(seaLocal.y*115.+seaNoise(seaLocal*23.)*5.);
 diffuseColor.rgb*=mix(vec3(.88,.76,.68),vec3(1.17,1.06,.91),smoothstep(.18,.85,patches));
-diffuseColor.rgb*=.96+.035*grain+.045*folds;`:''}`);
+float pigment=seaNoise(seaLocal*185.+seaNoise(seaLocal*34.)*3.);
+float pigmentFilter=1.-smoothstep(.006,.024,length(fwidth(seaLocal)));
+float speckles=smoothstep(.56,.77,pigment)*pigmentFilter;
+diffuseColor.rgb*=mix(vec3(1.),vec3(.56,.43,.35),speckles*.53);
+diffuseColor.rgb*=.92+.09*grain+.045*folds;`:''}`);
   shader.fragmentShader=shader.fragmentShader.replace('#include <fog_fragment>',`#ifdef USE_FOG
  float waterFog=1.-exp(-fogDensity*fogDensity*vFogDepth*vFogDepth);
  vec4 waterBehind=texture2D(oceanBackdrop,gl_FragCoord.xy/oceanSize);
@@ -50,6 +55,6 @@ vec3 skinX=dFdx(-vViewPosition),skinY=dFdy(-vViewPosition),skinR1=cross(skinY,no
 float skinDet=dot(skinX,skinR1);
 normal=normalize(abs(skinDet)*normal-sign(skinDet)*(dFdx(skinHeight)*skinR1+dFdy(skinHeight)*skinR2));`);
  };
- material.customProgramCacheKey=()=>`codera-water-v7-${skin}`;
+ material.customProgramCacheKey=()=>`codera-water-v9-${skin}`;
  return material;
 }

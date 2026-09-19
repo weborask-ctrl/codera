@@ -80,6 +80,22 @@ export function createReef(time={value:0},waves={value:null}){
  group.add(rocks);
  const deepRocks=new THREE.InstancedMesh(rockGeo,stone,7);
  [[-7,-45,-98,8,19,12],[43,-46,-103,8,22,15],[-15,-51,-120,12,20,17],[50,-51,-128,15,24,17],[35,-51,-147,12,12,10],[12,-50,-97,5,16,9],[30,-50,-101,5,15,11]].forEach((r,i)=>{dummy.position.set(...r.slice(0,3));dummy.rotation.set(.05*i,.3*i,.08*i);dummy.scale.set(...r.slice(3));dummy.updateMatrix();deepRocks.setMatrixAt(i,dummy.matrix);});group.add(deepRocks);
+ const perch=new THREE.Mesh(rockGeo,stone);perch.name='octopus-resting-buttress';perch.position.set(28,-49,-132);perch.scale.set(4.5,8,4);group.add(perch);perch.updateMatrixWorld(true);
+ const wallTargets=[];const contactRay=new THREE.Raycaster();
+ for(const x of [25.4,28.4]){
+  const origin=new THREE.Vector3(x,-44.1,-120),direction=new THREE.Vector3(0,0,-1);contactRay.set(origin,direction);
+  const hit=contactRay.intersectObject(perch,false)[0];if(hit)wallTargets.push(hit.point.addScaledVector(hit.face.normal.clone().transformDirection(perch.matrixWorld),.08));
+ }
+ const vents=[],ventRing=geo(new THREE.TorusGeometry(.19,.045,8,18)),ventDark=mat(new THREE.MeshStandardMaterial({color:'#293832',roughness:1}));
+ deepRocks.updateMatrixWorld(true);
+ for(const [x,y] of [[13,-41],[30,-40],[43,-43]]){
+  contactRay.set(new THREE.Vector3(x,y,-70),new THREE.Vector3(0,0,-1));
+  const hit=contactRay.intersectObject(deepRocks,false)[0];if(!hit)continue;
+  const transform=new THREE.Matrix4();deepRocks.getMatrixAt(hit.instanceId,transform);transform.premultiply(deepRocks.matrixWorld);
+  const normal=hit.face.normal.clone().applyNormalMatrix(new THREE.Matrix3().getNormalMatrix(transform));
+  const p=hit.point.addScaledVector(normal,.025),ring=new THREE.Mesh(ventRing,stone);ring.position.copy(p);ring.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),normal);group.add(ring);
+  const recess=new THREE.Mesh(geo(new THREE.CircleGeometry(.17,18)),ventDark);recess.position.copy(p).addScaledVector(normal,-.018);recess.quaternion.copy(ring.quaternion);group.add(recess);vents.push(p.toArray());
+ }
  const coral=mat(new THREE.MeshStandardMaterial({color:'white',roughness:.72,bumpMap:texture,bumpScale:.018}));
  const branchRecords=[],tips=[],lobes=[],palette=['#ad785f','#98716c','#9a876b','#75938b'];
  for(let colony=0;colony<35;colony++){
@@ -97,5 +113,5 @@ export function createReef(time={value:0},waves={value:null}){
  branchRecords.forEach((b,i)=>{const d=b.end.clone().sub(b.base);dummy.position.copy(b.base).lerp(b.end,.5);dummy.quaternion.setFromUnitVectors(up,d.clone().normalize());dummy.scale.set(b.radius,d.length(),b.radius);dummy.updateMatrix();branches.setMatrixAt(i,dummy.matrix);branches.setColorAt(i,color.set(b.hue));});
  [...tips,...lobes.map(l=>({p:l.p,r:l.r,hue:l.hue}))].forEach((b,i)=>{dummy.position.copy(b.p);dummy.rotation.set(0,0,0);dummy.scale.set(b.r,b.r*.9,b.r*.8);dummy.updateMatrix();ends.setMatrixAt(i,dummy.matrix);ends.setColorAt(i,color.set(b.hue));});
  branches.castShadow=true;branches.receiveShadow=true;ends.castShadow=true;ends.receiveShadow=true;group.add(branches,ends);
- return {group,dispose(){for(const o of [rocks,branches,ends,deepRocks,grains])o.dispose();geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());}};
+ return {group,wallTargets,vents,dispose(){for(const o of [rocks,branches,ends,deepRocks,grains])o.dispose();geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());}};
 }

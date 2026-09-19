@@ -15,6 +15,8 @@ source=source.replace("'./deep-path.mjs'",JSON.stringify(deepURL)).replace("'/ve
  .replace(/^import \{underwaterMaterial\}.*$/m,'const underwaterMaterial=m=>m;');
 const {createReef}=await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`);
 const reef=createReef(),edges=new Map();let faces=0;
+assert.equal(reef.wallTargets.length,2,'both resting-arm targets must hit the real buttress');
+assert.equal(reef.vents.length,3,'bubble emitters must hit three actual rock surfaces');
 reef.group.traverse(o=>{
  if(!o.name.startsWith('reef-shell-'))return;
  const p=o.geometry.attributes.position,ix=o.geometry.index;

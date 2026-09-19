@@ -50,6 +50,7 @@ export async function createOctopus(time,waves){
  const resting=bones.map(b=>b.quaternion.clone());
  const tipTurns=bones.map(()=>new THREE.Quaternion());
  const tipAxis=new THREE.Vector3(1,0,0);
+ const boneArm=bones.map(b=>/ARM_(\d+)_(\d+)/.exec(b.name));
  // Bounded CCD: two leading arms reach fixed points on the cave lip.
  const contacts=[{arm:'01',target:new THREE.Vector3(-.55,-13.15,-19)},{arm:'02',target:new THREE.Vector3(4.5,-13.15,-19)}].map(c=>({...c,tip:rig.getObjectByName(`ARM_${c.arm}_23`),joints:[18,14,10,6,3].map(n=>rig.getObjectByName(`ARM_${c.arm}_${String(n).padStart(2,'0')}`))}));
  const origin=new THREE.Vector3(),endpoint=new THREE.Vector3(),a=new THREE.Vector3(),b=new THREE.Vector3(),parentQ=new THREE.Quaternion(),delta=new THREE.Quaternion(),identity=new THREE.Quaternion();
@@ -109,7 +110,7 @@ export async function createOctopus(time,waves){
    mixer.setTime(phase);
    for(let i=0;i<bones.length;i++){
     const b=bones[i];b.quaternion.slerp(resting[i],1-effort);
-    const match=/ARM_(\d+)_(\d+)/.exec(b.name);
+    const match=boneArm[i];
     if(match&&Number(match[2])>17&&!reduced){
      const amount=(Number(match[2])-17)/6;
      tipTurns[i].setFromAxisAngle(tipAxis,Math.sin(elapsed*.57+Number(match[1])*1.9-amount)*.008*amount*(1-effort));
@@ -121,12 +122,30 @@ export async function createOctopus(time,waves){
    // Freeze a folded pose as it enters the actual cave; never scale the mesh
    // down to fake disappearance. The reef's depth buffer provides occlusion.
    if(options.progress>.66){
-    const u=THREE.MathUtils.smoothstep(options.progress,.66,.87);
-    for(let i=0;i<bones.length;i++)bones[i].quaternion.slerp(folded[i],u);
+    const u=THREE.MathUtils.smoothstep(options.progress,.66,.94);
+    // Each arm follows its own contact/release interval. Distal segments trail
+    // the crown instead of all eight arms snapping to one folded frame.
+    for(let i=0;i<bones.length;i++){
+     const arm=boneArm[i],delay=arm?((Number(arm[1])-1)*.006+Number(arm[2])*.0007):0;
+     const fold=THREE.MathUtils.smoothstep(options.progress,.68+delay,.91+delay);
+     bones[i].quaternion.slerp(folded[i],arm?fold:u);
+    }
     if(foldedMorph)for(let i=0;i<foldedMorph.length;i++)skinMesh.morphTargetInfluences[i]=THREE.MathUtils.lerp(skinMesh.morphTargetInfluences[i],foldedMorph[i],u);
     root.position.copy(rootPosition);root.quaternion.copy(rootRotation);
    }
    if(options.contact!==false)contactPose(options.progress||0);
+   if(options.wallWeight>0&&options.wallTargets?.length===2){
+    group.updateMatrixWorld(true);
+    for(let i=0;i<2;i++){
+     const c=groundArms[i===0?0:3],target=options.wallTargets[i];
+     for(let pass=0;pass<3;pass++)for(const joint of c.joints){
+      joint.getWorldPosition(origin);c.tip.getWorldPosition(endpoint);
+      a.copy(endpoint).sub(origin).normalize();b.copy(target).sub(origin).normalize();delta.setFromUnitVectors(a,b);
+      const angle=identity.angleTo(delta);delta.slerp(identity,1-Math.min(options.wallWeight,.18/Math.max(angle,.00001)));
+      joint.parent.getWorldQuaternion(parentQ);delta.premultiply(parentQ.clone().invert()).multiply(parentQ);joint.quaternion.premultiply(delta);joint.updateWorldMatrix(false,true);
+     }
+    }
+   }
    if(options.settle)groundPose(options.settle);
   },
   dispose(){mixer.stopAllAction();mixer.uncacheRoot(rig);skeletons.forEach(s=>s.dispose());geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());}

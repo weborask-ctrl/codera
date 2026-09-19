@@ -1,6 +1,7 @@
 import * as THREE from '/vendor/three/three.module.min.js';
 import {createReef} from './reef.mjs';
 import {createRockGate} from './rock-gate.mjs';
+import {createMarineWorld} from './marine-world.mjs';
 import {finalePose} from './finale-path.mjs';
 import {deepPose} from './deep-path.mjs';
 import {gatePose} from './gate-path.mjs';
@@ -14,7 +15,7 @@ export const DIVE_ANCHORS={reef:[0,-15,-22],den:[2,-12.7,-19],hiddenOctopus:[9,-
 // Smooth, reversible position tracks. Derivatives are sampled for heading.
 export function sampleSwim(p,mobile=false){
  const keys=[
-  [0,mobile?.35:3.1,mobile?-5:-2.4,-7],
+  [0,mobile?.35:2.2,mobile?-4.9:-2.9,mobile?-5.5:-4.35],
   [.18,mobile?.55:2.65,-3.1,-7.5], [.36,mobile?.1:1.65,-5.6,-9.4],
   [.53,.6,-9.0,-13.6], [.69,2,-12.2,-16.5],
   [.79,2,-12.7,-18.3], [.90,3.4,-12.7,-23], [1,...DIVE_ANCHORS.hiddenOctopus],
@@ -32,21 +33,13 @@ export function sampleSwim(p,mobile=false){
 export function createDiveJourney(time,waves){
  const inspect=new URLSearchParams(location.search).has('inspect');
  const scene=new THREE.Scene();scene.fog=new THREE.FogExp2('#063e54',.066);
- scene.add(new THREE.HemisphereLight('#9acfdc','#102d39',1.8));
+ scene.add(new THREE.HemisphereLight('#d6e9e7','#536b68',1.65));
  const light=new THREE.DirectionalLight('#ffddad',2.8);light.position.set(11,8,-14.66);light.castShadow=true;light.shadow.mapSize.set(512,512);Object.assign(light.shadow.camera,{left:-9,right:9,top:9,bottom:-9,near:.1,far:60});light.shadow.bias=-.0004;light.shadow.normalBias=.035;scene.add(light,light.target);
- const fill=new THREE.DirectionalLight('#a6d9e5',1.2);fill.position.set(-4,4,8);scene.add(fill);
+ const fill=new THREE.DirectionalLight('#fff0d6',1.65);fill.position.set(-4,4,8);scene.add(fill);
  const gateBounce=new THREE.PointLight('#73bfd3',0,35,1.5);gateBounce.position.set(18,-9,-39);scene.add(gateBounce);
- const geometries=[],materials=[];
- const geometry=g=>(geometries.push(g),g),material=m=>(materials.push(m),m);
  const reef=createReef(time,waves);scene.add(reef.group);
  const gate=createRockGate(time,waves);scene.add(gate.group);
- let seed=829;const random=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
- const dummy=new THREE.Object3D();
- const fishMaterial=material(new THREE.MeshStandardMaterial({color:'#afd8d9',roughness:.55,metalness:.12}));
- const fish=new THREE.InstancedMesh(geometry(new THREE.SphereGeometry(1,8,4)),fishMaterial,42);
- const tails=new THREE.InstancedMesh(geometry(new THREE.ConeGeometry(.12,.22,3)),fishMaterial,42);
- fish.name='reef-fish-proxies';tails.name='reef-fish-tail-proxies';scene.add(fish,tails);
- const fishData=Array.from({length:42},()=>({x:(random()-.5)*16,y:-11.5+random()*4,z:-21-random()*14,phase:random()*6.28,size:.7+random()*.7}));
+ const marine=createMarineWorld(waves,reef.vents);scene.add(marine.group);
  let workTop=0,gateTop=0,servicesTop=0,deepTop=0,offerTop=0,processTop=0,processEnd=0,landingTop=0,contactTop=0,lastTime=0;
  const processController=new SwimController(),landingController=new SwimController();
  const deepController=new SwimController();
@@ -70,7 +63,7 @@ export function createDiveJourney(time,waves){
    const p=motion.progress;scene.fog.color.set('#063e54');
    // Approach, then continuous descent. The same object persists throughout.
    const travel=ease(clamp((p-.16)/.53)),approach=Math.sin(clamp(p/.58)*Math.PI)*.85;
-   uniforms.depth.value=3+travel*9;scene.fog.density=.095-travel*.029;
+   uniforms.depth.value=3+travel*9;scene.fog.density=.082-travel*.048;
    uniforms.cameraOffset.value.set(travel*.7+Math.sin(p*Math.PI)*.45,0,-travel*9-approach);
    uniforms.pointer.value.set(-Math.sin(p*Math.PI)*.3,-travel*.55);
    const position=sampleSwim(p,mobile),ahead=sampleSwim(Math.min(1,p+.018),mobile),behind=sampleSwim(Math.max(0,p-.018),mobile);
@@ -108,27 +101,21 @@ export function createDiveJourney(time,waves){
     octopus.setMotion(descent.effort,descent.clock,tucks,{progress:0,reduced,contact:false});
    }
    const f=processMotion.progress,l=landingMotion.progress;
+   let settled=0;
    if(f>0){
     const finalMotion=l>0?landingMotion:processMotion,pose=finalePose(l>0?l:f,mobile,l>0);
+    settled=pose.settle;
     uniforms.depth.value=-pose.camera[1];uniforms.cameraOffset.value.set(pose.camera[0],0,pose.camera[2]);uniforms.pointer.value.set(0,(pose.lookY-.08)/.08);
     scene.fog.density=.031-f*.007-l*.006;
     octopus.group.position.fromArray(pose.character);octopus.group.rotation.set(pose.pitch,pose.yaw,0);
-    octopus.setMotion(finalMotion.effort*(1-pose.settle),finalMotion.clock,tucks,{progress:0,reduced,contact:false,settle:pose.settle});
+    octopus.setMotion(finalMotion.effort*(1-pose.settle),finalMotion.clock,tucks,{progress:0,reduced,contact:false,settle:pose.settle,wallWeight:ease(clamp((f-.82)/.18))*(1-ease(clamp(l/.18))),wallTargets:reef.wallTargets});
    }
    if(inspect&&p<.01){uniforms.cameraOffset.value.set(3.1,0,-4);uniforms.pointer.value.set(0,0);}
    light.intensity=2.8*(1-.8*ease(clamp((p-.80)/.2)))*(1-ease(clamp(q/.4)))+2.5*ease(clamp(q/.4));light.intensity*=1-d*.3;light.target.position.copy(octopus.group.position);light.position.copy(octopus.group.position).add(new THREE.Vector3(11-16*f,8+4*f,-14.66+22.66*f));
    document.documentElement.style.setProperty('--reading',String(ease(clamp((scrollY-workTop+innerHeight*.3)/(innerHeight*.6)))*(1-ease(clamp(q/.19)))));
    document.querySelector('canvas').dataset.journey=JSON.stringify({progress:p,gateProgress:q,deepProgress:d,processProgress:f,landingProgress:l,position:octopus.group.position.toArray(),phase:l>0?(l<1?'landing-'+landingMotion.state:'seabed'):f>0?(f<1?'process-'+processMotion.state:'process'):d>0?(d<1?'descent-'+descent.state:'offer'):q>0?(q<1?'gate-'+next.state:'services'):p<.64?motion.state:p<.82?'approach':p<.995?'enter':'hidden',effort:l>0?landingMotion.effort:f>0?processMotion.effort:d>0?descent.effort:q>0?next.effort:motion.effort,speed:l>0?landingMotion.speed:f>0?processMotion.speed:d>0?descent.speed:q>0?next.speed:motion.speed,clock:l>0?landingMotion.clock:f>0?processMotion.clock:d>0?descent.clock:q>0?next.clock:motion.clock});
-   // The reef exists at the same world coordinates even before we reach it.
-   // Do not reveal it with a visibility switch during the descent.
-   for(let i=0;i<fishData.length;i++){
-    const f=fishData[i],t=time*.3+f.phase;
-    dummy.position.set(f.x+Math.sin(t)*1.6,f.y+Math.sin(t*.7)*.18,f.z+Math.cos(t)*.6);
-    dummy.rotation.set(0,-Math.cos(t)*.2,Math.sin(t*4)*.035);dummy.scale.set(.26*f.size,.10*f.size,.075*f.size);dummy.updateMatrix();fish.setMatrixAt(i,dummy.matrix);
-    dummy.position.x-=.29*f.size;dummy.rotation.z=-Math.PI/2;dummy.rotation.y=Math.sin(time*3+f.phase)*.35;dummy.scale.setScalar(f.size);dummy.updateMatrix();tails.setMatrixAt(i,dummy.matrix);
-   }
-   fish.instanceMatrix.needsUpdate=true;tails.instanceMatrix.needsUpdate=true;
+   marine.update(time,reduced,octopus.group,settled,mobile);
   },
-  dispose(){layoutObserver.disconnect();gate.dispose();reef.dispose();geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());fish.dispose();tails.dispose();}
+  dispose(){layoutObserver.disconnect();marine.dispose();gate.dispose();reef.dispose();}
  };
 }
