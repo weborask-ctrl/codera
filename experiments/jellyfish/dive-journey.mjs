@@ -9,8 +9,8 @@ export const DIVE_ANCHORS={reef:[0,-15,-22],den:[2,-12.7,-19],hiddenOctopus:[5,-
 // Smooth, reversible position tracks. Derivatives are sampled for heading.
 export function sampleSwim(p,mobile=false){
  const keys=[
-  [0,mobile?1.2:3.1,mobile?-5:-2.4,-7],
-  [.16,2.4,-2.9,-7.5], [.34,.35,-5.0,-10.5],
+  [0,mobile?.35:3.1,mobile?-5:-2.4,-7],
+  [.16,mobile?.55:2.4,-2.9,-7.5], [.34,.35,-5.0,-10.5],
   [.53,1.35,-9.0,-15], [.69,2,-12.2,-17.2],
   [.79,2,-12.7,-18.5], [.88,2.15,-12.7,-21], [1,...DIVE_ANCHORS.hiddenOctopus],
  ];
@@ -57,13 +57,13 @@ export function createDiveJourney(){
    const phase=p*25+time*.95*(1-ease(clamp((p-.64)/.16)));
    const pulse=Math.sin(phase)*.065*swimming;
    octopus.group.position.set(position[0]+pulse,position[1]+pulse*.6,position[2]);
-   octopus.group.scale.setScalar(mobile?.67:1.02);
+   octopus.group.scale.setScalar(mobile?.60:1.02);
    const heading=Math.atan2(ahead[0]-behind[0],Math.max(.12,behind[2]-ahead[2]));
    octopus.group.rotation.y+=heading*.65*(1-ease(clamp((p-.70)/.16)))+ease(clamp((p-.87)/.13))*1.25;
    octopus.group.rotation.x=ease(clamp((p-.58)/.23))*.48;
    octopus.group.rotation.z-=Math.sin(p*Math.PI)*.22;
    for(let i=0;i<8;i++)tucks[i]=ease(clamp((p-(i===1?.80:.68+(7-i)*.012))/.19));
-   octopus.setMotion(reduced?0:swimming,phase,tucks);
+   octopus.setMotion(reduced?0:swimming,phase,tucks,{progress:p,reduced});
    document.documentElement.style.setProperty('--reading',String(ease(clamp((scrollY-workTop+innerHeight*.3)/(innerHeight*.6)))));
    document.querySelector('canvas').dataset.journey=JSON.stringify({progress:p,position,phase:p<.64?'swim':p<.82?'approach':p<.995?'enter':'hidden'});
    // The reef exists at the same world coordinates even before we reach it.

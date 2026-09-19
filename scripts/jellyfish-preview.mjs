@@ -12,7 +12,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cache = resolve(root, '.prototype-cache/jellyfish');
 const lock = JSON.parse(await readFile(resolve(root, 'package-lock.json'), 'utf8'));
 const libraries = {
-  three: ['build/three.module.min.js', 'build/three.core.min.js', 'LICENSE'],
+  three: ['build/three.module.min.js', 'build/three.core.min.js', 'examples/jsm/loaders/GLTFLoader.js', 'examples/jsm/utils/BufferGeometryUtils.js', 'examples/jsm/utils/SkeletonUtils.js', 'LICENSE'],
   gsap: ['dist/gsap.min.js', 'dist/ScrollTrigger.min.js', 'README.md'],
 };
 
@@ -52,7 +52,7 @@ for (const [name, files] of Object.entries(libraries)) {
   await writeFile(marker, integrity);
 }
 
-const mime = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.mjs': 'text/javascript', '.js': 'text/javascript', '.jpg': 'image/jpeg', '.avif': 'image/avif', '.woff2': 'font/woff2', '.png': 'image/png' };
+const mime = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.mjs': 'text/javascript', '.js': 'text/javascript', '.jpg': 'image/jpeg', '.avif': 'image/avif', '.woff2': 'font/woff2', '.png': 'image/png', '.glb': 'model/gltf-binary' };
 const fonts = new Set(['bricolage-800.woff2', 'fraunces-italic.woff2', 'geist.woff2']);
 const json = (res, body) => { res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(body)); };
 const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
@@ -75,6 +75,8 @@ const server = createServer(async (req, res) => {
     let suffix = path === '/' ? 'index.html' : path.slice(1);
     if (path.startsWith('/assets/')) { base = resolve(root, 'public'); suffix = path.slice(8); }
     if (path.startsWith('/vendor/')) { base = cache; suffix = path.slice(8); }
+    // Expose only the animated interchange asset, not Blender sources or repo files.
+    if (path === '/octopus-swim.glb') { base = resolve(root, 'assets/blender/octopus'); suffix = 'codera-octopus-swim.glb'; }
     if (path.startsWith('/fonts/')) {
       suffix = path.slice(7);
       if (!fonts.has(suffix)) { res.writeHead(404); res.end(); return; }

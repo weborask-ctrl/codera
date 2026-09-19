@@ -44,12 +44,23 @@ if(renderer.extensions.has('EXT_color_buffer_float')){
 let jelly=null,backdrop=null,presentScene=null;
 const jellyScene=new THREE.Scene();
 if(study){
- const {createOctopus}=await import('./octopus.mjs');
- jelly=await createOctopus(uniforms.time,uniforms.waveMap);
+ try {
+  const {createOctopus}=await import(journeyMode?'./octopus-blender.mjs':'./octopus.mjs');
+  jelly=await createOctopus(uniforms.time,uniforms.waveMap);
+ } catch(error) {
+  document.querySelector('#error').textContent='Chobotnicu sa nepodarilo načítať. Skús obnoviť stránku.';
+  throw error;
+ }
  jelly.group.position.set(0,-2.4,-6.6);
  jelly.group.rotation.set(.02,0,-.025);
  jelly.group.scale.setScalar(1.25);
  jellyScene.add(jelly.group);
+ if(jelly.kind==='blender'){
+  jellyScene.fog=new THREE.FogExp2('#07506b',.028);
+  jellyScene.add(new THREE.HemisphereLight('#abebf3','#063548',2.5));
+  const sun=new THREE.DirectionalLight('#ffdcba',3.3);sun.position.set(-4,12,5);jellyScene.add(sun);
+  const rim=new THREE.DirectionalLight('#68cfe4',1.7);rim.position.set(5,3,-12);jellyScene.add(rim);
+ }
  uniforms.cameraOffset.value.y=0;
  backdrop=new THREE.WebGLRenderTarget(1,1,{type:waveTarget?THREE.HalfFloatType:THREE.UnsignedByteType,depthBuffer:false});
  presentScene=new THREE.Scene();
@@ -101,6 +112,7 @@ function draw(){
  canvas.dataset.ready=String(!document.querySelector('#error').textContent);
  canvas.dataset.frames=String(Number(canvas.dataset.frames||0)+1);
  canvas.dataset.waveMap=String(Boolean(waveTarget));
+ canvas.dataset.character=jelly?.kind||'procedural';
 }
 function tick(now){raf=0;if(document.hidden)return;if(now-last>=1000/30||(!playing&&dirty)){const dt=last?Math.min((now-last)/1000,.08):0;last=now;if(playing){elapsed+=dt;if(moving){travelPhase+=dt*.16;uniforms.travel.value=Math.sin(travelPhase)*2.;}}draw();dirty=false;frames++;if(!playing){const size=renderer.getDrawingBufferSize(new THREE.Vector2());stats.textContent=`Pozastaven\u00e9 · ${size.x} × ${size.y}`;}if(playing&&now-report>1000){const size=renderer.getDrawingBufferSize(new THREE.Vector2());stats.textContent=`${Math.round(frames*1000/(now-report))} fps · ${size.x} × ${size.y} · procedurálne 3D`;frames=0;report=now;}}if(playing)raf=requestAnimationFrame(tick);}
 function wake(){if(!raf&&!document.hidden)raf=requestAnimationFrame(tick);}
