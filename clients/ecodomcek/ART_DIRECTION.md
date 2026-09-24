@@ -661,3 +661,27 @@ telefónu) na oboch šírkach, potom plná regresia. Zo auditu ostáva
 otvorené: Realizácie (render ako hlavný obraz, rovnaké karty), O nás
 (prázdna pravá polovica, zdvojené motto), LCP úvodu 5,0 s na
 mobile, text pod 12 px, dva `h1` na úvode.
+
+---
+
+## Fáza 12 — Realizácie ako kronika (2026-09-24)
+
+Audit: najväčší obraz na stránke dôkazov bol **render**, potom osem
+rovnakých štvorcových kariet; prvá obrazovka bez jedinej fotky. Teraz
+kronika skutočných stavieb, najnovšie prvé, končí tam, kde to začalo
+(2008). Rok je serifová číslica stavebného listu, sticky pri svojej
+skupine; každá stavba má skutočnú fotku v poctivej mierke (dom ≤ 540 px,
+terasa ≤ 420 px, nikdy nad zdroj), miesto, tri riadky zo `specs` a
+odkaz na stavebný list (`basement.md`: skutočné riadky; `exoape.md`:
+práca vedie, typ stojí vedľa v plnom atramente). Garáž bez fotky je
+poctivý textový riadok. Filtre skrývajú stavby aj prázdne ročníky.
+Render ostal len na detaile Lúčiny, označený.
+
+Pri tom: **päť fotiek nieslo biely „jazýček" starej WordPress šablóny**
+zapečený v obraze (2015, 2024, Bungalov dole; 2008 hore; Veľká terasa
+dole) — orezané jedným rezom z originálov, nič dokreslené. Rozmery
+fotiek sa už nepíšu ručne (`SHOTSIZE`/`SRC` sa rozišli s prvým orezom),
+čítajú sa zo súborov (`SHOTS` v `pages.py`). Mŕtve CSS kariet preč.
+
+LOCAL: 15 stránok × 3 šírky, router, filter (Terasa → 3 stavby, ročníky
+2021 a 2019), bundle z `file://` (61 obrázkov), stavebný list.

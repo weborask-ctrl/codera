@@ -42,6 +42,12 @@ def layer(name):
             f'<img class="mat" src="assets/lyr-{name}.webp" alt="" draggable="false">{pin}</div>')
 
 
+# real photo sizes, read from the files — hard-coded sizes drifted the
+# moment a photo was re-cropped
+from PIL import Image as _Image
+SHOTS = {f.stem: _Image.open(f).size for f in sorted((REND / "photos").glob("*.jpg"))}
+
+
 def title_of(p):
     return p.get("short", p["title"])
 
@@ -265,47 +271,53 @@ def build(B):
     # ═══════════════════════════════════════════════════════════════════
     # 2 — REALIZÁCIE (index)
     # ═══════════════════════════════════════════════════════════════════
-    cards = ""
-    for i, p in enumerate(C.PROJECTS):
-        cards += (f'<a class="card" href="realizacia-{p["slug"]}.html" data-reveal '
-                  f'data-tags="{esc("|".join(p["tags"]))}">'
-                  f'<div class="frame clipimg">{plate_img(p, esc)}</div>'
-                  f'<div class="cmeta"><span class="yr">{p["year"]}</span>'
-                  f'<span class="tg">{esc(" · ".join(p["tags"]))}</span></div>'
-                  f"<h3>{esc(title_of(p))}</h3>"
-                  f'<p class="pl">{esc(p["place"])}</p></a>')
+    # The proof page used to open on a visualisation — the render was the
+    # biggest picture on the page that is supposed to show built work — and
+    # then eight identical square cards. Now it is a chronicle of the real
+    # jobs, newest first, ending where it began (2008). The year is the
+    # sheet's serif numeral (same system as the detail page); each job keeps
+    # its real photo at an honest size — a house wider than a terrace, never
+    # wider than its source (basement.md: real content is the credibility;
+    # exoape.md: the work leads, the type floats beside it at full ink).
+    from collections import Counter, OrderedDict
+    years = OrderedDict()
+    for p in C.PROJECTS:
+        years.setdefault(p["year"], []).append(p)
+    SRC = {k: w for k, (w, _) in SHOTS.items()}
+    groups = ""
+    for y, jobs in years.items():
+        rows = ""
+        for p in jobs:
+            house = "Dom" in p["tags"]
+            wmax = min(SRC.get(p.get("photo") or "", 0), 540 if house else 420)
+            specs = "".join(f"<li><span class=\"mono\">{esc(k)}</span>{esc(v)}</li>" for k, v in p["specs"][:3])
+            pic = (f'<div class="jpic" style="--w:{wmax}px"><div class="clipimg">{plate_img(p, esc)}</div></div>'
+                   if photo_src(p) else "")
+            where = f'{esc(p["place"])} · ' if p["place"] else ""
+            rows += (f'<a class="job{" nophoto" if not pic else ""}" href="realizacia-{p["slug"]}.html" data-reveal '
+                     f'data-tags="{esc("|".join(p["tags"]))}">{pic}'
+                     f'<div class="jtext"><span class="mono">{where}{esc(p["month"])}</span>'
+                     f'<h2>{esc(title_of(p))}</h2><ul>{specs}</ul>'
+                     f'<span class="jgo">Stavebný list {ARROW}</span></div></a>')
+        groups += (f'<section class="yeargroup" data-year="{y}"><div class="ynum" aria-hidden="true">{y}</div>'
+                   f'<div class="jobs">{rows}</div></section>')
 
-    real = masthead("Osem stavieb.|Jedna <em>technológia</em>.",
-                    "Od svojpomocného domčeka v Lúčine po dvojpodlažný dom pri Košiciach. "
-                    "Každá stavba je difúzne otvorená a z ekologických materiálov — "
-                    "to sa nemení, aj keď fasáda áno.", name="Realizácie")
-    from collections import Counter
     cnt = Counter(t for p in C.PROJECTS for t in p["tags"])
     chips_f = f'<button class="on" data-f="">Všetko <sup>{len(C.PROJECTS)}</sup></button>' + "".join(
         f'<button data-f="{esc(t)}">{esc(t)} <sup>{n}</sup></button>' for t, n in cnt.most_common())
-    real += section(1, "Realizácie", "paper", f'''<div class="wrap">
-  <div class="filters mono" data-reveal>{chips_f}</div>
-  <a class="feature" href="realizacia-2024-lucina.html" data-reveal>
-    <figure data-par>
-      <div class="frame clipimg" style="aspect-ratio:21/9">
-        <img src="assets/hero.jpg" alt="Rodinný dom Lúčina — vizualizácia" loading="eager"></div>
-    </figure>
-    <div class="fmeta">
-      <div>
-        <h2 class="fade">Moderný dizajnový dom {ARROW}</h2>
-      </div>
-      <div>
-        <p class="fade d2">Drevená fasáda (Rhombus profil) v kombinácii s kompaktnými doskami
-          Fundermax. Stojí v našej dedine — vidíme naň z dvora.</p>
-        <p class="fine fade d3" style="margin-top:12px">Vizualizácia navrhnutá podľa realizácie —
-          nie je to fotografia.</p>
-      </div>
+    real = f'''<section class="band realmast" data-sec="Realizácie">
+  <div class="wrap rmgrid" data-reveal>
+    <h1>{lines("Osem stavieb.|Jedna <em>technológia</em>.")}</h1>
+    <div class="rmr">
+      <p class="lead fade d2">Od svojpomocného domčeka v Lúčine po dvojpodlažný dom pri Košiciach.
+        Každá stavba je difúzne otvorená a z ekologických materiálov — to sa nemení, aj keď fasáda áno.</p>
+      <div class="filters mono fade d3">{chips_f}</div>
     </div>
-  </a>
-  <div class="cards">{cards}</div>
-  <p class="fine" style="margin-top:clamp(30px,5vh,60px)">Fotografie sú zo skutočných realizácií
-    EcoDomčeka, v rozlíšení, v akom ich máme. Garážo-sklado-terasu (2019) zatiaľ bez fotografie —
-    ostré zábery doplníme, keď ich od klienta dostaneme.</p>
+  </div>
+</section>'''
+    real += section(1, "Kronika", "paper", f'''<div class="wrap chronicle">{groups}
+  <p class="fine chron-note">Fotografie sú zo skutočných realizácií EcoDomčeka, v rozlíšení, v akom
+    ich máme. Garážo-sklado-terasu (2019) zatiaľ bez fotografie.</p>
 </div>''')
     real += contact_band("realizacie.html")
     page("realizacie.html", "Realizácie — EcoDomček",
@@ -337,10 +349,7 @@ def build(B):
     # project without a photograph keeps the whole drawing and loses only
     # the image.
     # ═══════════════════════════════════════════════════════════════════
-    SHOTSIZE = {"2008-prvotina": (800, 777), "2015-budatin": (800, 762),
-                "2019-terasa-chrastne": (800, 568), "2021-bungalov-presov": (800, 775),
-                "2021-terasa": (420, 420), "2023-kosice": (800, 670),
-                "2024-lucina": (880, 850)}
+    SHOTSIZE = SHOTS
     for i, p in enumerate(C.PROJECTS):
         nxt = C.PROJECTS[(i + 1) % len(C.PROJECTS)]
         prv = C.PROJECTS[(i - 1) % len(C.PROJECTS)]

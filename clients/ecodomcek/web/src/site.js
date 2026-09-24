@@ -65,7 +65,7 @@
   function initFilters() {
     var bar = main.querySelector('.filters');
     if (!bar) return;
-    var cards = main.querySelectorAll('.card');
+    var cards = main.querySelectorAll('.card, .job');
     bar.addEventListener('click', function (e) {
       var b = e.target.closest('button');
       if (!b) return;
@@ -74,6 +74,10 @@
       cards.forEach(function (c) {
         var tags = (c.dataset.tags || '').split('|');
         c.classList.toggle('off', !!f && tags.indexOf(f) === -1);
+      });
+      // a year with nothing left in it disappears with its numeral
+      main.querySelectorAll('.yeargroup').forEach(function (g) {
+        g.classList.toggle('empty', !g.querySelector('.job:not(.off)'));
       });
       ScrollTrigger.refresh();
     });
