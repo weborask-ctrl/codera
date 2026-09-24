@@ -82,17 +82,37 @@
 }
 @media(prefers-reduced-motion:reduce){.button:hover,.text-link:hover span{transform:none}}
 
-/* Final refinement: let the work itself be the surface. Never crop its UI. */
+/* Local refinement: one aligned composition and a frame derived from the C ribbon. */
 .visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
-.project-grid{max-width:min(1100px,calc((100svh - 155px)*1.6));gap:36px}
-.project,.project:nth-child(even),.project-5{padding:0;border:0;border-radius:0;background:var(--surface);box-shadow:0 -6px 30px #24242014}
-.project-visual{border:0;border-radius:0;background:transparent}
-.project-visual img{height:auto;width:100%;aspect-ratio:1.6;object-fit:contain;border-radius:0}
-.project-actions{padding:10px 24px;margin:0;gap:22px}
+.section-heading,.studio-intro,.contact-top{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(28px,4vw,64px);align-items:center;max-width:1440px;margin-inline:auto}
+.section-heading h2,.studio-intro h2,.contact-top h2{font-size:clamp(56px,7.1vw,124px);line-height:1;letter-spacing:-.065em}
+.section-heading>p,.studio-intro>p,.contact-top>p{font-size:clamp(22px,1.9vw,29px);line-height:1.45;letter-spacing:-.025em;max-width:27ch;padding:0;margin:0;justify-self:start;text-wrap:pretty}
+.work .section-heading{margin-bottom:64px}
+.project-grid{--frame-gap:clamp(12px,1.4vw,22px);--preview-radius:clamp(18px,2.2vw,32px);--preview-cut:clamp(12px,1.1vw,16px);max-width:min(1400px,calc((100svh - 180px)*1.6 + var(--frame-gap)*2));gap:36px}
+.project,.project:nth-child(even),.project-5{--frame:#e6e7e28c;--frame-ink:#30332f;padding:0;border:0;border-radius:0;background:none;color:var(--frame-ink);box-shadow:none}
+.project-frame{padding:var(--frame-gap);border:1px solid #ffffffb8;border-radius:calc(var(--preview-radius) + var(--frame-gap)) calc(var(--preview-cut) + var(--frame-gap)) calc(var(--preview-radius) + var(--frame-gap)) calc(var(--preview-cut) + var(--frame-gap));background:linear-gradient(135deg,#ffffffb0,#e6e7e266 48%,#ffffff85);backdrop-filter:blur(12px) saturate(1.1);-webkit-backdrop-filter:blur(12px) saturate(1.1);box-shadow:inset 0 1px 1px #fff,inset 0 -1px 1px #ffffffb0,0 14px 36px #24282012}
+.project-visual{border:0;border-radius:var(--preview-radius) var(--preview-cut) var(--preview-radius) var(--preview-cut);background:transparent;width:100%;margin:0;box-shadow:0 2px 12px #171a1612}
+.project-visual img{height:auto;width:100%;aspect-ratio:1.6;object-fit:contain;border-radius:inherit}
+.project-actions{width:100%;padding:10px calc(var(--frame-gap) + 1px) 0;margin:0;gap:22px}
+.project-actions .text-link{border-bottom-color:transparent}
+.project-actions .text-link:hover{border-bottom-color:currentColor;opacity:1}
+.offers,.wordpress-line,.studio-body,.contact-grid,.footer{max-width:1440px;margin-inline:auto}
+.proposal{text-align:center;padding-block:52px}
+.proposal-time{display:flex;align-items:baseline;justify-content:center;width:max-content;max-width:100%;margin-inline:auto;gap:14px;line-height:1;font-size:clamp(120px,12vw,190px)}
+.proposal-time .proposal-value{font:inherit;line-height:.82;letter-spacing:-.085em;padding-right:.085em}
+.proposal-time .proposal-unit{font-size:clamp(30px,3vw,44px);line-height:1;letter-spacing:-.04em}
+.proposal h3{margin-top:36px;font-size:clamp(36px,3.35vw,54px)}
+.process h3{font-size:clamp(32px,3.15vw,48px)}
+.wordpress-line h3{font-size:clamp(46px,5.5vw,88px)}
+.proposal>p:last-child{max-width:25ch;margin-inline:auto}
+.film-camera{position:absolute;inset:0}
+.project-dialog{padding:14px;border:1px solid #ffffffa6;border-radius:48px 28px 48px 28px;background:linear-gradient(135deg,#f7f8f3ed,#e6e7e2dc);backdrop-filter:blur(16px);box-shadow:inset 0 1px 1px #fff,0 24px 90px #080a0940}
+.preview-toolbar{padding:10px 16px 20px;border:0}
+.preview-scroll{background:var(--paper);border-radius:28px 14px 28px 14px}
 .offers{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
 .offer,.offer+.offer,.offer:last-child{padding:42px;display:flex}
 .offer:last-child{background:#d8c3a2}
-.offer h3{font-size:clamp(38px,3.7vw,60px)}
+.offer h3{font-size:clamp(42px,4.1vw,66px)}
 .offer-audience{min-height:64px;max-width:480px;font-size:21px}
 .offer-price{font-size:clamp(64px,6.5vw,102px)}
 .offer-price>span{font-size:24px}
@@ -105,12 +125,35 @@
 .work::before,.services::before,.studio::before,.contact::before{content:'';position:absolute;inset:0;z-index:-1;border-radius:var(--section-radius);background:var(--section-bg);pointer-events:none}
 .footer-wordmark{font-synthesis:none;text-rendering:geometricPrecision;-webkit-font-smoothing:auto;transform:none;filter:none}
 .footer-wordmark img{width:80%;height:auto}
-.hero-beat h1{font-size:clamp(48px,min(7.7vw,12svh),142px)}
+.hero-beat h1,.hero-beat h2,.section-heading h2,.studio-intro h2,.contact-top h2{font-synthesis:none;text-rendering:geometricPrecision;text-shadow:none;filter:none}
+.hero-beat h1{font-size:clamp(64px,min(10.8vw,17svh),200px);line-height:.94}
+.hero-beat h2{font-size:clamp(56px,min(9.2vw,14.8svh),168px)}
 @media(max-width:1000px){.offers{grid-template-columns:1fr}.offer-audience{min-height:0}.offer-price{text-align:left}.offer,.offer+.offer,.offer:last-child{padding:36px}.offer h3{font-size:48px}}
 @media(max-width:700px){
- .hero-beat h1{font-size:clamp(39px,min(10.8vw,9svh),70px)}
- .project-grid{max-width:100%;gap:28px}.project-actions{padding:10px 16px;gap:0}
- .offer,.offer+.offer,.offer:last-child{padding:28px}.offer h3{font-size:39px}.offer-price{font-size:76px}
+ .hero-beat h1{font-size:clamp(44px,min(14vw,11svh),88px)}
+ .hero-beat h2{font-size:clamp(46px,min(13vw,10.5svh),82px)}
+ .section-heading,.studio-intro,.contact-top{grid-template-columns:1fr;gap:24px;align-items:start}
+ .section-heading h2,.studio-intro h2,.contact-top h2{font-size:clamp(46px,12vw,80px)}
+ .section-heading>p,.studio-intro>p,.contact-top>p{font-size:21px;max-width:32ch;justify-self:start}
+ .work .section-heading{margin-bottom:36px}
+ .project-grid{max-width:100%;gap:28px}
+ .project,.project:nth-child(even),.project-5{padding:0;border-radius:0}
+ .project-visual,.project-actions{width:100%}
+ .project-actions{padding:8px calc(var(--frame-gap) + 1px) 0;gap:0}
+ .project-actions .text-link{font-size:16px}
+ .proposal{padding-block:38px}.proposal-time{font-size:clamp(90px,29vw,125px);gap:10px}.proposal-time .proposal-unit{font-size:30px}
+ .project-dialog{width:96%;height:96svh;max-height:96svh;padding:10px;border-radius:30px 10px 30px 14px}
+ .preview-toolbar{padding:8px 8px 14px;gap:8px 12px}.preview-toolbar h2{font-size:22px}
+ .offer,.offer+.offer,.offer:last-child{padding:28px}.offer h3{font-size:42px}.offer-price{font-size:76px}
  .offer-audience{font-size:20px}
 }
-@media(max-height:450px) and (min-width:701px){.hero-beat h1{font-size:42px}}
+@media(max-height:620px) and (min-width:701px){.project-grid{max-width:1100px}}
+@media(max-height:450px) and (min-width:701px){.hero-beat h1{font-size:56px}.hero-beat h2{font-size:48px}}
+
+/* Shared rows keep the two offers aligned even when headings wrap or details open. */
+@media(min-width:1001px){
+ .offers{grid-template-rows:repeat(5,auto);row-gap:0}
+ .offer,.offer+.offer,.offer:last-child{display:grid;grid-row:span 5;grid-template-rows:subgrid;row-gap:0;align-items:start}
+ .offer-audience{min-height:0}
+ .offer>.text-link{align-self:end;margin-top:0}
+}

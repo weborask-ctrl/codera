@@ -9,10 +9,10 @@ const url=process.env.METAL_URL||'http://127.0.0.1:4327';
 const out=resolve('test-results/metal');await mkdir(out,{recursive:true});
 const report={checks:[],consoleErrors:[],measurements:{}};
 function passed(name){report.checks.push(name);console.log(`PASS ${name}`);}
-const range=await fetch(`${url}${process.env.METAL_PRODUCTION ? "/motion/metal" : "/media"}/journey-detail-1080.mp4`,{headers:{Range:'bytes=0-63'}});
+const range=await fetch(`${url}${process.env.METAL_PRODUCTION ? "/motion/metal" : "/media"}/journey-scroll-1080.mp4`,{headers:{Range:'bytes=0-63'}});
 assert.equal(range.status,206);assert.equal((await range.arrayBuffer()).byteLength,64);passed('Video byte ranges');
 // The standalone server owns invalid-range handling; production delegates static ranges to Next/CDN.
-if(!process.env.METAL_PRODUCTION){const badRange=await fetch(`${url}${process.env.METAL_PRODUCTION ? "/motion/metal" : "/media"}/journey-detail-1080.mp4`,{headers:{Range:'bytes=999999999-'}});assert.equal(badRange.status,416);passed('Invalid range rejected');}
+if(!process.env.METAL_PRODUCTION){const badRange=await fetch(`${url}${process.env.METAL_PRODUCTION ? "/motion/metal" : "/media"}/journey-scroll-1080.mp4`,{headers:{Range:'bytes=999999999-'}});assert.equal(badRange.status,416);passed('Invalid range rejected');}
 const source=await (await fetch(url)).text();assert(!source.includes('{{'));assert(source.includes('kontakt@codera.sk'));passed('Business facts rendered without JavaScript');
 const browser=await chromium.launch({channel:process.env.BROWSER_CHANNEL||'msedge',headless:true});
 async function installVisibilitySimulation(page) {
@@ -25,7 +25,7 @@ async function installVisibilitySimulation(page) {
 }
 async function slowSeekRecovery() {
   const slow=await browser.newPage({viewport:{width:1280,height:800}});
-  const bytes=await readFile('public/motion/metal/journey-detail-1080.mp4');
+  const bytes=await readFile('public/motion/metal/journey-scroll-1080.mp4');
   let hold=false,held=0,release;const gate=new Promise(resolve=>{release=resolve;});
   await slow.route('**/*.mp4',async route=>{
     if(hold){held++;await gate;}
@@ -132,7 +132,7 @@ try {
   await page.evaluate(()=>{
     window.__wheelFrames=[];window.__captureWheel=true;
     const video=document.querySelector('video');
-    const capture=(_now,frame)=>{window.__wheelFrames.push(frame.mediaTime);if(window.__captureWheel)video.requestVideoFrameCallback(capture);};
+    const capture=(_now,frame)=>{window.__wheelFrames.push(frame.mediaTime+window.__coderaMotion.mediaOffset);if(window.__captureWheel)video.requestVideoFrameCallback(capture);};
     video.requestVideoFrameCallback(capture);
   });
   await page.mouse.wheel(0,600);
@@ -145,8 +145,8 @@ try {
   await scrollProgress(.59);assert.equal(await page.locator('.hero-beat[aria-hidden="false"]').count(),0);assert.equal(await page.locator('.hero-beat:visible').count(),0);passed('Camera flight has a clear interval without text');
   await scrollProgress(.48);await page.screenshot({path:resolve(out,'desktop-motion.png')});
   assert(await page.locator('.tunnel-fade').evaluate(el=>Number(getComputedStyle(el).opacity)>.1));
-  const forward=await page.locator('video').evaluate(v=>v.currentTime);assert(forward>6);
-  await scrollProgress(.18);const reverse=await page.locator('video').evaluate(v=>v.currentTime);assert(reverse<forward-2);passed('Native forward and reverse video seeking');
+  const forward=await page.locator('video').evaluate(v=>v.currentTime+window.__coderaMotion.mediaOffset);assert(forward>6);
+  await scrollProgress(.18);const reverse=await page.locator('video').evaluate(v=>v.currentTime+window.__coderaMotion.mediaOffset);assert(reverse<forward-2);passed('Native forward and reverse video seeking');
   await scrollProgress(.93);await page.screenshot({path:resolve(out,'desktop-arrival.png')});
   assert(await page.locator('.tunnel-fade').evaluate(el=>Number(getComputedStyle(el).opacity)<.01));passed('Warm transition clears for the final sharp composition');
   assert.equal(await page.locator('.beat-arrival').getAttribute('aria-hidden'),'false');await page.locator('.beat-arrival a').click();await page.waitForFunction(()=>Math.abs(document.querySelector('#praca').getBoundingClientRect().top)<2);passed('Final video composition leads directly to portfolio');

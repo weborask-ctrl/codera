@@ -26,7 +26,7 @@ export async function GET(request: Request) {
     <meta property="og:title" content="${escapeHtml(siteConfig.title)}">
     <meta property="og:description" content="${escapeHtml(siteConfig.description)}">
     <meta property="og:url" content="${siteConfig.url}/">
-    <meta property="og:image" content="${siteConfig.url}/motion/metal/poster-detail.webp">
+    <meta property="og:image" content="${siteConfig.url}/motion/metal/poster-sharp.webp">
     <meta name="twitter:card" content="summary_large_image">
     <script nonce="${nonce}" type="application/ld+json">${JSON.stringify(structuredData).replaceAll('<', '\\u003c')}</script>
     <script nonce="${nonce}" type="application/ld+json">${JSON.stringify(faqData).replaceAll('<', '\\u003c')}</script>`
