@@ -27,13 +27,13 @@ Publikované: https://claude.ai/code/artifact/ec635947-fb5c-4b60-91e2-41bc54e1c3
 | `src/site.css`, `src/site.js` | jeden motion engine (GSAP + ScrollTrigger na natívnom scrolle), router s papierovou oponou |
 | `src/fonts.mjs` | orezané woff2 do `src/fonts/` (potrebuje `subset-font` z node_modules repozitára); stránka ich má samohostované, nie z fonts.googleapis.com — build kopíruje hotové súbory a nič nesťahuje |
 | `src/shots.cjs` | full-page zábery každej stránky (Playwright, desktop + mobil) |
-| `renders/` | vizualizácie domu z Lúčiny, štyri alfa vrstvy, kresba (`ink-4-150.json`), `photos/` = skutočné fotky realizácií |
+| `renders/` | vizualizácie domu z Lúčiny, štyri alfa vrstvy (zdroj filmu a zdieľacej karty), `fal/` = úvodný film, `photos/` = skutočné fotky realizácií |
 
 ## Stránky (15 dokumentov)
 
 | Stránka | Tvar |
 | --- | --- |
-| `index.html` | **plagát**: obrí nadpis „Vitajte vo svete, / kde vonia drevo.“ a dom medzi riadkami — kresba sa pri načítaní sama vykreslí a dom sa postaví (bez scrollu); scroll vrstvy znovu nadvihne · služby ako obrie slová · machový teaser steny · vizualizácia + register realizácií · jedno vyjadrenie cez celú šírku · proces · kontakt |
+| `index.html` | **plagát**: obrí nadpis „Vitajte vo svete, / kde vonia drevo.“ a dom medzi riadkami — pri načítaní sa raz prehrá 5 s film, v ktorom sa dom poskladá od dosky po strechu (bez scrollu); scroll ho mierne nadvihne; pri obmedzenom pohybe stojí hotový dom ako obrázok · služby ako obrie slová · machový teaser steny · vizualizácia + register realizácií · jedno vyjadrenie cez celú šírku · proces · kontakt |
 | `stena.html` | **5D stena**: sedem vrstiev z Higgsfield renderu (`renders/wall-b.png` → `wall-*.webp`), ktoré sa ťahom, scrollom alebo šípkami roztiahnu; každá vrstva dostane meno a jednu vetu, meter zvonku → dnu |
 | `realizacie.html` | filtre s reálnymi počtami · veľký rám nesie vizualizácia (označená) · osem rovnakých štvorcových kariet — fotka sa nikdy nezobrazí väčšia, než je |
 | `realizacia-*.html` ×8 | **stavebný list**: obria číslica roka, ktorá beží za doskou · doska sa po príchode vyvolá zdola nahor a vytlačí okótované úrovne (vlastné `specs` projektu) · hairline tabuľka faktov + služby, ktoré na stavbe boli · citát stavbyvedúceho vo veľkom so zoznamom realizácií z rovnakej kategórie · pager; Lúčina má navyše vizualizačný blok |
@@ -169,7 +169,18 @@ drží x 280–691 a spodok 508–510. Prvá a posledná snímka sa od štartu a
 v priemere o 1,9 a 1,4 z 255. Poradie: prízemie na dosku, poschodie, strecha. Obklad
 prejde z vodorovného na zvislý počas skladania.
 
-Na web ešte nie je zapojený a pre web treba menší súbor (10,7 MB je priveľa pre úvod).
+### Na webe
+
+`python3 src/fal_hero.py web` z `hero.mp4` vyrobí to, čo prehráva úvod. Výrez presne na plochu
+domu z `layers2.json` (1331×993 od 294,63), šírka 1000 px, bez zvuku: `hero-web.webm` (VP9,
+0,28 MB) a `hero-web.mp4` (H.264 pre Safari, 0,35 MB). K tomu prvá snímka `hero-first.webp` ako
+poster (bez JS rozložený dom) a posledná `hero-last.webp` pre obmedzený pohyb (hotový dom,
+video sa vtedy nenačíta vôbec). Farebné značky video nemá: Chromium kreslí jeho pozadie na
+papier #f3eee3 s odchýlkou jedného odtieňa. Box domu má `mix-blend-mode: darken`, takže
+nadpisy za ním ostanú čitateľné ako predtým okolo priehľadných vrstiev.
+
+Otvorené: na konci filmu sedí hotový dom v spodných dvoch tretinách boxu a nad ním ostáva
+prázdny pás pod prvým riadkom (box má výšku rozloženého domu).
 
 ## Spustiteľnosť
 

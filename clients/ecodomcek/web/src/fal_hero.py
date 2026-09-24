@@ -5,6 +5,7 @@
     FAL_KEY=… python3 src/fal_hero.py close     # 1 edit  → renders/fal/end-closed.jpg
     FAL_KEY=… python3 src/fal_hero.py check     # free    → does the edit keep the camera?
     FAL_KEY=… python3 src/fal_hero.py film      # 1 video → renders/fal/hero.mp4
+    python3 src/fal_hero.py web                 # free    → hero-web.webm/.mp4 + hero-first/last.webp
 
 Why two steps. The last Higgsfield try (MiniMax H3) failed because its end
 frame could not seat: the four layers are cut out of an EXPLODED render,
@@ -173,6 +174,48 @@ def check() -> bool:
     return ok
 
 
+# The site's house box is layers2.json's 1500×1119 canvas. In the film that canvas sits at
+# AT/FIT's offset (294, 63) and scale, so this crop puts the film exactly where the DOM
+# layers used to stand.
+CROP = (294, 63, 1331, 993)          # x, y, w, h in the 1920×1080 film
+WEB_W = 1000
+
+
+def ffmpeg() -> str:
+    import shutil
+    exe = shutil.which("ffmpeg")
+    if exe:
+        return exe
+    import imageio_ffmpeg  # pip install imageio-ffmpeg
+    return imageio_ffmpeg.get_ffmpeg_exe()
+
+
+def web() -> None:
+    """hero.mp4 → what the home page plays: cropped to the house box, 1000 px wide, no
+    audio track. VP9 WebM first, H.264 MP4 for Safari, plus the first and last frame as
+    WebP (the poster, and the reduced-motion layout). No colour tags: Chromium draws the
+    untagged file's background at the page's paper (#f3eee3) to within one level."""
+    import subprocess
+    x, y, w, h = CROP
+    vf = f"crop={w}:{h}:{x}:{y},scale={WEB_W}:-2:flags=lanczos"
+    enc = {"hero-web.webm": ["-c:v", "libvpx-vp9", "-b:v", "0", "-crf", "36", "-row-mt", "1"],
+           "hero-web.mp4": ["-c:v", "libx264", "-preset", "veryslow", "-crf", "24",
+                            "-profile:v", "high", "-movflags", "+faststart"]}
+    for name, args in enc.items():
+        out = OUT / name
+        subprocess.run([ffmpeg(), "-y", "-loglevel", "error", "-i", str(FILM), "-vf", vf, "-an",
+                        "-pix_fmt", "yuv420p", *args, str(out)], check=True)
+        print("saved", out.relative_to(ROOT), f"{out.stat().st_size / 1e6:.2f} MB")
+    for tag, sel in (("first", "select=eq(n\\,0)"), ("last", "reverse")):
+        png = OUT / f"_hero-{tag}.png"
+        subprocess.run([ffmpeg(), "-y", "-loglevel", "error", "-i", str(FILM), "-vf",
+                        f"{sel},{vf}", "-frames:v", "1", str(png)], check=True)
+        dst = OUT / f"hero-{tag}.webp"
+        Image.open(png).save(dst, quality=82, method=6)
+        png.unlink()
+        print("saved", dst.relative_to(ROOT), f"{dst.stat().st_size / 1e3:.0f} KB")
+
+
 def main() -> None:
     step = sys.argv[1] if len(sys.argv) > 1 else ""
     if step == "guide":
@@ -189,6 +232,8 @@ def main() -> None:
         fetch_frame(r["images"][0]["url"], CLOSED)
         clear_above(CLOSED)
         check()
+    elif step == "web":
+        web()
     elif step == "check":
         check()
     elif step == "film":

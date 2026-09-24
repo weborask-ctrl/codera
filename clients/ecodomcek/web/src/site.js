@@ -83,74 +83,44 @@
     });
   }
 
-  // ── the hero: the drawing plots itself, then the house builds — on load.
-  // Each layer carries its spread (data-y0) and seated (data-y1) position as
-  // a percentage of its own height. Matter arrives through the linework as
-  // each layer lands. Scrolling away lifts the layers apart again, roof
-  // fastest, so the poster has depth on the way out.
+  // ── the hero: a 5 s film of the house assembling, played once on load
+  // (renders/fal, src/fal_hero.py). The film is media, not a second motion
+  // engine: GSAP only moves its box on the way out. Reduced motion never
+  // loads it; the CSS shows the built house as a still instead.
   function initHouse() {
     var act = main.querySelector('[data-house]');
     if (!act) return;
     var poster = act.closest('.poster');
-    var L = {};
-    act.querySelectorAll('.lyr').forEach(function (el) { L[el.dataset.l] = el; });
-    var order = ['base', 'ground', 'upper', 'roof'];
-    var paths = [];
-    order.forEach(function (n) {
-      L[n].querySelectorAll('path').forEach(function (p) {
-        var len = p._len || (p._len = p.getTotalLength());
-        gsap.set(p, { strokeDasharray: len, strokeDashoffset: reduce ? 0 : len, opacity: '' });
-        paths.push(p);
-      });
-    });
-    var mats = order.map(function (n) { return L[n].querySelector('.mat'); });
-    var inks = order.map(function (n) { return L[n].querySelector('.ink'); });
-
-    if (reduce) {
-      order.forEach(function (n) { gsap.set(L[n], { yPercent: +L[n].dataset.y1 }); });
-      gsap.set(mats, { opacity: 1 }); gsap.set(paths, { opacity: 0 });
-      poster.classList.add('typeset', 'built');
-      return;
-    }
-    order.forEach(function (n) { gsap.set(L[n], { yPercent: +L[n].dataset.y0 }); });
-    gsap.set(mats, { opacity: 0 }); gsap.set(inks, { opacity: 1 });
-
-    var tl = gsap.timeline({ paused: true, defaults: { ease: 'power2.in' },
-      onComplete: function () { poster.classList.add('built'); } });
-    function settle(names, at) {
-      names.forEach(function (n) {
-        var el = L[n], seat = +el.dataset.y1, dip = 320 / (el.offsetHeight || 320) * 1.1;
-        tl.to(el, { yPercent: seat + dip, duration: .07, ease: 'power1.out' }, at)
-          .to(el, { yPercent: seat, duration: .14, ease: 'power2.out' }, at + .07);
-      });
-    }
-    function ignite(i, at, dur) {
-      tl.to(mats[i], { opacity: 1, duration: dur * .6, ease: 'power1.inOut' }, at)
-        .to(inks[i], { opacity: 0, duration: dur * .7, ease: 'power1.in' }, at + dur * .3);
-    }
-    // 0.0-1.05 the drawing plots between the lines of the headline; then the
-    // house builds bottom to top and is seated by ~2.5. Halved from the first
-    // cut (4.46), which put the whole poster behind the animation.
-    tl.to(paths, { strokeDashoffset: 0, duration: .55, ease: 'power2.inOut', stagger: { amount: .5 } }, 0);
-    ignite(0, .8, .35);
-    ignite(1, 1.0, .4); tl.to(L.ground, { yPercent: +L.ground.dataset.y1, duration: .4 }, 1.0); settle(['base'], 1.4);
-    ignite(2, 1.45, .4); tl.to(L.upper, { yPercent: +L.upper.dataset.y1, duration: .4 }, 1.45); settle(['ground', 'base'], 1.85);
-    ignite(3, 1.9, .42); tl.to(L.roof, { yPercent: +L.roof.dataset.y1, duration: .42 }, 1.9); settle(['upper', 'ground', 'base'], 2.32);
-    tweens.push(tl);
-    houseTl = tl;
-    /* the words do not wait for the house */
+    var film = act.querySelector('video');
     function typeset() { poster.classList.add('typeset'); }
-    if (document.body.classList.contains('ready')) { typeset(); tl.play(); }
-    else { pendingPlay = tl; pendingTypeset = typeset; }
+    if (reduce || !film) { poster.classList.add('typeset', 'built'); return; }
 
-    // the way out: layers drift apart with depth as the poster scrolls off
-    var drift = { roof: -14, upper: -8, ground: -3, base: 2 };
-    order.forEach(function (n) {
-      tweens.push(gsap.to(L[n], { y: function () { return innerHeight * drift[n] / 100; }, ease: 'none',
-        scrollTrigger: track(ScrollTrigger.create({
-          trigger: poster, start: 'top top', end: 'bottom top', scrub: .4, invalidateOnRefresh: true
-        })) }));
-    });
+    film.preload = 'auto';
+    film.addEventListener('ended', function () { poster.classList.add('built'); });
+    // houseTl keeps the timeline's surface, so ?p= captures and page swaps
+    // treat the film like the old tween: play, pause, jump to a fraction
+    var ctl = {
+      play: function () { var r = film.play(); if (r && r.catch) r.catch(function () {}); },
+      pause: function () { film.pause(); },
+      progress: function (f) {
+        function seek() { film.currentTime = Math.min(film.duration - .01, f * film.duration); }
+        if (film.readyState >= 1) return seek();
+        film.addEventListener('loadedmetadata', seek, { once: true });
+        if (film.networkState === film.NETWORK_EMPTY) film.load();
+      },
+      kill: function () { film.pause(); }
+    };
+    tweens.push(ctl);
+    houseTl = ctl;
+    /* the words do not wait for the house */
+    if (document.body.classList.contains('ready')) { typeset(); ctl.play(); }
+    else { pendingPlay = ctl; pendingTypeset = typeset; }
+
+    // the way out: the house lifts a little as the poster scrolls off
+    tweens.push(gsap.to(act, { y: function () { return -innerHeight * .06; }, ease: 'none',
+      scrollTrigger: track(ScrollTrigger.create({
+        trigger: poster, start: 'top top', end: 'bottom top', scrub: .4, invalidateOnRefresh: true
+      })) }));
   }
   var houseTl = null, pendingPlay = null, pendingTypeset = null;
 

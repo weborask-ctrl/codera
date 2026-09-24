@@ -14,32 +14,19 @@ import content as C
 HERE = pathlib.Path(__file__).parent
 REND = HERE.parent / "renders"
 
-# ── the house: four cut-out layers measured from the exploded render ─────
-LAY = json.loads((REND / "layers2.json").read_text())
-INK = json.loads((REND / "ink-4-150.json").read_text())
-DROP = {"base": 0, "ground": 44, "upper": 44 + 26, "roof": 44 + 26 + 30}
-SPREAD = {"base": 0, "ground": -1.6, "upper": -5.0, "roof": -10.5}
-PINS = {"roof": ("01", 52, 38), "upper": ("02", 31, 63),
-        "ground": ("03", 26, 58), "base": ("04", 56, 74)}
-TAGS = {"roof": "Plochá strecha", "upper": "Rhombus profil · smrekovec",
-        "ground": "Kompaktné dosky Fundermax", "base": "Základová doska"}
-RAIL = [("04", "Doska"), ("03", "Prízemie"), ("02", "Poschodie"), ("01", "Strecha")]
-
-
-def layer(name):
-    l, W, H = LAY["layers"][name], LAY["W"], LAY["H"]
-    y0 = SPREAD[name] * H / l["h"]
-    y1 = DROP[name] / l["h"] * 100
-    p, px, py = PINS[name]
-    pin = (f'<div class="pin" data-p="{p}" style="left:{px}%;top:{py}%"><s></s><b>{p}</b>'
-           f"<i>{TAGS[name]}</i></div>")
-    ink = INK[name]
-    paths = "".join(f'<path class="{c}" d="{d}"/>' for c, d in ink["paths"])
-    return (f'<div class="lyr" data-l="{name}" data-y0="{y0:.2f}" data-y1="{y1:.2f}" '
-            f'style="left:{l["x"] / W * 100:.2f}%;top:{l["y"] / H * 100:.2f}%;'
-            f'width:{l["w"] / W * 100:.2f}%;aspect-ratio:{l["w"]}/{l["h"]}">'
-            f'<svg class="ink" viewBox="0 0 {ink["w"]} {ink["h"]}" aria-hidden="true">{paths}</svg>'
-            f'<img class="mat" src="assets/lyr-{name}.webp" alt="" draggable="false">{pin}</div>')
+# ── the house: a 5 s film of it assembling (src/fal_hero.py). It was generated
+# from the same four cut-out layers the hero used to stack in the DOM and is
+# cropped to their 1500×1119 canvas, so it stands exactly where they stood.
+# The first frame is the poster (no JS: the exploded house); reduced motion
+# gets the last frame, the built house, as a still.
+def film():
+    return ('<div class="house" data-house>'
+            '<video class="film" muted playsinline preload="none" disablepictureinpicture '
+            'poster="assets/hero-first.webp" aria-hidden="true" tabindex="-1">'
+            '<source src="assets/hero-web.webm" type="video/webm">'
+            '<source src="assets/hero-web.mp4" type="video/mp4"></video>'
+            '<img class="still" src="assets/hero-last.webp" alt="Drevodom poskladaný od '
+            'základovej dosky po strechu — vizualizácia" loading="lazy" decoding="async"></div>')
 
 
 # real photo sizes, read from the files — hard-coded sizes drifted the
@@ -179,15 +166,14 @@ def build(B):
     # ═══════════════════════════════════════════════════════════════════
     # 1 — ÚVOD — type as the hero, the house in front of it
     # (pangram.md: the word owns the frame; kpr.md/noomo.md: the object
-    # sits between the headline lines). On load the drawing plots itself
-    # and the house builds — no scroll needed. Scroll only lifts the
-    # layers apart again as the poster leaves.
+    # sits between the headline lines). On load the film of the house
+    # assembling plays once — no scroll needed. Scroll lifts it a little as
+    # the poster leaves.
     # ═══════════════════════════════════════════════════════════════════
-    house = "".join(layer(n) for n in ("base", "ground", "upper", "roof"))
     hero = f'''<section class="band" id="hero" data-sec="Dom">
   <div class="poster">
     <h1 class="l1"><span class="rl"><span>Vitajte vo svete,</span></span></h1>
-    <div class="house" data-house>{house}</div>
+    {film()}
     <h1 class="l2"><span class="rl"><span>kde <em>vonia</em> drevo.</span></span></h1>
     <p class="sub fade">Montované drevodomy z Lúčiny pri Prešove. Od základov až po kolaudáciu.</p>
     <div class="ctas fade d2">{btn("Pozrieť realizácie", "realizacie.html")}{btn("Otvoriť stenu", "stena.html", ghost=True, arrow=False)}</div>

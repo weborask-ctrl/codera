@@ -37,7 +37,7 @@ IMAGES = [
     "explod.jpg", "hero.jpg", "rez.jpg",
     "beat0.jpg", "beat1.jpg", "beat2.jpg", "beat3.jpg", "beat4.jpg",
     "beat5.jpg", "beat6.jpg", "beat7.jpg", "beat8.jpg",
-    "lyr-base.webp", "lyr-ground.webp", "lyr-upper.webp", "lyr-roof.webp",
+    "fal/hero-web.webm", "fal/hero-web.mp4", "fal/hero-first.webp", "fal/hero-last.webp",
     "wall-1-obklad.webp", "wall-2-latovanie.webp", "wall-3-doska.webp", "wall-4-ram.webp",
     "wall-5-parobrzda.webp", "wall-6-predstena.webp", "wall-7-sadrokarton.webp",
 ]
@@ -284,7 +284,7 @@ def copy_assets() -> None:
         src = REND / name
         if not src.exists():
             sys.exit(f"missing render: {src}")
-        shutil.copy2(src, ASSETS / name)
+        shutil.copy2(src, ASSETS / pathlib.Path(name).name)
     for t in PHOTOS:
         src = REND / "photos" / f"{t}.jpg"
         if not src.exists():
