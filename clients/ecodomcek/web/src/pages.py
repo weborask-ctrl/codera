@@ -48,6 +48,28 @@ from PIL import Image as _Image
 SHOTS = {f.stem: _Image.open(f).size for f in sorted((REND / "photos").glob("*.jpg"))}
 
 
+# ── the opened house: one label per level, anchored to the layer's own box
+# in the render (the film's first frame IS the layers at these positions,
+# so when scroll rewinds the film to its start, each label sits on its
+# level). Names describe the visualisation; materials are the Lúčina specs.
+OPEN = [("roof", "r", "Strecha", "plochá"),
+        ("upper", "l", "Poschodie", "spálne a kúpeľňa · fasáda Rhombus smrekovec"),
+        ("ground", "r", "Prízemie", "obývačka a kuchyňa · kompaktné dosky Fundermax"),
+        ("base", "l", "Základová doska", "")]
+
+
+def open_labels():
+    out = ""
+    for i, (k, side, name, note) in enumerate(OPEN):
+        l = LAY["layers"][k]
+        y = (l["y"] + l["h"] * .5) / LAY["H"] * 100
+        x = ((l["x"] + l["w"]) if side == "r" else l["x"]) / LAY["W"] * 100
+        em = f"<em>{note}</em>" if note else ""
+        out += (f'<div class="ol {side}" data-n="{i + 1}" style="--y:{y:.1f}%;--x:{x:.1f}%"><i></i>'
+                f'<div><b>{i + 1:02d}</b><span>{name}</span>{em}</div></div>')
+    return f'<div class="olabels">{out}</div>'
+
+
 def title_of(p):
     return p.get("short", p["title"])
 
@@ -191,9 +213,11 @@ def build(B):
       <video class="film" muted playsinline preload="auto" aria-hidden="true" tabindex="-1"
         poster="assets/hero-first.webp" data-wide="assets/hero" data-narrow="assets/hero-720"></video>
       <img class="still" src="assets/hero-last.webp" alt="" aria-hidden="true">
+      {open_labels()}
     </div>
     <h1 class="l2"><span class="rl"><span>kde <em>vonia</em> drevo.</span></span></h1>
     <p class="sub fade">Montované drevodomy z Lúčiny pri Prešove. Od základov až po kolaudáciu.</p>
+    <ol class="olegend" aria-label="Podlažia domu">{"".join(f"<li><b>{i + 1:02d}</b>{n}</li>" for i, (_, _, n, _) in enumerate(OPEN))}</ol>
     <div class="ctas fade d2">{btn("Pozrieť realizácie", "realizacie.html")}{btn("Otvoriť stenu", "stena.html", ghost=True, arrow=False)}</div>
     <span class="vz mono">vizualizácia · Rodinný dom Lúčina 2024</span>
   </div>

@@ -150,23 +150,35 @@
       tl.kill();
       var small = matchMedia('(max-width:820px)').matches;
       var webm = film.canPlayType('video/webm; codecs="vp9"');
-      film.src = film.dataset.src ? (webm && film.dataset.srcWebm ? film.dataset.srcWebm : film.dataset.src)
+      var url = film.dataset.src ? (webm && film.dataset.srcWebm ? film.dataset.srcWebm : film.dataset.src)
         : film.dataset[small ? 'narrow' : 'wide'] + (webm ? '.webm' : '.mp4');
+      // the whole film as a Blob: a blob is seekable on any server (the
+      // opening rewinds it with the scroll), and the file is fetched in full
+      // anyway. A data: URI (the one-file bundle) is already seekable.
+      if (/^data:/.test(url) || !window.fetch || !window.URL) film.src = url;
+      else fetch(url).then(function (r) { return r.blob(); })
+        .then(function (b) { film.src = URL.createObjectURL(b); })
+        .catch(function () { film.src = url; });
       var ft = gsap.timeline({ paused: true });
       ft.to(paths, { strokeDashoffset: 0, duration: .55, ease: 'power2.inOut', stagger: { amount: .5 } }, 0);
       mats.forEach(function (m, i) { ft.to(m, { opacity: 1, duration: .4, ease: 'power1.inOut' }, .7 + i * .08); });
       ft.to(inks, { opacity: 0, duration: .4 }, .95);
       ft.to(order.map(function (k) { return L[k]; }), { yPercent: 0, duration: .45, ease: 'power2.inOut' }, .7);
       var done = false;
+      var scrubbing = false, landing = null, pin = null;
       function built() {
         if (done) return; done = true; poster.classList.add('built');
         // the landing: the camera pushes in on the closed house (the film
         // ends with it low in the frame — measured centre 72.7 %, height 48 %)
-        if (act.classList.contains('filming'))
-          tweens.push(gsap.to(film, { yPercent: -29.5, scale: 1.3, duration: 1.3, ease: 'power2.inOut' }));
+        if (act.classList.contains('filming') && !scrubbing) {
+          landing = gsap.to(film, { yPercent: -29.5, scale: 1.3, duration: 1.3, ease: 'power2.inOut' });
+          tweens.push(landing);
+        }
       }
+      var builtRef = built;                                   // block functions are block-scoped in strict mode
       function seat() {                                       // the old way, if the film cannot play
         act.classList.remove('filming'); poster.classList.remove('filmed');
+        if (pin) { pin.kill(true); pin = null; }                // no film, nothing to open
         var st = gsap.timeline({ onComplete: built });
         ['ground', 'upper', 'roof'].forEach(function (k, i) {
           st.to(L[k], { yPercent: +L[k].dataset.y1, duration: .42, ease: 'power2.in' }, i * .42);
@@ -194,13 +206,37 @@
     if (document.body.classList.contains('ready')) { typeset(); tl.play(); }
     else { pendingPlay = tl; pendingTypeset = typeset; }
 
-    // the way out: layers drift apart with depth as the poster scrolls off;
-    // the closed film house leaves as one piece
+    // ── the opening: scroll pins the poster and rewinds the film — the
+    // closed house lifts apart level by level, the camera eases back out,
+    // and each level is named. Input maps to the picture at once (the film
+    // is the one the page already loaded; a backward seek measured 17 ms
+    // median, 35 ms worst); seeks never queue — only the latest wish plays.
     if (film) {
-      tweens.push(gsap.to(act, { y: function () { return -innerHeight * .08; }, ease: 'none',
-        scrollTrigger: track(ScrollTrigger.create({
-          trigger: poster, start: 'top top', end: 'bottom top', scrub: .4, invalidateOnRefresh: true
-        })) }));
+      var END = 5.04, OPEN_T = .18, want = END, seeking = false;
+      film.addEventListener('seeked', function () {
+        seeking = false;
+        if (Math.abs(film.currentTime - want) > .015) { seeking = true; film.currentTime = want; }
+      });
+      function seek(t) { want = t; if (!seeking && Math.abs(film.currentTime - t) > .015) { seeking = true; film.currentTime = t; } }
+      var ease = gsap.parseEase('power1.inOut');
+      pin = track(ScrollTrigger.create({
+        trigger: poster, start: 'top top', end: '+=130%', pin: true, anticipatePin: 1,
+        onUpdate: function (self) {
+          if (!act.classList.contains('filming')) return;
+          var p = self.progress;
+          if (p > .002 && !scrubbing) {                         // the visitor takes the camera
+            scrubbing = true; film.pause(); if (landing) landing.kill(); builtRef();
+          }
+          if (!scrubbing) return;
+          var q = ease(Math.min(1, Math.max(0, (p - .04) / .72)));
+          seek(END - q * (END - OPEN_T));
+          // opened, the house spans 4-96 % of the frame: at .86 it clears both
+          // headline lines, which overlap the frame's top and bottom 7 %
+          gsap.set(film, { scale: 1.3 - .44 * q, yPercent: -29.5 * (1 - q) });
+          var open = p > .8;
+          act.classList.toggle('open', open); poster.classList.toggle('opened', open);
+        }
+      }));
       return;
     }
     var drift = { roof: -14, upper: -8, ground: -3, base: 2 };

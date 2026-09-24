@@ -1145,3 +1145,50 @@ h2.big em{font-style:normal;color:var(--moss)}
 .house .still{display:none}
 .house.still .still{display:block}
 .house.still .lyr,.house.still .film{display:none}
+
+/* ═══ the opened house ═════════════════════════════════════════════════
+   Scroll rewinds the film: the closed house lifts apart level by level
+   and each level is named on its own line (igloo.md: mono annotation over
+   the object like an engineer's drawing). The labels hold at full ink
+   while open and only exist in that state.                             */
+.olabels{position:absolute;inset:0;pointer-events:none;z-index:4}
+/* positions are the layer boxes at the opened scale (.86 about the centre) */
+.ol{position:absolute;top:calc(50% + (var(--y) - 50%) * .86);display:flex;align-items:center;transform:translateY(-50%)}
+.ol.r{left:calc(50% + (var(--x) - 50%) * .86)}
+.ol.l{right:calc(50% - (var(--x) - 50%) * .86);flex-direction:row-reverse;text-align:right}
+.ol i{display:block;height:1px;width:clamp(36px,5vw,96px);background:var(--ink);transform:scaleX(0);
+  transform-origin:0 50%;transition:transform .5s var(--ease)}
+.ol.l i{transform-origin:100% 50%}
+.ol i::before{content:"";position:absolute;width:5px;height:5px;border-radius:50%;background:var(--amber);
+  margin-top:-2px;margin-left:-2px}
+.ol.l i::before{right:-2px;margin-left:0;margin-right:-2px}
+.ol i{position:relative}
+.ol div{padding:0 12px;white-space:nowrap;opacity:0;transform:translateY(6px);
+  transition:opacity .45s var(--ease) .2s,transform .45s var(--ease) .2s}
+.ol b{display:block;font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.14em;color:var(--amber)}
+.ol span{display:block;font-size:clamp(16px,1.3vw,21px);letter-spacing:-.01em;line-height:1.2;margin-top:2px}
+.ol em{display:block;font-style:normal;font-size:clamp(12.5px,.95vw,14px);color:var(--ink2);margin-top:3px}
+.house.open .ol i{transform:none}
+.house.open .ol div{opacity:1;transform:none}
+.house.open .ol:nth-child(2) i,.house.open .ol:nth-child(2) div{transition-delay:.08s,.28s}
+.house.open .ol:nth-child(3) i,.house.open .ol:nth-child(3) div{transition-delay:.16s,.36s}
+.house.open .ol:nth-child(4) i,.house.open .ol:nth-child(4) div{transition-delay:.24s,.44s}
+.olegend{display:none}
+@media (max-width:820px){
+  /* no room beside the house on a phone: numbered points on it, the names below */
+  .ol div{display:none}
+  .ol i{width:0;height:0}
+  .ol i::before{width:18px;height:18px;margin:-9px 0 0 -9px;background:var(--ink)}
+  .ol.l i::before{margin:-9px -9px 0 0}
+  .ol::after{content:attr(data-n);position:absolute;top:50%;transform:translate(-50%,-50%);left:0;
+    font-family:var(--mono);font-size:9px;color:var(--paper);opacity:0;transition:opacity .3s}
+  .ol.l::after{left:auto;right:0;transform:translate(50%,-50%)}
+  .ol i::before{transform:scale(0);transition:transform .35s var(--ease)}
+  .house.open .ol i::before{transform:none}
+  .house.open .ol::after{opacity:1}
+  .olegend{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 14px;list-style:none;margin:10px 0 0;
+    padding:0;font-size:13px;color:var(--ink2);opacity:0;transition:opacity .4s}
+  .olegend b{font-family:var(--mono);font-size:9.5px;color:var(--ink);margin-right:5px}
+  .poster.opened .olegend{opacity:1}
+}
+@media (prefers-reduced-motion:reduce){ .olabels,.olegend{display:none} }

@@ -685,3 +685,42 @@ fotiek sa už nepíšu ručne (`SHOTSIZE`/`SRC` sa rozišli s prvým orezom),
 
 LOCAL: 15 stránok × 3 šírky, router, filter (Terasa → 3 stavby, ročníky
 2021 a 2019), bundle z `file://` (61 obrázkov), stavebný list.
+
+---
+
+## Fáza 13 — film a otvárací dom (2026-09-24)
+
+Ondrej: „daj tej stránke hodnotu, 3D otvárací dom… spojením toho
+začiatku a ďalších vecí chcem vidieť značný pokrok v grafickej kvalite."
+
+**Prieskum.** Awwwards (kategória Construction), rozbor 15 najlepších
+webov stavebných firiem 2026 (Whitelam Media): projekty sú hlavný
+obsah; „commissioned photography of actual completed work — not stock,
+not renders" je najväčší signál kvality; rýchlosť = prémiovosť; jedna
+dlhá stránka projektu > záložky. Živé weby (Haven, Infinity, GM) sa cez
+proxy nenačítali — vizuálne referencie ostávajú LIKED záznamy.
+ecodomcek.sk blokuje náš server firewallom hostingu (WAF) — ďalšie
+originály odtiaľ nejdú; ostávajú tie z `compositions/`.
+
+**Film** (Kling v3 Pro, z paralelnej session): `src/film.py` doladí
+každú snímku na papier (surový film kolíše 241–248), prelne okraje,
+oreže na plátno vrstiev, 1200/720 px H.264 + VP9 (10,7 MB → 0,7 MB).
+Kresba a hmota vrstiev presne v polohe prvej snímky → film dom naozaj
+zavrie → kamera sa priblíži na zavretý dom. Poistky: zablokovaný
+autoplay / film nezačne do 6 s → vrstvy dosadnú; reduced motion →
+statický zavretý dom.
+
+**Otvárací dom** (`noomo.md`: objekt medzi písmenami nadpisu; `igloo.md`:
+anotácia ako inžinierska kresba; `lusion.md`: vstup → obraz okamžite).
+Scroll pripne plagát a pretáča ten istý film späť: zavretý dom sa po
+podlažiach otvorí, kamera sa vzdiali na 0,86 (otvorený dom tak nezasahuje
+do riadkov nadpisu) a každé podlažie dostane meno s vodiacou čiarou —
+pozície sú boxy vrstiev z `layers2.json`, lebo prvá snímka filmu SÚ tie
+vrstvy. Na mobile očíslované body na dome + legenda. Film sa sťahuje
+ako Blob, aby sa dal pretáčať na akomkoľvek serveri (Python dev server
+Range nepodporuje — prvé meranie rýchlosti posunu bolo preto neplatné).
+Nula KB navyše — je to film, ktorý stránka už načítala.
+
+LOCAL: 1440 a 390 — pripnutie, čas filmu 5,04 → 0,18 so scrollom,
+popisy len v otvorenom stave; bundle z `file://` rovnako; plná regresia.
+MP4 (H.264) cesta NOT VALIDATED — Chromium v kontajneri nemá kodek.
