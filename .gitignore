@@ -45,3 +45,9 @@ node_modules/
 
 # Playwright MCP session logs (another tool writes them here)
 .playwright-mcp/
+
+# Generated Silver browser assets (npm run silver:assets)
+/public/silver/
+
+/.prototype-cache/
+/verify.log

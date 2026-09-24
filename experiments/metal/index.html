@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="sk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#151513">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Codera — dizajn a vývoj webov, ktoré majú vlastný charakter. Od prvého nápadu po spustenie.">
+  <title>Codera — Vaša firma. V lepšom svetle.</title>
+  <link rel="icon" href="/assets/brand/codera-mark-mono.svg" type="image/svg+xml">
+  <link rel="preload" href="/fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/media/poster-detail.webp" as="image" fetchpriority="high">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/refinement.css">
+  <link rel="stylesheet" href="/signature.css">
+  <script defer src="/vendor/gsap.min.js"></script>
+  <script defer src="/vendor/ScrollTrigger.min.js"></script>
+  <script type="module" src="/main.mjs"></script>
+</head>
+<body>
+  <a class="skip-link" href="#hlavny-obsah">Preskočiť na hlavný obsah</a>
+  <header class="header" id="header">
+    <a class="brand" href="#top" aria-label="Codera — úvod"><img src="/assets/brand/codera-mark-mono.svg" width="34" height="34" alt=""><span>codera<span class="brand-dot">®</span></span></a>
+    <nav class="navigation" aria-label="Hlavná navigácia"><a href="#praca">Práca</a><a href="#sluzby">Služby</a><a href="#studio">Štúdio</a></nav>
+    <a class="button header-cta" href="#dopyt">Začať projekt <span aria-hidden="true">↗</span></a>
+    <button class="menu-button" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Otvoriť menu"><span></span><span></span></button>
+  </header>
+  <nav class="mobile-menu" id="mobile-menu" aria-label="Mobilná navigácia" hidden><a href="#praca">Práca</a><a href="#sluzby">Služby</a><a href="#studio">Štúdio</a><a href="#dopyt">Začať projekt ↗</a></nav>
+  <main id="hlavny-obsah">
+    <section class="journey" id="top" aria-labelledby="hero-title">
+      <div class="stage">
+        <div class="film" aria-hidden="true"><img class="poster" src="/media/poster-detail.webp" width="1920" height="1080" alt="" fetchpriority="high"><video id="journey-video" muted playsinline preload="none" disablepictureinpicture tabindex="-1" aria-hidden="true"></video><div class="tunnel-fade"></div><div class="film-shade"></div></div>
+        <div class="hero-beat beat-opening">
+          <h1 id="hero-title">Vaša firma.<br><em>V lepšom svetle.</em></h1>
+          <div class="hero-bottom"><p>Navrhujeme a tvoríme firemné weby.<br>S vlastným charakterom a jasným cieľom.</p><a class="text-link" href="#praca">Pozrieť prácu <span aria-hidden="true">↗</span></a></div>
+        </div>
+        <div class="hero-beat beat-detail" aria-hidden="true"><h2>Sme Codera.<br><em>Tvoríme weby.</em></h2><p>Od prvého nápadu po posledný detail.<br>Dizajn, vývoj a pohyb v jednom celku.</p></div>
+        <div class="hero-beat beat-arrival" aria-hidden="true"><h2>Takto vyzerajú<br><em>naše nápady.</em></h2><p>Od prvého dojmu po posledný detail.<br>Pozrite si naše webové koncepty.</p><a class="text-link" href="#praca" tabindex="-1">Objavte našu prácu <span aria-hidden="true">↓</span></a></div>
+        <div class="stage-footer"><span class="scroll-cue">Scrollom objavíte viac <span aria-hidden="true">↓</span></span><div class="film-progress" aria-hidden="true"><i></i></div><button id="motion-toggle" class="motion-toggle" type="button" hidden aria-pressed="false"><span class="pause-icon" aria-hidden="true">Ⅱ</span><span class="motion-label">Zastaviť pohyb</span></button></div>
+      </div>
+    </section>
+    <section class="work paper" id="praca" aria-labelledby="work-title">
+      <div class="section-heading"><h2 id="work-title">Každá značka.<br><em>Vlastný svet.</em></h2><p>Takto premýšľame o weboch.<br>Päť ukážkových konceptov, päť rôznych potrieb. Otvorte si ich a vyskúšajte.</p></div>
+      <div class="project-grid">{{projects}}</div>
+    </section>
+    <section class="services" id="sluzby" aria-labelledby="services-title">
+      <div class="section-heading"><h2 id="services-title">Dobrý web.<br><em>Od základu.</em></h2><p>Od jednej stránky po priestorový zážitok. Nájdeme rozsah, ktorý dáva vašej firme zmysel.</p></div>
+      <div class="offers">{{packages}}</div>
+      <div class="wordpress-line"><h3>Máte web?<br><em>Dajme mu nový smer.</em></h3><div><p>{{wordpress}}</p><a class="text-link" href="#dopyt">Poďme ho posunúť <span aria-hidden="true">↗</span></a></div></div>
+    </section>
+    <section class="studio paper" id="studio" aria-labelledby="studio-title">
+      <div class="studio-intro"><h2 id="studio-title">Od prvého ahoj.<br><em>Po hotový web.</em></h2><p>Sme {{people}}. S nami riešite nápad, dizajn aj vývoj. Priamo, od začiatku až po spustenie.</p></div>
+      <div class="studio-body"><div class="proposal"><p class="proposal-time">{{proposalHours}}<span>hodín</span></p><h3>A váš nápad má<br><em>prvú podobu.</em></h3><p>Prvý návrh pripravíme do {{proposalHours}} hodín.</p></div><div class="process"><div><h3>Najprv vás spoznáme.</h3><p>Porozprávame sa o vašej firme, zákazníkoch a tom, čo má web priniesť.</p></div><div><h3>Nájdeme váš smer.</h3><p>Ukážeme vám návrh. Obsah, vzhľad aj rozsah doladíme spoločne.</p></div><div><h3>Dotiahneme detaily.</h3><p>Web vytvoríme, otestujeme a pripravíme na spustenie aj ďalšie používanie.</p></div></div></div>
+    </section>
+    <section class="contact" id="kontakt" aria-labelledby="contact-title">
+      <div class="contact-top"><h2 id="contact-title">Teraz váš<br><em>ďalší krok.</em></h2><p>Máte nápad? Poďme mu dať podobu.<br>Konzultácia je bezplatná a nezáväzná.</p></div>
+      <div class="contact-grid"><div class="contact-info"><a class="email" href="mailto:{{email}}">{{email}} <span aria-hidden="true">↗</span></a><a class="phone" href="tel:{{phoneHref}}">{{phone}}</a><p>Ozveme sa do {{responseHours}} hodín.<br>Konzultácia je bezplatná a nezáväzná.</p><p class="contact-people">{{people}}</p></div>
+        <form id="dopyt" class="enquiry" data-email="{{email}}">
+          <div class="field-pair"><label>Vaše meno<input name="name" autocomplete="name" required minlength="2" placeholder="Ako vás oslovíme?"></label><label>E-mail<input name="email" type="email" autocomplete="email" required placeholder="vas@email.sk"></label></div>
+          <label>Čo máte na mysli?<textarea name="message" rows="3" required minlength="10" placeholder="Povedzte nám niečo o vašom projekte."></textarea></label>
+          <div class="form-end"><p>Formulár pripraví správu vo vašom<br>e-mailovom programe.</p><button class="button" type="submit" disabled>Pripraviť dopyt <span aria-hidden="true">↗</span></button></div>
+          <p id="form-status" class="form-status" role="status"></p>
+          <noscript><p>Napíšte nám priamo na <a href="mailto:{{email}}">{{email}}</a>.</p></noscript>
+        </form>
+      </div>
+      <footer class="footer"><a class="footer-wordmark" href="#top" aria-label="Codera — späť hore"><img src="/assets/brand/codera-wordmark-display.svg" alt="Codera" width="1200" height="220"><span aria-hidden="true">↗</span></a><div class="footer-bottom"><span>© {{year}} Codera</span><span>Dizajn &amp; vývoj. Slovensko.</span><a href="#top">Späť hore ↑</a></div></footer>
+    </section>
+  </main>
+  <dialog class="project-dialog" aria-labelledby="preview-title"><div class="preview-toolbar"><h2 id="preview-title">Celý web</h2><a id="preview-live" href="#praca" class="text-link" target="_blank" rel="noopener noreferrer">Živá ukážka <span aria-hidden="true">↗</span></a><button id="preview-zoom" class="preview-close" type="button" aria-pressed="false">Zväčšiť</button><button class="preview-close close-dialog" type="button" aria-label="Zavrieť náhľad">Zavrieť <span aria-hidden="true">×</span></button></div><div class="preview-scroll"><img id="preview-image" alt=""></div></dialog>
+</body>
+</html>

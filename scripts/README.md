@@ -44,3 +44,9 @@ were deleted with the v2 experience on 2026-08-31 — git remembers them.
 ## `npm run fonts` — `build-fonts.mjs`
 
 Builds `app/fonts/*.woff2` from the google/fonts variable sources with harfbuzz (`subset-font`): weights pinned or narrowed to what the site renders, Fraunces keeping its optical-size axis, Bricolage instanced where Google's static 800 sat, one file per face over Basic Latin + Latin-1 + Latin Extended-A. Re-run after changing which weights the site uses; commit the outputs. Sources are fetched into the OS temp dir, never committed.
+
+## Silver homepage
+
+- `npm run silver:assets` copies the reviewed browser source, self-hosted fonts and GSAP into ignored `public/silver`. Runs automatically before build.
+- `METAL_URL=<url> METAL_PRODUCTION=1 npm run silver:check` validates presented video frames, native scroll, fallback/recovery and previews on the production server. Omit METAL_PRODUCTION only for the standalone prototype server.
+- `METAL_URL=<url> npm run silver:layout` captures six viewport sizes and checks stack geometry and overflow. Run after Playwright (which clears test-results).

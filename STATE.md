@@ -3,12 +3,39 @@
 What is live, what was decided, and what must not be relearned. One file, kept
 short. Open work does **not** live here — it lives in GitHub Issues.
 
-Last reviewed: 2026-09-16 (Iterácia 4.11, the flat passage passes beside the camera) · Production: `https://www.codera.sk` ·
+Last reviewed: 2026-09-24 (Silver homepage release, PR #99) · Production: `https://www.codera.sk` ·
 Open backlog: see Issues.
 
 ---
 
 ## What is live
+
+**Silver homepage is the approved replacement for Codera City (PR #99).**
+Marcus explicitly authorized publishing the code/media, merging and deploying
+on 2026-09-24. Check PR/deployment status for the exact release state.
+The homepage is rendered by `app/route.ts` from `experiments/metal/index.html`
+and `lib/site-config.ts`; `prebuild` prepares its assets through
+`scripts/silver-assets.mjs`. Existing Next.js demo routes remain available.
+The hero reads “Vaša firma. V lepšom svetle.” and scrubs one 1920×1080 film
+through 600 viewport heights of native scroll. A warm dissolve accompanies
+the gold passage. Touch/reduced-motion visits start with a sharp static
+poster and can explicitly enable motion. Slow remote seeks allow 30 seconds
+without download progress; loading an opening frame does not reset the
+failed-seek retry budget.
+
+Five compact stacked previews show complete screenshot compositions and
+open full-page 2880px previews. No decorative corner captions or micro-labels
+are allowed; normal section copy identifies these as studio concepts.
+Rounded sections expose the preceding section's colour. The footer wordmark
+uses SVG outlines. Offers start at €499 (Profesionálny web) and €699 (Motion
+web). Business facts remain in `lib/site-config.ts`.
+
+Validation: `npm run verify`, Playwright homepage/demo coverage, and
+`scripts/metal-check.mjs` (including delayed byte ranges, forward/reverse
+seeks, touch/reduced motion and recovery). Remote Vercel preview was checked
+in Edge; this does not represent physical-device testing.
+
+## Previous homepage — historical context
 
 **Homepage — „Codera City" (Iterácia 2.0, 2026-09-05).** Ondrej approved a
 static concept, then the build: one continuous 5D world — a pastel floating
@@ -216,3 +243,8 @@ pass in isolation and with 2 workers).
 - Asset provenance: `SOURCES.md`
 - Open items: GitHub Issues
 - Superseded history: `docs/archive/` (v2 direction included)
+
+
+## Silver homepage release — 2026-09-24
+
+Marcus authorized replacing Codera City with the reviewed Silver film direction. Entry pricing is now Profesionálny web from 499 EUR and Motion web from 699 EUR. Source: experiments/metal, lib/silver-render.mjs, app/route.ts. Existing /ukazky routes are preserved. The homepage serves complete indexable HTML with the existing nonce CSP, native scroll, responsive/reduced-motion layouts and an explicit mailto draft form. See the release PR for CI and deployed validation evidence; historical City details above describe the previous homepage.
