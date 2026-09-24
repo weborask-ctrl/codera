@@ -122,7 +122,7 @@ figure{margin:0;position:relative}
 .frame img{width:100%;height:100%;object-fit:cover}
 .frame.obj img{object-fit:contain}
 .cap{margin-top:10px;display:flex;justify-content:space-between;gap:16px;align-items:baseline;
-  font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2)}
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2)}
 .band.moss .cap,.band.dusk .cap{color:rgba(243,238,227,.5)}
 
 /* ═══ split: stage sticks, text scrolls ═══════════════════════════════ */
@@ -202,7 +202,7 @@ figure{margin:0;position:relative}
 .index .nm{font-size:clamp(18px,1.5vw,23px);letter-spacing:-.01em}
 .index .pl{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
   color:var(--ink2)}
-.index .tg{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+.index .tg{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
   color:var(--ink2);text-align:right}
 /* the photo that follows the pointer. The script owns `transform` (it
    writes the pointer position every frame), so the box is anchored at the
@@ -227,7 +227,7 @@ figure{margin:0;position:relative}
 .svc{columns:3;column-gap:clamp(20px,3vw,56px);margin-top:clamp(34px,5vh,64px)}
 .svc div{break-inside:avoid;display:flex;gap:12px;align-items:baseline;padding:9px 0;
   border-bottom:1px solid var(--line2);font-size:16px}
-.svc i{font-family:var(--mono);font-size:10px;font-style:normal;letter-spacing:.08em;
+.svc i{font-family:var(--mono);font-size:10.5px;font-style:normal;letter-spacing:.08em;
   color:var(--ink2);width:20px;flex:none}
 
 /* ═══ the closing band ══════════════════════════════════ */
@@ -297,7 +297,7 @@ footer{background:var(--dusk);color:rgba(243,238,227,.72);padding:clamp(38px,5vh
 footer a:hover{color:var(--glow)}
 footer .big{font-family:var(--serif);font-size:clamp(21px,1.85vw,29px);line-height:1.25;
   color:#f3eee3;font-weight:300;max-width:20ch}
-.fcol h4{margin:0 0 14px;font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+.fcol h4{margin:0 0 14px;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
   text-transform:uppercase;color:rgba(243,238,227,.66);font-weight:400}
 .fcol div{padding:5px 0;font-size:15px}
 .fnav{display:flex;flex-direction:column;gap:2px}
@@ -476,7 +476,7 @@ h1 em,h2 em,h3 em{font-style:normal;color:var(--moss)}
 .ref figcaption{margin-top:22px;padding-top:16px;border-top:1px solid var(--line);
   display:flex;flex-direction:column;gap:5px}
 .ref figcaption b{font-weight:500;font-size:14px;letter-spacing:.02em}
-.ref figcaption span{font-family:var(--mono);font-size:10px;letter-spacing:.1em;
+.ref figcaption span{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
   text-transform:uppercase;color:var(--ink2)}
 
 /* about: the story beside the first house */
@@ -623,9 +623,9 @@ body[data-band="moss"] .pill.go,body[data-band="dusk"] .pill.go{background:var(-
 .poster{position:relative;width:100%;min-height:100svh;display:grid;
   grid-template-rows:auto auto auto auto auto;justify-items:center;align-content:center;
   padding:clamp(76px,8.5vh,108px) var(--gut) clamp(28px,4vh,52px);text-align:center}
-.poster h1{font-size:clamp(46px,9.2vw,148px);line-height:.92;letter-spacing:-.04em;margin:0;
+.poster h1,.poster .l2{font-size:clamp(46px,9.2vw,148px);line-height:.92;letter-spacing:-.04em;margin:0;font-weight:300;
   position:relative;z-index:1}
-.poster h1 em{font-style:normal;color:var(--moss)}
+.poster .l2 em{font-style:normal;color:var(--moss)}
 .poster .l1{margin-bottom:calc(-.22 * clamp(46px,9.2vw,148px))}
 .poster .l2{margin-top:calc(-.26 * clamp(46px,9.2vw,148px))}
 .poster .house{position:relative;z-index:2;width:min(42vw,calc((100svh - 452px) * 1.34));
@@ -642,7 +642,7 @@ body[data-band="moss"] .pill.go,body[data-band="dusk"] .pill.go{background:var(-
   color:var(--ink2)}
 .poster .ctas{margin-top:16px;justify-content:center;display:flex;flex-wrap:wrap;gap:12px}
 .poster .vz{position:absolute;right:var(--gut);bottom:22px;color:var(--ink2)}
-.vz{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2)}
+.vz{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2)}
 /* The type is the poster; the house is its guest. noomo.md (LIKED) sets an
    enormous headline first and passes the object THROUGH the letters — the
    object never withholds the words. This used to gate on `.built`, so the
@@ -691,7 +691,7 @@ h2.big em{font-style:normal;color:var(--moss)}
   .hright .pill:not(.go){display:none}
   .pill.go{display:none}
   .poster{padding-top:96px}
-  .poster h1{font-size:clamp(40px,11.5vw,64px)}
+  .poster h1,.poster .l2{font-size:clamp(40px,11.5vw,64px)}
   .poster .house{width:min(92vw,420px)}
   .poster .l1{margin-bottom:-8px}
   .poster .l2{margin-top:-8px}
@@ -717,7 +717,7 @@ h2.big em{font-style:normal;color:var(--moss)}
 .tag{position:absolute;top:0;opacity:0;transform:translateY(8px);
   transition:opacity .45s var(--ease),transform .45s var(--ease);pointer-events:none}
 .tag.on{opacity:1;transform:none}
-.tag b{display:block;font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.14em;color:var(--amber-ink)}
+.tag b{display:block;font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:.14em;color:var(--amber-ink)}
 .tag span{display:block;margin-top:4px;font-size:clamp(13px,1.05vw,16px);font-weight:500;letter-spacing:-.01em;line-height:1.2}
 .tag p{margin-top:6px;font-size:clamp(11.5px,.85vw,13px);line-height:1.4;color:var(--ink2)}
 .handle{display:flex;align-items:center;gap:20px;color:var(--ink2);transition:opacity .4s}
@@ -809,7 +809,7 @@ h2.big em{font-style:normal;color:var(--moss)}
   box-shadow:0 1px 3px rgba(35,31,26,.35)}
 .ln.on{transform:scaleX(1)}
 .ln i{position:absolute;right:0;top:-8px;display:block;padding:2px 6px;background:var(--paper);
-  color:var(--ink);font-family:var(--mono);font-size:9.5px;font-style:normal;letter-spacing:.1em;
+  color:var(--ink);font-family:var(--mono);font-size:10.5px;font-style:normal;letter-spacing:.1em;
   line-height:1.4;opacity:0;transition:opacity .4s var(--ease) .18s}
 .ln.on i{opacity:1}
 .plnotes{grid-area:notes;grid-row:1;position:relative}
@@ -818,7 +818,7 @@ h2.big em{font-style:normal;color:var(--moss)}
 .lv.on{opacity:1}
 .lv::before{content:"";position:absolute;left:0;top:50%;width:11px;height:1px;background:var(--moss)}
 .lv i{display:none}
-.lv b{display:block;font-family:var(--mono);font-size:9.5px;font-weight:500;letter-spacing:.14em;
+.lv b{display:block;font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:.14em;
   text-transform:uppercase;color:var(--amber-ink)}
 .lv em{display:block;margin-top:3px;font-style:normal;font-size:clamp(13px,1.02vw,15.5px);
   font-weight:400;line-height:1.3;letter-spacing:-.008em}
@@ -838,7 +838,7 @@ h2.big em{font-style:normal;color:var(--moss)}
 .svlinks a{display:flex;align-items:center;gap:14px;padding:15px 0;
   border-bottom:1px solid var(--line);transition:padding-left .35s var(--ease)}
 .svlinks a:hover{padding-left:10px}
-.svlinks i{font-family:var(--mono);font-size:10px;font-style:normal;letter-spacing:.08em;
+.svlinks i{font-family:var(--mono);font-size:10.5px;font-style:normal;letter-spacing:.08em;
   color:var(--ink2);width:22px;flex:none}
 .svlinks span{flex:1;font-size:17px}
 @media (max-width:980px){
@@ -858,7 +858,7 @@ h2.big em{font-style:normal;color:var(--moss)}
     border-top:1px solid var(--line)}
   .lv{position:static;transform:none;width:auto;padding:12px 0 0 0;opacity:1}
   .lv::before{display:none}
-  .lv i{display:inline;margin-right:8px;font-family:var(--mono);font-size:9.5px;
+  .lv i{display:inline;margin-right:8px;font-family:var(--mono);font-size:10.5px;
     font-style:normal;letter-spacing:.1em;color:var(--ink2)}
   .lv b{display:inline}
   .sttab{grid-template-columns:1fr}
@@ -932,9 +932,9 @@ h2.big em{font-style:normal;color:var(--moss)}
   width:calc(var(--w) * .70);background:none;border:0;padding:0;margin:0;cursor:pointer;
   color:rgba(243,238,227,.72);font:inherit;-webkit-tap-highlight-color:transparent}
 .vb i{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);font-family:var(--mono);
-  font-size:10px;font-style:normal;letter-spacing:.08em}
+  font-size:10.5px;font-style:normal;letter-spacing:.08em}
 .vb span{position:absolute;left:50%;bottom:44px;transform:translateX(-50%) rotate(180deg);
-  writing-mode:vertical-rl;font-family:var(--mono);font-size:10px;letter-spacing:.13em;
+  writing-mode:vertical-rl;font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;
   text-transform:uppercase;white-space:nowrap;transition:color .3s}
 .vb:hover,.vb.on,.vb:focus-visible{color:#fff}
 .vb:focus-visible{outline:1px solid var(--glow);outline-offset:-1px}
@@ -1020,7 +1020,7 @@ h2.big em{font-style:normal;color:var(--moss)}
 .svtoc a{padding:11px 0;border-bottom:1px solid var(--line2);font-size:clamp(15px,1.1vw,17px);
   letter-spacing:-.005em;transition:padding-left .3s var(--ease),color .3s}
 .svtoc a:hover{padding-left:8px;color:var(--moss)}
-.svtoc sup{margin-left:3px;font-family:var(--mono);font-size:9.5px;color:var(--amber-ink)}
+.svtoc sup{margin-left:3px;font-family:var(--mono);font-size:10.5px;color:var(--amber-ink)}
 .srows{border-top:1px solid var(--line)}
 .srow{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr) minmax(0,1fr);
   gap:clamp(20px,3vw,56px);align-items:start;padding:clamp(30px,5vh,54px) 0;
@@ -1115,7 +1115,7 @@ h2.big em{font-style:normal;color:var(--moss)}
 .jtext ul{list-style:none;margin:0;padding:0;border-top:1px solid var(--line2);max-width:420px}
 .jtext li{display:grid;grid-template-columns:118px minmax(0,1fr);gap:10px;padding:8px 0;
   border-bottom:1px solid var(--line2);font-size:15px;line-height:1.35}
-.jtext li .mono{font-size:10px;align-self:center}
+.jtext li .mono{font-size:10.5px;align-self:center}
 .jgo{display:inline-flex;align-items:center;gap:10px;margin-top:18px;color:var(--moss);font-weight:500;
   transition:gap .3s var(--ease)}
 .job:hover .jgo{gap:16px}
@@ -1152,7 +1152,7 @@ h2.big em{font-style:normal;color:var(--moss)}
 /* the film has a paper ground, not alpha: while it plays, the headline
    sits above the house (dark type on the same paper reads identically,
    and no line of the headline is ever covered) */
-.poster.filmed h1{position:relative;z-index:3}
+.poster.filmed h1,.poster.filmed .l2{position:relative;z-index:3}
 /* the closed house is lower and smaller than the exploded one: the still
    is framed the way the film ends — pushed in, centred between the lines */
 .house.still .still{transform:translateY(-29.5%) scale(1.3)}
@@ -1182,7 +1182,7 @@ h2.big em{font-style:normal;color:var(--moss)}
 .ol i{position:relative}
 .ol div{padding:0 12px;white-space:nowrap;opacity:0;transform:translateY(6px);
   transition:opacity .45s var(--ease) .2s,transform .45s var(--ease) .2s}
-.ol b{display:block;font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.14em;color:var(--amber-ink)}
+.ol b{display:block;font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:.14em;color:var(--amber-ink)}
 .ol span{display:block;font-size:clamp(16px,1.3vw,21px);letter-spacing:-.01em;line-height:1.2;margin-top:2px}
 .ol em{display:block;font-style:normal;font-size:clamp(12.5px,.95vw,14px);color:var(--ink2);margin-top:3px}
 .house.open .ol i{transform:none}
@@ -1205,7 +1205,7 @@ h2.big em{font-style:normal;color:var(--moss)}
   .house.open .ol::after{opacity:1}
   .olegend{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 14px;list-style:none;margin:10px 0 0;
     padding:0;font-size:13px;color:var(--ink2);opacity:0;transition:opacity .4s}
-  .olegend b{font-family:var(--mono);font-size:9.5px;color:var(--ink);margin-right:5px}
+  .olegend b{font-family:var(--mono);font-size:10.5px;color:var(--ink);margin-right:5px}
   .poster.opened .olegend{opacity:1}
 }
 @media (prefers-reduced-motion:reduce){ .olabels,.olegend{display:none} }
@@ -1284,3 +1284,6 @@ h2.big em{font-style:normal;color:var(--moss)}
 @media (prefers-reduced-motion:reduce){
   .street{overflow-x:auto}
 }
+
+/* visually hidden, still read: the hero headline is ONE h1 split around the house */
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
