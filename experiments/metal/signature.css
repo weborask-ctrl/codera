@@ -1,7 +1,7 @@
 /* Codera: a generous curve with a precise terminal. Native scroll throughout. */
 :root{--curve:48px;--corner-shape:superellipse(1.35);--surface:#f7f5ef;--gold:#d8c3a2}
 .journey.has-journey{height:700svh!important}
-.tunnel-fade{position:absolute;inset:0;opacity:0;pointer-events:none;background:radial-gradient(ellipse at 56% 48%,#d9bb86 0%,#7f6545 48%,#28231c 100%)}
+.tunnel-fade{position:absolute;inset:0;opacity:0;pointer-events:none;background:radial-gradient(ellipse at 56% 48%,#29221a 0%,#1b1915 48%,#151513 100%)}
 .work{border-radius:clamp(48px,8vw,130px) 0 0 0;padding-top:100px;padding-bottom:90px}
 .project-grid{gap:26px;max-width:1120px;margin-inline:auto;isolation:isolate}
 .project,.project:nth-child(even),.project-5{position:sticky;top:24px;padding:26px;background:var(--surface);border:1px solid #24242012;border-radius:var(--curve) 12px var(--curve) var(--curve);box-shadow:0 -8px 32px #25241e0a;min-width:0}
@@ -85,7 +85,7 @@
 /* Local refinement: one aligned composition and a frame derived from the C ribbon. */
 .visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
 .section-heading,.studio-intro,.contact-top{display:grid;grid-template-columns:minmax(0,1.618fr) minmax(0,1fr);gap:clamp(28px,4vw,64px);align-items:center;max-width:1440px;margin-inline:auto}
-.section-heading h2,.studio-intro h2,.contact-top h2{font-size:clamp(56px,7.1vw,124px);line-height:1.04;letter-spacing:-.042em;font-weight:600}
+.section-heading h2,.studio-intro h2,.contact-top h2{font-size:clamp(46px,4.8vw,72px);line-height:1.12;letter-spacing:-.025em;font-weight:700}
 .section-heading>p,.studio-intro>p,.contact-top>p{font-size:clamp(22px,1.9vw,29px);line-height:1.45;letter-spacing:-.025em;max-width:27ch;padding:0;margin:0;justify-self:start;text-wrap:pretty}
 .work .section-heading{margin-bottom:64px}
 .project-grid{--frame-gap:clamp(12px,1.4vw,22px);--preview-radius:clamp(18px,2.2vw,32px);--preview-cut:clamp(12px,1.1vw,16px);max-width:min(1400px,calc((100svh - 180px)*1.6 + var(--frame-gap)*2));gap:36px}
@@ -112,7 +112,7 @@
 .offers{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
 .offer,.offer+.offer,.offer:last-child{padding:42px;display:flex}
 .offer:last-child{background:#d8c3a2}
-.offer h3{font-size:clamp(42px,4.1vw,66px)}
+.offer h3{font-size:clamp(36px,3.1vw,48px)}
 .offer-audience{min-height:64px;max-width:480px;font-size:21px}
 .offer-price{font-size:clamp(64px,6.5vw,102px)}
 .offer-price>span{font-size:24px}
@@ -126,14 +126,12 @@
 .footer-wordmark{font-synthesis:none;text-rendering:geometricPrecision;-webkit-font-smoothing:auto;transform:none;filter:none}
 .footer-wordmark img{width:80%;height:auto}
 .hero-beat h1,.hero-beat h2,.section-heading h2,.studio-intro h2,.contact-top h2{font-synthesis:none;text-rendering:geometricPrecision;text-shadow:none;filter:none}
-.hero-beat h1{font-size:clamp(64px,min(10.8vw,17svh),200px);line-height:1.02;font-weight:600}
-.hero-beat h2{font-size:clamp(56px,min(9.2vw,14.8svh),168px);line-height:1.04;font-weight:600}
+.hero-beat h1,.hero-beat h2{font-size:clamp(56px,min(7.4vw,13svh),120px);line-height:1.1;font-weight:700;letter-spacing:-.025em}
 @media(max-width:1000px){.offers{grid-template-columns:1fr}.offer-audience{min-height:0}.offer-price{text-align:left}.offer,.offer+.offer,.offer:last-child{padding:36px}.offer h3{font-size:48px}}
 @media(max-width:700px){
- .hero-beat h1{font-size:clamp(44px,min(14vw,11svh),88px)}
- .hero-beat h2{font-size:clamp(46px,min(13vw,10.5svh),82px)}
+ .hero-beat h1,.hero-beat h2{font-size:clamp(40px,min(11.8vw,9svh),64px)}
  .section-heading,.studio-intro,.contact-top{grid-template-columns:1fr;gap:24px;align-items:start}
- .section-heading h2,.studio-intro h2,.contact-top h2{font-size:clamp(46px,12vw,80px)}
+ .section-heading h2,.studio-intro h2,.contact-top h2{font-size:clamp(38px,10vw,52px)}
  .section-heading>p,.studio-intro>p,.contact-top>p{font-size:21px;max-width:32ch;justify-self:start}
  .work .section-heading{margin-bottom:36px}
  .project-grid{max-width:100%;gap:28px}
@@ -144,7 +142,7 @@
  .proposal{padding-block:38px}.proposal-time{font-size:clamp(90px,29vw,125px);gap:10px}.proposal-time .proposal-unit{font-size:30px}
  .project-dialog{width:96%;height:96svh;max-height:96svh;padding:10px;border-radius:30px 10px 30px 14px}
  .preview-toolbar{padding:8px 8px 14px;gap:8px 12px}.preview-toolbar h2{font-size:22px}
- .offer,.offer+.offer,.offer:last-child{padding:28px}.offer h3{font-size:clamp(36px,10.8vw,42px)}.offer-price{font-size:76px}
+ .offer,.offer+.offer,.offer:last-child{padding:28px}.offer h3{font-size:clamp(32px,9.5vw,40px)}.offer-price{font-size:clamp(52px,16vw,76px)}
  .offer-audience{font-size:20px}
 }
 @media(max-height:620px) and (min-width:701px){.project-grid{max-width:1100px}}
@@ -165,11 +163,16 @@
   corner-shape:var(--corner-shape);
  }
 }
-.hero-beat em,.section-heading h2 em,.studio h2 em,.contact h2 em{letter-spacing:-.035em}
+h1 em,h2 em,h3 em{font:inherit;letter-spacing:inherit}
+.hero-beat em,.section-heading h2 em,.studio h2 em,.contact h2 em{letter-spacing:inherit}
+.offer h3,.proposal h3,.process h3,.wordpress-line h3{font-weight:700;letter-spacing:-.025em;line-height:1.15}
+.wordpress-line h3{font-size:clamp(38px,3.8vw,56px)}
+.proposal h3,.process h3{font-size:clamp(30px,2.5vw,38px)}
+.section-heading>p,.studio-intro>p,.contact-top>p{letter-spacing:0;font-size:clamp(20px,1.6vw,24px);line-height:1.5}
 .proposal-time .proposal-unit{font-weight:500}
 /* Keep the longer sans-serif lines intact without compressing letter shapes. */
 .hero-beat h1,.hero-beat h2{max-width:100%}
 .section-heading h2,.studio-intro h2,.contact-top h2{min-width:0}
 @media(min-width:701px) and (max-width:1100px){
- .section-heading h2,.studio-intro h2,.contact-top h2{font-size:clamp(48px,6.5vw,72px)}
+ .section-heading h2,.studio-intro h2,.contact-top h2{font-size:clamp(42px,4.8vw,56px)}
 }

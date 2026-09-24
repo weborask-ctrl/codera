@@ -60,3 +60,7 @@ Marcus removed the pointer-driven camera effect: keep the film stationary under 
 ## Approved Silver finish — 2026-09-24
 
 Marcus selected typography C: one Geist voice, no repeated italic headline treatment. A and B are rejected. Apple is a reference for precision, not permission to redistribute SF Pro. Use restrained superellipse geometry with a rounded fallback and 1.618:1 heading/copy proportions where the real content benefits; mobile stays single-column. Preserve the approved content, video story, palette, complete framed previews and 499/699 pricing. Implementation and merge were explicitly authorized. Detailed decisions and media limits: docs/CODERA_SILVER_FINISH.md.
+
+## Simpler typography candidate — 2026-09-24
+
+Marcus requested one simple, consistent typographic voice inspired by Coca-Cola.com, with no contrasting headline-line styles. This supersedes the previous maximal heading scale: keep headings prominent, but use calmer sizes, consistent bold weight and natural spacing. Montserrat is the implemented, openly licensed alternative to bespoke TCCC Unity for this release. It is a candidate awaiting Marcus's visual evaluation, not an approved permanent font for the Codera bible. Preserve the existing logo and SVG wordmark. See docs/CODERA_UNIFIED_TYPE.md. Merge was explicitly requested.

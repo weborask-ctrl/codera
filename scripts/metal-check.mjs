@@ -143,10 +143,13 @@ try {
   report.measurements.wheelPresentedFrames=wheel.frames;passed('Native wheel presents multiple intermediate video frames');
   await scrollProgress(.33);assert(await page.locator('.beat-detail').isVisible());assert.equal(await page.locator('.beat-detail').getAttribute('aria-hidden'),'false');await page.screenshot({path:resolve(out,'desktop-introduction.png')});passed('Codera introduction appears during the approach');
   await scrollProgress(.59);assert.equal(await page.locator('.hero-beat[aria-hidden="false"]').count(),0);assert.equal(await page.locator('.hero-beat:visible').count(),0);passed('Camera flight has a clear interval without text');
-  await scrollProgress(.48);await page.screenshot({path:resolve(out,'desktop-motion.png')});
+    await scrollProgress(.415);
+    assert(await page.locator('.tunnel-fade').evaluate(el=>Number(getComputedStyle(el).opacity)>.95));passed('Fade covers the source cut before revealing the tunnel');
+    await scrollProgress(.48);await page.screenshot({path:resolve(out,'desktop-motion.png')});
   assert(await page.locator('.tunnel-fade').evaluate(el=>Number(getComputedStyle(el).opacity)>.1));
   const forward=await page.locator('video').evaluate(v=>v.currentTime+window.__coderaMotion.mediaOffset);assert(forward>6);
-  await scrollProgress(.18);const reverse=await page.locator('video').evaluate(v=>v.currentTime+window.__coderaMotion.mediaOffset);assert(reverse<forward-2);passed('Native forward and reverse video seeking');
+    await scrollProgress(.415);assert(await page.locator('.tunnel-fade').evaluate(el=>Number(getComputedStyle(el).opacity)>.95));
+    await scrollProgress(.18);const reverse=await page.locator('video').evaluate(v=>v.currentTime+window.__coderaMotion.mediaOffset);assert(reverse<forward-2);assert(await page.locator('.tunnel-fade').evaluate(el=>Number(getComputedStyle(el).opacity)<.01));passed('Native forward and reverse video seeking with reversible fade');
   await scrollProgress(.93);await page.screenshot({path:resolve(out,'desktop-arrival.png')});
   assert(await page.locator('.tunnel-fade').evaluate(el=>Number(getComputedStyle(el).opacity)<.01));passed('Warm transition clears for the final sharp composition');
   assert.equal(await page.locator('.beat-arrival').getAttribute('aria-hidden'),'false');await page.locator('.beat-arrival a').click();await page.waitForFunction(()=>Math.abs(document.querySelector('#praca').getBoundingClientRect().top)<2);passed('Final video composition leads directly to portfolio');
