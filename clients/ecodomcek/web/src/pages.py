@@ -755,11 +755,18 @@ def build(B):
   </div>
   <div class="stack" aria-hidden="true">{stack}</div>
 </div>''')
+    # the motto's own pun, drawn: one root, two endings (pangram.md: the
+    # word owns the frame). The words are theirs; the sentence below says
+    # it in full, so the diagram is aria-hidden.
+    root = '''<div class="root fade d2" aria-hidden="true"><b>EKO</b>
+    <span><i>logicky</i><small>je správne</small></span>
+    <span><i>nomicky</i><small>je výhodné</small></span></div>'''
     about += section(2, "Motto", "sand", f'''<div class="wrap motto" data-reveal>
-  <blockquote class="fade d1">{lines("Čo je <em>eko</em>logické,|je aj ekonomické.")}</blockquote>
+  <div><blockquote class="fade d1">{lines("Čo je <em>eko</em>logické,|je aj ekonomické.")}</blockquote>
   <p class="sig fade d2">V dnešnej dobe je moderné byť „eko“, aj keď mnohokrát sa skutočný význam
     tohto slova stráca. Budeme radi, keď vás naša práca presvedčí, že to nie je iba prázdna
-    fráza. Že správať sa a žiť EKOlogicky je správne a rozmýšľať EKOnomicky výhodné.</p>
+    fráza. Že správať sa a žiť EKOlogicky je správne a rozmýšľať EKOnomicky výhodné.</p></div>
+  {root}
 </div>''')
     about += section(3, "Zákaznícke vyjadrenia", "paper", f'''<div class="wrap" data-reveal>
   <h2 style="margin:18px 0 40px;max-width:16ch">{lines("Ľudia, ktorým sme|už <em>stavali</em>.")}</h2>
