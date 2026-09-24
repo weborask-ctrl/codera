@@ -93,3 +93,18 @@ logo v krivkách. Potvrdiť: chráni EcoDomček drevo bóraxom (na starom webe l
 `node src/shots.cjs realizacie.html sluzby.html …` nad `python3 -m http.server 8811
 --directory dist` (potrebuje `NODE_PATH=/opt/node22/lib/node_modules`). Na úvode
 `?sec=0&step=3&p=0.66` ukáže konkrétny stav hera.
+
+## Úvodný film (fal.ai) — pripravené, negenerované
+
+`src/fal_hero.py` potrebuje `FAL_KEY` v nastaveniach prostredia. Tri kroky, každý nanajvýš
+jedna platená úloha:
+
+1. `close` — FLUX Kontext (`fal-ai/flux-pro/kontext`) zavrie dom v tej istej kamere →
+   `renders/fal/end-closed.jpg`. Dôvod: vrstvy sú vyrezané z rozloženého renderu, takže ani
+   poskladané sa nedotknú a video model nemá k čomu dosadnúť (tak zlyhal MiniMax H3).
+2. `check` — zadarmo: základová doska sa nesmie pohnúť, šírka domu sa nesmie zmeniť, dom
+   musí byť nižší. Len PASS pustí ďalej.
+3. `film` — Kling v3 Pro (`fal-ai/kling-video/v3/pro/image-to-video`, `start_image_url` +
+   `end_image_url`, 5 s, bez zvuku) → `renders/fal/hero.mp4`.
+
+`renders/fal/start-exploded.jpg` je zložený z tých istých `lyr-*.webp`, ktoré používa web.
