@@ -801,7 +801,7 @@ def build(B):
       <div class="slabs" style="aspect-ratio:{WL["W"]}/{WL["H"]}">{slabs}</div>
       <div class="tags">{tags}</div>
       <p class="tagdesc"></p>
-      <div class="handle mono" aria-hidden="true"><i></i>Ťahajte doprava — alebo scrollujte</div>
+      <div class="handle mono" aria-hidden="true"><i></i><span class="h-wide">Ťahajte doprava — alebo scrollujte</span><span class="h-drag">Ťahajte doprava</span><span class="h-rm">Ťahajte doľava — stena sa zloží</span></div>
       <div class="wallbar">
         <span class="mono">zvonku</span>
         <div class="meter"><b></b></div>

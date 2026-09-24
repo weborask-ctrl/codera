@@ -796,13 +796,16 @@ h2.big em{font-style:normal;color:var(--moss)}
 .sheet h1 .rl>span{white-space:normal}
 .scol{position:relative;z-index:1;min-width:0;display:flex;flex-direction:column;
   justify-content:flex-end;height:100%;
-  padding-bottom:calc(clamp(96px,19vw,300px) * .74 + 44px + clamp(14px,2.4vh,30px))}
+  padding-bottom:calc(clamp(96px,16.7vw,264px) * .74 + 44px + clamp(14px,2.4vh,30px))}
 .shot{font-size:clamp(15px,1.15vw,17.5px);line-height:1.45;color:var(--ink2);
   max-width:30ch;margin-bottom:clamp(20px,4vh,46px)}
 /* the numeral: the file number of the sheet, flush to the paper's edge */
 /* the numeral is free of the column grid, so it always runs under the
    plate — the layering is structural, not a lucky measurement */
-.syr{--yrs:clamp(96px,19vw,300px);
+/* sized so the plate (which starts 32.4 vw into the column) covers at
+   most a third of the last digit — at 19 vw a narrow "1" vanished and
+   2021 read "202" */
+.syr{--yrs:clamp(96px,16.7vw,264px);
   position:absolute;left:-.055em;bottom:calc(44px - .1em);z-index:1;
   font-family:var(--serif);font-weight:200;font-size:var(--yrs);
   line-height:.74;letter-spacing:-.055em;color:var(--ink);white-space:nowrap}
@@ -1307,3 +1310,17 @@ h2.big em{font-style:normal;color:var(--moss)}
 
 /* visually hidden, still read: the hero headline is ONE h1 split around the house */
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+/* reduced motion: the wall is shown fully spread and does not move with
+   the scroll, so it must not keep a 280svh scroll track — that was
+   1.8 screens of empty paper under a still image */
+@media (prefers-reduced-motion:reduce){
+  .walltrack{height:auto}
+  .wallstage{position:relative;height:auto;min-height:100svh}
+}
+
+/* the hint says only what works here: scroll moves the wall on desktop,
+   phones drag, reduced motion starts open and drags closed */
+.handle .h-drag,.handle .h-rm{display:none}
+@media (max-width:820px){ .handle .h-wide{display:none} .handle .h-drag{display:inline} }
+@media (prefers-reduced-motion:reduce){ .handle .h-wide,.handle .h-drag{display:none} .handle .h-rm{display:inline} }

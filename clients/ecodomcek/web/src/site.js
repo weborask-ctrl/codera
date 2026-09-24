@@ -296,10 +296,12 @@
     }
     function set(v, now) {
       target = Math.max(0, Math.min(1, v));
-      if (now) { cur = target; }
+      if (now || reduce) { cur = target; }             // reduced motion: the wall follows the hand, no glide
       if (!raf) raf = requestAnimationFrame(render);
     }
-    if (reduce) { target = cur = 1; render(); return; }
+    // reduced motion: it opens fully spread (the layout) and moves only
+    // under the hand or the arrow keys — never with the scroll, never by itself
+    if (reduce) { scrollS = 1; target = cur = 1; render(); }
 
     // drag
     var px = 0, dragging = false;
@@ -321,7 +323,7 @@
       if (e.key === 'ArrowLeft') { dragOff -= .1; set(scrollS + dragOff); wrap.classList.add('touched'); }
     });
     // scroll (desktop: the stage is sticky inside a 280svh track)
-    if (wide()) {
+    if (wide() && !reduce) {
       track(ScrollTrigger.create({
         trigger: wrap, start: 'top top', end: 'bottom bottom', scrub: true,
         onUpdate: function (self) {
@@ -332,7 +334,7 @@
       }));
     }
     // the invitation: the wall breathes open once, then waits
-    tweens.push(gsap.to({ v: 0 }, { v: .14, duration: 1.1, delay: .9, ease: 'power2.inOut', yoyo: true, repeat: 1,
+    if (!reduce) tweens.push(gsap.to({ v: 0 }, { v: .14, duration: 1.1, delay: .9, ease: 'power2.inOut', yoyo: true, repeat: 1,
       onUpdate: function () {
         if (pinned || wrap.classList.contains('touched')) return;
         set(this.targets()[0].v);
