@@ -58,6 +58,7 @@
     initVapour();
     initForm();
     initStory();
+    initStreet();
     initMarks();
     ScrollTrigger.refresh();
   }
@@ -242,10 +243,10 @@
     }
     var drift = { roof: -14, upper: -8, ground: -3, base: 2 };
     order.forEach(function (n) {
-      tweens.push(gsap.to(L[n], { y: function () { return innerHeight * drift[n] / 100; }, ease: 'none',
-        scrollTrigger: track(ScrollTrigger.create({
+      track(tweens[tweens.push(gsap.to(L[n], { y: function () { return innerHeight * drift[n] / 100; }, ease: 'none',
+        scrollTrigger: {
           trigger: poster, start: 'top top', end: 'bottom top', scrub: .4, invalidateOnRefresh: true
-        })) }));
+        } })) - 1].scrollTrigger);
     });
   }
   var houseTl = null, pendingPlay = null, pendingTypeset = null;
@@ -341,22 +342,22 @@
   function initParallax() {
     if (reduce) return;
     main.querySelectorAll('[data-par] img').forEach(function (img) {
-      tweens.push(gsap.fromTo(img, { yPercent: -3.5, scale: 1.07 }, {
+      track(tweens[tweens.push(gsap.fromTo(img, { yPercent: -3.5, scale: 1.07 }, {
         yPercent: 3.5, scale: 1.07, ease: 'none',
-        scrollTrigger: track(ScrollTrigger.create({
+        scrollTrigger: {
           trigger: img.closest('figure'), start: 'top bottom', end: 'bottom top', scrub: .5
-        }))
-      }));
+        }
+      })) - 1].scrollTrigger);
     });
     // stacked project plates drift at different speeds — depth without 3D
     main.querySelectorAll('[data-drift]').forEach(function (el) {
       var amt = parseFloat(el.dataset.drift) || 6;
-      tweens.push(gsap.fromTo(el, { yPercent: amt }, {
+      track(tweens[tweens.push(gsap.fromTo(el, { yPercent: amt }, {
         yPercent: -amt, ease: 'none',
-        scrollTrigger: track(ScrollTrigger.create({
+        scrollTrigger: {
           trigger: el.parentElement, start: 'top bottom', end: 'bottom top', scrub: .6
-        }))
-      }));
+        }
+      })) - 1].scrollTrigger);
     });
   }
 
@@ -606,6 +607,20 @@
         }
       }));
     });
+  }
+
+  // ── úvod: the street walks sideways as you scroll (desktop) ──────────
+  function initStreet() {
+    var st = main.querySelector('[data-street]');
+    if (!st || reduce || !wide()) return;
+    var tr = st.querySelector('.strack');
+    function dist() { return Math.max(0, tr.scrollWidth - innerWidth); }
+    // one tween, one trigger: a ScrollTrigger instance handed to gsap.to()
+    // is turned into a second trigger — two pins fighting over one element
+    var tw = gsap.to(tr, { x: function () { return -dist(); }, ease: 'none',
+      scrollTrigger: { trigger: st, start: 'center center', end: function () { return '+=' + dist(); },
+        pin: true, scrub: .5, invalidateOnRefresh: true, anticipatePin: 1 } });
+    tweens.push(tw); track(tw.scrollTrigger);
   }
 
   // ── the running index: which act am I in ─────────────────────────────

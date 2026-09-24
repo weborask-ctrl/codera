@@ -70,6 +70,29 @@ def open_labels():
     return f'<div class="olabels">{out}</div>'
 
 
+def street():
+    """The eight jobs on one ground line, 2008 → 2024, as they were built:
+    a house stands taller than a terrace, the job without a photograph is
+    an empty lot. Photos keep their own aspect and never exceed their source."""
+    import html as _h
+    out = ""
+    for p in sorted(C.PROJECTS, key=lambda q: (q["year"], q["slug"])):
+        house = "Dom" in p["tags"]
+        h = 400 if house else 300
+        src = photo_src(p)
+        if src:
+            w, hh = SHOTS[p["photo"]]
+            h = min(h, hh)
+            pic = (f'<img src="{src}" alt="{_h.escape(p["shot"])}" loading="lazy" decoding="async" '
+                   f'style="height:{h}px;--h:{h}px;aspect-ratio:{w}/{hh}">')
+        else:
+            pic = f'<span class="lot" style="height:{h}px;--h:{h}px"><i>Fotografiu doplní EcoDomček</i></span>'
+        out += (f'<a class="house-lot" href="realizacia-{p["slug"]}.html">{pic}'
+                f'<span class="cap"><span class="yr">{p["year"]}</span><b>{_h.escape(title_of(p))}</b>'
+                f'<span class="where">{_h.escape(p["place"])}</span></span></a>')
+    return out
+
+
 def title_of(p):
     return p.get("short", p["title"])
 
@@ -253,22 +276,13 @@ def build(B):
     <img src="assets/beat4.jpg" alt="Rez stenou — vizualizácia" loading="lazy">
     <span class="vz mono">vizualizácia</span>
   </a>
-</div>''') + section(3, "Realizácie", "paper", f'''<div class="wrap" data-reveal>
-  <a class="feature" href="realizacia-2024-lucina.html">
-    <figure data-par>
-      <div class="frame clipimg" style="aspect-ratio:21/9">
-        <img src="assets/hero.jpg" alt="Rodinný dom Lúčina — vizualizácia" loading="lazy"></div>
-    </figure>
-    <div class="fmeta">
-      <h2 class="fade">Moderný dizajnový dom, Lúčina 2024 {ARROW}</h2>
-      <p class="fade d2">Drevená fasáda v rhombus profile s kompaktnými doskami Fundermax.
-        Stojí v našej dedine — vidíme naň z dvora. <span class="vz">vizualizácia</span></p>
-    </div>
-  </a>
-  <h2 class="big fade" style="margin-top:clamp(50px,8vh,110px)">{lines("Začalo to|vlastným domčekom.")}</h2>
-  {project_index()}
-  <div class="more fade d3">{btn("Všetkých osem realizácií", "realizacie.html")}</div>
-</div>''') + section(4, "Vyjadrenie", "sand", f'''<div class="wrap" data-reveal>
+</div>''') + section(3, "Ulica", "paper", f'''<div class="wrap streethead" data-reveal>
+  <h2 class="big fade">{lines("Začalo to|vlastným <em>domčekom</em>.")}</h2>
+  <p class="lead fade d2">Osem stavieb od roku 2008, zoradených tak, ako pribúdali. Každá je skutočná
+    fotografia — okrem garáže, ktorú zatiaľ nemáme nafotenú.</p>
+</div>
+<div class="street" data-street><div class="strack">{street()}</div></div>
+<div class="wrap"><div class="more">{btn("Všetkých osem realizácií", "realizacie.html")}</div></div>''') + section(4, "Vyjadrenie", "sand", f'''<div class="wrap" data-reveal>
   {testimonials(pick=1, giant=True)}
 </div>''') + section(5, "Ako to ide", "paper", f'''<div class="wrap" data-reveal>
   <h2 class="big fade">{lines("Od prvého telefonátu|po kolaudáciu.")}</h2>
