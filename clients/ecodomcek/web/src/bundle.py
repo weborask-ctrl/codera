@@ -42,6 +42,20 @@ def main() -> None:
     # router in bundle mode: templates instead of fetch, hash instead of pushState
     js = js.replace("  var cache = {}, busy = false;", """  var cache = {}, busy = false;
   var BUNDLE = !!document.querySelector('template[data-file]');
+  // every image exists ONCE in the file: live images carry their data URI
+  // and name it (data-a), the rest sit in window.__A; templates only hold
+  // '#a:name' tokens, resolved when a page is taken out of its template
+  var A = window.__A || {};
+  document.querySelectorAll('[data-a]').forEach(function (i) { A[i.dataset.a] = i.getAttribute('src'); });
+  function fillAssets(root) {
+    root.querySelectorAll('[src^="#a:"],[data-thumb^="#a:"]').forEach(function (e) {
+      ['src', 'data-thumb'].forEach(function (k) {
+        var v = e.getAttribute(k);
+        if (v && v.indexOf('#a:') === 0) e.setAttribute(k, A[v.slice(3)] || '');
+      });
+    });
+  }
+  if (BUNDLE) fillAssets(document);
   function fromTemplate(url) {
     var file = url.pathname.split('/').pop() || 'index.html';
     if (url.hash && /^#p\\//.test(url.hash)) file = url.hash.slice(3);
@@ -51,6 +65,7 @@ def main() -> None:
     var d = doc.createElement('meta'); d.setAttribute('name', 'description');
     d.setAttribute('content', t.dataset.desc || ''); doc.head.appendChild(d);
     doc.body.appendChild(t.content.cloneNode(true));
+    fillAssets(doc.body);
     return doc;
   }""")
     js = js.replace("""  function fetchPage(url) {
@@ -98,12 +113,15 @@ def main() -> None:
     js = js.replace("    if (samePage(url) && url.hash) return;          // anchors scroll normally",
                     "    if (!BUNDLE && samePage(url) && url.hash) return;   // anchors scroll normally")
 
-    templates = ""
+    ASSET = r'assets/([A-Za-z0-9_.\-]+\.(?:jpg|jpeg|png|webp|svg))'
+    templates, used = "", set()
     for p in pages:
         html = p.read_text(encoding="utf-8")
         title = re.search(r"<title>(.*?)</title>", html, re.S).group(1)
         desc = re.search(r'<meta name="description" content="(.*?)">', html).group(1)
         mainm = re.search(r"(<main id=\"main\".*?</main>)", html, re.S).group(1)
+        used.update(re.findall(ASSET, mainm))
+        mainm = re.sub(ASSET, lambda m: "#a:" + m.group(1), mainm)
         templates += (f'<template data-file="{p.name}" data-title="{title}" data-desc="{desc}">'
                       f"{mainm}</template>\n")
 
@@ -114,8 +132,18 @@ def main() -> None:
     out = out.replace('<script src="assets/site.js"></script>', f"<script>{js}</script>")
     out = out.replace('<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">',
                       f'<link rel="icon" href="{data_uri("favicon.svg")}" type="image/svg+xml">')
+    # the live page: each <img> keeps its data URI and says which asset it is
+    live_m = re.search(r"<main id=\"main\".*?</main>", out, re.S)
+    live = live_m.group(0)
+    live_src = set(re.findall(r'src="' + ASSET, live))
+    live = re.sub(r'src="' + ASSET, lambda m: f'data-a="{m.group(1)}" src="assets/{m.group(1)}', live)
+    live = re.sub(r'data-thumb="' + ASSET, lambda m: f'data-thumb="#a:{m.group(1)}', live)
+    used.update(re.findall(r'#a:([A-Za-z0-9_.\-]+)', live))
+    out = out[:live_m.start()] + live + out[live_m.end():]
+    amap = ",".join(f'"{n}":"{data_uri(n)}"' for n in sorted(used - live_src))
     out = out.replace("</main>", "</main>\n" + templates, 1)
     out = inline_assets(out)
+    out = out.replace("<script>" + js, f"<script>window.__A={{{amap}}};</script>\n<script>" + js, 1)
     OUT.write_text(out, encoding="utf-8")
     print(f"{OUT.name}: {OUT.stat().st_size / 1024 / 1024:.1f} MB, {len(pages)} pages bundled")
 

@@ -8,8 +8,10 @@ python3 src/build.py
 python3 -m http.server 8080 --directory dist     # http://localhost:8080/
 ```
 
-Jeden súbor na stiahnutie: `python3 src/bundle.py` → `dist/ecodomcek.html` (5,9 MB, všetky
-stránky ako `<template>`, router na hash, funguje z `file://`).
+Jeden súbor na stiahnutie: `python3 src/bundle.py` → `dist/ecodomcek.html` (2,7 MB, všetky
+stránky ako `<template>`, router na hash, funguje z `file://`). Každý obrázok je v súbore raz:
+živá stránka nesie data URI s menom (`data-a`), ostatné sú v `window.__A` a šablóny majú len
+tokeny `#a:meno`. Písma idú z Google Fonts — bez internetu padne na systémové písmo.
 
 Publikované: https://claude.ai/code/artifact/ec635947-fb5c-4b60-91e2-41bc54e1c3c9
 
@@ -32,8 +34,8 @@ Publikované: https://claude.ai/code/artifact/ec635947-fb5c-4b60-91e2-41bc54e1c3
 | `stena.html` | **5D stena**: sedem vrstiev z Higgsfield renderu (`renders/wall-b.png` → `wall-*.webp`), ktoré sa ťahom, scrollom alebo šípkami roztiahnu; každá vrstva dostane meno a jednu vetu, meter zvonku → dnu |
 | `realizacie.html` | filtre s reálnymi počtami · veľký rám nesie vizualizácia (označená) · osem rovnakých štvorcových kariet — fotka sa nikdy nezobrazí väčšia, než je |
 | `realizacia-*.html` ×8 | **stavebný list**: obria číslica roka, ktorá beží za doskou · doska sa po príchode vyvolá zdola nahor a vytlačí okótované úrovne (vlastné `specs` projektu) · hairline tabuľka faktov + služby, ktoré na stavbe boli · citát stavbyvedúceho vo veľkom so zoznamom realizácií z rovnakej kategórie · pager; Lúčina má navyše vizualizačný blok |
-| `sluzby.html` | sticky lišta 01–12 + dvanásť riadkov s klientovými textami; pieskové prerušenie pred Konzultáciami |
-| `technologia.html` | machový masthead · rozložený dom + legenda · skladba steny (tabuľka je hrdina) · tri interiéry |
+| `sluzby.html` | **register s dôkazmi**: obsah v mastheade (počty len tam, kde máme dôkaz) · pri každej službe klientov háčik serifom, názov groteskom, jeho text a realizácie, kde ju naozaj robil (na mobile posun prstom); služba bez dôkazu nesie jeho hlas vo väčšom · Konzultácie majú telefón priamo v riadku |
+| `technologia.html` | **prečo tomu veriť**: klientova vlastná pochybnosť + 200+ rokov v USA a Kanade · živý rez stenou, ktorým para tečie z izby von (hover/ťuk na vrstvu = jej veta; na mobile otočený) · „V lete chladí, v zime je teplučký“ cez dve vizualizácie · register materiálov s odkazmi na stavby · motto |
 | `o-nas.html` | jednostĺpcová esej v serife s rokmi na okraji · motto · dve vyjadrenia ako hairline riadky · prvotina |
 | `kontakt.html` | začína v súmraku, prechádza do papiera; formulár + údaje |
 
@@ -69,7 +71,7 @@ Originály fotiek z WordPressu (Médiá → pôvodný súbor) alebo `wp-content/
 fotky garáže 2019; ku každej stavbe celok + detail + priebeh; interiér a hotový
 exteriér Lúčiny; pôdorysy Lúčiny + súhlas majiteľa; hrúbky vrstiev a U-hodnota;
 vyjasniť „difúzne otvorená" vs. „uzatvorená"; zvyšné 4 referencie so súhlasom;
-logo v krivkách.
+logo v krivkách. Potvrdiť: chráni EcoDomček drevo bóraxom (na starom webe len obrázková dlaždica — z webu sme to stiahli)? Je Roman Chovanec aj stavbyvedúci, alebo len konateľ (dnes píšeme len konateľ)? Vyrábajú sa steny v hale, alebo na stavbe (veta o hale bola vymyslená a je preč)?
 
 ## Testovanie
 

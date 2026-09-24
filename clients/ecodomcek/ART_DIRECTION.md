@@ -530,3 +530,76 @@ vlastný zdroj; doska sa dokresľuje na všetkých ôsmich detailoch
 list, `reducedMotion: 'reduce'` dáva hotovú kresbu, konzola čistá.
 Jeden súbor `dist/ecodomcek.html` (7,4 MB) overený z `file://` vrátane
 detailu. Reálny mobil a Safari NOT VALIDATED.
+
+---
+
+## Fáza 9 — Technológia a Služby (2026-09-24)
+
+Ondrej: „kde navrhuješ pokračovať, čo vylepšiť a opraviť" → vybral
+Technológiu + Služby. Audit pred dizajnom našiel najprv **vecné chyby
+v texte, ktoré som tam dal ja**:
+
+- `technologia.html`: „Steny a stropy vznikajú v hale, na presných
+  strojoch a pod strechou" — v klientovom obsahu nie je. Preč.
+- `stena.html`: „drevo chránime bóraxovou soľou" — odvodené len z
+  obrázkovej dlaždice starého webu. Preč; zateplenie prepísané podľa
+  jeho textu Zateplíme (drevné vlákno *alebo* minerálna vata).
+- detaily realizácií: podpis „stavbyvedúci" — overená je len funkcia
+  konateľ. Opravené.
+- `services` v `content.py`: Altánky pri Luxusnej terase a
+  Garážo-sklado-terase, Terasy pri Bungalove — klient ich tak
+  nezaradil. Prísne mapovanie: len kategória alebo text klienta,
+  terasa viditeľná na fotke nie je dôkaz.
+- `.btn.ghost` nemal žiadny štýl — každé sekundárne CTA na webe bola
+  druhá plná jantárová pilulka. Teraz obrys; na machu a súmraku svetlý.
+- akcentové slovo na machovom páse bolo machové na machovom — nové
+  `.band.moss h* em` (šalviová).
+
+### Technológia — „prečo tomu veriť"
+
+Diagnóza: stránka recyklovala dva najlepšie nápady webu staticky
+(rozložený dom z úvodu, skladbu steny zo `stena.html`). Nová úloha
+stránky je tá, ktorú klient sám pomenoval: „my, konzervatívni Slováci
+jej veľmi nedôverujeme". Stena ukazuje AKO, technológia PREČO.
+
+| Scéna | Záznam | Prevzatá mechanika | Prispôsobenie |
+| --- | --- | --- | --- |
+| Masthead | `pangram.md` | jedna číslica vlastní rám | „200+" v glow na machu oproti jeho vlastnej pochybnosti; akcent „veriť" v tej istej farbe |
+| Stena dýcha | `lusion.md` | tmavý „stage block" vsadený do pokojného chrómu, vstup = okamžitá odpoveď | rez siedmimi vrstvami; para tečie z teplej izby von, parobrzda ju brzdí (bodky), vetraná medzera ju odvádza pozdĺž steny (zvislé stopy); hover/ťuk na vrstvu → jej veta z `WALL_TEXT` |
+| | `igloo.md` | jedno prostredie, mono anotácia ako kresba | zvislé mono názvy pozdĺž vrstiev; von studené, dnu lampové svetlo |
+| Leto a zima | `kpr.md` | typografia je súčasť scény | jeho veta rozdelená cez dve vizualizácie, stupňovite; jeho citát o komforte, zdraví a financiách vypĺňa letný stĺpec |
+| Materiály | `basement.md` | hustota skutočného, prelinkovaného obsahu | register sa generuje zo `specs` realizácií (whitelist kľúčov) — nič napísané ručne; „Pultová" presunutá na „Tvar strechy" |
+| Celá stránka | `refokus.md` | rozmanitosť beatov, nie efektov | päť DRUHOV obsahu: číslica, fyzika, obraz, register, motto |
+
+Mobil: rez sa otočí — von hore, izba dole, para stúpa; názvy vrstiev
+vodorovne. Reduced motion: jeden ustálený snímok prúdenia (900 krokov
+simulácie, nakreslené raz), smer čitateľný zo stôp. Slučka beží len
+keď je rez na obrazovke (ScrollTrigger) a zomrie s prepnutím stránky.
+Kôl pod rezom: „Princíp, nie výpočet."
+
+### Služby — register s dôkazmi
+
+Diagnóza: dvanásť rovnakých riadkov textu, pravá polovica prázdna cez
+~4 000 px. Každá služba teraz nesie stavby, kde ju klient naozaj
+robil (`basement.md`); služba bez dôkazu je poctivo holý riadok a
+nesie jeho hlas vo väčšom. Dva hlasy (`refokus.md`): jeho háčik
+serifom („Je vám zima?"), služba groteskom na display veľkosti
+(`pangram.md`). Pieskové prerušenie opakovalo riadok Konzultácie
+doslova — preč; telefón je priamo v riadku Konzultácie (`cowboy.md`:
+akcia v mieste záujmu). Žiadne bežiace čísla 01–12 (vo fáze 7
+odmietnuté). Na mobile je dôkaz posun prstom so snap.
+
+### Bundle
+
+`bundle.py` vkladal každý výskyt fotky ako nový data URI — 4,6 MB z
+8,3 MB boli duplikáty. Teraz je každý obrázok v súbore raz: 2,7 MB.
+
+**Validácia.** LOCAL: Playwright nad `dist/` — 15 stránok × 3 šírky
+bez reálneho vodorovného posunu (test `scrollTo`, nie `scrollWidth`,
+ktorý pri `overflow-x:clip` klame) a bez fotky nad vlastný zdroj;
+router úvod → technológia → služby → späť bez chýb; slučka pary len
+na obrazovke (64 rAF/s = ticker GSAP na každej stránke, +60 len so
+zobrazeným rezom); reduced motion kreslí ustálený snímok. Bundle z
+`file://`: 62 obrázkov na 15 stránkach načítaných, klik z miniatúry
+v Službách otvorí správny detail. Reálny mobil a Safari NOT
+VALIDATED — v kontajneri je len Chromium.

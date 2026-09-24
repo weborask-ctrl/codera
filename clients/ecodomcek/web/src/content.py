@@ -91,6 +91,8 @@ SERVICES = [
 
 # ── the eight realisations (client's own descriptions, VERBATIM) ─────────
 # slug, year, month, title, place, tags, thumb, verbatim text, what the photo shows
+# services: indices into SERVICES, set ONLY where the client's own category or
+# text names the work — a terrace visible in a photo is not evidence of it.
 PROJECTS = [
     dict(services=[0, 5, 9], slug="2024-lucina", year="2024", month="marec", title="Moderný dizajnový dom",
          place="Lúčina, okr. Prešov", tags=["Dom", "Drevostavba", "Interiér"], thumb="t2024", photo="2024-lucina",
@@ -110,7 +112,7 @@ PROJECTS = [
          shot="Dvojpodlažný dom s bielou, béžovou a sivou omietkou a žalúziami.",
          specs=[("Podlažia", "2"), ("Konštrukcia", "Difúzne otvorená drevostavba"),
                 ("Trvanie", "Presne rok"), ("Rozsah", "Od základov až po finál")]),
-    dict(services=[0, 3, 9], slug="2021-bungalov-presov", year="2021", month="apríl", title="Bungalov v Prešove",
+    dict(services=[0, 9], slug="2021-bungalov-presov", year="2021", month="apríl", title="Bungalov v Prešove",
          place="Prešov", tags=["Dom", "Drevostavba", "Interiér"], thumb="t2021", photo="2021-bungalov-presov",
          text="Neďaleko centra Prešova sme spáchali tento milý bungalov. Členenie interiéru domu si "
               "majiteľ premyslel do posledného detailu. Na minimalistickom pozemku, v stiesnených "
@@ -127,7 +129,7 @@ PROJECTS = [
               "radi umožnili. Nejaká korona či lockdown nás nezastavia :)",
          shot="Terasa s X-zábradlím a polykarbonátovým prestrešením pri chate.",
          specs=[("Podlaha", "Sibírsky smrekovec"), ("Strecha", "Lexan"), ("Zábradlie", "X-profil")]),
-    dict(services=[3, 2], slug="2019-terasa-chrastne", year="2019", month="máj", title="Luxusná terasa",
+    dict(services=[3], slug="2019-terasa-chrastne", year="2019", month="máj", title="Luxusná terasa",
          place="Chrastné pri Košiciach", tags=["Terasa", "Sklo"], thumb="t2019", photo="2019-terasa-chrastne",
          text="V Chrastnom pri Košiciach sme postavili krásne prestrešenie terasy. Bonbónikom bola "
               "strecha zo skla. Ufff. Sklenené tabule sú ťažké… :) … a nebezpečné… a krehké… Ale čo "
@@ -136,7 +138,7 @@ PROJECTS = [
          shot="Sivá pergola so sklenenou strechou pri bielom bungalove.",
          specs=[("Strecha", "Sklo"), ("Konštrukcia", "Prestrešenie terasy"),
                 ("Pokračovanie", "Garáž a altánok s grilom")]),
-    dict(services=[3, 2], slug="2019-garaz", year="2019", month="apríl", title="Garážo-sklado-terasa",
+    dict(services=[3], slug="2019-garaz", year="2019", month="apríl", title="Garážo-sklado-terasa",
          place="[doplní EcoDomček]", tags=["Garáž", "Terasa"], thumb=None, photo=None,
          text="Milá kombinácia stojiska pre autá, skladu a terasy s grilom. Taká zábavka na pätkách, "
               "podlaha terasy je z termo jaseňa a keramickej dlažby.",
@@ -150,7 +152,7 @@ PROJECTS = [
               "na báze drevných vlákien.",
          shot="Kocka s cetrisovou fasádou a pultovou strechou.",
          specs=[("Fasáda", "Surový cetris"), ("Zateplenie", "Drevovláknité izolácie"),
-                ("Strecha", "Pultová")]),
+                ("Tvar strechy", "Pultová")]),
     dict(services=[0, 5], slug="2008-prvotina", year="2008", month="august", title="Moja prvotina: náš domček",
          place="Lúčina", tags=["Dom", "Drevostavba"], thumb="t2008", photo="2008-prvotina",
          text="Tak týmto to všetko začalo. Drevodom, ktorý som ako „kancelárska krysa“ postavil "

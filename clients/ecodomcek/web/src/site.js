@@ -49,6 +49,7 @@
     initFilters();
     initWall();
     initSheet();
+    initVapour();
     initMarks();
     ScrollTrigger.refresh();
   }
@@ -279,6 +280,175 @@
     window.__sheet = put;
   }
 
+  // ── technológia: the wall breathes ───────────────────────────────────
+  // A section through the seven layers with vapour moving from the room
+  // out. Qualitative, never a calculation: the brake slows it, the
+  // ventilated gap carries it away along the wall. The loop only runs
+  // while the stage is on screen (ScrollTrigger decides when), and the
+  // pointer maps to an answer at once — hover or tap a layer, read it
+  // (lusion.md). Reduced motion: one settled frame, drawn once.
+  function initVapour() {
+    var fig = main.querySelector('[data-vapour]');
+    if (!fig) return;
+    var cv = fig.querySelector('canvas'), ctx = cv.getContext('2d');
+    var desc = main.querySelector('.vdesc'), base = desc ? desc.innerHTML : '';
+    var btns = [].slice.call(fig.querySelectorAll('.vb'));
+    var fr = fig.dataset.bands.split(',').map(Number);          // outside → inside, as WALL_TEXT
+    // through-wall position u: 0 = outside edge of the stage, 1 = room edge.
+    var W, H, dpr, vert, O, I, edges = [], hover = -1, parts = [], raf = 0, last = 0;
+    var sp = .085;                                                // wall widths per second in open air
+    // speed factor per band, outside → inside (obklad … sadrokartón)
+    var SPEED = [.5, 0, .55, .42, .1, .7, .7];
+    var FILL = ['#4a3322', '#0e0d0c', '#3b2b1d', '#2d2820', '#1c1b18', '#221f1b', '#4b4740'];
+    function layout() {
+      var r = fig.getBoundingClientRect();
+      dpr = Math.min(2, devicePixelRatio || 1);
+      W = r.width; H = r.height;
+      cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      vert = matchMedia('(max-width:820px)').matches;
+      O = vert ? .12 : .11; I = vert ? .16 : .19;
+      edges = [O]; var a = O;
+      fr.forEach(function (f) { a += f * (1 - O - I); edges.push(a); });
+    }
+    function band(u) {
+      for (var i = 0; i < fr.length; i++) if (u >= edges[i] && u < edges[i + 1]) return i;
+      return u < O ? -1 : 7;                                      // -1 outside air, 7 room
+    }
+    // map (u through the wall, v along it) to the screen
+    function X(u, v) { return vert ? v * W : u * W; }
+    function Y(u, v) { return vert ? u * H : v * H; }
+    function rect(u0, u1, v0, v1, fill) {
+      ctx.fillStyle = fill;
+      if (vert) ctx.fillRect(v0 * W, u0 * H, (v1 - v0) * W, (u1 - u0) * H);
+      else ctx.fillRect(u0 * W, v0 * H, (u1 - u0) * W, (v1 - v0) * H);
+    }
+    function line(u0, v0, u1, v1) {
+      ctx.beginPath(); ctx.moveTo(X(u0, v0), Y(u0, v0)); ctx.lineTo(X(u1, v1), Y(u1, v1)); ctx.stroke();
+    }
+    function spawn(p, anywhere) {
+      p.u = anywhere ? O * .2 + Math.random() * (1 - O * .2) : 1 - Math.random() * I * .9;
+      p.v = .06 + Math.random() * .88;
+      p.r = .8 + Math.random() * 1.4;
+      p.a = .45 + Math.random() * .5;
+      p.j = Math.random() * 6.28;
+      return p;
+    }
+    function step(dt) {
+      parts.forEach(function (p) {
+        var b = band(p.u);
+        p.j += dt * 2;
+        if (b === 1) {                                            // the ventilated gap: carried along the wall
+          p.v -= dt * .2; p.u -= dt * sp * .05; p.s = -1;
+          if (p.v < .01) spawn(p);
+          return;
+        }
+        var f = b === 7 ? .45 : b === -1 ? 1.3 : SPEED[b];
+        p.s = sp * f * (.75 + .25 * Math.sin(p.j * .7));
+        p.u -= dt * p.s;
+        p.v += Math.sin(p.j) * dt * (b === 7 ? .05 : .008);
+        if (b === 7) p.u += Math.cos(p.j * 1.3) * dt * .012;
+        if (p.u > 1) p.u = 1;
+        if (p.u < 0) spawn(p);
+      });
+    }
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      // outside: cold; the room: warm, lamp-lit (the season story in light)
+      var g = vert ? ctx.createLinearGradient(0, 0, 0, H) : ctx.createLinearGradient(0, 0, W, 0);
+      g.addColorStop(0, '#111615'); g.addColorStop(O, '#171b19');
+      g.addColorStop(1 - I, '#241b13'); g.addColorStop(1, '#33241a');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      var rg = ctx.createRadialGradient(X(1, .55), Y(1, .55), 0, X(1, .55), Y(1, .55), Math.max(W, H) * .32);
+      rg.addColorStop(0, 'rgba(242,181,99,.20)'); rg.addColorStop(1, 'rgba(242,181,99,0)');
+      ctx.fillStyle = rg; ctx.fillRect(0, 0, W, H);
+      // the bands, outside → inside
+      for (var i = 0; i < 7; i++) {
+        var u0 = edges[i], u1 = edges[i + 1];
+        rect(u0, u1, 0, 1, FILL[i]);
+        ctx.strokeStyle = 'rgba(243,238,227,.07)'; ctx.lineWidth = 1;
+        var k, n;
+        if (i === 0) for (k = 1; k < 5; k++) line(u0 + (u1 - u0) * k / 5, 0, u0 + (u1 - u0) * k / 5, 1);
+        if (i === 1 || i === 5) {                                 // battens at intervals along the wall
+          for (k = 0; k < 7; k++) rect(u0 + (u1 - u0) * .22, u1 - (u1 - u0) * .22, k / 7 + .04, k / 7 + .085, '#3a2c20');
+        }
+        if (i === 2) { ctx.strokeStyle = 'rgba(243,238,227,.05)'; for (k = 0; k < 40; k++) line(u0, k / 40, u1, k / 40 + .01); }
+        if (i === 3) {                                            // studs across the frame, insulation between
+          ctx.strokeStyle = 'rgba(243,238,227,.06)';
+          for (k = 0; k < 26; k++) { var vv = k / 26; line(u0, vv, u1, vv + .02); }
+          for (k = 0; k < 3; k++) rect(u0, u1, k / 3 + .12, k / 3 + .165, '#5a4028');
+        }
+        if (i === 4) {                                            // the brake: a membrane, dashed
+          ctx.strokeStyle = 'rgba(214,206,190,.75)'; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.5;
+          line((u0 + u1) / 2, 0, (u0 + u1) / 2, 1); ctx.setLineDash([]); ctx.lineWidth = 1;
+        }
+        if (i === 5) {                                            // services in the cavity
+          ctx.strokeStyle = 'rgba(201,118,42,.55)'; ctx.beginPath();
+          for (k = 0; k <= 40; k++) { var t = k / 40, uu = u0 + (u1 - u0) * (.5 + Math.sin(t * 9) * .18);
+            if (k) ctx.lineTo(X(uu, t), Y(uu, t)); else ctx.moveTo(X(uu, t), Y(uu, t)); }
+          ctx.stroke();
+        }
+        if (i === 6) { ctx.strokeStyle = 'rgba(243,238,227,.35)'; line(u1 - .002, 0, u1 - .002, 1); }
+        if (i === hover) rect(u0, u1, 0, 1, 'rgba(242,181,99,.13)');
+        ctx.strokeStyle = 'rgba(243,238,227,.14)'; line(u0, 0, u0, 1);
+      }
+      ctx.strokeStyle = 'rgba(243,238,227,.14)'; line(edges[7], 0, edges[7], 1);
+      // vapour
+      ctx.strokeStyle = ctx.fillStyle = '#f3eee3'; ctx.lineCap = 'round';
+      parts.forEach(function (p) {
+        var fade = p.u < O ? Math.max(0, p.u / O) : 1, x = X(p.u, p.v), y = Y(p.u, p.v);
+        ctx.globalAlpha = p.a * fade;
+        if (p.s === -1) {                                         // rising in the gap
+          ctx.lineWidth = p.r * 1.2; ctx.beginPath(); ctx.moveTo(x, y);
+          ctx.lineTo(X(p.u, p.v + .035), Y(p.u, p.v + .035)); ctx.stroke();
+        } else if (p.s > sp * .3) {                               // moving freely: a streak
+          var du = Math.min(.02, p.s * .2);
+          ctx.globalAlpha = p.a * fade * .72;
+          ctx.lineWidth = p.r * 1.25; ctx.beginPath(); ctx.moveTo(x, y);
+          ctx.lineTo(X(p.u + du, p.v), Y(p.u + du, p.v)); ctx.stroke();
+        } else {                                                  // held by the wall: a dot
+          ctx.beginPath(); ctx.arc(x, y, p.r, 0, 6.283); ctx.fill();
+        }
+      });
+      ctx.globalAlpha = 1; ctx.lineWidth = 1;
+    }
+    function loop(t) {
+      var dt = last ? Math.min(.05, (t - last) / 1000) : .016; last = t;
+      step(dt); draw();
+      raf = requestAnimationFrame(loop);
+    }
+    function start() { if (!raf && !reduce) { last = 0; raf = requestAnimationFrame(loop); } }
+    function stop() { cancelAnimationFrame(raf); raf = 0; }
+    function settle() { for (var s = 0; s < 900; s++) step(1 / 30); draw(); }
+    function populate() {
+      var n = vert ? 150 : 270;
+      parts = []; for (var k = 0; k < n; k++) parts.push(spawn({}, true));
+    }
+    layout(); populate(); settle();
+    // pointer → answer
+    function pick(i) {
+      hover = i;
+      btns.forEach(function (b, k) { b.classList.toggle('on', k === i); });
+      if (desc) desc.innerHTML = i < 0 ? base :
+        '<b>' + btns[i].querySelector('span').textContent + '.</b> ' + btns[i].dataset.s;
+      if (!raf) draw();
+    }
+    btns.forEach(function (b, i) {
+      b.addEventListener('mouseenter', function () { pick(i); });
+      b.addEventListener('focus', function () { pick(i); });
+      b.addEventListener('click', function () { pick(hover === i && !matchMedia('(hover:hover)').matches ? -1 : i); });
+    });
+    fig.addEventListener('mouseleave', function () { pick(-1); });
+    function onResize() { layout(); if (!raf) draw(); }
+    addEventListener('resize', onResize);
+    // the router kills page tweens on every swap; the loop and the
+    // listener must die with this page
+    tweens.push({ kill: function () { stop(); removeEventListener('resize', onResize); } });
+    if (reduce) return;
+    track(ScrollTrigger.create({ trigger: fig, start: 'top bottom', end: 'bottom top',
+      onToggle: function (self) { if (self.isActive) start(); else stop(); } }));
+  }
+
   // ── the running index: which act am I in ─────────────────────────────
   function initMarks() {
     var secs = [].slice.call(main.querySelectorAll('[data-sec]'));
@@ -303,7 +473,7 @@
       peek.style.transform = 'translate3d(' + px + 'px,' + py + 'px,0)';
       raf = requestAnimationFrame(loop);
     }
-    main.querySelectorAll('.index a').forEach(function (a) {
+    main.querySelectorAll('.index a, [data-peek] a').forEach(function (a) {
       a.addEventListener('mouseenter', function () {
         if (!a.dataset.thumb) return;
         peekImg.src = a.dataset.thumb;
