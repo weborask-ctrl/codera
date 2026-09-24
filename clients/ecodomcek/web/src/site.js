@@ -4,7 +4,7 @@
  *   initPage()  everything scoped to the current <main>; re-runs after a
  *               page swap, so the router never leaves dead triggers behind.
  *   router      intercepts internal links, fetches the next document and
- *               swaps <main> under a paper curtain. Without JS every page
+ *               swaps <main> under a slab curtain. Without JS every page
  *               is still a complete document, so navigation degrades to a
  *               normal page load.
  *
@@ -651,8 +651,8 @@
     });
   }
 
-  // ── the router: a paper curtain, then the next page ──────────────────
-  // The curtain wipes up, <main> is swapped underneath, the curtain wipes
+  // ── the router: a slab curtain, then the next page ───────────────────
+  // Four slabs stack up like levels, <main> is swapped underneath, they lift
   // away. Same-document feel, real documents underneath.
   var cache = {}, busy = false;
 
@@ -720,7 +720,7 @@
     busy = true;
     var label = curtain.querySelector('b');
     var link = document.querySelector('header nav a[href="' + (url.pathname.split('/').pop() || 'index.html') + '"]');
-    label.textContent = link ? link.textContent : '';
+    label.textContent = link ? link.childNodes[0].textContent.trim() : '';   // the name, not its count
     document.documentElement.classList.add('leaving');
 
     var pending = fetchPage(url).catch(function () { location.href = url.href; });
@@ -729,10 +729,12 @@
       pending.then(function (doc) { if (doc) { swap(doc, url, push); done(); } });
       return;
     }
+    var slabs = curtain.querySelectorAll('i');
     var tl = gsap.timeline();
     tl.set(curtain, { display: 'block' })
-      .fromTo(curtain, { yPercent: 100 }, { yPercent: 0, duration: .46, ease: 'power3.inOut' })
-      .fromTo(label, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: .22, ease: 'power2.out' }, '-=.12')
+      .set(slabs, { transformOrigin: '50% 100%' })
+      .fromTo(slabs, { scaleY: 0 }, { scaleY: 1, duration: .34, ease: 'power3.out', stagger: .06 })
+      .fromTo(label, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: .26, ease: 'power2.out' }, '-=.14')
       .add(function () {
         tl.pause();
         pending.then(function (doc) {
@@ -741,9 +743,10 @@
           tl.play();
         });
       })
-      .to(label, { opacity: 0, duration: .18, ease: 'power2.in' }, '+=.05')
-      .to(curtain, { yPercent: -100, duration: .5, ease: 'power3.inOut' }, '-=.1')
-      .set(curtain, { display: 'none', yPercent: 100 })
+      .to(label, { opacity: 0, y: -12, duration: .2, ease: 'power2.in' }, '+=.08')
+      .set(slabs, { transformOrigin: '50% 0%' })
+      .to(slabs, { scaleY: 0, duration: .36, ease: 'power3.inOut', stagger: { each: .06, from: 'end' } }, '-=.04')
+      .set(curtain, { display: 'none' })
       .add(done);
 
     function done() {
@@ -768,7 +771,7 @@
   });
   addEventListener('pageshow', function (e) {
     if (!e.persisted) return;
-    gsap.set(curtain, { display: 'none', yPercent: 100 });
+    gsap.set(curtain, { display: 'none' }); gsap.set(curtain.querySelectorAll('i'), { scaleY: 0 });
     document.documentElement.classList.remove('leaving');
     busy = false;
     ScrollTrigger.refresh();

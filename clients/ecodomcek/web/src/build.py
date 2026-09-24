@@ -155,7 +155,7 @@ SHELL = '''<!doctype html>
 <body data-page="{page}" data-band="{band}">
 <a class="skip" href="#main">Preskočiť na obsah</a>
 <div id="veil"><span>EcoDomček</span></div>
-<div id="curtain" aria-hidden="true"><b></b></div>
+<div id="curtain" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></div>
 {header}
 <main id="main" data-page="{page}" data-band="{band}">
 {body}
