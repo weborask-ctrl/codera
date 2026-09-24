@@ -1062,7 +1062,11 @@ h2.big em{font-style:normal;color:var(--moss)}
 .sstrip a{position:relative;display:block;width:clamp(60px,4.9vw,84px)}
 .sstrip img,.sstrip .noph{display:block;width:100%;aspect-ratio:1;object-fit:cover;background:var(--paper2);
   transition:transform .4s var(--ease),filter .4s}
-.sstrip .noph{box-shadow:inset 0 0 0 1px var(--line)}
+.sstrip .noph{box-shadow:none;border:1px dashed var(--ink2);background:transparent;
+  display:grid;place-items:center}
+/* the same dashed lot as on the street: no photo is a fact, not a gap */
+.sstrip .noph em{font-family:var(--mono);font-style:normal;font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;line-height:1.3;text-align:center;color:var(--ink)}
 .sstrip a:hover img{transform:translateY(-3px);filter:saturate(1.1)}
 .sstrip i{display:block;margin-top:6px;font-style:normal}
 .sstrip b{position:absolute;left:0;top:calc(100% + 4px);z-index:3;width:max-content;max-width:220px;

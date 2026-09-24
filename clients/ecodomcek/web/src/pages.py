@@ -550,7 +550,7 @@ def build(B):
         strip = ""
         for p in ev:
             img = (f'<img src="{photo_src(p)}" alt="" loading="lazy" decoding="async">'
-                   if photo_src(p) else '<span class="noph"></span>')
+                   if photo_src(p) else '<span class="noph"><em>bez<br>fotky</em></span>')
             strip += (f'<a href="realizacia-{p["slug"]}.html" aria-label="{esc(title_of(p))} ({p["year"]})">'
                       f'{img}<i class="mono">{p["year"]}</i><b>{esc(title_of(p))}</b></a>')
         proof = (f'<div class="sev fade d2"><span class="mono">Kde sme to robili</span>'
