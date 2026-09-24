@@ -94,7 +94,7 @@ logo v krivkách. Potvrdiť: chráni EcoDomček drevo bóraxom (na starom webe l
 --directory dist` (potrebuje `NODE_PATH=/opt/node22/lib/node_modules`). Na úvode
 `?sec=0&step=3&p=0.66` ukáže konkrétny stav hera.
 
-## Úvodný film (fal.ai) — pripravené, negenerované
+## Úvodný film (fal.ai) — `close` raz zlyhal, film negenerovaný
 
 `src/fal_hero.py` potrebuje `FAL_KEY` v nastaveniach prostredia. Tri kroky, každý nanajvýš
 jedna platená úloha:
@@ -108,6 +108,30 @@ jedna platená úloha:
    `end_image_url`, 5 s, bez zvuku) → `renders/fal/hero.mp4`.
 
 `renders/fal/start-exploded.jpg` je zložený z tých istých `lyr-*.webp`, ktoré používa web.
+
+### Ceny v účte (fal pricing API, 2026-09-24)
+
+| Krok | Model | Cena |
+| --- | --- | --- |
+| `close` | FLUX Kontext Pro | 0,04 $ za obrázok |
+| `film` | Kling v3 Pro, 5 s | API účtu 0,14 $/s → 0,70 $; stránka modelu 0,112 $/s bez zvuku → 0,56 $ |
+
+Zostatok kreditu sa s týmto kľúčom prečítať nedá — billing vracia 403.
+
+### Pokus 1 — 2026-09-24: FAIL
+
+`close` s Kontext Pro (request `01a0d4ff-2216-7f62-aa92-208ce0f78aab`, 0,04 $):
+
+    start box x 282-691 y 48-509 | closed box x 283-693 y 76-452 | FAIL — the edit moved the camera; do not film it
+
+Kontext dom **nezavrel** — všetky štyri úrovne ostali rozostúpené — a prerenderoval ho z nižšej,
+plochšej kamery: spodok základovej dosky sa posunul o 57 px hore (pri 960×540, limit 6),
+interiéry stratili detail. Záber leží v `renders/fal/close-1-kontext-pro-FAIL.jpg`, mimo mena
+`end-closed.jpg`, aby ho `film` nemohol vziať. Kontext navyše vracia 1392×752, nie 16:9: aj
+záber, ktorý by `check` prešiel, treba pred `film` vrátiť na 1920×1080, inak sa prvý a posledný
+záber filmu nezhodujú.
+
+Ďalší `close` čaká na rozhodnutie o inom editačnom modeli; `film` sa nespustil.
 
 ## Spustiteľnosť
 
