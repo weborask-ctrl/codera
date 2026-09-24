@@ -724,3 +724,35 @@ Nula KB navyše — je to film, ktorý stránka už načítala.
 LOCAL: 1440 a 390 — pripnutie, čas filmu 5,04 → 0,18 so scrollom,
 popisy len v otvorenom stave; bundle z `file://` rovnako; plná regresia.
 MP4 (H.264) cesta NOT VALIDATED — Chromium v kontajneri nemá kodek.
+
+## Fáza 14 — Ulica, audit podstránok, rýchlosť (2026-09-24)
+
+**Ulica (úvod, sekcia 3).** Osem ich realizácií ako ulica domov v poradí
+rokov: na desktope pripnutý vodorovný prechod, na mobile swipe so snapom.
+Všetky domy stoja na spoločnej línii terénu; terasy nižšie (300 vs 400 px).
+Garáž bez fotky je čiarkovaná parcela s popisom — nič nevymýšľame.
+
+**O nás — motto.** Pravá polovica pásu bola prázdna. Teraz tam je slovná
+hračka ich vlastnej vety ako layout: jeden koreň EKO, dve koncovky
+(logicky / nomicky — je správne / je výhodné). Referencia: pangram.md
+(slovo vlastní rám). Diagram je aria-hidden, veta pod ním ho hovorí celú.
+
+**Opravené chyby z auditu:**
+- maska riadkov orezávala mäkčene nad verzálkami („Co je…" namiesto „Čo");
+- stavebný list: rok 2021 čítal „202" — fotka zakryla celú úzku jednotku;
+  číslica je teraz 16,7 vw a doska kryje najviac tretinu poslednej cifry;
+- Stena pri obmedzenom pohybe: 1,8 obrazovky prázdneho papiera (scroll
+  track bez pohybu) a nadpis „Potiahnite stenu", ktorý nešiel ťahať. Stena
+  sa otvorí celá a hýbe sa len pod rukou / šípkami, okamžite;
+- nápoveda steny hovorí len to, čo na danom zariadení funguje;
+- Služby: realizácia bez fotky bola prázdny štvorec → čiarkovaná parcela;
+- dva h1 na úvode → jeden h1, druhý riadok aria-hidden;
+- drobné písmo min. 10,5 px; ScrollTrigger sa registroval dvakrát (parallax,
+  drift, hero, ulica).
+
+**Rýchlosť (emulácia Slow 4G + 4× CPU, 390 px):** LCP 6,0 s → 5,1 s.
+Tušové cesty hera prekódované na relatívne celé čísla (index.html 182 → 83 KB,
+vizuálne zhodné), úvod štartuje po fontoch a vlastných obrázkoch hera, nie
+po celom `load`, film sa sťahuje s nízkou prioritou. Zvyšok LCP je zámerná
+choreografia (tuš → vrstvy → film). Ak má LCP ísť pod 2,5 s, treba ukázať
+prvý záber filmu hneď bez tušu — to je rozhodnutie o dizajne, nie oprava.
