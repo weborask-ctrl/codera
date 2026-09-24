@@ -64,3 +64,7 @@ Marcus selected typography C: one Geist voice, no repeated italic headline treat
 ## Simpler typography candidate — 2026-09-24
 
 Marcus requested one simple, consistent typographic voice inspired by Coca-Cola.com, with no contrasting headline-line styles. This supersedes the previous maximal heading scale: keep headings prominent, but use calmer sizes, consistent bold weight and natural spacing. Montserrat is the implemented, openly licensed alternative to bespoke TCCC Unity for this release. It is a candidate awaiting Marcus's visual evaluation, not an approved permanent font for the Codera bible. Preserve the existing logo and SVG wordmark. See docs/CODERA_UNIFIED_TYPE.md. Merge was explicitly requested.
+
+## Headings-only correction — 2026-09-24
+
+Marcus clarified that the new Montserrat typography applies ONLY to headings. Keep Geist and the previous sizes/spacing for card copy, prices, 72 hodín, navigation, buttons, forms and supporting paragraphs. Do not propagate a requested heading-font change to body text or card content. The new heading treatment remains a candidate pending visual evaluation; the tunnel fade remains approved.

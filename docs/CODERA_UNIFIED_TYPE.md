@@ -7,8 +7,8 @@ instruction to proceed, this release uses **Montserrat**, not TCCC Unity.
 
 ## Typography
 
-- One self-hosted family across the Silver homepage, including body copy,
-  controls, numbers and headings. All headline lines share weight 700 and
+- Montserrat is limited to h1/h2/h3 headings. Geist is restored for body copy,
+  controls, numbers and card content with their original sizes and spacing. All headline lines share weight 700 and
   normal style; emphasis no longer changes weight or letter spacing.
 - Hero size is roughly 107px at 1440×900, compared with 153px previously.
   Section titles are roughly 69px, with 1.12 line height and -0.025em tracking.
