@@ -16,10 +16,18 @@ passes goes to the video model — one paid job each, never a batch.
 Start frame `renders/fal/start-exploded.jpg` is composited from the same
 alpha layers the site uses (`lyr-*.webp`, `layers2.json`), so the film's
 first frame and the live DOM share pixels.
+
+The edit model is Nano Banana Pro. FLUX Kontext Pro was tried first
+(2026-09-24) and failed: it left every level floating and re-rendered the
+house from a flatter camera (`renders/fal/close-1-kontext-pro-FAIL.jpg`).
+An edit model answers in its own 16:9 size, not 1920×1080, so `close`
+resizes the frame to the start frame's size before anything measures or
+films it. A start and end frame that differ in size cannot be one shot.
 """
 from __future__ import annotations
 
 import base64
+import io
 import json
 import os
 import pathlib
@@ -36,15 +44,21 @@ START = OUT / "start-exploded.jpg"
 CLOSED = OUT / "end-closed.jpg"
 FILM = OUT / "hero.mp4"
 
-EDIT = "fal-ai/flux-pro/kontext"
+EDIT = "fal-ai/nano-banana-pro/edit"
 VIDEO = "fal-ai/kling-video/v3/pro/image-to-video"
 
 EDIT_PROMPT = (
-    "Lower the roof, the upper floor and the ground floor straight down until every level "
-    "sits tightly on the one below it, with no gaps — one closed two-storey timber house on "
-    "its concrete slab. Keep exactly the same camera, perspective, scale, position, lighting, "
-    "materials (vertical larch cladding, dark Fundermax panels, flat roofs) and the plain "
-    "cream background. The foundation slab must not move."
+    "Assemble this exploded view of a two-storey timber house into the finished house. "
+    "The concrete foundation slab at the bottom stays exactly where it is. Move the ground floor "
+    "(with its dark annex), the upper floor and the flat roof straight down (vertical movement "
+    "only, no rotation, no scaling) until each part rests directly on the part below it: the "
+    "ground floor stands on the slab, the upper floor stands on the ground-floor walls, the roof "
+    "sits on the upper-floor walls. No gaps remain between the levels, so no room is visible "
+    "from above any more; the roof and the annex's own flat roof are the only top surfaces. "
+    "Keep exactly the same camera, viewing angle, perspective, framing and scale, the same "
+    "materials (vertical larch cladding, dark Fundermax panels, dark flat roofs, concrete slab), "
+    "the same soft studio light and the same plain cream background. Add nothing: no people, "
+    "no text, no plants, no ground."
 )
 FILM_PROMPT = (
     "Static camera, no camera movement. The floating parts of a timber house descend straight "
@@ -85,6 +99,15 @@ def fetch(url: str, to: pathlib.Path) -> None:
     print("saved", to.relative_to(ROOT))
 
 
+def fetch_frame(url: str, to: pathlib.Path) -> None:
+    """Save an edited frame at the start frame's exact size."""
+    im = Image.open(io.BytesIO(urllib.request.urlopen(url).read())).convert("RGB")
+    size = Image.open(START).size
+    print("model frame", im.size, "→", size)
+    im.resize(size, Image.LANCZOS).save(to, quality=92)
+    print("saved", to.relative_to(ROOT))
+
+
 def mask(p: pathlib.Path) -> np.ndarray:
     a = np.asarray(Image.open(p).convert("RGB").resize((960, 540))).astype(int)
     paper = np.array([243, 238, 227])
@@ -112,9 +135,14 @@ def check() -> bool:
 def main() -> None:
     step = sys.argv[1] if len(sys.argv) > 1 else ""
     if step == "close":
-        r = call(EDIT, {"prompt": EDIT_PROMPT, "image_url": data_uri(START), "num_images": 1,
-                        "output_format": "jpeg", "guidance_scale": 3.5})
-        fetch(r["images"][0]["url"], CLOSED)
+        # 2K costs the same as 1K and is downscaled to 1920×1080, never up
+        r = call(EDIT, {"prompt": EDIT_PROMPT, "image_urls": [data_uri(START)], "num_images": 1,
+                        "aspect_ratio": "16:9", "resolution": "2K", "output_format": "png"})
+        if r.get("description"):
+            print("model says:", r["description"])
+        if not r.get("images"):
+            sys.exit(f"no image in the answer: {r}")
+        fetch_frame(r["images"][0]["url"], CLOSED)
         check()
     elif step == "check":
         check()

@@ -94,14 +94,15 @@ logo v krivkách. Potvrdiť: chráni EcoDomček drevo bóraxom (na starom webe l
 --directory dist` (potrebuje `NODE_PATH=/opt/node22/lib/node_modules`). Na úvode
 `?sec=0&step=3&p=0.66` ukáže konkrétny stav hera.
 
-## Úvodný film (fal.ai) — `close` raz zlyhal, film negenerovaný
+## Úvodný film (fal.ai) — `close` dvakrát zlyhal, film negenerovaný
 
 `src/fal_hero.py` potrebuje `FAL_KEY` v nastaveniach prostredia. Tri kroky, každý nanajvýš
 jedna platená úloha:
 
-1. `close` — FLUX Kontext (`fal-ai/flux-pro/kontext`) zavrie dom v tej istej kamere →
-   `renders/fal/end-closed.jpg`. Dôvod: vrstvy sú vyrezané z rozloženého renderu, takže ani
-   poskladané sa nedotknú a video model nemá k čomu dosadnúť (tak zlyhal MiniMax H3).
+1. `close` — Nano Banana Pro (`fal-ai/nano-banana-pro/edit`, 2K, 16:9) zavrie dom v tej istej
+   kamere; výstup sa zmenší na 1920×1080 → `renders/fal/end-closed.jpg`. Dôvod: vrstvy sú
+   vyrezané z rozloženého renderu, takže ani poskladané sa nedotknú a video model nemá k čomu
+   dosadnúť (tak zlyhal MiniMax H3).
 2. `check` — zadarmo: základová doska sa nesmie pohnúť, šírka domu sa nesmie zmeniť, dom
    musí byť nižší. Len PASS pustí ďalej.
 3. `film` — Kling v3 Pro (`fal-ai/kling-video/v3/pro/image-to-video`, `start_image_url` +
@@ -113,7 +114,8 @@ jedna platená úloha:
 
 | Krok | Model | Cena |
 | --- | --- | --- |
-| `close` | FLUX Kontext Pro | 0,04 $ za obrázok |
+| `close` | Nano Banana Pro | 0,15 $ za obrázok (1K aj 2K; 4K dvojnásobok) |
+| `close` (pokus 1) | FLUX Kontext Pro | 0,04 $ za obrázok |
 | `film` | Kling v3 Pro, 5 s | API účtu 0,14 $/s → 0,70 $; stránka modelu 0,112 $/s bez zvuku → 0,56 $ |
 
 Zostatok kreditu sa s týmto kľúčom prečítať nedá — billing vracia 403.
@@ -131,7 +133,21 @@ interiéry stratili detail. Záber leží v `renders/fal/close-1-kontext-pro-FAI
 záber, ktorý by `check` prešiel, treba pred `film` vrátiť na 1920×1080, inak sa prvý a posledný
 záber filmu nezhodujú.
 
-Ďalší `close` čaká na rozhodnutie o inom editačnom modeli; `film` sa nespustil.
+### Pokus 2 — 2026-09-24: FAIL
+
+`close` s Nano Banana Pro (request `01a0d516-fdf2-7162-a9d9-bb4136814e3b`, 0,15 $), výstup
+2752×1536 zmenšený na 1920×1080:
+
+    start box x 282-691 y 48-509 | closed box x 185-737 y 72-476 | FAIL — the edit moved the camera; do not film it
+
+Dom **zavrel** (súvislý dvojpodlažný dom, okná poschodia aj prístavok sedia), ale záber
+prekomponoval: dom je asi 1,2× väčší a posunutý do stredu, spodok dosky sa posunul o 33 px hore.
+Z dosky urobil väčšiu terasu, prízemiu dal spredu zvislé lamely a vľavo pridal vrhnutý tieň.
+Ľavý okraj boxu (185) je ten tieň, dom sám začína na 245. Ani po zmenšení na ×0,83 doska
+nesedí na štartovú, takže film by menil práve tú časť, ktorá sa hýbať nemá. Záber leží
+v `renders/fal/close-2-nano-banana-pro-FAIL.jpg`.
+
+Ďalší `close` čaká na rozhodnutie; `film` sa nespustil.
 
 ## Spustiteľnosť
 
