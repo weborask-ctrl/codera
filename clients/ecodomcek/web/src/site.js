@@ -57,6 +57,7 @@
     initSheet();
     initVapour();
     initForm();
+    initStory();
     initMarks();
     ScrollTrigger.refresh();
   }
@@ -588,6 +589,22 @@
         '&body=' + encodeURIComponent(body);
       st.textContent = 'Otvára sa váš e-mail s hotovým dopytom. Ak sa nič neotvorilo, napíšte na ' +
         f.dataset.mail + ' alebo zavolajte.';
+    });
+  }
+
+  // ── o nás: the paragraph in the middle of the screen chooses the picture
+  function initStory() {
+    var st = main.querySelector('[data-story]');
+    if (!st) return;
+    var figs = [].slice.call(st.querySelectorAll('.sf'));
+    st.querySelectorAll('.para').forEach(function (p) {
+      track(ScrollTrigger.create({
+        trigger: p, start: 'top 55%', end: 'bottom 45%',
+        onToggle: function (self) {
+          if (!self.isActive) return;
+          figs.forEach(function (f) { f.classList.toggle('on', f.dataset.i === p.dataset.i); });
+        }
+      }));
     });
   }
 

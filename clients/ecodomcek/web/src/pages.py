@@ -646,10 +646,10 @@ def build(B):
   <div class="mledger fade d2" data-peek>{mrows}</div>
 </div>''')
 
-    tech += section(4, "Motto", "moss", f'''<div class="wrap tmotto" data-reveal>
-  <h2 class="fade">{lines("Čo je <em>ekologické</em>,|je aj ekonomické.")}</h2>
+    tech += section(4, "Stena", "moss", f'''<div class="wrap tmotto" data-reveal>
+  <h2 class="fade">{lines("Chcete ju vidieť|<em>vrstvu po vrstve</em>?")}</h2>
   <div class="tmr fade d2">
-    <p>Ako je taká stena poskladaná, vrstvu po vrstve, si môžete roztiahnuť sami.</p>
+    <p>Sedem vrstiev difúzne otvorenej steny si môžete roztiahnuť sami — každá má meno.</p>
     <div>{btn("Otvoriť stenu", "stena.html")}{btn("Realizácie", "realizacie.html", ghost=True, arrow=False)}</div>
   </div>
 </div>''')
@@ -666,30 +666,51 @@ def build(B):
     about = masthead("Kto sme a čo nám|ide <em>najlepšie</em>.",
                      "",
                      name="O nás")
+    # The essay used to run in a narrow column beside ~1000 px of nothing.
+    # Now every paragraph has its picture: a sticky frame on the right shows
+    # the real job from that part of the story (refokus.md: the serif
+    # carries the human voice, the work carries the proof). Pairings follow
+    # the client's own dates; the last one is the wall — a visualisation,
+    # labelled.
     essay = [
         ("2007", "„Kariéra“ staviteľa sa začala písať v roku 2007, keď som si svojpomocne "
                  "postavil montovaný drevodom. Práca s drevom ma veľmi zaujala, napĺňala a aj mi "
-                 "tak nejako prirodzene išla od ruky — hoci dovtedy som pracoval v IT oblasti."),
+                 "tak nejako prirodzene išla od ruky — hoci dovtedy som pracoval v IT oblasti.",
+         "foto-2008-prvotina.jpg", "Prvý dom, Lúčina · 2008",
+         "Drevodom, ktorý som ako „kancelárska krysa“ postavil podľa knižiek a rád od kamarátov."),
         ("", "Následne ma zavolal jeden, druhý… piaty… desiaty kamarát urobiť strechu, altánok "
              "či celý dom. Keďže som sa venoval aj iným činnostiam, trvalo mi desať rokov, kým som "
-             "sa odhodlal pretaviť svoje zručnosti aj komerčne."),
+             "sa odhodlal pretaviť svoje zručnosti aj komerčne.",
+         "foto-2015-budatin.jpg", "Budatín pri Žiline · 2015", ""),
         ("2017", "Spoločnosť EcoDomček, s.r.o. vznikla 1. 1. 2017. Zameriavame sa hlavne na "
                  "montované drevodomy, stavbu striech, altánkov a iných drevených konštrukcií, "
-                 "pretože je to materiál a technológia, ktorej veríme."),
+                 "pretože je to materiál a technológia, ktorej veríme.",
+         "foto-2019-terasa-chrastne.jpg", "Luxusná terasa, Chrastné · 2019", ""),
         ("", "O tom nás neustále presviedčajú stavby, ktoré sme už zrealizovali — a teda aj môj "
              "vlastný dom(ček). Investícia do tohto typu technológie sa reálne vypláca tak "
-             "v komforte bývania, zo zdravotného hľadiska, ako aj finančne."),
-        ("200 rokov", "Aj keď je to u nás ešte stále pomerne nová technológia a my, konzervatívni "
-                      "Slováci, jej veľmi nedôverujeme, v USA a Kanade je osvedčená už viac ako "
-                      "200 rokov a preverená náročnejšími klimatickými podmienkami, ako u nás."),
+             "v komforte bývania, zo zdravotného hľadiska, ako aj finančne.",
+         "foto-2024-lucina.jpg", "Moderný dizajnový dom, Lúčina · 2024", ""),
+        ("200 rokov", "Aj keď je to u nás ešte stále pomerne nová technológia, a my, konzervatívni "
+                      "Slováci jej veľmi nedôverujeme, v USA a Kanade je osvedčená už viac ako "
+                      "200 rokov a preverená náročnejšími klimatickými podmienkami, ako u nás.",
+         "beat4.jpg", "Rez stenou · vizualizácia", ""),
     ]
-    paras = "".join(
-        f'<div class="para fade d{min(4, j % 4 + 1)}"><i class="mono">{esc(y)}</i><p class="sig">{t}</p></div>'
-        for j, (y, t) in enumerate(essay))
-    about += section(1, "Príbeh", "paper", f'''<div class="wrap essay" data-reveal>
-  {paras}
-  <div class="who fade d4" style="margin-top:34px">
-    <span class="mono">{esc(C.DIRECTOR)}</span><span class="fine">konateľ</span></div>
+    paras, stack = "", ""
+    for j, (y, txt, img, capt, note) in enumerate(essay):
+        n = f'<p class="fine">{note}</p>' if note else ""
+        paras += (f'<div class="para" data-i="{j}"><i class="mono">{esc(y)}</i><div>'
+                  f'<p class="sig">{txt}</p>'
+                  f'<figure class="pinl"><img src="assets/{img}" alt="{esc(capt)}" loading="lazy">'
+                  f'<figcaption class="mono">{esc(capt)}</figcaption>{n}</figure></div></div>')
+        stack += (f'<figure class="sf{" on" if j == 0 else ""}" data-i="{j}">'
+                  f'<div class="sfimg"><img src="assets/{img}" alt="{esc(capt)}" loading="{"eager" if j == 0 else "lazy"}"></div>'
+                  f'<figcaption><span class="mono">{esc(capt)}</span>{n}</figcaption></figure>')
+    about += section(1, "Príbeh", "paper", f'''<div class="wrap story" data-story>
+  <div class="essay">{paras}
+    <div class="who" style="margin-top:34px">
+      <span class="mono">{esc(C.DIRECTOR)}</span><span class="fine">konateľ</span></div>
+  </div>
+  <div class="stack" aria-hidden="true">{stack}</div>
 </div>''')
     about += section(2, "Motto", "sand", f'''<div class="wrap motto" data-reveal>
   <blockquote class="fade d1">{lines("Čo je <em>eko</em>logické,|je aj ekonomické.")}</blockquote>
@@ -702,19 +723,6 @@ def build(B):
   {testimonials(full=True)}
   <p class="fine fade d3" style="margin-top:26px">Vyjadrenia sú prevzaté zo súčasného webu
     EcoDomčeka tak, ako ich zákazníci napísali. Ďalšie zverejníme, keď k nim budeme mať súhlas.</p>
-</div>''')
-    about += section(4, "Prvotina", "paper", f'''<div class="wrap plateset first" data-reveal>
-  <figure class="plate">
-    <a href="realizacia-2008-prvotina.html"><div class="frame clipimg"><img src="assets/foto-2008-prvotina.jpg"
-      alt="Prvý dom — krémová fasáda, sedlová strecha, veranda" loading="lazy"></div></a>
-    {cap("Prvý dom, Lúčina 2008", "Fotografia realizácie")}
-  </figure>
-  <div>
-    <h2 style="margin:18px 0 22px">{lines("Tak týmto to|všetko <em>začalo</em>.")}</h2>
-    <p class="sig fade d2">Drevodom, ktorý som ako „kancelárska krysa“ postavil podľa knižiek
-      a rád od kamarátov. Len s nadšením. Bývame v ňom od roku 2008 a sme totálne spokojní.</p>
-    <div class="more fade d3">{btn("Pozrieť prvotinu", "realizacia-2008-prvotina.html")}</div>
-  </div>
 </div>''')
     about += contact_band("o-nas.html")
     page("o-nas.html", "O nás — EcoDomček",

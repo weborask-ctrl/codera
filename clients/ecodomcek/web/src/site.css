@@ -1192,3 +1192,35 @@ h2.big em{font-style:normal;color:var(--moss)}
   .poster.opened .olegend{opacity:1}
 }
 @media (prefers-reduced-motion:reduce){ .olabels,.olegend{display:none} }
+
+/* ═══ O NÁS — the story with its pictures ══════════════════════════════
+   The essay keeps its marginal years; a sticky frame on the right shows
+   the real job from each part of the story (the paragraph in the middle
+   of the screen decides). On a phone each picture follows its paragraph. */
+.story{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.9fr);gap:clamp(30px,5vw,90px);
+  align-items:start}
+.story .essay{max-width:52ch;margin-left:clamp(0px,9vw,150px)}
+.story .para{margin-top:clamp(56px,14vh,150px)}
+.story .para:first-child{margin-top:0}
+.story .para .sig{font-size:clamp(19px,1.55vw,24px);line-height:1.5}
+.pinl{display:none}
+.stack{position:sticky;top:clamp(96px,14vh,130px);height:min(70vh,640px)}
+.sf{position:absolute;inset:0;margin:0;display:grid;grid-template-rows:minmax(0,1fr) auto;gap:14px;
+  opacity:0;transition:opacity .7s var(--ease)}
+.sf.on{opacity:1}
+.sfimg{overflow:hidden;background:var(--paper2);box-shadow:0 30px 60px -40px rgba(35,31,26,.6)}
+.sfimg img{width:100%;height:100%;object-fit:cover;transform:scale(1.06);transition:transform 1.4s var(--ease)}
+.sf.on .sfimg img{transform:none}
+.sf figcaption .mono{display:block}
+.sf figcaption .fine{margin-top:6px;max-width:44ch}
+@media (max-width:980px){
+  .story{grid-template-columns:minmax(0,1fr)}
+  .story .essay{margin-left:0;max-width:none}
+  .stack{display:none}
+  .story .para{margin-top:48px}
+  .pinl{display:block;margin:18px 0 0}
+  .pinl img{width:min(100%,560px);box-shadow:0 20px 40px -30px rgba(35,31,26,.6)}
+  .pinl figcaption{margin-top:10px}
+  .pinl .fine{margin-top:6px}
+}
+@media (prefers-reduced-motion:reduce){ .sf,.sfimg img{transition:none} }
