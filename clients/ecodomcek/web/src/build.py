@@ -299,6 +299,9 @@ def copy_assets() -> None:
                 im.save(f.with_suffix(".webp"), quality=76, method=6)  # −23 %, worst PSNR 35 dB
                 DIMS[f.with_suffix(".webp").name] = im.size
             DIMS[f.name] = im.size
+    # the hero film (src/film.py makes it from the fal render)
+    for f in sorted((REND / "film").glob("hero*")):
+        shutil.copy2(f, ASSETS / f.name)
     for name in ("site.css", "site.js", "gsap.min.js", "ScrollTrigger.min.js"):
         shutil.copy2(HERE / name, ASSETS / name)
     # self-hosted faces, built by `node src/fonts.mjs` (see its header for why)

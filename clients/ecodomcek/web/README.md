@@ -185,3 +185,13 @@ Na web ešte nie je zapojený a pre web treba menší súbor (10,7 MB je priveľ
 - **Formulár** (`kontakt.html`): server zatiaľ nie je, takže otvorí e-mail návštevníka s hotovým
   dopytom na `dobryden@ecodomcek.sk`. Bez JS nesie aspoň predmet a text. Na ostrom hostingu ho
   treba napojiť na skutočné odosielanie (napr. funkcia hostingu) — rozhodne to hosting.
+
+### Zapojenie do hera
+
+`python3 src/film.py` spraví z `renders/fal/hero.mp4` webový film do `renders/film/`: každú snímku
+doladí na papier stránky (surový film kolíše 241–248 v R), okraje prelnie do papiera, oreže na
+plátno vrstiev 1500×1119 a zakóduje H.264 + VP9 v 1200 a 720 px (10,7 MB → 739/661 KB, mobil
+350/337 KB). V hero sa najprv vykreslí kresba a zhmotnia vrstvy presne v polohe prvej snímky,
+potom film dom zavrie a kamera sa priblíži na zavretý dom. Zablokované automatické prehrávanie
+alebo film, ktorý nezačne do 6 s → vrstvy dosadnú ako predtým. Reduced motion → statický zavretý
+dom. Počas filmu je nadpis nad domom (film nemá alfa kanál). Bundle nesie 720 px WebM aj MP4.

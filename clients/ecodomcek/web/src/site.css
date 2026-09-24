@@ -1115,3 +1115,33 @@ h2.big em{font-style:normal;color:var(--moss)}
   .ynum{position:static;font-size:clamp(64px,19vw,96px)}
   .jobs{gap:40px}
 }
+
+/* ═══ the hero film ════════════════════════════════════════════════════
+   The layers plot and ignite exactly where the film's first frame has
+   them, then the film takes over and closes the house for real; its last
+   frame holds. Reduced motion: the closed house as a still — the layout,
+   not a fallback. No JS / blocked autoplay: the layers as before.       */
+.house .film,.house .still{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  pointer-events:none;display:block;transform-origin:50% 50%;
+  /* video colour conversion leaves its paper a level or two off the page's;
+     a feathered mask melts the box edge into the real paper (the house spans
+     x 20–82 %, y 4–96 % of the frame, so the feather never touches it) */
+  -webkit-mask-image:linear-gradient(90deg,transparent 4%,#000 18%,#000 82%,transparent 96%),
+    linear-gradient(180deg,transparent 0,#000 3%,#000 97%,transparent 100%);
+  -webkit-mask-composite:source-in;
+  mask-image:linear-gradient(90deg,transparent 4%,#000 18%,#000 82%,transparent 96%),
+    linear-gradient(180deg,transparent 0,#000 3%,#000 97%,transparent 100%);
+  mask-composite:intersect}
+/* the film has a paper ground, not alpha: while it plays, the headline
+   sits above the house (dark type on the same paper reads identically,
+   and no line of the headline is ever covered) */
+.poster.filmed h1{position:relative;z-index:3}
+/* the closed house is lower and smaller than the exploded one: the still
+   is framed the way the film ends — pushed in, centred between the lines */
+.house.still .still{transform:translateY(-29.5%) scale(1.3)}
+.house .film{opacity:0}
+.house.filming .film{opacity:1}
+.house.filming .lyr{visibility:hidden}
+.house .still{display:none}
+.house.still .still{display:block}
+.house.still .lyr,.house.still .film{display:none}

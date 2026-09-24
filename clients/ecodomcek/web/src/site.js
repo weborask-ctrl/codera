@@ -106,7 +106,9 @@
     var mats = order.map(function (n) { return L[n].querySelector('.mat'); });
     var inks = order.map(function (n) { return L[n].querySelector('.ink'); });
 
+    var film = act.querySelector('video.film');
     if (reduce) {
+      if (film) { act.classList.add('still'); poster.classList.add('typeset', 'built', 'filmed'); return; }
       order.forEach(function (n) { gsap.set(L[n], { yPercent: +L[n].dataset.y1 }); });
       gsap.set(mats, { opacity: 1 }); gsap.set(paths, { opacity: 0 });
       poster.classList.add('typeset', 'built');
@@ -138,12 +140,69 @@
     ignite(3, 1.9, .42); tl.to(L.roof, { yPercent: +L.roof.dataset.y1, duration: .42 }, 1.9); settle(['upper', 'ground', 'base'], 2.32);
     tweens.push(tl);
     houseTl = tl;
+
+    // ── with the film: the drawing plots and the matter ignites exactly
+    // where the film's first frame has the layers (their render position,
+    // yPercent 0), then the film takes over and closes the house for real.
+    // Blocked autoplay or a film that never arrives: the layers seat as
+    // before, so the poster is never left half-built.
+    if (film) {
+      tl.kill();
+      var small = matchMedia('(max-width:820px)').matches;
+      var webm = film.canPlayType('video/webm; codecs="vp9"');
+      film.src = film.dataset.src ? (webm && film.dataset.srcWebm ? film.dataset.srcWebm : film.dataset.src)
+        : film.dataset[small ? 'narrow' : 'wide'] + (webm ? '.webm' : '.mp4');
+      var ft = gsap.timeline({ paused: true });
+      ft.to(paths, { strokeDashoffset: 0, duration: .55, ease: 'power2.inOut', stagger: { amount: .5 } }, 0);
+      mats.forEach(function (m, i) { ft.to(m, { opacity: 1, duration: .4, ease: 'power1.inOut' }, .7 + i * .08); });
+      ft.to(inks, { opacity: 0, duration: .4 }, .95);
+      ft.to(order.map(function (k) { return L[k]; }), { yPercent: 0, duration: .45, ease: 'power2.inOut' }, .7);
+      var done = false;
+      function built() {
+        if (done) return; done = true; poster.classList.add('built');
+        // the landing: the camera pushes in on the closed house (the film
+        // ends with it low in the frame — measured centre 72.7 %, height 48 %)
+        if (act.classList.contains('filming'))
+          tweens.push(gsap.to(film, { yPercent: -29.5, scale: 1.3, duration: 1.3, ease: 'power2.inOut' }));
+      }
+      function seat() {                                       // the old way, if the film cannot play
+        act.classList.remove('filming'); poster.classList.remove('filmed');
+        var st = gsap.timeline({ onComplete: built });
+        ['ground', 'upper', 'roof'].forEach(function (k, i) {
+          st.to(L[k], { yPercent: +L[k].dataset.y1, duration: .42, ease: 'power2.in' }, i * .42);
+        });
+        tweens.push(st);
+      }
+      ft.call(function () {
+        film.playbackRate = 1.5;
+        film.addEventListener('ended', built, { once: true });
+        // only a film that never STARTED hands back to the layers — an ended film is paused too
+        var started = false;
+        film.addEventListener('playing', function () { started = true; }, { once: true });
+        var guard = setTimeout(function () { if (!started) { film.pause(); seat(); } }, 6000);
+        tweens.push({ kill: function () { clearTimeout(guard); } });
+        act.classList.add('filming');                         // its poster is the same frame
+        poster.classList.add('filmed');
+        var pr = film.play();
+        if (pr && pr.catch) pr.catch(function () { clearTimeout(guard); seat(); });
+      }, null, 1.25);
+      tweens.push(ft);
+      tl = ft; houseTl = ft;
+    }
     /* the words do not wait for the house */
     function typeset() { poster.classList.add('typeset'); }
     if (document.body.classList.contains('ready')) { typeset(); tl.play(); }
     else { pendingPlay = tl; pendingTypeset = typeset; }
 
-    // the way out: layers drift apart with depth as the poster scrolls off
+    // the way out: layers drift apart with depth as the poster scrolls off;
+    // the closed film house leaves as one piece
+    if (film) {
+      tweens.push(gsap.to(act, { y: function () { return -innerHeight * .08; }, ease: 'none',
+        scrollTrigger: track(ScrollTrigger.create({
+          trigger: poster, start: 'top top', end: 'bottom top', scrub: .4, invalidateOnRefresh: true
+        })) }));
+      return;
+    }
     var drift = { roof: -14, upper: -8, ground: -3, base: 2 };
     order.forEach(function (n) {
       tweens.push(gsap.to(L[n], { y: function () { return innerHeight * drift[n] / 100; }, ease: 'none',

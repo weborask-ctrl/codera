@@ -57,8 +57,8 @@ def main() -> None:
   var A = window.__A || {};
   document.querySelectorAll('[data-a]').forEach(function (i) { A[i.dataset.a] = i.getAttribute('src'); });
   function fillAssets(root) {
-    root.querySelectorAll('[src^="#a:"],[data-thumb^="#a:"]').forEach(function (e) {
-      ['src', 'data-thumb'].forEach(function (k) {
+    root.querySelectorAll('[src^="#a:"],[data-thumb^="#a:"],[data-src^="#a:"],[data-src-webm^="#a:"],[poster^="#a:"]').forEach(function (e) {
+      ['src', 'data-thumb', 'data-src', 'data-src-webm', 'poster'].forEach(function (k) {
         var v = e.getAttribute(k);
         if (v && v.indexOf('#a:') === 0) e.setAttribute(k, A[v.slice(3)] || '');
       });
@@ -124,11 +124,16 @@ def main() -> None:
 
     ASSET = r'(?<!/)assets/([A-Za-z0-9_.\-]+\.(?:jpg|jpeg|png|webp|svg))'
     templates, used = "", set()
+    FILM = 'data-wide="assets/hero" data-narrow="assets/hero-720"'
+    FILM_TOKEN = 'data-src="#a:hero-720.mp4" data-src-webm="#a:hero-720.webm"'
     for p in pages:
         html = p.read_text(encoding="utf-8")
         title = re.search(r"<title>(.*?)</title>", html, re.S).group(1)
         desc = re.search(r'<meta name="description" content="(.*?)">', html).group(1)
         mainm = re.search(r"(<main id=\"main\".*?</main>)", html, re.S).group(1)
+        mainm = mainm.replace(FILM, FILM_TOKEN)
+        if FILM_TOKEN in mainm:
+            used.update({"hero-720.mp4", "hero-720.webm"})
         used.update(re.findall(ASSET, mainm))
         mainm = re.sub(ASSET, lambda m: "#a:" + m.group(1), mainm)
         templates += (f'<template data-file="{p.name}" data-title="{title}" data-desc="{desc}">'
@@ -151,6 +156,8 @@ def main() -> None:
     live_src = set(re.findall(r'src="' + ASSET, live))
     live = re.sub(r'src="' + ASSET, lambda m: f'data-a="{m.group(1)}" src="assets/{m.group(1)}', live)
     live = re.sub(r'data-thumb="' + ASSET, lambda m: f'data-thumb="#a:{m.group(1)}', live)
+    if FILM in live:
+        live = live.replace(FILM, FILM_TOKEN); used.update({"hero-720.mp4", "hero-720.webm"})
     used.update(re.findall(r'#a:([A-Za-z0-9_.\-]+)', live))
     out = out[:live_m.start()] + live + out[live_m.end():]
     amap = ",".join(f'"{n}":"{data_uri(n)}"' for n in sorted(used - live_src))
