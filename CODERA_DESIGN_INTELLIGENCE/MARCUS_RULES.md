@@ -40,3 +40,19 @@ For subsequent work, communicate and execute in three phases: **riešenie → po
 ## Decorative metadata — explicit reinforcement, 2026-09-24
 
 Never add small corner captions such as “Koncept · Animácie”, category tags or decorative metadata above/around project previews in any Codera or client project. This is the same standing ban on micro-labels, not a separate exception. When a factual qualifier is necessary (for example that work is a studio concept), state it once in normal readable section copy. Review the actual rendered DOM and screenshot, including project cards, before shipping.
+
+## Composition and Silver refinement — 2026-09-24
+
+Marcus requested consistent alignment and visual weight between the heading and supporting-copy columns throughout Codera. Matching fonts alone is insufficient. The portfolio must use a generous outer frame in Codera's shape language; preserve the complete screenshot inside it. Refine video smoothness, source detail and restrained pointer depth together, while keeping text stable and the 8 GB target machine usable. This iteration is explicitly **local only, no merge or deployment** until requested.
+
+### Follow-up direction — 2026-09-24
+
+- Use one consistent neutral liquid-glass colour across all portfolio frames, superseding the earlier per-project tint study.
+- Keep equal spacing on all four sides between the glass frame and preview. Preview corners must share the same rounded shape language and consistent radii across projects.
+- Keep “72” and “hodín” next to each other, with the entire group optically centred in its panel; this supersedes centring the number separately.
+- Enlarge all principal headings, with the strongest increase in the hero. Render sharp native text at its intended size, without bitmap text or scaling used to fake a larger font.
+- Further scroll smoothing must preserve the current media quality.
+
+### Release correction — 2026-09-24
+
+Marcus removed the pointer-driven camera effect: keep the film stationary under mouse movement. Align both pricing offers by heading, audience, price, details and action rows, including when details expand. He explicitly authorized merging the accumulated Silver refinement, superseding the local-only constraint for this release.

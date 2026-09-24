@@ -30,6 +30,13 @@ Rounded sections expose the preceding section's colour. The footer wordmark
 uses SVG outlines. Offers start at €499 (Profesionálny web) and €699 (Motion
 web). Business facts remain in `lib/site-config.ts`.
 
+Approved follow-up: 1080p/60 delivery with offline interpolation and sharpening,
+latest-frame scheduling, larger native-text headings, uniform liquid-glass
+portfolio frames, centred inline “72 hodín”, and shared pricing rows. The film
+has no mouse-driven movement. Native source remains 1080p/24; interpolation does
+not create new captured detail. See `experiments/metal/LOCAL_REFINEMENT.md` and
+the follow-up PR for measured results and release status.
+
 Validation: `npm run verify`, Playwright homepage/demo coverage, and
 `scripts/metal-check.mjs` (including delayed byte ranges, forward/reverse
 seeks, touch/reduced motion and recovery). Remote Vercel preview was checked

@@ -9,10 +9,13 @@ const smallTouch = matchMedia('(pointer: coarse)');
 const beats = [...document.querySelectorAll('.hero-beat')];
 // Continuous camera journey, compressing the still handles in the supplied film.
 const cameraPoints = [[0,2.6],[.38,5.7],[.67,9.5],[1,13.5]];
+// Story timestamps stay in the original master; the delivery clip omits unused handles.
+const mediaOffset = 2.583333;
+const mediaFps = 60;
 let trigger, timeline, scrub, active = false, desiredTime = 0, pendingFrame = 0;
 let loadWatchdog = 0, seekWatchdog = 0, captionFallback = 0, retries = 0;
 let userMotion = null, failed = false, sampleCount = 0, latencyTotal = 0, seekStarted = 0;
-const diagnostics = { targetTime: 0, displayedTime: 0, progress: 0, seeks: 0, averageSeekMs: 0, active: false, resolution: '', reason: 'initializing', lastIssue: '', retries: 0 };
+const diagnostics = { targetTime: 0, displayedTime: 0, progress: 0, seeks: 0, averageSeekMs: 0, active: false, resolution: '', mediaOffset, mediaFps, reason: 'initializing', lastIssue: '', retries: 0 };
 Object.defineProperty(window, '__coderaMotion', { value: diagnostics });
 
 function wantsMotion() { return userMotion ?? (!reduced.matches && !smallTouch.matches); }
@@ -52,10 +55,12 @@ function mediaReady() {
 
 // Exactly one outstanding seek, with latest-scroll-wins backpressure. No decoded image bank.
 function requestFrame() {
-  pendingFrame = 0;
+  cancelAnimationFrame(pendingFrame); pendingFrame = 0;
   if (!active || document.hidden || video.readyState < 2 || video.seeking) return;
-  const time = Math.min(desiredTime, video.duration - .08);
-  if (Math.abs(video.currentTime - time) < 1 / 48) return;
+  const localTime = Math.max(0,Math.min(desiredTime-mediaOffset,video.duration-1/mediaFps));
+  // Seek only distinct frames, just inside the timestamp to avoid boundary rounding.
+  const time = Math.min(Math.round(localTime*mediaFps)/mediaFps+.0005,video.duration-.001);
+  if (Math.abs(video.currentTime - time) < .5/mediaFps) return;
   seekStarted = performance.now();
   video.currentTime = time;
   diagnostics.seeks++;
@@ -65,19 +70,19 @@ function schedule() { if (!pendingFrame && active && !document.hidden) pendingFr
 video.addEventListener('seeked', () => {
   clearTimeout(seekWatchdog);
   // Reloading the opening frame is not a successful recovery of a distant seek.
-  if(Math.abs(video.currentTime-desiredTime)<.1)retries=0;
+  if(Math.abs(video.currentTime+mediaOffset-desiredTime)<.1)retries=0;
   if (seekStarted) { latencyTotal += performance.now() - seekStarted; diagnostics.averageSeekMs = Math.round(latencyTotal / ++sampleCount); }
-  if (!video.requestVideoFrameCallback) { diagnostics.displayedTime = video.currentTime; presentStory(video.currentTime); }
+  if (!video.requestVideoFrameCallback) { diagnostics.displayedTime = video.currentTime+mediaOffset; presentStory(video.currentTime+mediaOffset); }
   else {
     // Some embedded browsers delay frame callbacks on paused video. Keep captions usable.
     clearTimeout(captionFallback);
-    const settledTime=video.currentTime;
+    const settledTime=video.currentTime+mediaOffset;
     captionFallback=setTimeout(()=>presentStory(settledTime),120);
   }
-  schedule();
+  requestFrame();
 });
 if (video.requestVideoFrameCallback) {
-  const presented = (_now, info) => { clearTimeout(captionFallback); diagnostics.displayedTime = info.mediaTime; presentStory(info.mediaTime); video.requestVideoFrameCallback(presented); };
+  const presented = (_now, info) => { clearTimeout(captionFallback); diagnostics.displayedTime = info.mediaTime+mediaOffset; presentStory(info.mediaTime+mediaOffset); video.requestVideoFrameCallback(presented); };
   video.requestVideoFrameCallback(presented);
 }
 video.addEventListener('loadeddata', mediaReady);
@@ -94,7 +99,9 @@ function update(progress) {
   desiredTime=a[1]+(b[1]-a[1])*(progress-a[0])/(b[0]-a[0]);
   diagnostics.targetTime=desiredTime;
   diagnostics.progress=progress;
-  schedule();
+  // ScrollTrigger already updates on an animation frame. Do not queue another
+  // display-frame delay; the seeking guard still allows only one decode at a time.
+  requestFrame();
 }
 function presentStory(time) {
   if (!active || !timeline) return;
@@ -137,11 +144,11 @@ function configure() {
   const { gsap, ScrollTrigger } = window;
   gsap.registerPlugin(ScrollTrigger);
   ScrollTrigger.config({ignoreMobileResize:true});
-  gsap.set(beats[0],{autoAlpha:1,y:0});
-  gsap.set(beats.slice(1),{autoAlpha:0,y:30});
+  gsap.set(beats[0],{autoAlpha:1,y:0,force3D:false});
+  gsap.set(beats.slice(1),{autoAlpha:0,y:30,force3D:false});
   gsap.set('.film-shade',{'--reading-shade':0,opacity:1});
   gsap.set('.tunnel-fade',{opacity:0});
-  timeline=gsap.timeline({paused:true,defaults:{ease:'none'}})
+  timeline=gsap.timeline({paused:true,defaults:{ease:'none',force3D:false}})
     .to(beats[0],{autoAlpha:0,y:-35,duration:.07},.08)
     .to(beats[1],{autoAlpha:1,y:0,duration:.07},.17)
     .to(beats[1],{autoAlpha:0,y:-25,duration:.06},.44)
@@ -156,12 +163,12 @@ function configure() {
     .to('.film-progress i',{scaleX:1,duration:1},0);
   const camera={progress:0};
   scrub=gsap.to(camera,{progress:1,duration:1,ease:'none',paused:true,onUpdate:()=>update(camera.progress)});
-  trigger=ScrollTrigger.create({trigger:journey,start:'top top',end:'bottom bottom',animation:scrub,scrub:.85,onRefresh:self=>{scrub.progress(self.progress);update(self.progress);}});
-  if(!video.getAttribute('src')){video.src='/media/journey-detail-1080.mp4';video.preload='auto';video.load();}
+  trigger=ScrollTrigger.create({trigger:journey,start:'top top',end:'bottom bottom',animation:scrub,scrub:.55,onRefresh:self=>{scrub.progress(self.progress);update(self.progress);}});
+  if(!video.getAttribute('src')){video.src='/media/journey-scroll-1080.mp4';video.preload='auto';video.load();}
   else if(video.readyState>=2)film.classList.add('is-ready');
   watchLoading();
   update(trigger.progress);
-  presentStory(video.currentTime);
+  presentStory(video.currentTime+mediaOffset);
 }
 toggle.addEventListener('click',()=>{
   userMotion=!active;

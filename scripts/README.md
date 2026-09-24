@@ -50,3 +50,6 @@ Builds `app/fonts/*.woff2` from the google/fonts variable sources with harfbuzz 
 - `npm run silver:assets` copies the reviewed browser source, self-hosted fonts and GSAP into ignored `public/silver`. Runs automatically before build.
 - `METAL_URL=<url> METAL_PRODUCTION=1 npm run silver:check` validates presented video frames, native scroll, fallback/recovery and previews on the production server. Omit METAL_PRODUCTION only for the standalone prototype server.
 - `METAL_URL=<url> npm run silver:layout` captures six viewport sizes and checks stack geometry and overflow. Run after Playwright (which clears test-results).
+
+- `METAL_URL=<url> node scripts/metal-polish-check.mjs --layout-only` checks six responsive sizes, uniform glass spacing, stationary film under mouse input and shared pricing rows with independently expanded details. Edge is required. Omit `--layout-only` only against the standalone prototype to compare the original and interpolated media.
+- `python scripts/metal-smooth-media.py --ffmpeg <path>` prepares the 1080p/60 delivery from the locally supplied original MOV. The original and intermediate are local inputs, not required for serving the shipped video. `--reuse-interpolated` avoids recomputing optical flow. See `experiments/metal/LOCAL_REFINEMENT.md` for quality and size measurements.
