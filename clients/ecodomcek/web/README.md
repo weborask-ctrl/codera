@@ -94,7 +94,7 @@ logo v krivkách. Potvrdiť: chráni EcoDomček drevo bóraxom (na starom webe l
 --directory dist` (potrebuje `NODE_PATH=/opt/node22/lib/node_modules`). Na úvode
 `?sec=0&step=3&p=0.66` ukáže konkrétny stav hera.
 
-## Úvodný film (fal.ai) — koncový záber PASS, film čaká na schválenie
+## Úvodný film (fal.ai) — hotový: `renders/fal/hero.mp4`
 
 `src/fal_hero.py` potrebuje `FAL_KEY` v nastaveniach prostredia. Tri kroky, každý nanajvýš
 jedna platená úloha:
@@ -161,7 +161,15 @@ len box, preto ju `clear_above` prefarbí pozadím. Box pred čistením bol y 13
 štartu: obklad je v zábere zvislými doskami a pozadie je o 2 odtiene teplejšie. Spolu za
 `close` 0,34 $.
 
-`film` čaká na schválenie.
+### Film — 2026-09-24
+
+Kling v3 Pro (request `01a0d529-e16b-78c3-956f-5a0593e92a1e`, 5 s bez zvuku, 0,56–0,70 $),
+1920×1080, 24 fps, 121 snímok, 10,7 MB. Kamera stojí: box na snímkach 0/24/48/72/96/120
+drží x 280–691 a spodok 508–510. Prvá a posledná snímka sa od štartu a konca líšia
+v priemere o 1,9 a 1,4 z 255. Poradie: prízemie na dosku, poschodie, strecha. Obklad
+prejde z vodorovného na zvislý počas skladania.
+
+Na web ešte nie je zapojený a pre web treba menší súbor (10,7 MB je priveľa pre úvod).
 
 ## Spustiteľnosť
 
