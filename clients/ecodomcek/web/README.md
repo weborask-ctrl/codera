@@ -108,3 +108,18 @@ jedna platená úloha:
    `end_image_url`, 5 s, bez zvuku) → `renders/fal/hero.mp4`.
 
 `renders/fal/start-exploded.jpg` je zložený z tých istých `lyr-*.webp`, ktoré používa web.
+
+## Spustiteľnosť
+
+- **Kanonické URL a zdieľanie**: každá stránka má `canonical` a `og:*` na `https://www.ecodomcek.sk/`
+  (`SITE` v `content.py`). Karta pri zdieľaní je `assets/og.jpg` (1200×630, generuje ju
+  `share_card()` v `build.py` z tých istých vrstiev a písma ako hero); detail realizácie
+  zdieľa vlastnú fotku.
+- **Vyhľadávače**: `sitemap.xml`, `robots.txt`; na úvode JSON-LD `GeneralContractor` len z
+  overených údajov (názov, IČO, IČ DPH, adresa, telefón, e-mail, vznik 1. 1. 2017, konateľ).
+  Žiadne hodnotenia, otváracie hodiny ani oblasť pôsobenia — tie nemáme.
+- **Obrázky**: stránky načítavajú WebP (kvalita 76: −23 %, najhoršie PSNR 35 dB), JPEG ostáva
+  len pre zdieľanie. Každý `<img>` má `width`/`height`, layout pri načítaní neposkakuje.
+- **Formulár** (`kontakt.html`): server zatiaľ nie je, takže otvorí e-mail návštevníka s hotovým
+  dopytom na `dobryden@ecodomcek.sk`. Bez JS nesie aspoň predmet a text. Na ostrom hostingu ho
+  treba napojiť na skutočné odosielanie (napr. funkcia hostingu) — rozhodne to hosting.

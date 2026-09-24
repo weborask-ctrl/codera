@@ -136,33 +136,35 @@ def build(B):
 </div>''', sid="kontakt")
 
     def form():
-        return f'''<form onsubmit="return false" novalidate>
+        """No server yet, so the form does what it honestly can: it opens the
+        visitor's own e-mail with the enquiry already written to the client.
+        Without JS the browser's mailto: GET still carries subject and text."""
+        return f'''<form class="inquiry" action="mailto:{C.EMAIL}" method="get" data-mail="{C.EMAIL}" novalidate>
+  <input type="hidden" name="subject" value="Dopyt z webu">
   <div class="form">
     <label>Meno<input type="text" name="meno" autocomplete="name"></label>
     <label>Telefón alebo e-mail<input type="text" name="kontakt" autocomplete="tel"></label>
-    <label class="wide">Čo staviame?<textarea rows="3" name="sprava"
+    <label class="wide">Čo staviame?<textarea rows="3" name="body"
       placeholder="Dom, strecha, terasa, altánok… alebo len otázka."></textarea></label>
   </div>
-  <button class="btn" style="margin-top:30px" type="submit">Poslať dopyt {ARROW}</button>
-  <p class="fine" style="margin-top:16px">Formulár je v návrhu nefunkčný — na ostrej stránke
-    pošle dopyt na {C.EMAIL}.</p>
+  <button class="btn" style="margin-top:30px" type="submit">Pripraviť e-mail {ARROW}</button>
+  <p class="fine fstatus" style="margin-top:16px" aria-live="polite">Otvorí sa váš e-mail s hotovým
+    dopytom na {C.EMAIL} — stačí ho odoslať. Alebo zavolajte {C.PHONE}.</p>
 </form>'''
 
-    def masthead(kota, head, lead, meta=None, band="paper", name="Úvod"):
-        """Every masthead page passes an annotation line — "Realizácie /
-        2008 — 2024", "Technológia / difúzne otvorená stavba" — and until
-        2026-09-18 the template took the argument and threw it away, so all
-        four pages opened on a bare headline. The annotation layer is the
-        one the reference map asks for (industrial-architectural.md:
-        specimen-labels, kóty); `.eyebrow` was already styled for it, dark
-        bands included, and had no callers at all.
+    def masthead(head, lead, meta=None, band="paper", name="Úvod"):
+        """A page opens on its headline — no annotation line above it.
+
+        Ondrej, phase 7 (2026-09-14): „odstráň zbytočné malé texty a
+        podnadpisy, ktoré nedávajú význam". A parallel session restored the
+        eyebrow ("Realizácie / 2008 — 2024") on 2026-09-18 as a template
+        bug; it was his decision, so the argument is gone for good.
         """
         m = ""
         if meta:
             m = '<div class="mmeta fade d2">' + "".join(
                 f"<div><span>{esc(k)}</span><b>{esc(v)}</b></div>" for k, v in meta) + "</div>"
         return section(0, name, band, f'''<div class="wrap masthead" data-reveal>
-  {f'<p class="eyebrow">{kota}</p>' if kota else ''}
   <h1>{lines(head)}</h1>
   {f'<p class="lead fade d2">{lead}</p>' if lead else ''}
   {m}
@@ -187,18 +189,29 @@ def build(B):
   </div>
 </section>'''
 
-    # services as one big typographic list — the words are the design
-    svc_words = "".join(
-        f'<a href="sluzby.html#s{i}" style="--i:{i}"><span>{esc(n)}</span><i>{esc(u)}</i></a>'
-        for i, (u, n, _) in enumerate(C.SERVICES))
+    # services as the hero of their band (pangram.md: the word owns the
+    # frame). Where a service is proven, the pointer carries a real photo
+    # from that job (basement.md: evidence, not decoration) and the count
+    # says how many jobs prove it; an unproven service is just its word.
+    def svc_word(i, n):
+        ev = [p for p in C.PROJECTS if i in p["services"]]
+        shot = next((photo_src(p) for p in ev if photo_src(p)), None)
+        th = f' data-thumb="{shot}"' if shot else ""
+        sup = f"<sup>{len(ev)}</sup>" if ev else ""
+        return f'<a href="sluzby.html#s{i}"{th}>{esc(n)}{sup}</a>'
+    svc_words = " ".join(svc_word(i, n) for i, (_, n, _) in enumerate(C.SERVICES))  # spaces = break points
 
     home = hero + section(1, "Čo staviame", "paper", f'''<div class="wrap" data-reveal>
-  <h2 class="big fade">{lines("Dom, strechu, terasu.|A všetko medzi tým.")}</h2>
-  <div class="svcwords">{svc_words}</div>
+  <div class="svchead">
+    <h2 class="fade">{lines("Dom, strechu, terasu.|A všetko medzi tým.")}</h2>
+    <p class="fade d2">Dvanásť vecí, ktoré robíme. Číslo pri slove je počet našich stavieb,
+      kde ich uvidíte.</p>
+  </div>
+  <div class="svcwords fade d2" data-peek>{svc_words}</div>
 </div>''') + section(2, "Stena", "moss", f'''<div class="wrap wallteaser" data-reveal>
   <div class="wt-text">
     <h2 class="fade">{lines("Otvoríme|vám <em>stenu</em>.")}</h2>
-    <p class="lead fade d2">„My, konzervatívni Slováci, jej veľmi nedôverujeme.“ Preto drevostavbu
+    <p class="lead fade d2">„…my, konzervatívni Slováci jej veľmi nedôverujeme…“ Preto drevostavbu
       neschovávame. Potiahnite stenu a pozrite sa, čo je v nej — sedem vrstiev, každá s menom.</p>
     <div class="fade d3">{btn("Roztiahnuť stenu", "stena.html")}</div>
   </div>
@@ -228,10 +241,26 @@ def build(B):
   {process()}
 </div>''') + contact_band("index.html")
 
+    # who we are, for search engines — only facts from content.py, which
+    # traces to the client's own site; no area served, no ratings, no hours
+    business = {
+        "@context": "https://schema.org", "@type": "GeneralContractor",
+        "name": "EcoDomček", "legalName": C.NAME, "url": C.SITE,
+        "telephone": C.PHONE_RAW, "email": C.EMAIL, "slogan": C.MOTTO,
+        "foundingDate": C.FOUNDED, "vatID": C.LEGAL[1].split()[-1],
+        "identifier": {"@type": "PropertyValue", "propertyID": "IČO", "value": C.LEGAL[0].split()[-1]},
+        "image": C.SITE + "assets/og.jpg", "logo": C.SITE + "assets/favicon.svg",
+        "address": {"@type": "PostalAddress", "streetAddress": C.ADDRESS[0],
+                    "postalCode": C.ADDRESS[1].split()[0] + " " + C.ADDRESS[1].split()[1],
+                    "addressLocality": C.ADDRESS[1].split(maxsplit=2)[2], "addressRegion": "Prešovský kraj",
+                    "addressCountry": "SK"},
+        "employee": {"@type": "Person", "name": C.DIRECTOR, "jobTitle": "konateľ"},
+        "knowsAbout": [n for _, n, _ in C.SERVICES],
+    }
     page("index.html", "EcoDomček — drevostavby z Lúčiny",
          "Montované drevodomy, strechy, terasy a interiéry z Lúčiny pri Prešove. "
          "Difúzne otvorené stavby z ekologických materiálov, od základov po kolaudáciu.",
-         home, "index", first="Dom")
+         home, "index", first="Dom", jsonld=business)
 
     # ═══════════════════════════════════════════════════════════════════
     # 2 — REALIZÁCIE (index)
@@ -246,8 +275,7 @@ def build(B):
                   f"<h3>{esc(title_of(p))}</h3>"
                   f'<p class="pl">{esc(p["place"])}</p></a>')
 
-    real = masthead("Realizácie <i>/</i> 2008 — 2024",
-                    "Osem stavieb.|Jedna <em>technológia</em>.",
+    real = masthead("Osem stavieb.|Jedna <em>technológia</em>.",
                     "Od svojpomocného domčeka v Lúčine po dvojpodlažný dom pri Košiciach. "
                     "Každá stavba je difúzne otvorená a z ekologických materiálov — "
                     "to sa nemení, aj keď fasáda áno.", name="Realizácie")
@@ -418,7 +446,9 @@ def build(B):
 </div>''')
         body += contact_band()
         page(f"realizacia-{p['slug']}.html", f"{title_of(p)} ({p['year']}) — EcoDomček",
-             f"{p['text'][:150]}…", body, "realizacia", first=title_of(p))
+             f"{p['text'][:150]}…", body, "realizacia", first=title_of(p),
+             image=f"foto-{p['photo']}.jpg" if p.get("photo") else "og.jpg",
+             image_alt=p["shot"] if p.get("photo") else "")
 
     # ═══════════════════════════════════════════════════════════════════
     # 4 — SLUŽBY — a ledger with its evidence
@@ -596,8 +626,7 @@ def build(B):
     # 6 — O NÁS — one column, one measure, the client's own words; the
     # years stand in the margin like marginalia
     # ═══════════════════════════════════════════════════════════════════
-    about = masthead("O nás <i>/</i> od roku 2007",
-                     "Kto sme a čo nám|ide <em>najlepšie</em>.",
+    about = masthead("Kto sme a čo nám|ide <em>najlepšie</em>.",
                      "",
                      name="O nás")
     essay = [

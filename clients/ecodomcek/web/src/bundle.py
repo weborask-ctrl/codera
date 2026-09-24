@@ -27,7 +27,7 @@ def data_uri(name: str) -> str:
 
 
 def inline_assets(text: str) -> str:
-    return re.sub(r'assets/([A-Za-z0-9_.\-]+\.(?:jpg|jpeg|png|webp|svg))',
+    return re.sub(r'(?<!/)assets/([A-Za-z0-9_.\-]+\.(?:jpg|jpeg|png|webp|svg))',
                   lambda m: data_uri(m.group(1)), text)
 
 
@@ -122,7 +122,7 @@ def main() -> None:
     js = js.replace("    if (samePage(url) && url.hash) return;          // anchors scroll normally",
                     "    if (!BUNDLE && samePage(url) && url.hash) return;   // anchors scroll normally")
 
-    ASSET = r'assets/([A-Za-z0-9_.\-]+\.(?:jpg|jpeg|png|webp|svg))'
+    ASSET = r'(?<!/)assets/([A-Za-z0-9_.\-]+\.(?:jpg|jpeg|png|webp|svg))'
     templates, used = "", set()
     for p in pages:
         html = p.read_text(encoding="utf-8")

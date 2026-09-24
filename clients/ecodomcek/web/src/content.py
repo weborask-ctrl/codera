@@ -12,6 +12,8 @@ Numbers we do not have stay as the visible placeholder [doplní EcoDomček].
 
 # ── company ──────────────────────────────────────────────────────────────
 NAME = "EcoDomček, s.r.o."
+SITE = "https://www.ecodomcek.sk/"                # the client's own domain
+FOUNDED = "2017-01-01"                            # „vznikla 1.1.2017" (O nás)
 PHONE = "0908 704 281"
 PHONE_RAW = "+421908704281"
 EMAIL = "dobryden@ecodomcek.sk"

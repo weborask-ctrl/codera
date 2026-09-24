@@ -605,3 +605,32 @@ zobrazeným rezom); reduced motion kreslí ustálený snímok. Bundle z
 `file://`: 62 obrázkov na 15 stránkach načítaných, klik z miniatúry
 v Službách otvorí správny detail. Reálny mobil a Safari NOT
 VALIDATED — v kontajneri je len Chromium.
+
+---
+
+## Fáza 10 — úvod, štítky, spustiteľnosť (2026-09-24)
+
+Ondrej: „pokračuj so všetkým, čo vieš." (Úvodný film cez fal beží v inej
+session — táto nemá `FAL_KEY`.)
+
+**Úvod — služby.** Opisované ako „obrie slová", v skutočnosti stredný
+zoznam s háčikom schovaným do 10px mono. Teraz dvanásť slov na 6,2 vw
+(`pangram.md`: slovo vlastní rám), lomky v piesku; číslo pri slove len
+tam, kde ho doloží stavba, a kurzor nesie skutočnú fotku z tej stavby
+(`basement.md`). Pri tom sa ukázalo, že **„peek" nikdy nefungoval nikde**
+— fixný box bez `top/left` sedel na konci dokumentu, 6 500 px pod
+obrazovkou. Opravené; fotka ide pod riadok kurzora, nikdy cez čítané
+slovo. Teaser steny citoval klienta s pridanou čiarkou a bez naznačeného
+strihu — teraz doslova s „…".
+
+**Štítky nad nadpismi preč.** Paralelná session ich 2026-09-18 vrátila
+ako „chybu šablóny"; bolo to Ondrejovo rozhodnutie z fázy 7. Parameter aj
+CSS `.eyebrow` a mŕtve pomocné funkcie odstránené.
+
+**Spustiteľnosť.** Kanonické URL, karta na zdieľanie z vlastných vrstiev
+a písma (detail realizácie zdieľa svoju fotku), `sitemap.xml`,
+`robots.txt`, JSON-LD len z overených údajov (konateľ ako `employee`,
+nie `founder` — zakladateľstvo nie je doslova doložené). WebP q76
+(−23 %), `width/height` na každom obrázku. Formulár otvára e-mail
+návštevníka s hotovým dopytom — poctivé bez servera. Bundle nevkladá
+base64 do absolútnych URL v `og:image`: 2,5 MB.

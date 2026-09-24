@@ -56,6 +56,7 @@
     initWall();
     initSheet();
     initVapour();
+    initForm();
     initMarks();
     ScrollTrigger.refresh();
   }
@@ -468,6 +469,29 @@
       onToggle: function (self) { if (self.isActive) start(); else stop(); } }));
   }
 
+  // ── the enquiry: written into the visitor's own e-mail ────────────────
+  function initForm() {
+    var f = main.querySelector('form.inquiry');
+    if (!f) return;
+    var st = f.querySelector('.fstatus');
+    f.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var v = function (n) { return (f.elements[n].value || '').trim(); };
+      if (!v('body') && !v('kontakt')) {
+        st.textContent = 'Napíšte aspoň, čo staviate, alebo kontakt — ozveme sa.';
+        f.elements.body.focus();
+        return;
+      }
+      var body = (v('body') || '—') + '\n\n' + (v('meno') ? 'Meno: ' + v('meno') + '\n' : '') +
+                 (v('kontakt') ? 'Kontakt: ' + v('kontakt') + '\n' : '');
+      location.href = 'mailto:' + f.dataset.mail + '?subject=' +
+        encodeURIComponent('Dopyt z webu' + (v('meno') ? ' — ' + v('meno') : '')) +
+        '&body=' + encodeURIComponent(body);
+      st.textContent = 'Otvára sa váš e-mail s hotovým dopytom. Ak sa nič neotvorilo, napíšte na ' +
+        f.dataset.mail + ' alebo zavolajte.';
+    });
+  }
+
   // ── the running index: which act am I in ─────────────────────────────
   function initMarks() {
     var secs = [].slice.call(main.querySelectorAll('[data-sec]'));
@@ -489,7 +513,11 @@
     var px = 0, py = 0, tx = 0, ty = 0, raf = 0;
     function loop() {
       px += (tx - px) * .16; py += (ty - py) * .16;
-      peek.style.transform = 'translate3d(' + px + 'px,' + py + 'px,0)';
+      // below the pointer's line, never over the word being read; above it
+      // near the bottom edge, kept inside the viewport sideways
+      var x = Math.max(12, Math.min(innerWidth - 262, px - 125));
+      var y = py > innerHeight - 330 ? py - 306 : py + 56;
+      peek.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)';
       raf = requestAnimationFrame(loop);
     }
     main.querySelectorAll('.index a, [data-peek] a').forEach(function (a) {
