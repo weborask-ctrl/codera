@@ -79,3 +79,7 @@ The first practical trial should cover two adjacent lower-page sections at deskt
 - User-named reference sites checked: https://www.apple.com/ and https://www.adidas.com/us. Their current content is not evidence for any specific radius or font token above; those remain proposed study values.
 
 The current user-approved Silver direction and standing Marcus rules supersede conflicting historical prescriptions in older application documents. In particular, tracked uppercase micro-labels are not part of the current direction.
+
+## Approved Silver finish — 2026-09-24
+
+Marcus selected typography C: one Geist voice, no repeated italic headline treatment. A and B are rejected. Apple is a reference for precision, not permission to redistribute SF Pro. Use restrained superellipse geometry with a rounded fallback and 1.618:1 heading/copy proportions where the real content benefits; mobile stays single-column. Preserve the approved content, video story, palette, complete framed previews and 499/699 pricing. Implementation and merge were explicitly authorized. Detailed decisions and media limits: docs/CODERA_SILVER_FINISH.md.

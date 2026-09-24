@@ -14,6 +14,15 @@ try {
     const page=await browser.newPage({viewport:{width,height},hasTouch:width<701});
     await page.goto(url,{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.fonts.ready);
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+    const type=await page.locator('h1,h2,h3,.proposal-unit').evaluateAll(elements=>elements.filter(el=>!el.closest('dialog')&&!el.classList.contains('visually-hidden')).map(el=>{
+      const range=document.createRange();range.selectNodeContents(el);const rect=range.getBoundingClientRect();
+      const parent=el.closest('.offer')||el.parentElement,box=parent.getBoundingClientRect(),style=getComputedStyle(el);
+      return{text:el.textContent,left:rect.left,right:rect.right,boxLeft:box.left,boxRight:box.right,font:style.fontFamily,italic:style.fontStyle};
+    }));
+    for(const heading of type){
+      assert(heading.font.includes('Geist')&&heading.italic==='normal',`${heading.text}: consistent native sans-serif type`);
+      assert(heading.left>=heading.boxLeft-1&&heading.right<=heading.boxRight+1,`${width}: ${heading.text} must stay inside its surface`);
+    }
     const headings=await page.locator('.section-heading,.studio-intro,.contact-top').evaluateAll(elements=>elements.map(el=>({left:el.getBoundingClientRect().left,width:el.offsetWidth,copy:el.querySelector('p').getBoundingClientRect().left})));
     for(const heading of headings){assert(Math.abs(heading.left-headings[0].left)<1);assert(Math.abs(heading.copy-headings[0].copy)<1);}
     const centered=await page.locator('.proposal').evaluate(el=>{const card=el.getBoundingClientRect(),number=el.querySelector('.proposal-time').getBoundingClientRect();return Math.abs(number.x+number.width/2-card.x-card.width/2);});

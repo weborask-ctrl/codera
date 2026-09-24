@@ -56,3 +56,7 @@ Marcus requested consistent alignment and visual weight between the heading and 
 ### Release correction — 2026-09-24
 
 Marcus removed the pointer-driven camera effect: keep the film stationary under mouse movement. Align both pricing offers by heading, audience, price, details and action rows, including when details expand. He explicitly authorized merging the accumulated Silver refinement, superseding the local-only constraint for this release.
+
+## Approved Silver finish — 2026-09-24
+
+Marcus selected typography C: one Geist voice, no repeated italic headline treatment. A and B are rejected. Apple is a reference for precision, not permission to redistribute SF Pro. Use restrained superellipse geometry with a rounded fallback and 1.618:1 heading/copy proportions where the real content benefits; mobile stays single-column. Preserve the approved content, video story, palette, complete framed previews and 499/699 pricing. Implementation and merge were explicitly authorized. Detailed decisions and media limits: docs/CODERA_SILVER_FINISH.md.
