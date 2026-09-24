@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 
@@ -22,6 +22,30 @@ async function installVisibilitySimulation(page) {
     Object.defineProperty(document,'visibilityState',{configurable:true,get:()=>hidden?'hidden':'visible'});
     window.__setTestHidden=value=>{hidden=value;document.dispatchEvent(new Event('visibilitychange'));};
   });
+}
+async function slowSeekRecovery() {
+  const slow=await browser.newPage({viewport:{width:1280,height:800}});
+  const bytes=await readFile('public/motion/metal/journey-detail-1080.mp4');
+  let hold=false,held=0,release;const gate=new Promise(resolve=>{release=resolve;});
+  await slow.route('**/*.mp4',async route=>{
+    if(hold){held++;await gate;}
+    const start=Number(/bytes=(\d+)-/.exec(route.request().headers().range||'')?.[1]||0);
+    const end=Math.min(start+524287,bytes.length-1);
+    await route.fulfill({status:206,headers:{'content-type':'video/mp4','accept-ranges':'bytes','content-range':`bytes ${start}-${end}/${bytes.length}`},body:bytes.subarray(start,end+1)}).catch(()=>{});
+  });
+  try {
+    await slow.goto(url,{waitUntil:'domcontentloaded'});
+    await slow.waitForFunction(()=>window.__coderaMotion?.displayedTime>2.5&&!document.querySelector('video').seeking);
+    hold=true;
+    await slow.evaluate(()=>scrollTo(0,.85*(document.querySelector('.journey').offsetHeight-innerHeight)));
+    await slow.waitForFunction(()=>document.querySelector('video').seeking&&window.__coderaMotion.targetTime>11);
+    await slow.waitForTimeout(6500);
+    assert(held>0,'A distant seek must actually wait for a network range');
+    assert.equal(await slow.evaluate(()=>window.__coderaMotion.retries),0,'Slow range downloads must not trigger a reload after five seconds');
+    release();
+    await slow.waitForFunction(()=>Math.abs(window.__coderaMotion.displayedTime-window.__coderaMotion.targetTime)<.12&&!document.querySelector('video').seeking);
+    passed('Slow remote range completes a distant seek without restarting the video');
+  } finally {release();await slow.close();}
 }
 async function delayedMediaRecovery() {
   const slow=await browser.newPage({viewport:{width:1280,height:800}});
@@ -90,7 +114,7 @@ async function captionFallback(mode) {
   } finally {await fallback.close();}
 }
 // Independent lifecycle regressions wait for real browser timers alongside the ordinary checks.
-const lifecycleResults=Promise.allSettled([delayedMediaRecovery(),hiddenMediaRecovery()]);
+const lifecycleResults=Promise.allSettled([delayedMediaRecovery(),hiddenMediaRecovery(),slowSeekRecovery()]);
 try {
   const page=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});
   page.on('pageerror',error=>report.consoleErrors.push(error.message));

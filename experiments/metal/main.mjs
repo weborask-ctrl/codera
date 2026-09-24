@@ -29,6 +29,15 @@ function retryVideo(reason) {
     video.load(); watchLoading();
   } else { failed = true; configure(); }
 }
+function watchSeek() {
+  clearTimeout(seekWatchdog);
+  // Remote range requests may take longer than a local seek. Allow slow downloads
+  // to make progress instead of discarding their buffer every five seconds.
+  if (active && !document.hidden && video.seeking) {
+    seekWatchdog=setTimeout(()=>{if(video.seeking)retryVideo('seek-timeout');},30000);
+  }
+}
+video.addEventListener('progress',watchSeek);
 function mediaReady() {
   clearTimeout(loadWatchdog);
   // Late data must recover a timed-out opening without requiring a button click.
@@ -38,7 +47,7 @@ function mediaReady() {
     toggle.querySelector('.motion-label').textContent='Zastaviť pohyb';
   }
   diagnostics.resolution = `${video.videoWidth}×${video.videoHeight}`;
-  retries=0; schedule();
+  schedule();
 }
 
 // Exactly one outstanding seek, with latest-scroll-wins backpressure. No decoded image bank.
@@ -50,12 +59,13 @@ function requestFrame() {
   seekStarted = performance.now();
   video.currentTime = time;
   diagnostics.seeks++;
-  clearTimeout(seekWatchdog);
-  seekWatchdog = setTimeout(() => { if (video.seeking) retryVideo('seek-timeout'); }, 5000);
+  watchSeek();
 }
 function schedule() { if (!pendingFrame && active && !document.hidden) pendingFrame = requestAnimationFrame(requestFrame); }
 video.addEventListener('seeked', () => {
   clearTimeout(seekWatchdog);
+  // Reloading the opening frame is not a successful recovery of a distant seek.
+  if(Math.abs(video.currentTime-desiredTime)<.1)retries=0;
   if (seekStarted) { latencyTotal += performance.now() - seekStarted; diagnostics.averageSeekMs = Math.round(latencyTotal / ++sampleCount); }
   if (!video.requestVideoFrameCallback) { diagnostics.displayedTime = video.currentTime; presentStory(video.currentTime); }
   else {
