@@ -17,12 +17,14 @@ try {
     const type=await page.locator('h1,h2,h3,.proposal-unit,.offer-price').evaluateAll(elements=>elements.filter(el=>!el.closest('dialog')&&!el.classList.contains('visually-hidden')).map(el=>{
       const range=document.createRange();range.selectNodeContents(el);const rect=range.getBoundingClientRect();
       const parent=el.closest('.offer')||el.parentElement,box=parent.getBoundingClientRect(),style=getComputedStyle(el);
-      return{text:el.textContent,left:rect.left,right:rect.right,boxLeft:box.left,boxRight:box.right,font:style.fontFamily,italic:style.fontStyle};
+      return{text:el.textContent,isHeading:/^H[1-3]$/.test(el.tagName),left:rect.left,right:rect.right,boxLeft:box.left,boxRight:box.right,font:style.fontFamily,italic:style.fontStyle};
     }));
     for(const heading of type){
-      assert(heading.font.includes('Montserrat')&&heading.italic==='normal',`${heading.text}: consistent native sans-serif type`);
+      assert(heading.font.includes(heading.isHeading?'Montserrat':'Geist')&&heading.italic==='normal',`${heading.text}: only headings use Montserrat`);
       assert(heading.left>=heading.boxLeft-1&&heading.right<=heading.boxRight+1,`${width}: ${heading.text} must stay inside its surface`);
     }
+    const bodyFonts=await page.locator('.offer p,.offer summary,.offer a,.proposal-time span,.proposal>p:last-child,.section-heading>p,.studio-intro>p,.contact-top>p,.button,.navigation a,.enquiry input').evaluateAll(els=>els.map(el=>getComputedStyle(el).fontFamily));
+    assert(bodyFonts.every(font=>font.includes('Geist')),'Card content, prices, time, body copy and controls retain Geist');
     const headings=await page.locator('.section-heading,.studio-intro,.contact-top').evaluateAll(elements=>elements.map(el=>({left:el.getBoundingClientRect().left,width:el.offsetWidth,copy:el.querySelector('p').getBoundingClientRect().left})));
     for(const heading of headings){assert(Math.abs(heading.left-headings[0].left)<1);assert(Math.abs(heading.copy-headings[0].copy)<1);}
     const centered=await page.locator('.proposal').evaluate(el=>{const card=el.getBoundingClientRect(),number=el.querySelector('.proposal-time').getBoundingClientRect();return Math.abs(number.x+number.width/2-card.x-card.width/2);});
