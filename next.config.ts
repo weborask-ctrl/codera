@@ -17,6 +17,7 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  outputFileTracingIncludes: { "/": ["./experiments/metal/index.html"] },
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },

@@ -1,0 +1,116 @@
+/* Codera: a generous curve with a precise terminal. Native scroll throughout. */
+:root{--curve:48px;--surface:#f7f5ef;--gold:#d8c3a2}
+.journey.has-journey{height:700svh!important}
+.tunnel-fade{position:absolute;inset:0;opacity:0;pointer-events:none;background:radial-gradient(ellipse at 56% 48%,#d9bb86 0%,#7f6545 48%,#28231c 100%)}
+.work{border-radius:clamp(48px,8vw,130px) 0 0 0;padding-top:100px;padding-bottom:90px}
+.project-grid{gap:26px;max-width:1120px;margin-inline:auto;isolation:isolate}
+.project,.project:nth-child(even),.project-5{position:sticky;top:24px;padding:26px;background:var(--surface);border:1px solid #24242012;border-radius:var(--curve) 12px var(--curve) var(--curve);box-shadow:0 -8px 32px #25241e0a;min-width:0}
+.project-2{top:32px}.project-3{top:40px}.project-4{top:48px}.project-5{top:56px}
+.project:has(:focus-visible){z-index:6}
+.project-caption,.project-5 .project-caption{padding-bottom:18px;gap:18px}
+.project-caption h3,.project-5 .project-caption h3{font-size:clamp(32px,3.5vw,50px)}
+.project-caption p{font-size:18px;margin-top:5px}
+.project-caption .concept,.project-5 .concept{font-size:17px}
+.project-visual{border:0;border-radius:20px;background:#e5e2d9}
+.project-visual img{height:min(48svh,440px);aspect-ratio:auto;width:100%;object-fit:contain}
+.project-actions{margin-top:12px;align-items:center}
+.project-actions .text-link{font-size:17px;min-height:46px}
+.text-link span{transition:transform .24s ease}
+.text-link:hover span{transform:translate(3px,-3px)}
+.button{transition:background .24s ease,transform .24s ease}
+.button:hover{transform:translateY(-2px)}
+.services{background:#22231f;border-radius:0 clamp(48px,8vw,130px) 0 0;padding-top:100px}
+.services .section-heading{margin-bottom:55px}
+.offers{border:0;gap:18px;align-items:stretch}
+.offer,.offer+.offer,.offer:last-child{border:0;padding:32px;background:var(--surface);color:var(--ink);border-radius:48px 12px 48px 48px}
+.offer:nth-child(2){background:#e4ddcf}.offer:nth-child(3){background:#d8c3a2}
+.offer h3{font-size:clamp(34px,3.1vw,52px)}
+.offer-audience{color:#514e46;font-size:19px;min-height:114px;margin:24px 0}
+.offer-price{font-size:clamp(44px,4.3vw,72px)}
+.offer summary{border-color:#24242030;font-size:19px}
+.offer-plus{width:36px;height:36px;display:grid;place-items:center;border-radius:50%;background:#2424200c;font-size:26px;flex-shrink:0}
+.offer-exclusions{color:#514e46}
+.wordpress-line{padding:80px 0 90px}
+.studio{border-radius:clamp(48px,8vw,130px) 0 0 0;padding-top:100px}
+.studio-body{border:0;padding-top:0;gap:6vw;align-items:center;margin-top:70px}
+.proposal{background:#242520;color:var(--white);padding:clamp(28px,4.3vw,72px);border-radius:100px 12px 100px 48px}
+.proposal-time{color:var(--gold);font-size:clamp(135px,13vw,220px)}
+.proposal h3{font-size:clamp(32px,3vw,49px)}
+.proposal>p:last-child{color:#d3d0c7}
+.process>div,.process>div:first-child{padding:28px 0 28px 34px;border:0;border-left:2px solid #b8ac98;border-radius:0 0 0 30px}
+.process>div+div{margin-top:8px}
+.process h3{font-size:clamp(30px,2.8vw,43px)}
+.contact{border-radius:0 clamp(48px,8vw,130px) 0 0;padding-top:100px}
+.contact-grid{border-top:0;padding-top:0;margin-top:65px}
+.enquiry{padding:32px;background:#262722;border-radius:48px 12px 48px 48px}
+.enquiry input,.enquiry textarea{font-size:19px}
+.form-end{flex-wrap:wrap}
+.footer{margin-top:90px}
+@media(min-width:701px) and (max-width:1000px){
+  .offers{display:grid;grid-template-columns:1fr}
+  .offer,.offer+.offer,.offer:last-child{padding:32px;grid-template-columns:1fr 1fr}
+  .offer-audience{min-height:0}
+}
+@media(max-width:700px){
+  :root{--curve:30px}
+  .work,.services,.studio,.contact{padding-top:65px}
+  .work{padding-bottom:65px}
+  .project-grid{gap:22px}
+  .project,.project:nth-child(even),.project-5{padding:18px;top:12px;border-radius:30px 8px 30px 30px}
+  .project-2{top:18px}.project-3{top:24px}.project-4{top:30px}.project-5{top:36px}
+  .project-caption,.project-5 .project-caption{padding-bottom:14px}
+  .project-caption h3,.project-5 .project-caption h3{font-size:34px}
+  .project-caption p{font-size:17px}.project-caption .concept,.project-5 .concept{font-size:16px;margin-top:5px}
+  .project-visual{border-radius:12px}
+  .project-visual img{height:auto;aspect-ratio:1.6}
+  .project-actions{gap:4px;align-items:start;flex-direction:column}
+  .project-actions .text-link{font-size:16px}
+  .offers{display:grid;grid-template-columns:minmax(0,1fr);gap:18px}
+  .offer,.offer+.offer,.offer:last-child{padding:28px;border:0;border-radius:40px 10px 40px 40px}
+  .offer h3{font-size:43px}.offer-price{font-size:62px}.offer-audience{font-size:20px;min-height:0}
+  .wordpress-line{padding:60px 0 70px}
+  .studio-body{gap:28px;margin-top:40px}
+  .proposal{border-radius:65px 10px 65px 30px;padding:35px 28px}
+  .proposal-time{font-size:clamp(110px,32vw,150px);gap:12px}.proposal-time span{font-size:32px}.proposal h3{font-size:36px}
+  .process>div,.process>div:first-child{padding:24px 0 24px 24px}
+  .contact-grid{margin-top:40px}
+  .enquiry{padding:25px 20px;border-radius:35px 10px 35px 35px}
+}
+/* Short displays and reduced-motion visitors get the same complete cards in flow. */
+@media(max-height:620px),(prefers-reduced-motion:reduce){
+  .project,.project:nth-child(even),.project-5{position:relative;top:auto}
+}
+@media(prefers-reduced-motion:reduce){.button:hover,.text-link:hover span{transform:none}}
+
+/* Final refinement: let the work itself be the surface. Never crop its UI. */
+.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+.project-grid{max-width:min(1100px,calc((100svh - 155px)*1.6));gap:36px}
+.project,.project:nth-child(even),.project-5{padding:0;border:0;border-radius:0;background:var(--surface);box-shadow:0 -6px 30px #24242014}
+.project-visual{border:0;border-radius:0;background:transparent}
+.project-visual img{height:auto;width:100%;aspect-ratio:1.6;object-fit:contain;border-radius:0}
+.project-actions{padding:10px 24px;margin:0;gap:22px}
+.offers{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.offer,.offer+.offer,.offer:last-child{padding:42px;display:flex}
+.offer:last-child{background:#d8c3a2}
+.offer h3{font-size:clamp(38px,3.7vw,60px)}
+.offer-audience{min-height:64px;max-width:480px;font-size:21px}
+.offer-price{font-size:clamp(64px,6.5vw,102px)}
+.offer-price>span{font-size:24px}
+.offer-details{margin:32px 0}
+.work,.services,.studio,.contact{position:relative;isolation:isolate;border-radius:0;background:var(--previous-bg)}
+.work{--previous-bg:#151513;--section-bg:var(--paper);--section-radius:clamp(48px,8vw,130px) 0 0 0}
+.services{--previous-bg:var(--paper);--section-bg:#22231f;--section-radius:0 clamp(48px,8vw,130px) 0 0}
+.studio{--previous-bg:#22231f;--section-bg:var(--paper);--section-radius:clamp(48px,8vw,130px) 0 0 0}
+.contact{--previous-bg:var(--paper);--section-bg:#191a17;--section-radius:0 clamp(48px,8vw,130px) 0 0}
+.work::before,.services::before,.studio::before,.contact::before{content:'';position:absolute;inset:0;z-index:-1;border-radius:var(--section-radius);background:var(--section-bg);pointer-events:none}
+.footer-wordmark{font-synthesis:none;text-rendering:geometricPrecision;-webkit-font-smoothing:auto;transform:none;filter:none}
+.footer-wordmark img{width:80%;height:auto}
+.hero-beat h1{font-size:clamp(48px,min(7.7vw,12svh),142px)}
+@media(max-width:1000px){.offers{grid-template-columns:1fr}.offer-audience{min-height:0}.offer-price{text-align:left}.offer,.offer+.offer,.offer:last-child{padding:36px}.offer h3{font-size:48px}}
+@media(max-width:700px){
+ .hero-beat h1{font-size:clamp(39px,min(10.8vw,9svh),70px)}
+ .project-grid{max-width:100%;gap:28px}.project-actions{padding:10px 16px;gap:0}
+ .offer,.offer+.offer,.offer:last-child{padding:28px}.offer h3{font-size:39px}.offer-price{font-size:76px}
+ .offer-audience{font-size:20px}
+}
+@media(max-height:450px) and (min-width:701px){.hero-beat h1{font-size:42px}}

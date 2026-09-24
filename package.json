@@ -25,7 +25,11 @@
     "lint": "eslint",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx}\"",
-    "fonts": "node scripts/build-fonts.mjs"
+    "fonts": "node scripts/build-fonts.mjs",
+    "silver:assets": "node scripts/silver-assets.mjs",
+    "prebuild": "npm run silver:assets",
+    "silver:check": "node scripts/metal-check.mjs",
+    "silver:layout": "node scripts/metal-signature-check.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

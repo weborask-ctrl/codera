@@ -1192,3 +1192,11 @@ mottled glow at 2.8× magnification.
 LOCAL: `npm run verify`, Playwright in three browsers; frame sheets at
 1376×1032 @ 2× (touch) and 390×844 @ 3×. PREVIEW after merge. DEVICE:
 Ondrej's iPad.
+
+## Silver production replacement — 2026-09-24
+
+Marcus authorized replacing the production homepage and merging the reviewed change. Preserve all existing demo routes. The Silver direction uses the supplied film, native scroll, large headings, no decorative labels, unframed complete visual previews, preceding-section color under every curve and a vector footer wordmark. New commercial offer: Profesionálny web from 499 EUR and Motion web from 699 EUR, synchronized through site-config and structured data. Hero: “Vaša firma. V lepšom svetle.” Film travel: 600svh with reversible warm passage. References: approved Refokus and Lusion records, plus Marcus's reviewed Silver direction.
+
+Production uses a Next route handler for the complete HTML homepage so the existing browser motion implementation and native scroll remain intact without a second React motion lifecycle. All demo pages keep their existing React layouts. CSS/JS/fonts/GSAP are copied into public/silver at build time; the source template is explicitly included in output tracing. Preserve CSP nonces, canonical metadata, indexing, contact data and mailto-draft semantics. No new video is generated.
+
+Gate: npm run verify; production homepage/demo browser suite; video regression suite against production assets; six-size screenshots; green CI before merge; inspect the final production URL after deployment.

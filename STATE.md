@@ -216,3 +216,8 @@ pass in isolation and with 2 workers).
 - Asset provenance: `SOURCES.md`
 - Open items: GitHub Issues
 - Superseded history: `docs/archive/` (v2 direction included)
+
+
+## Silver homepage release — 2026-09-24
+
+Marcus authorized replacing Codera City with the reviewed Silver film direction. Entry pricing is now Profesionálny web from 499 EUR and Motion web from 699 EUR. Source: experiments/metal, lib/silver-render.mjs, app/route.ts. Existing /ukazky routes are preserved. The homepage serves complete indexable HTML with the existing nonce CSP, native scroll, responsive/reduced-motion layouts and an explicit mailto draft form. See the release PR for CI and deployed validation evidence; historical City details above describe the previous homepage.

@@ -1,0 +1,27 @@
+{
+  "animacie-3d": {
+    "width": 2880,
+    "height": 7644,
+    "url": "https://www.codera.sk/ukazky/animacie-3d"
+  },
+  "dizajn": {
+    "width": 2880,
+    "height": 8320,
+    "url": "https://www.codera.sk/ukazky/dizajn"
+  },
+  "objednavky": {
+    "width": 2880,
+    "height": 5974,
+    "url": "https://www.codera.sk/ukazky/objednavky"
+  },
+  "rezervacie": {
+    "width": 2880,
+    "height": 7672,
+    "url": "https://www.codera.sk/ukazky/rezervacie"
+  },
+  "wordpress": {
+    "width": 2880,
+    "height": 8552,
+    "url": "https://www.codera.sk/ukazky/wordpress"
+  }
+}
