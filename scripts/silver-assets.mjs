@@ -7,6 +7,6 @@ for(const name of ['style.css','refinement.css','signature.css','main.mjs']){
   const source=await readFile(`experiments/metal/${name}`,'utf8');
   await writeFile(`public/silver/${name}`,source.replaceAll('/fonts/','/silver/fonts/').replaceAll('/media/','/motion/metal/'));
 }
-for(const name of ['geist.woff2','fraunces-italic.woff2'])await copyFile(`app/fonts/${name}`,`public/silver/fonts/${name}`);
+for(const name of ['montserrat.woff2','Montserrat-OFL.txt'])await copyFile(`app/fonts/${name}`,`public/silver/fonts/${name}`);
 for(const name of ['gsap.min.js','ScrollTrigger.min.js'])await copyFile(`node_modules/gsap/dist/${name}`,`public/silver/vendor/${name}`);
 console.log('Silver browser assets ready.');

@@ -156,10 +156,10 @@ function configure() {
     .to('.film-shade',{'--reading-shade':.75,duration:.07},.17)
     .to('.film-shade',{'--reading-shade':0,opacity:.3,duration:.08},.44)
     .to('.film-shade',{opacity:1,duration:.12},.72)
-    // A restrained warm dissolve follows decoded frames into the gold passage.
-    // The underlying camera stays continuous and reverses with native scroll.
-    .to('.tunnel-fade',{opacity:.22,duration:.10,ease:'sine.inOut'},.36)
-    .to('.tunnel-fade',{opacity:0,duration:.17,ease:'sine.inOut'},.46)
+    // Fade through the scene's warm shadow before the source changes at ~6s.
+    // The short opaque hold bridges that cut; decoded frames drive both directions.
+    .to('.tunnel-fade',{opacity:1,duration:.077,ease:'sine.inOut'},.33)
+    .to('.tunnel-fade',{opacity:0,duration:.125,ease:'sine.inOut'},.425)
     .to('.film-progress i',{scaleX:1,duration:1},0);
   const camera={progress:0};
   scrub=gsap.to(camera,{progress:1,duration:1,ease:'none',paused:true,onUpdate:()=>update(camera.progress)});
