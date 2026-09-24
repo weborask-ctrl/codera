@@ -367,7 +367,7 @@ def build(B):
   <div class="wrap">
     <div class="sheettop">
       <a class="crumb mono" href="realizacie.html">← Realizácie</a>
-      <span class="mono">{esc(p["place"])} <i>·</i> {esc(p["month"])} {p["year"]}</span>
+      <span class="mono">{esc(p["place"]) + " <i>·</i> " if p["place"] else ""}{esc(p["month"])} {p["year"]}</span>
     </div>
     <div class="sheetgrid" data-reveal data-plate style="--pw:{w}px">
       <div class="scol">
@@ -385,7 +385,7 @@ def build(B):
 </section>'''
 
         # the hairline sheet: only facts we can stand behind
-        tbl = [("Rok", f'{p["month"]} {p["year"]}'), ("Miesto", p["place"]),
+        tbl = [("Rok", f'{p["month"]} {p["year"]}')] + ([("Miesto", p["place"])] if p["place"] else []) + [
                ("Kategórie", " · ".join(p["tags"])), ("Realizoval", "EcoDomček, s.r.o."),
                ("Fotografia", "Archív EcoDomček" if photo_src(p) else "Zatiaľ nemáme")]
         rws = "".join(f'<div class="strow"><span class="mono">{esc(k)}</span>'
@@ -701,7 +701,7 @@ def build(B):
                  f'<b>{i + 1:02d}</b><span>{esc(n)}</span><p>{esc(t)}</p></div>')
     wall = f'''<section class="band wallpage" id="wall" data-sec="Stena">
   <div class="walltrack" data-wall>
-    <div class="wallstage">
+    <div class="wallstage" data-reveal>
       <h1 class="wl"><span class="rl"><span>Potiahnite <em>stenu</em>.</span></span></h1>
       <div class="slabs" style="aspect-ratio:{WL["W"]}/{WL["H"]}">{slabs}</div>
       <div class="tags">{tags}</div>

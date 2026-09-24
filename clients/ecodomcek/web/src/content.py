@@ -141,7 +141,7 @@ PROJECTS = [
          specs=[("Strecha", "Sklo"), ("Konštrukcia", "Prestrešenie terasy"),
                 ("Pokračovanie", "Garáž a altánok s grilom")]),
     dict(services=[3], slug="2019-garaz", year="2019", month="apríl", title="Garážo-sklado-terasa",
-         place="[doplní EcoDomček]", tags=["Garáž", "Terasa"], thumb=None, photo=None,
+         place="", tags=["Garáž", "Terasa"], thumb=None, photo=None,
          text="Milá kombinácia stojiska pre autá, skladu a terasy s grilom. Taká zábavka na pätkách, "
               "podlaha terasy je z termo jaseňa a keramickej dlažby.",
          shot="Fotografiu tejto realizácie zatiaľ nemáme — doplní EcoDomček.",

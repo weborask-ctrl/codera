@@ -258,7 +258,7 @@ figure{margin:0;position:relative}
 /* ═══ contact ═══════════════════════════════════════════════════════ */
 .contact{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(30px,5vw,88px);
   align-items:start}
-.tel-big{font-size:clamp(38px,5.2vw,86px);font-weight:300;letter-spacing:-.025em;color:var(--glow);
+.tel-big{white-space:nowrap;font-size:clamp(34px,5.2vw,86px);font-weight:300;letter-spacing:-.025em;color:var(--glow);
   line-height:1;display:inline-block}
 .form{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:8px}
 .form label{display:flex;flex-direction:column;gap:8px;font-family:var(--mono);font-size:10px;
@@ -328,17 +328,6 @@ footer .big{font-family:var(--serif);font-size:clamp(21px,1.85vw,29px);line-heig
   .band.moss .sticky{background:linear-gradient(180deg,var(--moss-deep) 0%,var(--moss-deep) 86%,rgba(36,51,26,0) 100%)}
   .steps{position:relative;z-index:2}
   .step{min-height:auto;padding:22px 0 56px}
-  #hero .track{height:auto}
-  #hero .stage{position:static;height:auto;overflow:visible}
-  #hero .house{position:sticky;top:96px;transform:none;right:auto;width:100%;margin:0;z-index:5;
-    background:linear-gradient(180deg,var(--paper) 0%,var(--paper) 96%,rgba(243,238,227,0) 100%)}
-  #hero .house::before{content:"";position:absolute;left:-6%;right:-6%;top:-96px;height:96px;background:var(--paper)}
-  #hero .copy{position:static;padding:8px var(--gut) 0;pointer-events:auto}
-  #hero .step{position:static;width:auto;opacity:1;visibility:visible;min-height:72svh;padding:18px 0 40px;
-    display:flex;flex-direction:column;justify-content:center}
-  #hero .step.intro{min-height:auto;padding-top:0}
-  #hero h1,#hero h2{font-size:clamp(34px,9vw,44px)}
-  #hero .rail,#hero .stamp{display:none}
   #idx{display:none}
   .rooms{grid-template-columns:1fr;gap:34px}
   .rooms figure:nth-child(2){margin-top:0}
@@ -711,7 +700,7 @@ h2.big em{font-style:normal;color:var(--moss)}
 /* ═══ STENA — seven slabs you pull apart ═══════════════════════════════ */
 .wallpage{padding:0}
 .walltrack{height:280svh}
-.wallstage{position:sticky;top:0;height:100svh;display:grid;grid-template-rows:auto 1fr auto auto auto auto;
+.wallstage{position:sticky;top:0;height:100svh;display:grid;grid-template-rows:auto 1fr auto auto auto auto auto;
   align-content:center;justify-items:center;padding:clamp(84px,11vh,120px) var(--gut) 24px;gap:clamp(8px,1.6vh,18px)}
 .wl{font-size:clamp(36px,5.4vw,84px);letter-spacing:-.036em;line-height:.95;margin:0;text-align:center}
 .wl em{font-style:normal;color:var(--moss)}
@@ -723,14 +712,14 @@ h2.big em{font-style:normal;color:var(--moss)}
   filter:drop-shadow(0 18px 24px rgba(35,31,26,.14))}
 .tags{position:relative;width:min(100%,calc((100svh - 430px) * 1.768));height:clamp(64px,9vh,84px)}
 .tag p{display:none}
-.tagdesc{margin:0;max-width:52ch;text-align:center;font-size:clamp(14px,1.1vw,17px);color:var(--ink2);min-height:1.5em}
+.tagdesc{margin:0;max-width:52ch;text-align:center;font-size:clamp(14px,1.1vw,17px);color:var(--ink2);min-height:3em;line-height:1.5}
 .tag{position:absolute;top:0;opacity:0;transform:translateY(8px);
   transition:opacity .45s var(--ease),transform .45s var(--ease);pointer-events:none}
 .tag.on{opacity:1;transform:none}
 .tag b{display:block;font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.14em;color:var(--amber)}
 .tag span{display:block;margin-top:4px;font-size:clamp(13px,1.05vw,16px);font-weight:500;letter-spacing:-.01em;line-height:1.2}
 .tag p{margin-top:6px;font-size:clamp(11.5px,.85vw,13px);line-height:1.4;color:var(--ink2)}
-.handle{display:flex;align-items:center;gap:12px;color:var(--ink2);transition:opacity .4s}
+.handle{display:flex;align-items:center;gap:20px;color:var(--ink2);transition:opacity .4s}
 .handle i{width:44px;height:1px;background:var(--moss);position:relative}
 .handle i::after{content:"";position:absolute;right:-1px;top:-4px;width:8px;height:8px;
   border-top:1px solid var(--moss);border-right:1px solid var(--moss);transform:rotate(45deg);

@@ -634,3 +634,30 @@ nie `founder` — zakladateľstvo nie je doslova doložené). WebP q76
 (−23 %), `width/height` na každom obrázku. Formulár otvára e-mail
 návštevníka s hotovým dopytom — poctivé bez servera. Bundle nevkladá
 base64 do absolútnych URL v `og:image`: 2,5 MB.
+
+---
+
+## Fáza 11 — opravy z kritického auditu (2026-09-24)
+
+Audit 9 typov stránok (1440×900, 390×844, prvé obrazovky aj celé
+stránky, emulované pomalé 4G) našiel päť chýb priamo v záberoch:
+
+1. **Stena: nadpis „Potiahnite stenu." sa nikdy neukázal** — maska čaká na
+   `.on`, stena nemala `data-reveal`. Doplnené.
+2. **Stena: popis vrstvy prekrýval nápovedu** — 7 prvkov v 6-riadkovom
+   gride a popis s rezervou na jeden riadok, hoci sa zalamuje. Riadok
+   doplnený, rezerva 3em; šípka nápovedy už nenaráža do písmena.
+3. **Úvod, mobil: dom zakrýval „Vitajte vo svete,"** — mŕtve mobilné
+   pravidlá starého hera (`#hero .house` sticky s papierovým pozadím a
+   96px papierovým blokom nad sebou) sa vzťahovali na dom postera.
+   Celý blok (9 pravidiel pre štruktúru, ktorá už neexistuje) zmazaný.
+4. **Kontakt, mobil: telefón sa lámal na dva riadky** — `nowrap`.
+5. **Garáž: verejné „[doplní EcoDomček]"** — neznáme miesto sa
+   nezobrazuje nikde; ostáva v zozname pre klienta v README.
+
+Každá oprava overená meraním (nadpis v maske a v obraze, prekrytie
+podľa súradníc, prvok navrchu cez `elementFromPoint`, počet riadkov
+telefónu) na oboch šírkach, potom plná regresia. Zo auditu ostáva
+otvorené: Realizácie (render ako hlavný obraz, rovnaké karty), O nás
+(prázdna pravá polovica, zdvojené motto), LCP úvodu 5,0 s na
+mobile, text pod 12 px, dva `h1` na úvode.
