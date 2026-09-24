@@ -142,7 +142,7 @@ def main() -> None:
     out = index
     # the preload points at a file the bundle does not have; the face is in the
     # stylesheet as a data: URI, so there is nothing left to preload
-    out = re.sub(r'<link rel="preload" href="assets/[^"]*\.woff2"[^>]*>\n?', "", out)
+    out = re.sub(r'<link rel="preload" href="assets/[^"]*"[^>]*>\n?', "", out)
     out = out.replace('<link rel="stylesheet" href="assets/site.css">',
                       f"<style>{inline_fonts(inline_assets(css))}</style>")
     out = out.replace('<script src="assets/gsap.min.js"></script>', f"<script>{gsap}</script>")

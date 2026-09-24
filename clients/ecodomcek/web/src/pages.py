@@ -17,6 +17,35 @@ REND = HERE.parent / "renders"
 # ── the house: four cut-out layers measured from the exploded render ─────
 LAY = json.loads((REND / "layers2.json").read_text())
 INK = json.loads((REND / "ink-4-150.json").read_text())
+
+
+def _lean(d: str) -> str:
+    """Potrace's absolute one-decimal path → relative integers. The drawing
+    shows at about half its viewBox, so a unit is under a CSS pixel; the
+    hero's HTML drops by more than half (the ink was 160 KB of it)."""
+    out, x, y, sx, sy = [], 0, 0, 0, 0
+    for cmd, args in re.findall(r"([MLCZ])([^MLCZ]*)", d):
+        v = [round(float(a)) for a in re.findall(r"-?\d+(?:\.\d+)?", args)]
+        if cmd == "Z":
+            out.append("z"); x, y = sx, sy; continue
+        rel = []
+        step = 6 if cmd == "C" else 2
+        for i in range(0, len(v), step):
+            seg = v[i:i + step]
+            rel += [c - (x if j % 2 == 0 else y) for j, c in enumerate(seg)]
+            x, y = seg[-2], seg[-1]
+        if cmd == "M":
+            sx, sy = v[0], v[1]
+        s = ""
+        for c in rel:
+            t = str(c)
+            s += t if (not s or t[0] == "-") else " " + t
+        out.append(cmd.lower() + s)
+    return "".join(out)
+
+
+for _v in INK.values():
+    _v["paths"] = [(c, _lean(d)) for c, d in _v["paths"]]
 DROP = {"base": 0, "ground": 44, "upper": 44 + 26, "roof": 44 + 26 + 30}
 SPREAD = {"base": 0, "ground": -1.6, "upper": -5.0, "roof": -10.5}
 PINS = {"roof": ("01", 52, 38), "upper": ("02", 31, 63),
@@ -235,7 +264,7 @@ def build(B):
     <div class="house" data-house>{house}
       <video class="film" muted playsinline preload="auto" aria-hidden="true" tabindex="-1"
         poster="assets/hero-first.webp" data-wide="assets/hero" data-narrow="assets/hero-720"></video>
-      <img class="still" src="assets/hero-last.webp" alt="" aria-hidden="true">
+      <img class="still" src="assets/hero-last.webp" alt="" aria-hidden="true" loading="lazy">
       {open_labels()}
     </div>
     <p class="l2" aria-hidden="true"><span class="rl"><span>kde <em>vonia</em> drevo.</span></span></p>

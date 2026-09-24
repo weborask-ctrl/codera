@@ -157,8 +157,10 @@
       // the whole film as a Blob: a blob is seekable on any server (the
       // opening rewinds it with the scroll), and the file is fetched in full
       // anyway. A data: URI (the one-file bundle) is already seekable.
+      // low priority: on a slow line the film must not outbid its own
+      // first frame and layers (the hero's largest paint)
       if (/^data:/.test(url) || !window.fetch || !window.URL) film.src = url;
-      else fetch(url).then(function (r) { return r.blob(); })
+      else fetch(url, { priority: 'low' }).then(function (r) { return r.blob(); })
         .then(function (b) { film.src = URL.createObjectURL(b); })
         .catch(function () { film.src = url; });
       var ft = gsap.timeline({ paused: true });
@@ -814,8 +816,19 @@
       setTimeout(function () { veil.remove(); }, 460);
     }
   }
-  if (document.readyState === 'complete') setTimeout(open, 200);
-  else addEventListener('load', function () { setTimeout(open, 200); });
+  // the poster opens when its type and its own images are in — not the
+  // whole page's (window load waits for every photo below the fold)
+  (function () {
+    var went = false;
+    function go() { if (!went) { went = true; setTimeout(open, 120); } }
+    var need = [].slice.call(main.querySelectorAll('#hero .mat')).map(function (i) {
+      return i.complete ? 0 : new Promise(function (r) { i.addEventListener('load', r); i.addEventListener('error', r); });
+    });
+    if (document.fonts && document.fonts.ready) need.push(document.fonts.ready);
+    if (window.Promise) Promise.all(need).then(go, go);
+    setTimeout(go, 3000);
+    if (document.readyState === 'complete') go(); else addEventListener('load', go);
+  })();
 
   initPage();
   addEventListener('load', function () { ScrollTrigger.refresh(); });
