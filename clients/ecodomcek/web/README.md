@@ -94,15 +94,17 @@ logo v krivkách. Potvrdiť: chráni EcoDomček drevo bóraxom (na starom webe l
 --directory dist` (potrebuje `NODE_PATH=/opt/node22/lib/node_modules`). Na úvode
 `?sec=0&step=3&p=0.66` ukáže konkrétny stav hera.
 
-## Úvodný film (fal.ai) — `close` dvakrát zlyhal, film negenerovaný
+## Úvodný film (fal.ai) — koncový záber PASS, film čaká na schválenie
 
 `src/fal_hero.py` potrebuje `FAL_KEY` v nastaveniach prostredia. Tri kroky, každý nanajvýš
 jedna platená úloha:
 
-1. `close` — Nano Banana Pro (`fal-ai/nano-banana-pro/edit`, 2K, 16:9) zavrie dom v tej istej
-   kamere; výstup sa zmenší na 1920×1080 → `renders/fal/end-closed.jpg`. Dôvod: vrstvy sú
-   vyrezané z rozloženého renderu, takže ani poskladané sa nedotknú a video model nemá k čomu
-   dosadnúť (tak zlyhal MiniMax H3).
+1. `close` — najprv zadarmo `guide`: zavretý dom poskladaný z tých istých `lyr-*.webp` v kamere
+   štartu (`renders/fal/guide-closed.jpg`; polohy vrstiev a o koľko ktorá klesne sú v `AT`
+   a `SEAT`). Spoje nesedia, lebo vrstvy sú z rozloženého AI renderu (tak zlyhal MiniMax H3),
+   preto ich Nano Banana Pro (`fal-ai/nano-banana-pro/edit`, 2K, 16:9) len začistí. Výstup sa
+   zmenší na 1920×1080 a pozadie nad obrysom poskladaného domu sa prefarbí farbou pozadia
+   (`clear_above`) → `renders/fal/end-closed.jpg`.
 2. `check` — zadarmo: základová doska sa nesmie pohnúť, šírka domu sa nesmie zmeniť, dom
    musí byť nižší. Len PASS pustí ďalej.
 3. `film` — Kling v3 Pro (`fal-ai/kling-video/v3/pro/image-to-video`, `start_image_url` +
@@ -147,7 +149,19 @@ Z dosky urobil väčšiu terasu, prízemiu dal spredu zvislé lamely a vľavo pr
 nesedí na štartovú, takže film by menil práve tú časť, ktorá sa hýbať nemá. Záber leží
 v `renders/fal/close-2-nano-banana-pro-FAIL.jpg`.
 
-Ďalší `close` čaká na rozhodnutie; `film` sa nespustil.
+### Pokus 3 — 2026-09-24: PASS
+
+`close` nad `guide-closed.jpg` (request `01a0d527-e050-7772-bf62-b67aac92f69b`, 0,15 $):
+
+    start box x 282-691 y 48-509 | closed box x 282-691 y 274-510 | PASS
+
+Kamera, mierka aj doska sú zo štartu, model uzavrel rezom otvorené prízemie. Nad domom
+dokreslil sivú rozmazanú škvrnu (tam, kde predtým visela strecha). `check` ju nevidí, lebo meria
+len box, preto ju `clear_above` prefarbí pozadím. Box pred čistením bol y 133-510. Rozdiel voči
+štartu: obklad je v zábere zvislými doskami a pozadie je o 2 odtiene teplejšie. Spolu za
+`close` 0,34 $.
+
+`film` čaká na schválenie.
 
 ## Spustiteľnosť
 
