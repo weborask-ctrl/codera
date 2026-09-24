@@ -31,6 +31,15 @@ def inline_assets(text: str) -> str:
                   lambda m: data_uri(m.group(1)), text)
 
 
+def inline_fonts(css: str) -> str:
+    """@font-face urls are relative to assets/site.css, so they carry no
+    `assets/` prefix and inline_assets never sees them. In the bundle there is
+    no assets/ directory at all — unresolved, the whole site would fall back to
+    Helvetica from `file://`."""
+    return re.sub(r'url\((([A-Za-z0-9_.\-]+)\.woff2)\)',
+                  lambda m: f"url({data_uri(m.group(1))})", css)
+
+
 def main() -> None:
     pages = sorted(p for p in DIST.glob("*.html") if p.name not in ("artifact-index.html", OUT.name))
     index = (DIST / "index.html").read_text(encoding="utf-8")
@@ -126,7 +135,11 @@ def main() -> None:
                       f"{mainm}</template>\n")
 
     out = index
-    out = out.replace('<link rel="stylesheet" href="assets/site.css">', f"<style>{inline_assets(css)}</style>")
+    # the preload points at a file the bundle does not have; the face is in the
+    # stylesheet as a data: URI, so there is nothing left to preload
+    out = re.sub(r'<link rel="preload" href="assets/[^"]*\.woff2"[^>]*>\n?', "", out)
+    out = out.replace('<link rel="stylesheet" href="assets/site.css">',
+                      f"<style>{inline_fonts(inline_assets(css))}</style>")
     out = out.replace('<script src="assets/gsap.min.js"></script>', f"<script>{gsap}</script>")
     out = out.replace('<script src="assets/ScrollTrigger.min.js"></script>', f"<script>{st}</script>")
     out = out.replace('<script src="assets/site.js"></script>', f"<script>{js}</script>")

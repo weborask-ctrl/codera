@@ -592,7 +592,9 @@ odmietnuté). Na mobile je dôkaz posun prstom so snap.
 ### Bundle
 
 `bundle.py` vkladal každý výskyt fotky ako nový data URI — 4,6 MB z
-8,3 MB boli duplikáty. Teraz je každý obrázok v súbore raz: 2,7 MB.
+8,3 MB boli duplikáty. Teraz je každý obrázok v súbore raz: 2,7 MB, po
+zlúčení s vlastnými písmami z paralelnej session (2026-09-18) 2,9 MB a nula
+externých požiadaviek.
 
 **Validácia.** LOCAL: Playwright nad `dist/` — 15 stránok × 3 šírky
 bez reálneho vodorovného posunu (test `scrollTo`, nie `scrollWidth`,

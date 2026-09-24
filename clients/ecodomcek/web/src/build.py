@@ -151,8 +151,7 @@ SHELL = '''<!doctype html>
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#f3eee3">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500&family=Newsreader:opsz,wght@6..72,200;6..72,300;6..72,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="preload" href="assets/hanken.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/site.css">
 </head>
 <body data-page="{page}" data-band="{band}">
@@ -210,6 +209,12 @@ def copy_assets() -> None:
         shutil.copy2(src, ASSETS / f"foto-{t}.jpg")
     for name in ("site.css", "site.js", "gsap.min.js", "ScrollTrigger.min.js"):
         shutil.copy2(HERE / name, ASSETS / name)
+    # self-hosted faces, built by `node src/fonts.mjs` (see its header for why)
+    fonts = sorted((HERE / "fonts").glob("*.woff2"))
+    if not fonts:
+        sys.exit("missing fonts: run `node src/fonts.mjs`")
+    for f in fonts:
+        shutil.copy2(f, ASSETS / f.name)
     (ASSETS / "favicon.svg").write_text(FAVICON, encoding="utf-8")
 
 

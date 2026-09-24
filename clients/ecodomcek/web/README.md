@@ -4,14 +4,16 @@ Viacstránkový statický web. `python3 src/build.py` poskladá `dist/` zo
 zdrojov v `src/` a obrázkov v `renders/`:
 
 ```
+node src/fonts.mjs                               # only when a face changes
 python3 src/build.py
 python3 -m http.server 8080 --directory dist     # http://localhost:8080/
 ```
 
-Jeden súbor na stiahnutie: `python3 src/bundle.py` → `dist/ecodomcek.html` (2,7 MB, všetky
+Jeden súbor na stiahnutie: `python3 src/bundle.py` → `dist/ecodomcek.html` (2,9 MB, všetky
 stránky ako `<template>`, router na hash, funguje z `file://`). Každý obrázok je v súbore raz:
 živá stránka nesie data URI s menom (`data-a`), ostatné sú v `window.__A` a šablóny majú len
-tokeny `#a:meno`. Písma idú z Google Fonts — bez internetu padne na systémové písmo.
+tokeny `#a:meno`. Písma sú vlastné (`src/fonts/`) a vložené, takže súbor nerobí žiadnu
+externú požiadavku.
 
 Publikované: https://claude.ai/code/artifact/ec635947-fb5c-4b60-91e2-41bc54e1c3c9
 
@@ -23,6 +25,7 @@ Publikované: https://claude.ai/code/artifact/ec635947-fb5c-4b60-91e2-41bc54e1c3
 | `src/pages.py` | sedem typov stránok, každý s iným tvarom; zdieľané komponenty |
 | `src/build.py` | shell (hlavička, pätička, meta), assety, zápis `dist/` |
 | `src/site.css`, `src/site.js` | jeden motion engine (GSAP + ScrollTrigger na natívnom scrolle), router s papierovou oponou |
+| `src/fonts.mjs` | orezané woff2 do `src/fonts/` (potrebuje `subset-font` z node_modules repozitára); stránka ich má samohostované, nie z fonts.googleapis.com — build kopíruje hotové súbory a nič nesťahuje |
 | `src/shots.cjs` | full-page zábery každej stránky (Playwright, desktop + mobil) |
 | `renders/` | vizualizácie domu z Lúčiny, štyri alfa vrstvy, kresba (`ink-4-150.json`), `photos/` = skutočné fotky realizácií |
 
@@ -38,6 +41,18 @@ Publikované: https://claude.ai/code/artifact/ec635947-fb5c-4b60-91e2-41bc54e1c3
 | `technologia.html` | **prečo tomu veriť**: klientova vlastná pochybnosť + 200+ rokov v USA a Kanade · živý rez stenou, ktorým para tečie z izby von (hover/ťuk na vrstvu = jej veta; na mobile otočený) · „V lete chladí, v zime je teplučký“ cez dve vizualizácie · register materiálov s odkazmi na stavby · motto |
 | `o-nas.html` | jednostĺpcová esej v serife s rokmi na okraji · motto · dve vyjadrenia ako hairline riadky · prvotina |
 | `kontakt.html` | začína v súmraku, prechádza do papiera; formulár + údaje |
+
+## Písma
+
+Tri rezy, všetky samohostované a orezané (`src/fonts.mjs`, 175 KB v 4 súboroch):
+Hanken Grotesk 300–500, Newsreader 200–300 s opsz osou, IBM Plex Mono 400 a 500.
+Orez drží Basic Latin, Latin-1, **Latin Extended-A** (č ď ľ ĺ ň ŕ š ť ž), všeobecnú
+interpunkciu (slovenské „úvodzovky", pomlčky), euro a šípky.
+
+Do 2026-09-18 si stránka ťahala všetky tri rodiny z `fonts.googleapis.com` na každom
+načítaní. Render-blokujúca požiadavka na tretiu stranu, IP každého návštevníka ide
+Googlu, a presný opak toho, čo robí web štúdia. Stránka teraz nenačítava **nič**
+externé — ani písma, ani GSAP.
 
 ## Lišta
 
