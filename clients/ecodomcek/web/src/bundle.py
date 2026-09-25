@@ -124,7 +124,7 @@ def main() -> None:
 
     ASSET = r'(?<!/)assets/([A-Za-z0-9_.\-]+\.(?:jpg|jpeg|png|webp|svg))'
     templates, used = "", set()
-    FILM = 'data-wide="assets/hero" data-narrow="assets/hero-720"'
+    FILM = 'data-wide="assets/hero" data-narrow="assets/hero-720" data-big="assets/hero-2k"'
     FILM_TOKEN = 'data-src="#a:hero-720.mp4" data-src-webm="#a:hero-720.webm"'
     for p in pages:
         html = p.read_text(encoding="utf-8")

@@ -411,7 +411,7 @@ def build(B):
     </div>
     <div class="house" data-house>{house}
       <video class="film" muted playsinline preload="auto" aria-hidden="true" tabindex="-1"
-        poster="assets/hero-first.webp" data-wide="assets/hero" data-narrow="assets/hero-720"></video>
+        poster="assets/hero-first.webp" data-wide="assets/hero" data-narrow="assets/hero-720" data-big="assets/hero-2k"></video>
       <img class="still" src="assets/hero-last.webp" alt="" aria-hidden="true" loading="lazy">
       {open_labels()}
     </div>

@@ -198,10 +198,12 @@ dom. Počas filmu je nadpis nad domom (film nemá alfa kanál). Bundle nesie 720
 
 ## Náhľad na tablete / telefóne
 
-`public/demos/ecodomcek/index.html` je kópia `dist/ecodomcek.html` pre web Codera
-(www.codera.sk/demos/ecodomcek/index.html): `python3 src/build.py && python3 src/bundle.py &&
-python3 src/publish.py`. Pridá `noindex` a štítok „Koncept redizajnu · Codera"
-(CLAUDE.md #3). Lokálne otvorené HTML iPad zobrazí bez JavaScriptu — preto odkaz.
+`public/demos/ecodomcek/` je zostava webu (stránky + `assets/`) pre web Codera —
+**ecodomcek.codera.sk** (proxy.ts mapuje každú cestu) a www.codera.sk/demos/ecodomcek/:
+`python3 src/build.py && python3 src/publish.py`. Viacstránková zostava, nie jednosúborový
+bundle: každá obrazovka si stiahne film vo veľkosti, v akej ho kreslí (`hero-720/hero/hero-2k`).
+Kopíruje len súbory, na ktoré stránky odkazujú; každej stránke pridá `noindex` a štítok
+„Koncept redizajnu · Codera" (CLAUDE.md #3).
 
 ## Mapa „Kde stoja" (Realizácie)
 

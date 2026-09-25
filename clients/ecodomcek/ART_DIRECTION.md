@@ -805,3 +805,18 @@ obrazovky ostávala prázdna.
 
 LOCAL: 820×1180, 1180×820, 768×1024, 390×844, 360×740, 1440×900; bundle
 z `file://`. Skutočný iPad NOT VALIDATED.
+
+## Fáza 17 — ostrosť a veľké obrazovky (2026-09-25)
+
+**Ostrosť.** Živý web bol jednosúborový bundle s filmom 720 px; dom sa na 1920 /
+2560 / 3440 px kreslí 1003 / 1377 / 1729 px široký — film sa naťahoval 1,4–2,4×.
+Teraz beží viacstránková zostava (`publish.py`) a film má tri veľkosti: 720, 1200
+a nový **2000 px** (Lanczos + jemné doostrenie; zdrojový výrez má ~1330 px).
+Výber podľa skutočnej šírky rámu v pixeloch zariadenia; telefóny nikdy nie 2k.
+
+**Proporcie.** Nadpis, text, tlačidlá a legenda úvodu sa nad šírkou tabletu
+počítajú z okna (menšie z vw a vh — ultraširoké obrazovky ostanú vyvážené);
+hlavička sa škáluje `zoom: var(--hz)` (1 pri 1440×900, max. 2,2). 1440 bez zmeny.
+
+**Subdoména.** ecodomcek.codera.sk: proxy mapuje stránky aj súbory, neznáma adresa
+dostane 404 konceptu; koncept má vlastnú CSP bez inline skriptov.
