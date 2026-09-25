@@ -916,3 +916,15 @@ a papierový štítok (číslo, názov, poznámka po riadkoch) smerom dovnútra
 pristátie (2000×1007: −1,5 %), štítky sa neprekrývajú s textom, s okrajom ani
 navzájom. Telefón/tablet na výšku: bez zmeny (čísla na dome, zoznam pod ním —
 medzi tlačidlami a spodkom obrazovky sa rozložený dom v plnej veľkosti nezmestí).
+
+## Fáza 22 — postup: vyvážený text a obrázok (2026-09-25)
+
+**Pokyn.** Proporcie textu a obrázka v „Ako to ide“ — ľavá strana bola úplne prázdna.
+
+**Riešenie.** Riadok mal tri stĺpce (číslica · text 15 px · obrázok 16:9 cez polovicu),
+ľavé dve tretiny boli číslica a okraj. Teraz jeden textový stĺpec proti jednému
+obrázku, 5 : 6 (**basement / onyx**: vlasová mriežka, každá bunka nesie skutočný
+obsah; **exoape**: ľahké číslice vo veľkom merítku): číslica 96–230 px, mono
+„Krok 1 zo 4“, nadpis 32–66 px, veta 17–26 px na čítanie, zarovnané na stred
+obrázka 16:10 (o niečo menšieho). Tmavý panel s telefónom je vycentrovaný.
+Telefón: bez zmeny rozloženia, pribudol len počet krokov.

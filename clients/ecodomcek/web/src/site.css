@@ -1730,3 +1730,28 @@ header{transition:opacity .6s var(--ease)}
 .house .film{-webkit-mask-image:linear-gradient(90deg,transparent,#000 16%,#000 84%,transparent),linear-gradient(180deg,transparent,#000 3%,#000 97%,transparent);
   -webkit-mask-composite:source-in;mask-image:linear-gradient(90deg,transparent,#000 16%,#000 84%,transparent),linear-gradient(180deg,transparent,#000 3%,#000 97%,transparent);
   mask-composite:intersect}
+
+/* ── the build log, 2026-09-25 (client: "the left side is completely
+   empty"): the words were 15 px beside a 16:9 picture half the width —
+   the left two thirds were a numeral and a margin. Now one text column
+   against one picture, equal weights (basement.md / onyx.md: hairline
+   grid, every cell carries real content; exoape.md: light numerals at
+   scale): the numeral, a mono step count, the title and the sentence at
+   reading size, centred on a picture that is a little smaller. ──────── */
+@media (min-width:821px){
+  .lrow{grid-template-columns:minmax(0,5fr) minmax(0,6fr);grid-template-areas:"num art" "text art";
+    grid-template-rows:auto auto;align-content:center;column-gap:clamp(32px,5vw,120px);row-gap:clamp(10px,1.6vh,24px);
+    padding:clamp(28px,4.5vh,64px) 0}
+  .lnum{grid-area:num;align-self:end;font-size:clamp(96px,10.5vw,230px);line-height:.78}
+  .ltext{grid-area:text;align-self:start}
+  .lart{grid-area:art;align-self:center}
+  .lstep{display:block;font-size:clamp(11px,.8vw,15px);letter-spacing:.14em;text-transform:uppercase;color:var(--amber-ink)}
+  .ltext h3{margin:clamp(8px,1.2vh,16px) 0 0;font-size:clamp(32px,3.3vw,66px)}
+  .ltext p{margin:clamp(12px,1.8vh,24px) 0 0;max-width:38ch;font-size:clamp(17px,1.35vw,26px);line-height:1.5}
+  .lart .frame,.lcall{aspect-ratio:16/10}
+  .lcall{justify-content:center;gap:clamp(10px,1.4vh,20px);padding:clamp(24px,3.4vw,64px)}
+  .lcall .mono{font-size:clamp(11px,.8vw,15px)}
+  .lphone{font-size:clamp(40px,5.2vw,104px)}
+  .lcall .fine{font-size:clamp(14px,1.05vw,20px)}
+}
+@media (max-width:820px){ .lstep{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber-ink);margin-bottom:6px} }

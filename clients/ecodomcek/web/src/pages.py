@@ -266,7 +266,8 @@ def build(B):
 
     def build_log():
         rows = ""
-        for n, t, d in C.PROCESS:
+        total = len(C.PROCESS)
+        for i, (n, t, d) in enumerate(C.PROCESS):
             if n in STEP_ART:
                 f, capt, alt = STEP_ART[n]
                 art = (f'<figure class="lart"><div class="frame clipimg"><img src="assets/{f}" alt="{esc(alt)}" '
@@ -276,7 +277,8 @@ def build(B):
                        f'<a class="lphone" href="tel:{C.PHONE_RAW}">{C.PHONE}</a>'
                        f'<a class="fine" href="mailto:{C.EMAIL}">{C.EMAIL}</a></div>')
             rows += (f'<li class="lrow fade"><span class="lnum" aria-hidden="true">{n}</span>'
-                     f'<div class="ltext"><h3>{esc(t)}</h3><p>{esc(d)}</p></div>{art}</li>')
+                     f'<div class="ltext"><span class="lstep mono">Krok {i + 1} zo {total}</span>'
+                     f'<h3>{esc(t)}</h3><p>{esc(d)}</p></div>{art}</li>')
         return f'<ol class="blog">{rows}</ol>'
 
     def quotes_home():
