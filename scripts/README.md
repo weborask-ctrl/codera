@@ -8,8 +8,9 @@ the same pull request, or it is deleted — git remembers it either way.
 
 | Script | npm | What it does |
 | --- | --- | --- |
-| `generate-brand-mark.mjs` | `npm run brand:mark` | Parametric reconstruction of the C ribbon → SVG assets in `public/brand/`. The single geometry source, shared with the 3D sweep. |
-| `build-ribbon-glb.mjs` | `npm run brand:glb` | Builds the production GLB from the same parameters → `CODERA_3D_LOGO_DELIVERABLES/`. Approved references live in `brand/source/`. |
+| `generate-brand-mark.mjs` | `npm run brand:mark` | Renders the two SVGs in `public/brand/` from `mark-outline.mjs` (the outline measured from the approved raster, issue #6) and writes `lib/ribbon-geometry.json` from the older parametric sweep, which only the `/logo-lab` GLB still uses. |
+| `compare-brand-mark.mjs` | `npm run brand:compare -- [dir]` | The SVG over `brand/source/02_CODERA_C_MARK_REFERENCE.png` at the same scale: silhouette and front-face overlap (IoU), optionally the side-by-side image for the pull request. Last: 0.972 / 0.701. |
+| `build-ribbon-glb.mjs` | `npm run brand:glb` | Builds the GLB from the sweep → `CODERA_3D_LOGO_DELIVERABLES/`. Lab only; the sweep does not match the reference as well as the outline does. |
 
 ## Capture
 
@@ -39,3 +40,16 @@ an output directory; keep it out of the repository.
 The superseded scripts (`capture-v3`, `capture-v4`, `probe-premena`,
 `probe-premena2`, `shot-offer`, `watch-ci-preview`, `capture-work-textures`)
 were deleted with the v2 experience on 2026-08-31 — git remembers them.
+
+## `npm run fonts` — `build-fonts.mjs`
+
+Builds `app/fonts/*.woff2` from the google/fonts variable sources with harfbuzz (`subset-font`): weights pinned or narrowed to what the site renders, Fraunces keeping its optical-size axis, Bricolage instanced where Google's static 800 sat, one file per face over Basic Latin + Latin-1 + Latin Extended-A. Re-run after changing which weights the site uses; commit the outputs. Sources are fetched into the OS temp dir, never committed.
+
+## Silver homepage
+
+- `npm run silver:assets` copies the reviewed browser source, self-hosted fonts and GSAP into ignored `public/silver`. Runs automatically before build.
+- `METAL_URL=<url> METAL_PRODUCTION=1 npm run silver:check` validates presented video frames, native scroll, fallback/recovery and previews on the production server. Omit METAL_PRODUCTION only for the standalone prototype server.
+- `METAL_URL=<url> npm run silver:layout` captures six viewport sizes and checks stack geometry and overflow. Run after Playwright (which clears test-results).
+
+- `METAL_URL=<url> node scripts/metal-polish-check.mjs --layout-only` checks six responsive sizes, uniform glass spacing, stationary film under mouse input and shared pricing rows with independently expanded details. Edge is required. Omit `--layout-only` only against the standalone prototype to compare the original and interpolated media.
+- `python scripts/metal-smooth-media.py --ffmpeg <path>` prepares the 1080p/60 delivery from the locally supplied original MOV. The original and intermediate are local inputs, not required for serving the shipped video. `--reuse-interpolated` avoids recomputing optical flow. See `experiments/metal/LOCAL_REFINEMENT.md` for quality and size measurements.

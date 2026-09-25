@@ -89,7 +89,7 @@ export function Shell({
  */
 export function KonceptLine() {
   return (
-    <a href="/" className="underline decoration-current/40 underline-offset-2 transition-opacity hover:opacity-100">
+    <a href="/" className="inline-flex min-h-11 items-center text-[0.72rem] tracking-[0.14em] underline decoration-current/40 underline-offset-2 transition-opacity hover:opacity-100">
       KONCEPT ŠTÚDIA CODERA
     </a>
   )

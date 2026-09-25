@@ -32,7 +32,10 @@
   },
   "overrides": [
     {
-      "includes": ["**/components/ui/**", "**/components/magicui/**"],
+      "includes": [
+        "**/components/ui/**",
+        "**/components/magicui/**"
+      ],
       "linter": {
         "enabled": false
       },
@@ -40,5 +43,10 @@
         "enabled": false
       }
     }
-  ]
+  ],
+  "html": {
+    "parser": {
+      "interpolation": true
+    }
+  }
 }

@@ -305,7 +305,7 @@ export function SiteNav() {
             aria-controls="codera-menu"
             aria-label={open ? "Zavrieť menu" : "Otvoriť menu"}
             onClick={() => setOpen((value) => !value)}
-            className="relative z-10 inline-flex h-10 items-center gap-2.5 rounded-full pl-1 text-foreground lg:hidden"
+            className="relative z-10 inline-flex h-11 min-w-11 items-center gap-2.5 rounded-full pl-1 text-foreground lg:hidden"
           >
             <span className="label" aria-hidden="true">
               {open ? "Zavrieť" : "Menu"}

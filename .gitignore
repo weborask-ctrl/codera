@@ -43,6 +43,15 @@ node_modules/
 /playwright/.cache/
 /playwright/.auth/
 
+# Playwright MCP session logs (another tool writes them here)
+.playwright-mcp/
+
+# Generated Silver browser assets (npm run silver:assets)
+/public/silver/
+
+/.prototype-cache/
+/verify.log
+
 # generated single-file build of the EcoDomček proposal (python3 build.py)
 clients/ecodomcek/web/dist/
 clients/ecodomcek/web/dist-artifact/
