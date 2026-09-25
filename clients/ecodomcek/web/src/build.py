@@ -87,7 +87,11 @@ def nav(active: str) -> str:
     on = ' class="on"'
     items = "".join(
         f'<a href="{h}"{on if h == active else ""}>{l}</a>' for l, h in C.NAV)
-    return f"<nav>{items}</nav>"
+    # the phone panel's foot: the call is the first step (only shown ≤ 820 px)
+    foot = (f'<div class="nfoot"><span>Zavolajte — poradíme aj zadarmo</span>'
+            f'<a class="nphone" href="tel:{C.PHONE_RAW}">{C.PHONE}</a>'
+            f'<a href="mailto:{C.EMAIL}">{C.EMAIL}</a></div>')
+    return f'<nav aria-label="Hlavné menu">{items}{foot}</nav>'
 
 
 def header(active: str) -> str:

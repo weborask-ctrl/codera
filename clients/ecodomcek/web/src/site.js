@@ -710,6 +710,7 @@
       a.classList.toggle('on', a.getAttribute('href') === page);
     });
     document.body.classList.remove('nav-open');
+    var mb = document.querySelector('header .menu'); if (mb) mb.setAttribute('aria-expanded', 'false');
     if (push) history.pushState({}, '', url.href);
     window.scrollTo(0, 0);
     initPage();
@@ -802,6 +803,12 @@
     menu.addEventListener('click', function () {
       var open = document.body.classList.toggle('nav-open');
       menu.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    // the panel covers the page: Escape closes it and hands focus back
+    addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape' || !document.body.classList.contains('nav-open')) return;
+      document.body.classList.remove('nav-open');
+      menu.setAttribute('aria-expanded', 'false'); menu.focus();
     });
   }
 
