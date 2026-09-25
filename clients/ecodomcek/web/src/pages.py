@@ -335,25 +335,54 @@ def build(B):
   </div>
 </section>'''
 
-    # services as the hero of their band (pangram.md: the word owns the
-    # frame). Where a service is proven, the pointer carries a real photo
-    # from that job (basement.md: evidence, not decoration) and the count
-    # says how many jobs prove it; an unproven service is just its word.
-    def svc_word(i, n):
-        ev = [p for p in C.PROJECTS if i in p["services"]]
-        shot = next((photo_src(p) for p in ev if photo_src(p)), None)
-        th = f' data-thumb="{shot}"' if shot else ""
-        sup = f"<sup>{len(ev)}</sup>" if ev else ""
-        return f'<a href="sluzby.html#s{i}"{th}>{esc(n)}{sup}</a>'
-    svc_words = " ".join(svc_word(i, n) for i, (_, n, _) in enumerate(C.SERVICES))  # spaces = break points
+    # services, 2026-09-25 rework (client: "not nice, must catch the eye at
+    # first sight"; the word list only came alive under a mouse). Five
+    # panels carry the services we can SHOW — cowboy.md: the big imagery
+    # sells; refokus.md: colour lives inside the work — one open at a time
+    # (hover / focus / tap). Real photos where a job proves the service;
+    # interiors are a visualisation and say so. The other seven stay a
+    # dense ruled list (basement.md: real rows under a vast moment).
+    PANELS = [  # service index, image, object-position, caption
+        (0, "foto-2024-lucina.jpg", "50% 45%", "Fotografia · Moderný dizajnový dom, Lúčina 2024"),
+        (3, "foto-2019-terasa-chrastne.jpg", "40% 50%", "Fotografia · Luxusná terasa, 2019"),
+        (5, "foto-2024-lucina.jpg", "22% 30%", "Fotografia · rhombus profil, Lúčina 2024"),
+        (8, "foto-2015-budatin.jpg", "50% 40%", "Fotografia · Budatín pri Žiline, 2015"),
+        (9, "beat5.jpg", "55% 50%", "Vizualizácia · interiér"),
+    ]
+
+    def svc_count(i):
+        return sum(1 for p in C.PROJECTS if i in p["services"])
+
+    def panels():
+        out = ""
+        for k, (i, img, pos, capt) in enumerate(PANELS):
+            u, n, t = C.SERVICES[i]
+            c = svc_count(i)
+            cnt = (f'<span class="pcount">{c} {"realizácia" if c == 1 else ("realizácie" if c < 5 else "realizácií")}</span>'
+                   if c else "")
+            zoom = ' style="--z:1.9"' if i == 5 else ""
+            out += (f'<a class="panel{" open" if k == 0 else ""}" href="sluzby.html#s{i}" data-panel{zoom}>'
+                    f'<img src="assets/{img}" alt="" loading="lazy" decoding="async" style="object-position:{pos}">'
+                    f'<span class="pshade" aria-hidden="true"></span>'
+                    f'<span class="pbody"><i class="phook">{esc(u)}</i><b class="pname">{esc(n)}</b>'
+                    f'<span class="pmore"><span class="ptext2">{esc(t)}</span>{cnt}</span></span>'
+                    f'<span class="pcap mono">{esc(capt)}</span></a>')
+        return f'<div class="panels fade d2">{out}</div>'
+
+    def svc_rest():
+        shown = {i for i, *_ in PANELS}
+        rows = "".join(f'<a href="sluzby.html#s{i}"><i>{esc(u)}</i><b>{esc(n)}</b><span aria-hidden="true">→</span></a>'
+                       for i, (u, n, t) in enumerate(C.SERVICES) if i not in shown)
+        return f'<div class="svcrest fade d3"><span class="mono">A ďalej</span>{rows}</div>'
 
     home = hero + section(1, "Čo staviame", "paper", f'''<div class="wrap" data-reveal>
   <div class="svchead">
     <h2 class="fade">{lines("Dom, strechu, terasu.|A všetko medzi tým.")}</h2>
-    <p class="fade d2">Dvanásť vecí, ktoré robíme. Číslo pri slove je počet našich stavieb,
-      kde ich uvidíte.</p>
+    <p class="fade d2">Dvanásť vecí, ktoré robíme. Číslo pri službe je počet našich
+      realizácií, kde ju uvidíte.</p>
   </div>
-  <div class="svcwords fade d2" data-peek>{svc_words}</div>
+  {panels()}
+  {svc_rest()}
 </div>''') + section(2, "Stena", "moss", f'''<div class="wrap wallteaser" data-reveal>
   <div class="wt-text">
     <h2 class="fade">{lines("Otvoríme|vám <em>stenu</em>.")}</h2>

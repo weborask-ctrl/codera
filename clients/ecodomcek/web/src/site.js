@@ -60,7 +60,28 @@
     initStory();
     initStreet();
     initMarks();
+    initPanels();
     ScrollTrigger.refresh();
+  }
+
+  // ── the service panels: one open at a time ───────────────────────────
+  // Pointer: hover or focus opens. Touch on a wide screen: the first tap
+  // opens a closed panel, the second follows its link. Phones scroll a row
+  // of open cards, so every tap is a link there.
+  function initPanels() {
+    var ps = [].slice.call(main.querySelectorAll('[data-panel]'));
+    if (!ps.length) return;
+    function open(p) { ps.forEach(function (q) { q.classList.toggle('open', q === p); }); }
+    var wide = matchMedia('(min-width:821px)');
+    ps.forEach(function (p) {
+      p.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse' && wide.matches) open(p); });
+      // keyboard focus only: a tap focuses the link first, and opening on that
+      // focus made the tap's own click follow the link
+      p.addEventListener('focus', function () { if (wide.matches && p.matches(':focus-visible')) open(p); });
+      p.addEventListener('click', function (e) {
+        if (wide.matches && !p.classList.contains('open')) { e.preventDefault(); e.stopPropagation(); open(p); }
+      }, true);
+    });
   }
 
   // ── realisation filters: hide, never reorder ──────────────────────────
