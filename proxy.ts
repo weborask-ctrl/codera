@@ -40,7 +40,7 @@ import { type NextRequest, NextResponse } from "next/server"
 const CONCEPT_HOST = "ecodomcek.codera.sk"
 const CONCEPT_DIR = "/demos/ecodomcek"
 const CONCEPT_PAGES =
-  /^\/(index|kontakt|o-nas|realizacie|sluzby|stena|technologia|404|realizacia-[a-z0-9-]+)$/
+  /^\/(index|kontakt|o-nas|realizacie|sluzby|stena|technologia|ochrana-udajov|404|realizacia-[a-z0-9-]+)$/
 const CONCEPT_POLICY = [
   "default-src 'self'",
   "script-src 'self'",

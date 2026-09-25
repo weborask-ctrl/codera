@@ -1739,19 +1739,64 @@ header{transition:opacity .6s var(--ease)}
    scale): the numeral, a mono step count, the title and the sentence at
    reading size, centred on a picture that is a little smaller. ──────── */
 @media (min-width:821px){
-  .lrow{grid-template-columns:minmax(0,5fr) minmax(0,6fr);grid-template-areas:"num art" "text art";
-    grid-template-rows:auto auto;align-content:center;column-gap:clamp(32px,5vw,120px);row-gap:clamp(10px,1.6vh,24px);
-    padding:clamp(28px,4.5vh,64px) 0}
-  .lnum{grid-area:num;align-self:end;font-size:clamp(96px,10.5vw,230px);line-height:.78}
-  .ltext{grid-area:text;align-self:start}
-  .lart{grid-area:art;align-self:center}
+  .lrow{grid-template-columns:auto minmax(0,.9fr) minmax(0,1.2fr);grid-template-areas:"num text art";
+    align-items:center;column-gap:clamp(24px,3.2vw,80px);padding:clamp(20px,3vh,44px) 0}
+  .lnum{grid-area:num;align-self:center;font-size:clamp(84px,min(9vw,17vh),210px);line-height:.78;min-width:1.2em}
+  .ltext{grid-area:text}
+  .lart{grid-area:art}
   .lstep{display:block;font-size:clamp(11px,.8vw,15px);letter-spacing:.14em;text-transform:uppercase;color:var(--amber-ink)}
-  .ltext h3{margin:clamp(8px,1.2vh,16px) 0 0;font-size:clamp(32px,3.3vw,66px)}
-  .ltext p{margin:clamp(12px,1.8vh,24px) 0 0;max-width:38ch;font-size:clamp(17px,1.35vw,26px);line-height:1.5}
-  .lart .frame,.lcall{aspect-ratio:16/10}
-  .lcall{justify-content:center;gap:clamp(10px,1.4vh,20px);padding:clamp(24px,3.4vw,64px)}
+  .ltext h3{margin:clamp(8px,1.2vh,16px) 0 0;font-size:clamp(30px,3vw,60px)}
+  .ltext p{margin:clamp(10px,1.6vh,22px) 0 0;max-width:40ch;font-size:clamp(16px,1.3vw,26px);line-height:1.5}
+  .lart .frame{aspect-ratio:16/10}
+  .lcall{aspect-ratio:16/10;justify-content:center;gap:clamp(10px,1.4vh,20px);padding:clamp(24px,3.4vw,64px)}
   .lcall .mono{font-size:clamp(11px,.8vw,15px)}
-  .lphone{font-size:clamp(40px,5.2vw,104px)}
+  .lphone{font-size:clamp(38px,4.6vw,96px)}
   .lcall .fine{font-size:clamp(14px,1.05vw,20px)}
 }
 @media (max-width:820px){ .lstep{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber-ink);margin-bottom:6px} }
+
+/* ── služby, 2026-09-25 (client: the page read as a table of tiny
+   thumbnails): a service with jobs to show leads with its newest
+   photographed one, large (refokus.md: colour lives inside the work;
+   basement.md: the real rows are the credibility), the others follow as
+   the strip; every service's sentence is set at one reading size. ────── */
+.slead{display:block;margin-bottom:12px}
+.slead .frame{display:block;aspect-ratio:3/2;overflow:hidden;background:var(--paper2)}
+.slead img{display:block;width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease)}
+.slead:hover img{transform:scale(1.03)}
+.slead .mono{display:block;margin-top:8px;color:var(--ink2)}
+.sev > .mono{margin-top:0}
+.stext,.srow:not(.has) .stext{font-size:clamp(17px,1.3vw,21px);line-height:1.55;color:var(--ink)}
+@media (min-width:981px){
+  .srow.has{grid-template-areas:"name text lead" "name more lead";grid-template-rows:auto 1fr}
+  .srow.has .sname{grid-area:name}
+  .srow.has .stext{grid-area:text}
+  .srow.has .sev{grid-area:lead}
+  .smore{grid-area:more;align-self:end}
+}
+.smore > .mono{display:block;margin:18px 0 12px}
+
+/* ── the sheet, 2026-09-25: the numeral read "202" — the plate covered
+   most of the last digit. It is now sized to the text column (four
+   digits ≈ 2.1 em), so the whole year stands beside the photo. ─────── */
+@media (min-width:821px){
+  .syr{--yrs:clamp(84px,12.6vw,210px)}
+  .scol{padding-bottom:calc(clamp(84px,12.6vw,210px) * .74 + 44px + clamp(14px,2.4vh,30px))}
+}
+/* a neighbour without a photograph: the dashed lot, as on the street */
+.pager .pth:empty{position:relative;background:transparent;border:1px dashed var(--ink2)}
+.pager .pth:empty::after{content:"bez fotky";position:absolute;inset:0;display:grid;place-items:center;
+  font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink)}
+
+/* ── ochrana údajov: a plain legal sheet on the hairline grid ────────── */
+.legal h1{font-size:clamp(40px,5vw,84px);margin:0}
+.ldraft{display:inline-block;margin:clamp(16px,3vh,28px) 0 0;padding:8px 12px;border:1px dashed var(--ink2);
+  font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
+.lgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 clamp(24px,4vw,72px);
+  margin-top:clamp(28px,5vh,56px);border-top:1px solid var(--ink)}
+.lgrid section{padding:clamp(18px,3vh,30px) 0;border-bottom:1px solid var(--line)}
+.lgrid h2{font-size:clamp(20px,1.6vw,26px);margin:0 0 10px;font-weight:400}
+.lgrid p{margin:0;max-width:56ch;font-size:clamp(16px,1.15vw,18.5px);line-height:1.6;color:var(--ink2)}
+.lgrid a,.fbot a{text-decoration:underline;text-underline-offset:.15em;text-decoration-thickness:1px}
+@media (max-width:820px){ .lgrid{grid-template-columns:1fr} }
+@media (max-width:980px){ .slead{max-width:min(100%,640px)} }   /* the smallest source is 693 px: never drawn above it */

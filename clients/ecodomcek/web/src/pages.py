@@ -363,6 +363,7 @@ def build(B):
   <button class="btn" style="margin-top:30px" type="submit">Pripraviť e-mail {ARROW}</button>
   <p class="fine fstatus" style="margin-top:16px" aria-live="polite">Otvorí sa váš e-mail s hotovým
     dopytom na {C.EMAIL} — stačí ho odoslať. Alebo zavolajte {C.PHONE}.</p>
+  <p class="fine" style="margin-top:6px">Formulár nič neukladá — <a href="ochrana-udajov.html">ochrana osobných údajov</a>.</p>
   <div class="fdone" hidden>
     <b>Dopyt je pripravený.</b>
     <p>Ak sa e-mail neotvoril, skopírujte text a pošlite ho na <a href="mailto:{C.EMAIL}">{C.EMAIL}</a> —
@@ -746,21 +747,34 @@ def build(B):
     rows = ""
     for i, (u, n, t) in enumerate(C.SERVICES):
         ev = evidence(i)
+        # the newest photographed job leads, large; the rest stay a strip
+        lead = next((p for p in ev if photo_src(p)), None)
+        head = ""
+        if lead:
+            head = (f'<a class="slead" href="realizacia-{lead["slug"]}.html">'
+                    f'<span class="frame clipimg"><img src="{photo_src(lead)}" alt="{esc(lead["shot"])}" '
+                    f'loading="lazy" decoding="async"></span>'
+                    f'<span class="mono">{lead["year"]} · {esc(title_of(lead))}</span></a>')
         strip = ""
         for p in ev:
+            if p is lead:
+                continue
             img = (f'<img src="{photo_src(p)}" alt="" loading="lazy" decoding="async">'
                    if photo_src(p) else '<span class="noph"><em>bez<br>fotky</em></span>')
             strip += (f'<a href="realizacia-{p["slug"]}.html" aria-label="{esc(title_of(p))} ({p["year"]})">'
                       f'{img}<i class="mono">{p["year"]}</i><b>{esc(title_of(p))}</b></a>')
-        proof = (f'<div class="sev fade d2"><span class="mono">Kde sme to robili</span>'
-                 f'<div class="sstrip">{strip}</div></div>') if ev else ""
+        proof = (f'<div class="sev fade d2"><span class="mono">Kde sme to robili</span>{head}'
+                 + ("" if head else f'<div class="sstrip">{strip}</div>') + '</div>') if ev else ""
+        # beside a lead photo the other jobs sit under the sentence
+        more = (f'<div class="smore fade d3"><span class="mono">Ďalšie stavby</span>'
+                f'<div class="sstrip">{strip}</div></div>') if head and strip else ""
         if i == 10:                                   # the free consultation: the call is the proof
             proof = (f'<div class="sev fade d2">{btn("Zavolajte " + C.PHONE, "tel:" + C.PHONE_RAW, arrow=False)}'
                      f'<a class="fine" href="mailto:{C.EMAIL}">{C.EMAIL}</a></div>')
         rows += (f'<article class="srow{" has" if proof else ""}" id="s{i}" data-reveal>'
                  f'<div class="sname"><span class="shook serif fade">{esc(u)}</span>'
                  f'<h2>{lines(esc(n))}</h2></div>'
-                 f'<p class="stext fade d2">{esc(t)}</p>{proof}</article>')
+                 f'<p class="stext fade d2">{esc(t)}</p>{proof}{more}</article>')
 
     toc = "".join(
         f'<a href="#s{i}">{esc(n)}{f"<sup>{len(evidence(i))}</sup>" if evidence(i) else ""}</a>'
@@ -1069,6 +1083,37 @@ def build(B):
     page("kontakt.html", "Kontakt — EcoDomček",
          f"EcoDomček, s.r.o., Lúčina 33, 082 07 Lúčina, okr. Prešov. Telefón {C.PHONE}, "
          f"e-mail {C.EMAIL}.", kont, "kontakt", band="dusk", first="Kontakt")
+
+    # ═══════════════════════════════════════════════════════════════════
+    # OCHRANA SÚKROMIA — only what this site verifiably does (the form
+    # sends nothing, nothing is stored, no cookies); the company's own
+    # practice (how long e-mails are kept) is left for EcoDomček to state
+    # ═══════════════════════════════════════════════════════════════════
+    legal = section(0, "Ochrana údajov", "paper", f'''<div class="wrap legal" data-reveal>
+  <h1>{lines("Ochrana osobných|<em>údajov</em>")}</h1>
+  <p class="ldraft mono fade d2">Návrh textu pre ostrú verziu webu — pred spustením ho EcoDomček, s.r.o. overí a doplní.</p>
+  <div class="lgrid fade d2">
+    <section><h2>Kto údaje spracúva</h2>
+      <p>EcoDomček, s.r.o., {", ".join(C.ADDRESS[:2])}, {C.LEGAL[0]}.<br>
+        E-mail <a href="mailto:{C.EMAIL}">{C.EMAIL}</a>, telefón <a href="tel:{C.PHONE_RAW}">{C.PHONE}</a>.</p></section>
+    <section><h2>Formulár</h2>
+      <p>Formulár na stránke <a href="kontakt.html">Kontakt</a> nič neodosiela na server a nič neukladá.
+        Pripraví e-mail vo vašom e-mailovom programe — údaje, ktoré doň napíšete (meno, telefón alebo e-mail,
+        miesto stavby, správa), dostaneme až vtedy, keď ho sami odošlete. Ako dlho e-maily uchovávame, doplní EcoDomček.</p></section>
+    <section><h2>Cookies a meranie</h2>
+      <p>Web nepoužíva cookies ani analytické či reklamné nástroje a do vášho prehliadača nič neukladá.</p></section>
+    <section><h2>Prevádzka webu</h2>
+      <p>Web beží na hostingu Vercel Inc. Ten pri každej návšteve zaznamenáva technické údaje
+        (napríklad IP adresu a čas požiadavky), aby web mohol bezpečne fungovať.</p></section>
+    <section><h2>Vaše práva</h2>
+      <p>Máte právo na prístup k svojim údajom, ich opravu, vymazanie, obmedzenie spracúvania, prenosnosť
+        a právo namietať. Stačí napísať na <a href="mailto:{C.EMAIL}">{C.EMAIL}</a>. Sťažnosť môžete podať
+        Úradu na ochranu osobných údajov Slovenskej republiky (dataprotection.gov.sk).</p></section>
+  </div>
+</div>''')
+    page("ochrana-udajov.html", "Ochrana osobných údajov — EcoDomček",
+         "Ako web EcoDomčeka zaobchádza s osobnými údajmi: formulár nič neukladá, žiadne cookies.",
+         legal, "legal", first="Ochrana údajov")
 
     # ═══════════════════════════════════════════════════════════════════
     # 404 — a wrong address still lands on the site, not on a server error

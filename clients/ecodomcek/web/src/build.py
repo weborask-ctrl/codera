@@ -127,7 +127,7 @@ def footer() -> str:
       <div class="fcol"><h4>Stránky</h4><div class="fnav">{links}</div></div>
     </div>
     <div class="fbot">
-      <span>© 2026 EcoDomček, s.r.o.</span>
+      <span>© 2026 EcoDomček, s.r.o. · <a href="ochrana-udajov.html">Ochrana osobných údajov</a></span>
       <span>{esc(C.DISCLAIMER)}</span>
     </div>
   </div>
