@@ -7,7 +7,7 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "includes": ["**", "!clients/**"]
+    "includes": ["**", "!clients/**", "!public/demos/ecodomcek/**"]
   },
   "css": {
     "parser": {

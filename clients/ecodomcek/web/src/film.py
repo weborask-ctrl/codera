@@ -34,7 +34,10 @@ ROOT = pathlib.Path(__file__).parent.parent
 RAW = ROOT / "renders" / "fal" / "hero.mp4"
 OUT = ROOT / "renders" / "film"
 PAPER = np.array([243, 238, 227], dtype=np.float32)
-SIZES = {"": 1200, "-720": 720}                  # desktop ≈ 2× the slot; phones get 720
+SIZES = {"": 1200, "-720": 720, "-2k": 2000}     # desktop; phones; big and retina screens
+# the crop is ~1330 px wide in the raw film: 2000 is Lanczos + a light
+# unsharp mask — still sharper than a browser stretching 720 or 1200
+SHARPEN = {"-2k": ",unsharp=5:5:0.55:5:5:0.0"}
 
 try:
     import imageio_ffmpeg
@@ -123,16 +126,16 @@ def main() -> None:
             Image.fromarray(np.clip(a, 0, 255).round().astype(np.uint8)).save(t / ("g" + f.name[1:]))
         for tag, wo in SIZES.items():
             ho = round(h * wo / w / 2) * 2
-            vf = f"scale={wo}:{ho}:flags=lanczos"
+            vf = f"scale={wo}:{ho}:flags=lanczos" + SHARPEN.get(tag, "")
             src = str(t / "g%04d.png")
             if tag == "":
                 for i, name in ((frames[0], "hero-first.webp"), (frames[-1], "hero-last.webp")):
                     Image.open(t / ("g" + i.name[1:])).resize((wo, ho), Image.LANCZOS).save(OUT / name, quality=84)
             subprocess.run([FF, "-loglevel", "error", "-y", "-framerate", "24", "-i", src, "-vf", vf,
-                            "-c:v", "libx264", "-preset", "slow", "-crf", "24", "-pix_fmt", "yuv420p",
+                            "-c:v", "libx264", "-preset", "slow", "-crf", "21" if tag == "-2k" else "24", "-pix_fmt", "yuv420p",
                             "-g", "12", "-movflags", "+faststart", "-an", str(OUT / f"hero{tag}.mp4")], check=True)
             subprocess.run([FF, "-loglevel", "error", "-y", "-framerate", "24", "-i", src, "-vf", vf,
-                            "-c:v", "libvpx-vp9", "-b:v", "0", "-crf", "33", "-row-mt", "1", "-g", "12",
+                            "-c:v", "libvpx-vp9", "-b:v", "0", "-crf", "30" if tag == "-2k" else "33", "-row-mt", "1", "-g", "12",
                             "-pix_fmt", "yuv420p", "-an", str(OUT / f"hero{tag}.webm")], check=True)
     for f in sorted(OUT.iterdir()):
         print(f"{f.name:18s} {f.stat().st_size / 1024:7.0f} KB")
