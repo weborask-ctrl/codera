@@ -1485,10 +1485,11 @@ h2.big em{font-style:normal;color:var(--moss)}
 @media (max-width:1100px){ body.nav-open header nav .nfoot a.nphone,header nav .nfoot a.nphone{color:#94571f} }
 
 /* phones: the film's frame carries ~19 % paper on each side, so it may
-   bleed past the screen edge — the house itself then spans the width */
+   bleed past the screen edge. Since the intro (phase 18) the house first
+   fills the width, then settles smaller — ~80 % of it after the push-in */
 @media (max-width:600px){
   .poster{overflow:hidden}
-  .poster .house{width:128vw;max-width:none;margin-inline:calc(50% - 64vw)}
+  .poster .house{width:100vw;max-width:none;margin-inline:calc(50% - 50vw)}
 }
 
 /* the floor names beside the house: a ruled list under the CTAs, shown
