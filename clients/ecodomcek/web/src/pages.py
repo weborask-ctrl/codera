@@ -89,21 +89,15 @@ OPEN = [("roof", "r", "Strecha", "plochá"),
 
 
 def open_labels():
-    # --x: the level's edge on its own side (the numbered points, stacked
-    # layouts); --xr: its right edge, --cx: the column the names hang in
-    # beside the house (side layouts) — all in % of the frame
-    out, rights = "", []
-    for k, *_ in OPEN:
-        l = LAY["layers"][k]
-        rights.append((l["x"] + l["w"]) / LAY["W"] * 100)
+    out = ""
     for i, (k, side, name, note) in enumerate(OPEN):
         l = LAY["layers"][k]
         y = (l["y"] + l["h"] * .5) / LAY["H"] * 100
         x = ((l["x"] + l["w"]) if side == "r" else l["x"]) / LAY["W"] * 100
-        em = "".join(f"<em>{n}</em>" for n in note.split(" · ")) if note else ""
-        out += (f'<div class="ol {side}" data-n="{i + 1}" style="--y:{y:.1f}%;--x:{x:.1f}%;--xr:{rights[i]:.1f}"><i></i>'
+        em = "".join(f"<em>{n}</em>" for n in note.split(" · "))   # a narrow tag: a line per fact
+        out += (f'<div class="ol {side}" data-n="{i + 1}" style="--y:{y:.1f}%;--x:{x:.1f}%"><i></i>'
                 f'<div><b>{i + 1:02d}</b><span>{name}</span>{em}</div></div>')
-    return f'<div class="olabels" style="--cx:{max(rights):.1f}">{out}</div>'
+    return f'<div class="olabels">{out}</div>'
 
 
 def street():
@@ -272,7 +266,8 @@ def build(B):
 
     def build_log():
         rows = ""
-        for n, t, d in C.PROCESS:
+        total = len(C.PROCESS)
+        for i, (n, t, d) in enumerate(C.PROCESS):
             if n in STEP_ART:
                 f, capt, alt = STEP_ART[n]
                 art = (f'<figure class="lart"><div class="frame clipimg"><img src="assets/{f}" alt="{esc(alt)}" '
@@ -282,7 +277,8 @@ def build(B):
                        f'<a class="lphone" href="tel:{C.PHONE_RAW}">{C.PHONE}</a>'
                        f'<a class="fine" href="mailto:{C.EMAIL}">{C.EMAIL}</a></div>')
             rows += (f'<li class="lrow fade"><span class="lnum" aria-hidden="true">{n}</span>'
-                     f'<div class="ltext"><h3>{esc(t)}</h3><p>{esc(d)}</p></div>{art}</li>')
+                     f'<div class="ltext"><span class="lstep mono">Krok {i + 1} zo {total}</span>'
+                     f'<h3>{esc(t)}</h3><p>{esc(d)}</p></div>{art}</li>')
         return f'<ol class="blog">{rows}</ol>'
 
     def quotes_home():

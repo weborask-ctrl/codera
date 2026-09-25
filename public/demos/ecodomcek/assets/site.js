@@ -282,7 +282,7 @@
     // the landed house: as large as the room beside the words allows (to the
     // right of the headline, above the caption; on phones the full width),
     // centred in it. A film transform { s, x, y } in px, from the layout.
-    var LAND = { s: 1.3, x: 0, y: 0 };
+    var LAND = { s: 1.3, x: 0, y: 0 }, OPEN = { s: .86, x: 0, y: 0 };
     function landAim() {
       var p = poster.getBoundingClientRect();
       var saved = act.style.transform; act.style.transform = 'none';   // the frame as laid out
@@ -312,6 +312,27 @@
       var s = Math.max(1.3, Math.min(1.3 * 1.4, (R0 - L0) / cw, (B0 - T0) / ch));
       var cy = Math.min(Math.max(fy, T0 + ch * s / 2), B0 - ch * s / 2);
       LAND = { s: s, x: cx - fx - s * (cx0 - fx), y: cy - fy - s * (cy0 - fy) };
+      // opened (client, 2026-09-25): the levels as large as the closed house,
+      // on the same spot, as far as the height allows — beside the words
+      // the roof may rise to the menu and the base to the screen's foot
+      // (the level names are tags on the levels); stacked, it stays
+      // between the buttons and the list of names under it
+      var T1 = top(.18), ch1 = F.h * (BOX.b - T1), cy1 = F.t + F.h * (T1 + BOX.b) / 2;
+      var leg = poster.querySelector('.olegend'), tx = poster.querySelector('.ptext'), hd = document.querySelector('header');
+      var U0 = T0, U1 = B0;
+      if (wide()) {
+        U0 = (hd ? hd.getBoundingClientRect().bottom : 0) - p.top + 8;
+        U1 = innerHeight - p.top - 16;
+      } else if (leg && tx) {
+        U0 = tx.getBoundingClientRect().bottom - p.top + 10;
+        U1 = leg.getBoundingClientRect().top - p.top - 4;
+      }
+      var so = Math.max(.6, Math.min(s, (U1 - U0) / ch1));
+      var oy = Math.min(Math.max(fy, U0 + ch1 * so / 2), U1 - ch1 * so / 2);
+      OPEN = { s: so, x: cx - fx - so * (cx0 - fx), y: oy - fy - so * (cy1 - fy) };
+      act.style.setProperty('--os', so);                      // the numbers ride on the levels
+      var ols = act.querySelector('.olabels');
+      if (ols) gsap.set(ols, { x: OPEN.x, y: OPEN.y });
     }
     var geo = null, cam = null;
     function measure() {                                      // the untransformed frame, once per layout
@@ -421,28 +442,16 @@
       });
       function seek(t) { want = t; if (!seeking && Math.abs(film.currentTime - t) > .015) { seeking = true; film.currentTime = t; } }
       var ease = gsap.parseEase('power1.inOut');
-      // the opened scale lives in CSS (--os): larger where the house stands
-      // beside the words, smaller where it sits under them
-      var OS = .86, SHIFT = 0;
-      function readOS() {
-        OS = parseFloat(getComputedStyle(act).getPropertyValue('--os')) || .86;
+      function relayout() {
         // a new layout, a new landing: re-aim, and re-seat a landed house at rest
         landAim();
         if (done && !scrubbing && (!landing || !landing.isActive()) && (!intro || intro.settled))
           gsap.set(film, { x: LAND.x, y: LAND.y, scale: LAND.s });
-        // how far left the opened house steps so its name column stays on
-        // screen (labels are laid out at the opened scale, visible or not)
-        SHIFT = 0;
-        if (!wide()) return;
-        var a = act.getBoundingClientRect(), x = gsap.getProperty(act, 'x') || 0, right = 0;
-        act.querySelectorAll('.ol div').forEach(function (d) { right = Math.max(right, d.getBoundingClientRect().right - a.left); });
-        var limit = innerWidth - parseFloat(getComputedStyle(poster).paddingRight);
-        SHIFT = Math.max(0, a.left - x + right - limit);
       }
-      readOS();
+      relayout();
       pin = track(ScrollTrigger.create({
         trigger: poster, start: 'top top', end: '+=130%', pin: true, anticipatePin: 1,
-        onRefresh: readOS,
+        onRefresh: relayout,
         onUpdate: function (self) {
           if (!act.classList.contains('filming')) return;
           var p = self.progress;
@@ -452,11 +461,9 @@
           if (!scrubbing) return;
           var q = ease(Math.min(1, Math.max(0, (p - .04) / .72)));
           seek(END - q * (END - OPEN_T));
-          // opened, the house spans 4-96 % of the frame: at .86 it clears both
-          // headline lines, which overlap the frame's top and bottom 7 %
-          // (stacked layouts); beside the words it opens at 1.03
-          gsap.set(film, { scale: LAND.s - (LAND.s - OS) * q, x: LAND.x * (1 - q), y: LAND.y * (1 - q) });
-          if (!intro || intro.settled) gsap.set(act, { x: -SHIFT * q });
+          // landed → opened (see landAim): the levels keep their size
+          gsap.set(film, { scale: LAND.s + (OPEN.s - LAND.s) * q, x: LAND.x + (OPEN.x - LAND.x) * q,
+            y: LAND.y + (OPEN.y - LAND.y) * q });
           var open = p > .8;
           act.classList.toggle('open', open); poster.classList.toggle('opened', open);
         }
