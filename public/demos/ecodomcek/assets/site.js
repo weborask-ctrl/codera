@@ -292,9 +292,9 @@
       var cx0 = F.l + F.w * (BOX.l + BOX.r) / 2, cy0 = F.t + F.h * (T + BOX.b) / 2;   // the built house
       var cw = F.w * (BOX.r - BOX.l), ch = F.h * (BOX.b - T);
       var pad = parseFloat(getComputedStyle(poster).paddingRight) || 20;
-      // the paper may run to the edge, the house not: 1.5 % (3 % on phones,
+      // the paper may run to the edge, the house not: 1 % (1.5 % on phones,
       // where the house spans the width)
-      var edge = wide() ? Math.max(20, innerWidth * .015) : Math.max(12, innerWidth * .03);
+      var edge = wide() ? Math.max(12, innerWidth * .01) : Math.max(6, innerWidth * .015);
       var L0 = edge, R0 = p.width - edge, T0 = innerHeight * .12, B0 = innerHeight * .94, cx = fx;
       if (wide()) {
         var right = 0, rg = document.createRange();
@@ -302,12 +302,14 @@
           rg.selectNodeContents(el);
           [].forEach.call(rg.getClientRects(), function (q) { right = Math.max(right, q.right - p.left); });
         });
-        L0 = right + Math.max(28, innerWidth * .03);
+        L0 = right + Math.max(20, innerWidth * .02);
         var vz = poster.querySelector('.vz');
         if (vz) B0 = vz.getBoundingClientRect().top - p.top - 16;
         cx = (L0 + R0) / 2;
       }
-      var s = Math.max(1.3, Math.min((R0 - L0) * (wide() ? .96 : 1) / cw, (B0 - T0) / ch, 2.4));
+      // client, 2026-09-25: 40 % larger than the old fixed ×1.3 landing —
+      // as far as the room allows (a phone is 1.56 at most: its width)
+      var s = Math.max(1.3, Math.min(1.3 * 1.4, (R0 - L0) / cw, (B0 - T0) / ch));
       var cy = Math.min(Math.max(fy, T0 + ch * s / 2), B0 - ch * s / 2);
       LAND = { s: s, x: cx - fx - s * (cx0 - fx), y: cy - fy - s * (cy0 - fy) };
     }
@@ -325,7 +327,8 @@
       var f = geo.f, y0 = f.top + f.height * top(t), y1 = f.top + f.height * BOX.b;
       var x0 = f.left + f.width * BOX.l, x1 = f.left + f.width * BOX.r;
       var mx = innerWidth < innerHeight ? .98 : .9;           // portrait: edge to edge
-      var s = Math.min(innerWidth * mx / (x1 - x0), innerHeight * .86 / (f.height * (BOX.b - top(0))));
+      // … and 15 % short of filling it (client: smaller at the start)
+      var s = .85 * Math.min(innerWidth * mx / (x1 - x0), innerHeight * .86 / (f.height * (BOX.b - top(0))));
       var cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
       return { x: innerWidth / 2 - geo.ax - s * (cx - geo.ax), y: innerHeight / 2 - geo.ay - s * (cy - geo.ay), s: s };
     }
