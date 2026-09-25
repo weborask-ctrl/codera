@@ -928,3 +928,25 @@ obsah; **exoape**: ľahké číslice vo veľkom merítku): číslica 96–230 px
 „Krok 1 zo 4“, nadpis 32–66 px, veta 17–26 px na čítanie, zarovnané na stred
 obrázka 16:10 (o niečo menšieho). Tmavý panel s telefónom je vycentrovaný.
 Telefón: bez zmeny rozloženia, pribudol len počet krokov.
+
+## Fáza 23 — po hodnotení: kratší úvod, Služby, detail, ochrana údajov (2026-09-25)
+
+**Kratší úvod.** Úvodná stránka na počítači 13,6 → 10,9 obrazovky: ulica sa posúva
+2,5× rýchlejšie ako skrol (4,8 → 2,7), otváranie domu 130 % → 110 % výšky okna,
+„Ako to ide“ v jednom riadku číslo · text · obrázok (bez prázdneho stredu).
+
+**Služby.** Služba s realizáciami vedie najnovšou fotografovanou stavbou vo veľkom
+(3 : 2), ďalšie stavby sú pod vetou ako pás náhľadov; všetky vety majú jednu
+veľkosť (**refokus**: farba žije vo vnútri práce; **basement**: skutočné riadky).
+
+**Detail realizácie.** Číslo roku bolo z tretiny pod fotkou („202“) — teraz je
+vedľa nej celé (merané na všetkých ôsmich stavbách, 1024–2560 px). Susedná stavba
+bez fotky má prerušovaný rámček „bez fotky“ ako na ulici.
+
+**Ochrana osobných údajov.** Nová stránka, len overiteľné fakty (formulár nič
+neodosiela ani neukladá, žiadne cookies, hosting Vercel, práva podľa GDPR);
+označená ako návrh pre ostrú verziu — dobu uchovávania doplní EcoDomček. Odkaz
+vo formulári a v pätičke; proxy ju púšťa aj na subdoméne.
+
+Štítok „Koncept redizajnu“ a noindex ostávajú (rozhodnutie klienta: zatiaľ ukážka
+pre EcoDomček).

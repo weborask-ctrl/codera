@@ -450,7 +450,7 @@
       }
       relayout();
       pin = track(ScrollTrigger.create({
-        trigger: poster, start: 'top top', end: '+=130%', pin: true, anticipatePin: 1,
+        trigger: poster, start: 'top top', end: '+=110%', pin: true, anticipatePin: 1,
         onRefresh: relayout,
         onUpdate: function (self) {
           if (!act.classList.contains('filming')) return;
@@ -872,9 +872,11 @@
     var tr = st.querySelector('.strack');
     function dist() { return Math.max(0, tr.scrollWidth - innerWidth); }
     // one tween, one trigger: a ScrollTrigger instance handed to gsap.to()
-    // is turned into a second trigger — two pins fighting over one element
+    // is turned into a second trigger — two pins fighting over one element.
+    // The street walks 2.5 pixels per pixel scrolled (client, 2026-09-25:
+    // the home page ran 13.6 screens, 4.8 of them this street)
     var tw = gsap.to(tr, { x: function () { return -dist(); }, ease: 'none',
-      scrollTrigger: { trigger: st, start: 'center center', end: function () { return '+=' + dist(); },
+      scrollTrigger: { trigger: st, start: 'center center', end: function () { return '+=' + dist() / 2.5; },
         pin: true, scrub: .5, invalidateOnRefresh: true, anticipatePin: 1 } });
     tweens.push(tw); track(tw.scrollTrigger);
   }
