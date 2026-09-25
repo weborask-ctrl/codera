@@ -756,3 +756,31 @@ vizuálne zhodné), úvod štartuje po fontoch a vlastných obrázkoch hera, nie
 po celom `load`, film sa sťahuje s nízkou prioritou. Zvyšok LCP je zámerná
 choreografia (tuš → vrstvy → film). Ak má LCP ísť pod 2,5 s, treba ukázať
 prvý záber filmu hneď bez tušu — to je rozhodnutie o dizajne, nie oprava.
+
+## Fáza 15 — plnšie rozloženie, ostrejšie fotky (2026-09-25)
+
+**Fotky.** Originály sú 420–880 px JPEG. Build ich znova stratovo kódoval
+(WebP q76) a na 2× displejoch ich prehliadač natiahol ~1,6× mäkkým filtrom.
+Teraz len klasické spracovanie (`retina()` v `build.py`): mierne potlačenie
+blokov, Lanczos na ≤ 1300 px (≤ 1,65×), doostrenie hrán s prahom (hladká
+omietka a obloha ostanú čisté), slabý široký lokálny kontrast, WebP q88
+raz. Žiadny model, žiadne vymyslené detaily. AI zväčšenie (Real-ESRGAN)
+v tomto prostredí zablokovala ochrana (váhy modelu sú pickle súbor).
+
+**Úvod.**
+- Citát: obe skutočné vyjadrenia, veľké a malé proti sebe, visiace
+  machové úvodzovky (refokus.md — serif ako ľudský hlas; kpr.md — typ za
+  obsahom). Predtým jeden citát a prázdna pravá polovica.
+- Postup ako stavebný denník (basement.md — hustota skutočného obsahu
+  medzi obrovským písmom; igloo.md — mono anotácia): 01 je priamo telefón,
+  02 rez domom (dispozícia), 03 rozložený dom (poradie montáže),
+  04 hotový interiér; vizualizácie označené.
+- Ulica: domy sú pomer jednej výšky podľa okna (≤ 58 vh / 540 px),
+  pripnutý rám je vyplnený.
+
+**Stavebný list.** Medzi citátom a bočným stĺpcom bolo ~400 px papiera.
+Teraz detail z tej istej fotky (už načítanej) na jeden skutočný prvok
+stavby, s popisom „Detail z fotografie · …". Pri 420 px fotke nie.
+
+**Zámerne nechané:** Služby — riadky bez dokladu ostávajú bez obrázka
+(vizualizácia by sa tvárila ako dôkaz).
