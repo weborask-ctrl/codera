@@ -210,3 +210,10 @@ www.codera.sk sa dostane len zlúčením vetvy.
 Obrys Slovenska je z Natural Earth 1:10m (public domain, cez `world-atlas`, ISC),
 predspracovaný do `renders/sk.json` skriptom `src/geo.py` (návod v jeho hlavičke).
 Miesta realizácií sú v `src/pages.py` (`PLACES`) — stredy obcí, preto „orientačne".
+
+## 404
+
+`dist/404.html` — väčšina hostingov ho vráti pre akúkoľvek zlú adresu. Má
+`<base href="/">` (zdroje z koreňa webu, funguje na hlbokých adresách) a `noindex`;
+nie je v sitemap ani v jednosúborovom bundli. Ak by web bežal v podpriečinku,
+`base` treba upraviť.

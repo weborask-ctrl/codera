@@ -41,7 +41,7 @@ def inline_fonts(css: str) -> str:
 
 
 def main() -> None:
-    pages = sorted(p for p in DIST.glob("*.html") if p.name not in ("artifact-index.html", OUT.name))
+    pages = sorted(p for p in DIST.glob("*.html") if p.name not in ("artifact-index.html", "404.html", OUT.name))
     index = (DIST / "index.html").read_text(encoding="utf-8")
     css = (ASSETS / "site.css").read_text(encoding="utf-8")
     js = (ASSETS / "site.js").read_text(encoding="utf-8")

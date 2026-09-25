@@ -334,17 +334,40 @@ def build(B):
         """No server yet, so the form does what it honestly can: it opens the
         visitor's own e-mail with the enquiry already written to the client.
         Without JS the browser's mailto: GET still carries subject and text."""
+        # the fields are the client's own list: "Hodí sa: miesto stavby, či
+        # máte pozemok a projekt, a dokedy by ste chceli bývať"; the chips
+        # are their services, so a tap says what the enquiry is about
+        chips = "".join(f'<label class="chip"><input type="checkbox" name="co" value="{v}"><span>{v}</span></label>'
+                        for v in ("Dom na kľúč", "Strecha", "Terasa", "Altánok", "Interiér", "Zateplenie",
+                                  "Renovácia", "Iné"))
+        def pick(name, legend, opts):
+            o = "".join(f'<label class="chip"><input type="radio" name="{name}" value="{v}"><span>{v}</span></label>'
+                        for v in opts)
+            return f'<fieldset class="pick"><legend>{legend}</legend><div>{o}</div></fieldset>'
         return f'''<form class="inquiry" action="mailto:{C.EMAIL}" method="get" data-mail="{C.EMAIL}" novalidate>
   <input type="hidden" name="subject" value="Dopyt z webu">
+  <fieldset class="pick wide"><legend>Čo staviame?</legend><div>{chips}</div></fieldset>
   <div class="form">
     <label>Meno<input type="text" name="meno" autocomplete="name"></label>
-    <label>Telefón alebo e-mail<input type="text" name="kontakt" autocomplete="tel"></label>
-    <label class="wide">Čo staviame?<textarea rows="3" name="body"
-      placeholder="Dom, strecha, terasa, altánok… alebo len otázka."></textarea></label>
+    <label><span>Telefón alebo e-mail <i class="req">povinné</i></span><input type="text" name="kontakt" autocomplete="tel"
+      inputmode="email" aria-describedby="kontakt-err" required><em class="ferr" id="kontakt-err" aria-live="polite"></em></label>
+    <label>Miesto stavby<input type="text" name="miesto" placeholder="obec alebo okres"></label>
+    <label>Dokedy by ste chceli bývať?<input type="text" name="kedy" placeholder="napr. jar 2027"></label>
+    {pick("pozemok", "Pozemok", ("mám", "hľadám"))}
+    {pick("projekt", "Projekt", ("mám", "nemám", "neviem"))}
+    <label class="wide">Čo ešte by sme mali vedieť?<textarea rows="3" name="body"
+      placeholder="Veľkosť, počet izieb, otázka… čokoľvek."></textarea></label>
   </div>
   <button class="btn" style="margin-top:30px" type="submit">Pripraviť e-mail {ARROW}</button>
   <p class="fine fstatus" style="margin-top:16px" aria-live="polite">Otvorí sa váš e-mail s hotovým
     dopytom na {C.EMAIL} — stačí ho odoslať. Alebo zavolajte {C.PHONE}.</p>
+  <div class="fdone" hidden>
+    <b>Dopyt je pripravený.</b>
+    <p>Ak sa e-mail neotvoril, skopírujte text a pošlite ho na <a href="mailto:{C.EMAIL}">{C.EMAIL}</a> —
+      alebo rovno zavolajte <a href="tel:{C.PHONE_RAW}">{C.PHONE}</a>.</p>
+    <button class="btn ghost" type="button" data-copy>Skopírovať text dopytu</button>
+    <span class="fine fcopied" aria-live="polite"></span>
+  </div>
 </form>'''
 
     def masthead(head, lead, meta=None, band="paper", name="Úvod"):
@@ -1029,7 +1052,7 @@ def build(B):
     </div>
   </div>
 </section>''' + section(1, "Dopyt", "paper", f'''<div class="wrap split" data-reveal>
-  <div>
+  <div class="kside">
     <h2 style="margin:18px 0 22px">{lines("Napíšte nám,|čo <em>staviate</em>.")}</h2>
     <p class="lead fade d2">Čím viac napíšete, tým presnejšie vieme odpovedať. Hodí sa:
       miesto stavby, či máte pozemok a projekt, a dokedy by ste chceli bývať.</p>
@@ -1044,3 +1067,16 @@ def build(B):
     page("kontakt.html", "Kontakt — EcoDomček",
          f"EcoDomček, s.r.o., Lúčina 33, 082 07 Lúčina, okr. Prešov. Telefón {C.PHONE}, "
          f"e-mail {C.EMAIL}.", kont, "kontakt", band="dusk", first="Kontakt")
+
+    # ═══════════════════════════════════════════════════════════════════
+    # 404 — a wrong address still lands on the site, not on a server error
+    # ═══════════════════════════════════════════════════════════════════
+    lost = section(0, "Nenájdené", "paper", f'''<div class="wrap lost" data-reveal>
+  <span class="lnum404 fade" aria-hidden="true">404</span>
+  <h1>{lines("Túto stránku|sme <em>nepostavili</em>.")}</h1>
+  <p class="lead fade d2">Adresa neexistuje alebo sa zmenila. Všetko ostatné stojí na svojom mieste.</p>
+  <div class="ctas fade d3">{btn("Na úvod", "index.html")}{btn("Realizácie", "realizacie.html", ghost=True, arrow=False)}{btn("Kontakt", "kontakt.html", ghost=True, arrow=False)}</div>
+  <p class="fine fade d3" style="margin-top:26px">Alebo rovno zavolajte <a href="tel:{C.PHONE_RAW}">{C.PHONE}</a>.</p>
+</div>''')
+    page("404.html", "Stránka nenájdená — EcoDomček", "Táto adresa na webe EcoDomčeka neexistuje.",
+         lost, "lost", first="404")

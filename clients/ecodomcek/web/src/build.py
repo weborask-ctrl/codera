@@ -201,8 +201,14 @@ def page(file: str, title: str, desc: str, body: str, page_id: str,
                        first=esc(first or title), url=url, image=C.SITE + "assets/" + image,
                        image_alt=esc(image_alt or "EcoDomček — montované drevodomy z Lúčiny"),
                        jsonld=ld)
+    if file == "404.html":
+        # served at ANY wrong path: resolve assets from the root, keep it out
+        # of search and out of the sitemap
+        out = out.replace('<meta charset="utf-8">', '<meta charset="utf-8">\n<base href="/">\n'
+                          '<meta name="robots" content="noindex">', 1)
     (DIST / file).write_text(for_the_web(out), encoding="utf-8")
-    PAGES.append(file)
+    if file != "404.html":
+        PAGES.append(file)
 
 
 DIMS: dict[str, tuple[int, int]] = {}

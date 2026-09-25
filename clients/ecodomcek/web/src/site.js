@@ -599,22 +599,47 @@
   function initForm() {
     var f = main.querySelector('form.inquiry');
     if (!f) return;
-    var st = f.querySelector('.fstatus');
+    var st = f.querySelector('.fstatus'), done = f.querySelector('.fdone'), err = f.querySelector('.ferr');
+    var k = f.elements.kontakt, text = '';
+    function val(n) { var e = f.elements[n]; return e && e.value ? String(e.value).trim() : ''; }
+    function checked(n) {
+      return [].filter.call(f.querySelectorAll('input[name="' + n + '"]'), function (i) { return i.checked; })
+        .map(function (i) { return i.value; });
+    }
+    // a phone (≥ 9 digits) or an e-mail — the one thing the client needs to answer
+    function okContact(s) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s) || s.replace(/\D/g, '').length >= 9; }
+    function flag(msg) {
+      err.textContent = msg; k.setAttribute('aria-invalid', msg ? 'true' : 'false');
+      k.closest('label').classList.toggle('bad', !!msg);
+    }
+    k.addEventListener('input', function () { if (k.getAttribute('aria-invalid') === 'true' && okContact(val('kontakt'))) flag(''); });
     f.addEventListener('submit', function (e) {
       e.preventDefault();
-      var v = function (n) { return (f.elements[n].value || '').trim(); };
-      if (!v('body') && !v('kontakt')) {
-        st.textContent = 'Napíšte aspoň, čo staviate, alebo kontakt — ozveme sa.';
-        f.elements.body.focus();
-        return;
+      if (!val('kontakt')) { flag('Napíšte telefón alebo e-mail — inak sa vám nemáme ako ozvať.'); k.focus(); return; }
+      if (!okContact(val('kontakt'))) { flag('Toto nevyzerá ako telefón ani e-mail.'); k.focus(); return; }
+      flag('');
+      var rows = [
+        ['Čo staviame', checked('co').join(', ')], ['Meno', val('meno')], ['Kontakt', val('kontakt')],
+        ['Miesto stavby', val('miesto')], ['Pozemok', checked('pozemok').join('')],
+        ['Projekt', checked('projekt').join('')], ['Bývať od', val('kedy')]
+      ].filter(function (r) { return r[1]; }).map(function (r) { return r[0] + ': ' + r[1]; });
+      text = rows.join('\n') + (val('body') ? '\n\n' + val('body') : '');
+      var subj = 'Dopyt z webu' + (checked('co').length ? ' — ' + checked('co').join(', ') : '') +
+                 (val('meno') ? ' (' + val('meno') + ')' : '');
+      location.href = 'mailto:' + f.dataset.mail + '?subject=' + encodeURIComponent(subj) +
+        '&body=' + encodeURIComponent(text);
+      st.hidden = true; done.hidden = false;
+    });
+    var copy = f.querySelector('[data-copy]'), said = f.querySelector('.fcopied');
+    copy.addEventListener('click', function () {
+      function ok() { said.textContent = 'Skopírované — vložte do e-mailu alebo správy.'; }
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, fallback);
+      else fallback();
+      function fallback() {
+        var t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select();
+        try { document.execCommand('copy'); ok(); } catch (x) { said.textContent = text; }
+        t.remove();
       }
-      var body = (v('body') || '—') + '\n\n' + (v('meno') ? 'Meno: ' + v('meno') + '\n' : '') +
-                 (v('kontakt') ? 'Kontakt: ' + v('kontakt') + '\n' : '');
-      location.href = 'mailto:' + f.dataset.mail + '?subject=' +
-        encodeURIComponent('Dopyt z webu' + (v('meno') ? ' — ' + v('meno') : '')) +
-        '&body=' + encodeURIComponent(body);
-      st.textContent = 'Otvára sa váš e-mail s hotovým dopytom. Ak sa nič neotvorilo, napíšte na ' +
-        f.dataset.mail + ' alebo zavolajte.';
     });
   }
 

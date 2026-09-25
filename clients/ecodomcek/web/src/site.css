@@ -1620,3 +1620,39 @@ h2.big em{font-style:normal;color:var(--moss)}
   .glegend a{width:auto}
 }
 @media (max-width:820px){ .skmap .gpin{r:8} .skmap .ghome{r:9} .skmap .pn{font-size:9px} }
+
+/* ── the enquiry: the client's own checklist as fields ──────────────── */
+.inquiry .pick{border:0;margin:0 0 22px;padding:0;min-width:0}
+.inquiry .pick legend{padding:0;margin-bottom:10px;font-family:var(--mono);font-size:12px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink2)}
+.inquiry .pick div{display:flex;flex-wrap:wrap;gap:8px}
+.form .pick{margin:0}
+.chip{position:relative;display:inline-flex;cursor:pointer}
+.chip input{position:absolute;opacity:0;width:1px;height:1px}
+.chip span{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border:1px solid rgba(35,31,26,.3);
+  border-radius:999px;font-family:var(--sans);font-size:15px;letter-spacing:0;text-transform:none;color:var(--ink);
+  transition:background .25s,border-color .25s,color .25s}
+.chip:hover span{border-color:var(--ink)}
+.chip input:checked+span{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.chip input:focus-visible+span{outline:2px solid var(--amber);outline-offset:2px}
+.form .req{font-style:normal;color:var(--amber-ink);margin-left:6px;letter-spacing:.08em}
+.ferr{font-style:normal;font-family:var(--sans);font-size:14px;letter-spacing:0;text-transform:none;color:#a3321f;min-height:0}
+.form label.bad input{border-color:#a3321f}
+.fdone{margin-top:26px;padding:22px 24px;border:1px solid var(--line);background:var(--white)}
+.fdone b{display:block;font-weight:500;font-size:19px;margin-bottom:8px}
+.fdone p{margin:0 0 16px;color:var(--ink2);line-height:1.55}
+.fdone a{border-bottom:1px solid currentColor}
+.fcopied{display:block;margin-top:10px}
+/* the form grew: its introduction stays beside it instead of ending half-way */
+@media (min-width:821px){ .kside{position:sticky;top:clamp(96px,14vh,130px);align-self:start} }
+
+/* ── 404 ─────────────────────────────────────────────────────────────── */
+.lost{position:relative;min-height:calc(100svh - 160px);display:flex;flex-direction:column;justify-content:center;
+  padding-block:clamp(110px,16vh,160px) clamp(40px,8vh,90px)}
+.lost h1{position:relative;z-index:1;font-size:clamp(46px,7vw,120px);max-width:12ch}
+.lost .lead{position:relative;z-index:1;max-width:40ch;margin-top:22px}
+.lost .ctas{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.lost .fine a{border-bottom:1px solid currentColor}
+.lnum404{position:absolute;right:var(--gut);bottom:clamp(20px,6vh,70px);font-family:var(--serif);font-weight:200;
+  font-size:clamp(150px,25vw,400px);line-height:.8;letter-spacing:-.05em;color:#8c8170}
+@media (max-width:820px){ .lost{padding-bottom:clamp(170px,40vw,260px)} .lnum404{bottom:20px} }
