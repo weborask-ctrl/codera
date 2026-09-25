@@ -195,3 +195,12 @@ plátno vrstiev 1500×1119 a zakóduje H.264 + VP9 v 1200 a 720 px (10,7 MB → 
 potom film dom zavrie a kamera sa priblíži na zavretý dom. Zablokované automatické prehrávanie
 alebo film, ktorý nezačne do 6 s → vrstvy dosadnú ako predtým. Reduced motion → statický zavretý
 dom. Počas filmu je nadpis nad domom (film nemá alfa kanál). Bundle nesie 720 px WebM aj MP4.
+
+## Náhľad na tablete / telefóne
+
+`public/demos/ecodomcek/index.html` je kópia `dist/ecodomcek.html` (+ `noindex`),
+aby sa dal web otvoriť cez Vercel náhľad vetvy v Safari na iPade — lokálne
+otvorené HTML iPad zobrazí bez JavaScriptu. Po zmene: `python3 src/build.py &&
+python3 src/bundle.py` a súbor znova skopírovať (s riadkom
+`<meta name="robots" content="noindex, nofollow">`). Na produkčný
+www.codera.sk sa dostane len zlúčením vetvy.
