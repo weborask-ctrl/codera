@@ -205,7 +205,11 @@
       var scrubbing = false, landing = null, pin = null;
       function built() {
         if (done) return; done = true; poster.classList.add('built');
-        if (intro && !intro.done) gsap.delayedCall(.3, function () { finishIntro(false); });
+        if (intro && !intro.done) {                           // mid-intro the camera is already close:
+          if (act.classList.contains('filming') && !scrubbing) landIn();   // land at once, unseen
+          tweens.push(gsap.delayedCall(.6, function () { finishIntro(false); }));   // a beat on the finished house
+          return;
+        }
         // the landing: the camera pushes in on the closed house (the film
         // ends with it low in the frame — measured centre 72.7 %, height 48 %)
         if (act.classList.contains('filming') && !scrubbing) {
@@ -252,13 +256,57 @@
       poster.classList.add('typeset'); poster.classList.remove('intro');
       document.body.classList.remove('intro');
     }
-    function place() {                                        // the house, centred over the whole screen
-      if (!intro || intro.done) return;
+    // Where the house is inside the film frame, as fractions of it (paper-diff
+    // bounding box of assets/hero.mp4 sampled at 10 fps; shadow included).
+    // Sides and ground stay put; the top falls as the levels settle.
+    var BOX = { l: .20, r: .82, b: .965 };
+    var TOP = [[0, .036], [.9, .041], [1.5, .071], [2.1, .123], [2.7, .206], [3.3, .335], [3.9, .445], [4.5, .489]];
+    function top(t) {
+      for (var i = 1; i < TOP.length; i++) {
+        if (t <= TOP[i][0]) { var a = TOP[i - 1], b = TOP[i]; return a[1] + (b[1] - a[1]) * (t - a[0]) / (b[0] - a[0]); }
+      }
+      return TOP[TOP.length - 1][1];
+    }
+    var geo = null, cam = null;
+    function measure() {                                      // the untransformed frame, once per layout
       gsap.set(act, { clearProps: 'transform' });
-      var r = act.getBoundingClientRect();
-      var s = Math.min(innerWidth / r.width, innerHeight / r.height);
-      gsap.set(act, { x: innerWidth / 2 - (r.left + r.width / 2), y: innerHeight / 2 - (r.top + r.height / 2),
-        scale: s, transformOrigin: '50% 50%' });
+      var a = act.getBoundingClientRect(), f = (film || act).getBoundingClientRect();
+      geo = { ax: a.left + a.width / 2, ay: a.top + a.height / 2, f: f };
+    }
+    function aim(t) {                                         // the camera: the house fills the screen
+      var f = geo.f, y0 = f.top + f.height * top(t), y1 = f.top + f.height * BOX.b;
+      var x0 = f.left + f.width * BOX.l, x1 = f.left + f.width * BOX.r;
+      var mx = innerWidth < innerHeight ? .98 : .9;           // portrait: edge to edge
+      var s = Math.min(innerWidth * mx / (x1 - x0), innerHeight * .86 / (y1 - y0));
+      var cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+      return { x: innerWidth / 2 - geo.ax - s * (cx - geo.ax), y: innerHeight / 2 - geo.ay - s * (cy - geo.ay), s: s };
+    }
+    function place() {                                        // jump straight to the aim (start, resize)
+      if (!intro || intro.done) return;
+      measure();
+      var m = aim(film ? film.currentTime : 0);
+      gsap.set(act, { x: m.x, y: m.y, scale: m.s, transformOrigin: '50% 50%' });
+      cam = m;
+    }
+    function follow(time, dt) {                               // while it builds, the camera keeps it full
+      if (!intro || intro.done || !cam || !film) return;
+      var m = aim(film.currentTime), k = 1 - Math.exp(-(dt || 16) / 240);   // eased, frame-rate free
+      cam = { x: cam.x + (m.x - cam.x) * k, y: cam.y + (m.y - cam.y) * k, s: cam.s + (m.s - cam.s) * k };
+      gsap.set(act, { x: cam.x, y: cam.y, scale: cam.s });
+    }
+    function landIn() {
+      // the landing push-in (film ×1.3, up 29.5 %), taken in one step and
+      // cancelled by the camera — the picture does not move, only its split
+      if (!geo || !film) return;
+      gsap.ticker.remove(follow);                             // the camera holds still from here
+      var f = geo.f, s = gsap.getProperty(act, 'scale'), tx = gsap.getProperty(act, 'x'), ty = gsap.getProperty(act, 'y');
+      var fx = f.left + f.width / 2, fy = f.top + f.height / 2;
+      var cx = f.left + f.width * (BOX.l + BOX.r) / 2, cy = f.top + f.height * (top(9) + BOX.b) / 2;
+      var sx = geo.ax + s * (cx - geo.ax) + tx, sy = geo.ay + s * (cy - geo.ay) + ty;       // on screen now
+      var px = fx + 1.3 * (cx - fx), py = fy + 1.3 * (cy - fy) - .295 * f.height;          // after the push-in
+      var s2 = s / 1.3;
+      gsap.set(film, { yPercent: -29.5, scale: 1.3 });
+      gsap.set(act, { scale: s2, x: sx - geo.ax - s2 * (px - geo.ax), y: sy - geo.ay - s2 * (py - geo.ay) });
     }
     function skip(e) {                                        // any wish to move on is honoured at once
       if (e && e.type === 'scroll' && scrollY < 4) return;    // (a scrollbar drag counts; a restore to 0 does not)
@@ -268,6 +316,7 @@
     function finishIntro(fast) {
       if (!intro || intro.done) return;
       intro.done = true;
+      gsap.ticker.remove(follow);
       INPUT.forEach(function (t) { removeEventListener(t, skip, true); });
       removeEventListener('resize', place);
       try { sessionStorage.setItem('ecd-intro', '1'); } catch (e) {}
@@ -282,9 +331,11 @@
       tl.call(place, null, 0);                                // again when it starts: fonts and layout are final
       INPUT.forEach(function (t) { addEventListener(t, skip, { capture: true, passive: true }); });
       addEventListener('resize', place);
+      gsap.ticker.add(follow);
       tweens.push(gsap.delayedCall(9, function () { finishIntro(false); }));   // a film that never ends
       // leaving the page mid-intro must not leave the menu hidden elsewhere
       tweens.push({ kill: function () {
+        gsap.ticker.remove(follow);
         INPUT.forEach(function (t) { removeEventListener(t, skip, true); });
         removeEventListener('resize', place);
         document.body.classList.remove('intro');

@@ -841,3 +841,12 @@ kurzíva *vonia* v zelenej je jediný akcent. Zdroj: **pangram** (písmo ako hrd
 jedno veľké vyhlásenie), **exoape** (ľahká váha v obrom merítku). Veľkosť
 +30 % (1440: 76 → 99 px; telefón 41 → 53 px); stĺpce úvodu 7 : 5 v prospech textu.
 Newsreader ostáva pre ostatné nadpisy — Fraunces je len hlas úvodu.
+
+**Oprava 18b — naozaj cez celú obrazovku.** Prvá verzia prispôsobila obrazovke
+*rám* filmu, no dom v ňom zaberá len ~62 % šírky a po zložení poschodí aj menej
+výšky — na telefóne bol dom počas úvodu dokonca menší ako po ňom. Teraz sa meria
+dom sám (obrys z `hero.mp4`, 10 snímok/s): kamera ho počas stavby sleduje
+a drží na ~90 % šírky (na výšku 98 %) alebo 86 % výšky; ako poschodia klesajú,
+jemne sa priblíži. Záverečné priblíženie filmu (×1,3) sa v úvode urobí naraz
+a kamera ho vyrovná, takže obraz neskočí; po 0,6 s pauzy na hotovom dome sa
+odsunie. Telefón: dom po úvode 100vw (predtým 128vw), aby sa naozaj zmenšil.
