@@ -850,3 +850,13 @@ a drží na ~90 % šírky (na výšku 98 %) alebo 86 % výšky; ako poschodia kl
 jemne sa priblíži. Záverečné priblíženie filmu (×1,3) sa v úvode urobí naraz
 a kamera ho vyrovná, takže obraz neskočí; po 0,6 s pauzy na hotovom dome sa
 odsunie. Telefón: dom po úvode 100vw (predtým 128vw), aby sa naozaj zmenšil.
+
+**Oprava 18c — úvod sa naozaj spustí.** Na zariadení sa úvod neukazoval z dvoch
+dôvodov: (1) pamätal si „videné“ na celú kartu (sessionStorage), takže obnovenie
+stránky ho už nespustilo; (2) pri obnovení prehliadač vráti starú pozíciu
+skrolovania a tá sa počítala ako „používateľ skroluje“ — úvod sa hneď preskočil.
+Teraz: úvod hrá pri každom čerstvom príchode na úvod (odkaz zvonka, nová karta,
+obnovenie); nie pri návrate z podstránky (odkaz, späť, prechod v rámci webu).
+Úvod začína hore (`scrollRestoration: manual` len počas neho), obnovenie pozície
+v prvej sekunde sa ignoruje. Poistka pre pomalé pripojenie 16 s (predtým 9 s),
+aby text neprišiel skôr ako postavený dom.
