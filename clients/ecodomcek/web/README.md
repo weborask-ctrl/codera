@@ -198,12 +198,10 @@ dom. Počas filmu je nadpis nad domom (film nemá alfa kanál). Bundle nesie 720
 
 ## Náhľad na tablete / telefóne
 
-`public/demos/ecodomcek/index.html` je kópia `dist/ecodomcek.html` (+ `noindex`),
-aby sa dal web otvoriť cez Vercel náhľad vetvy v Safari na iPade — lokálne
-otvorené HTML iPad zobrazí bez JavaScriptu. Po zmene: `python3 src/build.py &&
-python3 src/bundle.py` a súbor znova skopírovať (s riadkom
-`<meta name="robots" content="noindex, nofollow">`). Na produkčný
-www.codera.sk sa dostane len zlúčením vetvy.
+`public/demos/ecodomcek/index.html` je kópia `dist/ecodomcek.html` pre web Codera
+(www.codera.sk/demos/ecodomcek/index.html): `python3 src/build.py && python3 src/bundle.py &&
+python3 src/publish.py`. Pridá `noindex` a štítok „Koncept redizajnu · Codera"
+(CLAUDE.md #3). Lokálne otvorené HTML iPad zobrazí bez JavaScriptu — preto odkaz.
 
 ## Mapa „Kde stoja" (Realizácie)
 
