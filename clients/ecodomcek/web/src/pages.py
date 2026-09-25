@@ -100,6 +100,95 @@ def open_labels():
     return f'<div class="olabels">{out}</div>'
 
 
+def wall_section():
+    """The wall as a draftsman draws it (client, 2026-09-25: no AI renders):
+    the seven layers of C.WALL in section, outside on top, each with the
+    hatch a builder reads — slats, battens, stipple, studs with insulation,
+    the dashed vapour brake, plasterboard. Thicknesses are a schema, not a
+    scale: the real ones are the client's to give. Inline, so it takes the
+    page's type and colour (currentColor)."""
+    x0, x1, lx = 24, 372, 402                     # the cut, and where the names start
+    hs = [30, 34, 24, 128, 6, 50, 18]
+    y, g, labels = 58, [], []
+    for (num, name), h in zip(C.WALL, hs):
+        top, bot, mid = y, y + h, y + h / 2
+        if num == "01":                           # rhombus slats
+            for x in range(x0, x1 - 40, 46):
+                g.append(f'<polygon points="{x},{top + 4} {x + 40},{top} {x + 44},{bot - 4} {x + 4},{bot}"/>')
+        elif num in ("02", "06"):                 # battens in section, the gap around them
+            g.append(f'<rect x="{x0}" y="{top}" width="{x1 - x0}" height="{h}" class="thin"/>')
+            for x in range(x0 + 20, x1 - 20, 74):
+                g.append(f'<rect x="{x}" y="{top + 5}" width="22" height="{h - 10}"/>'
+                         f'<path d="M{x} {top + 5}L{x + 22} {bot - 5}M{x + 22} {top + 5}L{x} {bot - 5}" class="thin"/>')
+            if num == "02":                       # the air moves in the gap
+                for x in (x0 + 64, x0 + 212):
+                    g.append(f'<path d="M{x} {mid}h40m-7 -4l7 4-7 4" class="thin"/>')
+        elif num == "03":                         # fibreboard: stipple
+            g.append(f'<rect x="{x0}" y="{top}" width="{x1 - x0}" height="{h}"/>')
+            for i, x in enumerate(range(x0 + 6, x1 - 4, 9)):
+                g.append(f'<circle cx="{x}" cy="{top + 7 + (i * 7) % (h - 12)}" r="1.1" class="dot"/>')
+        elif num == "04":                         # studs (the timber cross) with insulation between
+            g.append(f'<rect x="{x0}" y="{top}" width="{x1 - x0}" height="{h}"/>')
+            studs = list(range(x0 + 10, x1 - 30, 112))
+            for x in studs:
+                g.append(f'<rect x="{x}" y="{top}" width="26" height="{h}"/>'
+                         f'<path d="M{x} {top}L{x + 26} {bot}M{x + 26} {top}L{x} {bot}" class="thin"/>')
+            for a, b in zip(studs, studs[1:] + [x1 - 4]):
+                pts, k = [], 0
+                for x in range(a + 30, b - 2, 8):
+                    pts.append(f"{x},{top + 8 if k % 2 == 0 else bot - 8}")
+                    k += 1
+                g.append(f'<polyline points="{" ".join(pts)}" class="thin"/>')
+        elif num == "05":                         # vapour brake
+            g.append(f'<path d="M{x0} {mid}H{x1}" class="brake"/>')
+        else:                                     # plasterboard, painted
+            g.append(f'<rect x="{x0}" y="{top}" width="{x1 - x0}" height="{h}"/>')
+            g.append("".join(f'<path d="M{x} {bot}l{h} {-h}" class="thin"/>' for x in range(x0, x1 - h, 12)))
+        ly = max(mid, labels[-1][0] + 21) if labels else mid
+        labels.append((ly, num, name, mid))
+        y = bot
+    lab = "".join(f'<path d="M{x1 + 6} {m}H{lx - 30}L{lx - 8} {ly}" class="thin"/>'
+                  f'<text x="{lx}" y="{ly + 4}"><tspan class="n">{n}</tspan><tspan class="nm"> {esc_(nm)}</tspan></text>'
+                  for ly, n, nm, m in labels)
+    return (f'<svg class="wsec" viewBox="0 0 700 {y + 44}" role="img" aria-label="Rez stenou: '
+            f'{esc_(", ".join(nm for _, nm in C.WALL))}">'
+            f'<text x="{x0}" y="40" class="side">Zvonku</text><text x="{x0}" y="{y + 26}" class="side">Dnu</text>'
+            f'<g class="cut">{"".join(g)}</g>{lab}</svg>')
+
+
+def season_svg(which):
+    """An annotation over the cut-away drawing (renders/draw-rez.jpg, 1500×1119):
+    summer — the sun's heat meets the wall and stays out; winter — snow
+    outside, the stove's warmth kept in. A schema of the client's own sentence
+    ("v lete chladí, v zime je teplučký"), no figures."""
+    if which == "leto":
+        rays = "".join(f'<path d="M{190 + 70 * __import__("math").cos(a / 57.3):.0f} {170 + 70 * __import__("math").sin(a / 57.3):.0f}'
+                       f'l{26 * __import__("math").cos(a / 57.3):.0f} {26 * __import__("math").sin(a / 57.3):.0f}"/>'
+                       for a in range(0, 360, 30))
+        # the heat reaches the roof and the wall and goes back out (measured
+        # on the drawing: main roof ~y 225, west wall x 517, annex roof ~y 510)
+        hits = "".join(f'<path d="M{x0} {y0}L{x1} {y1}" class="heat"/><path d="M{x1} {y1}l{bx} {by}" class="back"/>'
+                       for x0, y0, x1, y1, bx, by in ((250, 150, 680, 214, 40, -70), (252, 205, 500, 330, -60, 50),
+                                                      (215, 232, 330, 492, 60, -40)))
+        body = f'<circle cx="190" cy="170" r="48"/>{rays}{hits}'
+    else:
+        flakes = "".join(f'<path d="M{x - 11} {y}h22M{x} {y - 11}v22M{x - 8} {y - 8}l16 16M{x + 8} {y - 8}l-16 16"/>'
+                         for x, y in ((120, 120), (260, 200), (170, 330), (420, 110), (80, 420), (1330, 140), (1450, 420),
+                                      (640, 70), (1180, 60), (1450, 700)))
+        # the stove's warmth, and arrows along the inside of the shell turned back in
+        warm = "".join(f'<path d="M{x} {y}c-14 -20 14 -34 0 -54s14 -34 0 -54" class="heat"/>'
+                       for x, y in ((660, 820), (700, 810), (740, 820)))
+        keep = "".join(f'<path d="M{x} {y}l{dx} {dy}" class="back"/>'
+                       for x, y, dx, dy in ((545, 640, 60, 0), (1355, 640, -60, 0), (950, 262, 0, 55)))
+        body = f'{flakes}{warm}{keep}'
+    return f'<svg class="season {which}" viewBox="0 0 1500 1119" aria-hidden="true">{body}</svg>'
+
+
+def esc_(t):
+    import html as _h
+    return _h.escape(t)
+
+
 def street():
     """The eight jobs on one ground line, 2008 → 2024, as they were built:
     a house stands taller than a terrace, the job without a photograph is
@@ -259,14 +348,13 @@ def build(B):
     # layout, the exploded house is the assembly order, the interior is
     # the finish. All labelled "vizualizácia".
     STEP_ART = {
-        "02": ("rez.jpg", "Rez domom · dispozícia · vizualizácia", "Rez domom s dispozíciou oboch podlaží — vizualizácia"),
-        "03": ("explod.jpg", "Základ, prízemie, poschodie, strecha · vizualizácia", "Dom rozložený na základ, podlažia a strechu — vizualizácia"),
-        "04": ("beat5.jpg", "Hotový interiér · vizualizácia", "Dokončená kuchyňa s jedálňou — vizualizácia"),
+        "02": ("draw-rez.jpg", "Rez domom, dispozícia – kresba", "Kresba perom: rez domom s dispozíciou oboch podlaží"),
+        "03": ("draw-explod.jpg", "Základ, prízemie, poschodie, strecha – kresba", "Kresba perom: dom rozložený na základ, podlažia a strechu"),
+        "04": ("draw-rezin.jpg", "Hotový interiér – kresba", "Kresba perom: dokončené izby, obývačka s krbom a jedáleň"),
     }
 
     def build_log():
         rows = ""
-        total = len(C.PROCESS)
         for i, (n, t, d) in enumerate(C.PROCESS):
             if n in STEP_ART:
                 f, capt, alt = STEP_ART[n]
@@ -277,7 +365,7 @@ def build(B):
                        f'<a class="lphone" href="tel:{C.PHONE_RAW}">{C.PHONE}</a>'
                        f'<a class="fine" href="mailto:{C.EMAIL}">{C.EMAIL}</a></div>')
             rows += (f'<li class="lrow fade"><span class="lnum" aria-hidden="true">{n}</span>'
-                     f'<div class="ltext"><span class="lstep mono">Krok {i + 1} zo {total}</span>'
+                     f'<div class="ltext">'
                      f'<h3>{esc(t)}</h3><p>{esc(d)}</p></div>{art}</li>')
         return f'<ol class="blog">{rows}</ol>'
 
@@ -386,7 +474,7 @@ def build(B):
             m = '<div class="mmeta fade d2">' + "".join(
                 f"<div><span>{esc(k)}</span><b>{esc(v)}</b></div>" for k, v in meta) + "</div>"
         return section(0, name, band, f'''<div class="wrap masthead" data-reveal>
-  <h1>{lines(head)}</h1>
+  <h1{' class="voice"' if head.startswith("„") else ''}>{lines(head)}</h1>
   {f'<p class="lead fade d2">{lead}</p>' if lead else ''}
   {m}
 </div>''')
@@ -418,7 +506,7 @@ def build(B):
       {open_labels()}
     </div>
     <ol class="olegend" aria-label="Podlažia domu">{"".join(f"<li><b>{i + 1:02d}</b><span>{n}</span>" + (f"<i>{note}</i>" if note else "") + "</li>" for i, (_, _, n, note) in enumerate(OPEN))}</ol>
-    <span class="vz mono">vizualizácia · Rodinný dom Lúčina 2024</span>
+    <span class="vz mono">Vizualizácia – rodinný dom Lúčina 2024</span>
   </div>
 </section>'''
 
@@ -430,11 +518,11 @@ def build(B):
     # interiors are a visualisation and say so. The other seven stay a
     # dense ruled list (basement.md: real rows under a vast moment).
     PANELS = [  # service index, image, object-position, caption
-        (0, "foto-2024-lucina.jpg", "50% 45%", "Fotografia · Moderný dizajnový dom, Lúčina 2024"),
-        (3, "foto-2019-terasa-chrastne.jpg", "40% 50%", "Fotografia · Luxusná terasa, 2019"),
-        (5, "foto-2024-lucina.jpg", "22% 30%", "Fotografia · rhombus profil, Lúčina 2024"),
-        (8, "foto-2015-budatin.jpg", "50% 40%", "Fotografia · Budatín pri Žiline, 2015"),
-        (9, "beat5.jpg", "55% 50%", "Vizualizácia · interiér"),
+        (0, "foto-2024-lucina.jpg", "50% 45%", "Foto: moderný dizajnový dom, Lúčina 2024"),
+        (3, "foto-2019-terasa-chrastne.jpg", "40% 50%", "Foto: luxusná terasa, 2019"),
+        (5, "foto-2024-lucina.jpg", "22% 30%", "Foto: rhombus profil, Lúčina 2024"),
+        (8, "foto-2015-budatin.jpg", "50% 40%", "Foto: Budatín pri Žiline, 2015"),
+        (9, "draw-rezin.jpg", "50% 50%", "Kresba: hotový interiér"),
     ]
 
     def svc_count(i):
@@ -464,7 +552,7 @@ def build(B):
 
     home = hero + section(1, "Čo staviame", "paper", f'''<div class="wrap" data-reveal>
   <div class="svchead">
-    <h2 class="fade">{lines("Dom, strechu, terasu.|A všetko medzi tým.")}</h2>
+    <h2 class="fade voice">{lines("„Všetko máme,|všetko spravíme.“")}</h2>
     <p class="fade d2">Dvanásť vecí, ktoré robíme. Číslo pri službe je počet našich
       realizácií, kde ju uvidíte.</p>
   </div>
@@ -472,17 +560,17 @@ def build(B):
   {svc_rest()}
 </div>''') + section(2, "Stena", "moss", f'''<div class="wrap wallteaser" data-reveal>
   <div class="wt-text">
-    <h2 class="fade">{lines("Otvoríme|vám <em>stenu</em>.")}</h2>
+    <h2 class="fade voice">{lines("„Eko nie je iba|prázdna fráza.“")}</h2>
     <p class="lead fade d2">„…my, konzervatívni Slováci jej veľmi nedôverujeme…“ Preto drevostavbu
       neschovávame. Potiahnite stenu a pozrite sa, čo je v nej — sedem vrstiev, každá s menom.</p>
     <div class="fade d3">{btn("Roztiahnuť stenu", "stena.html")}</div>
   </div>
   <a class="wt-art" href="stena.html" aria-label="Otvoriť stenu">
-    <img src="assets/beat4.jpg" alt="Rez stenou — vizualizácia" loading="lazy">
-    <span class="vz mono">vizualizácia</span>
+    {wall_section()}
+    <span class="vz mono">Schéma skladby steny, nie mierka</span>
   </a>
 </div>''') + section(3, "Ulica", "paper", f'''<div class="wrap streethead" data-reveal>
-  <h2 class="big fade">{lines("Začalo to|vlastným <em>domčekom</em>.")}</h2>
+  <h2 class="big fade voice">{lines("„Kariéra staviteľa|sa začala písať|v roku 2007.“")}</h2>
   <p class="lead fade d2">Osem stavieb od roku 2008, zoradených tak, ako pribúdali. Každá je skutočná
     fotografia — okrem garáže, ktorú zatiaľ nemáme nafotenú.</p>
 </div>
@@ -490,7 +578,7 @@ def build(B):
 <div class="wrap"><div class="more">{btn("Všetkých osem realizácií", "realizacie.html")}</div></div>''') + section(4, "Vyjadrenie", "sand", f'''<div class="wrap" data-reveal>
   {quotes_home()}
 </div>''') + section(5, "Ako to ide", "paper", f'''<div class="wrap" data-reveal>
-  <div class="loghead"><h2 class="big fade">{lines("Od prvého telefonátu|po kolaudáciu.")}</h2>
+  <div class="loghead"><h2 class="big fade voice">{lines("„Poradíme,|prekonzultujeme.|Zdarma ;)“")}</h2>
     <p class="fade d2">Štyri kroky od základov až po kolaudáciu. Poradenstvo je
       zadarmo — stačí zavolať.</p></div>
   {build_log()}
@@ -556,7 +644,7 @@ def build(B):
         f'<button data-f="{esc(t)}">{esc(t)} <sup>{n}</sup></button>' for t, n in cnt.most_common())
     real = f'''<section class="band realmast" data-sec="Realizácie">
   <div class="wrap rmgrid" data-reveal>
-    <h1>{lines("Osem stavieb.|Jedna <em>technológia</em>.")}</h1>
+    <h1 class="voice">{lines("Osem stavieb.|„Makli sme ostošesť.“")}</h1>
     <div class="rmr">
       <p class="lead fade d2">Od svojpomocného domčeka v Lúčine po dvojpodlažný dom pri Košiciach.
         Každá stavba je difúzne otvorená a z ekologických materiálov — to sa nemení, aj keď fasáda áno.</p>
@@ -573,7 +661,7 @@ def build(B):
     far_km = round(km(next(q for q in PLACES if q[0] == BASE)[1:3], far[1:3]))
     real += section(2, "Kde stoja", "paper", f'''<div class="wrap geo" data-reveal>
   <div class="geotext">
-    <h2 class="fade">{lines("Od Žiliny|po <em>Košice</em>.")}</h2>
+    <h2 class="fade">{lines("Od Žiliny|po Košice.")}</h2>
     <p class="fade d2">Vychádzame z Lúčiny pri Prešove. {placed} z {len(C.PROJECTS)} realizácií má na
       stavebnom liste miesto — najďalej {esc(far[0])}, {far_km} km vzdušnou čiarou.</p>
     <dl class="gfacts fade d3"><div><dt>{len(PLACES)}</dt><dd>miest</dd></div>
@@ -639,7 +727,7 @@ def build(B):
   <div class="wrap">
     <div class="sheettop">
       <a class="crumb mono" href="realizacie.html">← Realizácie</a>
-      <span class="mono">{esc(p["place"]) + " <i>·</i> " if p["place"] else ""}{esc(p["month"])} {p["year"]}</span>
+      <span class="mono">{esc(p["place"]) + ", " if p["place"] else ""}{esc(p["month"])} {p["year"]}</span>
     </div>
     <div class="sheetgrid" data-reveal data-plate style="--pw:{w}px">
       <div class="scol">
@@ -649,7 +737,7 @@ def build(B):
       </div>
       <figure class="pl fade d2">
         {plate}<div class="plnotes">{lvs}</div>
-        {cap("Fotografia · archív EcoDomček" if photo_src(p) else "Fotografiu doplní EcoDomček",
+        {cap("Foto: archív EcoDomček" if photo_src(p) else "Fotografiu doplní EcoDomček",
              " · ".join(p["tags"]))}
       </figure>
     </div>
@@ -694,12 +782,12 @@ def build(B):
   <div class="wside">
     <div class="simil fade d2"><span class="mono">Z rovnakej kategórie</span>{sim}</div>
     <div class="who fade d3"><b>{esc(C.DIRECTOR)}</b>
-      <span class="mono">EcoDomček, s.r.o. <i>·</i> konateľ</span></div>
+      <span class="mono">EcoDomček, s.r.o., konateľ</span></div>
   </div>
 </div>''')
         if p.get("hero"):
             body += section(3, "Vizualizácia", "paper", f'''<div class="wrap wide" data-reveal>
-  <h2 style="margin:18px 0 22px">{lines("Tento dom sme|<em>nakreslili</em> znovu.")}</h2>
+  <h2 style="margin:18px 0 22px">{lines("Tento dom sme|nakreslili znovu.")}</h2>
   <p class="lead fade d2" style="margin-bottom:34px">Pre návrh stránky sme dom z Lúčiny
     vymodelovali a vyrenderovali — aby sme na ňom mohli ukázať, ako je drevostavba poskladaná.
     Nie sú to fotografie realizácie.</p>
@@ -763,10 +851,10 @@ def build(B):
                    if photo_src(p) else '<span class="noph"><em>bez<br>fotky</em></span>')
             strip += (f'<a href="realizacia-{p["slug"]}.html" aria-label="{esc(title_of(p))} ({p["year"]})">'
                       f'{img}<i class="mono">{p["year"]}</i><b>{esc(title_of(p))}</b></a>')
-        proof = (f'<div class="sev fade d2"><span class="mono">Kde sme to robili</span>{head}'
+        proof = (f'<div class="sev fade d2">{head}'
                  + ("" if head else f'<div class="sstrip">{strip}</div>') + '</div>') if ev else ""
         # beside a lead photo the other jobs sit under the sentence
-        more = (f'<div class="smore fade d3"><span class="mono">Ďalšie stavby</span>'
+        more = (f'<div class="smore fade d3">'
                 f'<div class="sstrip">{strip}</div></div>') if head and strip else ""
         if i == 10:                                   # the free consultation: the call is the proof
             proof = (f'<div class="sev fade d2">{btn("Zavolajte " + C.PHONE, "tel:" + C.PHONE_RAW, arrow=False)}'
@@ -782,7 +870,7 @@ def build(B):
     svc = f'''<section class="band svmast" data-sec="Služby">
   <div class="wrap svgrid" data-reveal>
     <div>
-      <h1>{lines("Dom na kľúč —|alebo len jeho <em>kus</em>.")}</h1>
+      <h1 class="voice">{lines("„Máme radi|výzvy.“")}</h1>
       <p class="lead fade d2">Stavali sme celé domy aj samostatné terasy, strechy a interiéry.
         Napíšte, čo potrebujete; ak to nerobíme, povieme rovno.</p>
     </div>
@@ -834,7 +922,7 @@ def build(B):
     tech = f'''<section class="band moss tmast" data-sec="Technológia" data-band="moss">
   <div class="wrap tmgrid" data-reveal>
     <div class="tml">
-      <h1>{lines("Drevostavbe sa|nedá <em>veriť</em>?")}</h1>
+      <h1>{lines("Drevostavbe sa|nedá veriť?")}</h1>
       <blockquote class="tq fade d2">„… a my, konzervatívni Slováci jej veľmi nedôverujeme,
         v USA a Kanade je osvedčená už viac ako 200 rokov a preverená náročnejšími klimatickými
         podmienkami, ako u nás.“</blockquote>
@@ -846,7 +934,7 @@ def build(B):
 
     tech += section(1, "Stena dýcha", "paper", f'''<div class="wrap tex" data-reveal>
   <div class="texhead">
-    <h2>{lines("Stena <em>dýcha</em>.")}</h2>
+    <h2>{lines("Stena dýcha.")}</h2>
     <p class="lead fade d2">Difúzne otvorená stavba znamená, že stena vie prepustiť vodnú paru von.
       Vlhkosť v nej neostáva stáť — a to je hlavný dôvod, prečo drevostavba vydrží.</p>
   </div>
@@ -865,14 +953,14 @@ def build(B):
     tech += section(2, "Leto a zima", "paper", f'''<div class="wrap tsea" data-reveal>
   <div class="seas">
     <figure class="sl fade">
-      <div class="frame clipimg"><img src="assets/beat6.jpg" alt="Terasa v lete — vizualizácia" loading="lazy"></div>
-      <h2>V lete <em>chladí</em>,</h2>
-      {cap("Terasa · vizualizácia")}
+      <div class="frame drawn"><img src="assets/draw-rez.jpg" alt="Kresba domu v lete: slnko, teplo ostáva vonku" loading="lazy">{season_svg("leto")}</div>
+      <h2 class="voice">„V lete chladí,</h2>
+      {cap("Schéma, nie výpočet – kresba")}
     </figure>
     <figure class="sz fade d2">
-      <div class="frame clipimg"><img src="assets/beat3.jpg" alt="Obývačka v zime — vizualizácia" loading="lazy"></div>
-      <h2>v zime je <em>teplučký</em>.</h2>
-      {cap("Obývačka · vizualizácia")}
+      <div class="frame drawn"><img src="assets/draw-rez.jpg" alt="Kresba domu v zime: sneh vonku, teplo ostáva dnu" loading="lazy">{season_svg("zima")}</div>
+      <h2 class="voice">v zime je teplučký.“</h2>
+      {cap("Schéma, nie výpočet – kresba")}
     </figure>
     <blockquote class="tpay fade d3">„Investícia do tohto typu technológie sa reálne vypláca tak
       v komforte bývania, zo zdravotného hľadiska, ako aj finančne.“
@@ -895,7 +983,7 @@ def build(B):
                       f'<em>{esc(title_of(p))}</em>{ARROW}</a>')
     tech += section(3, "Materiály", "paper", f'''<div class="wrap tmat" data-reveal>
   <div class="tmh">
-    <h2>{lines("Z čoho sme|<em>naozaj</em> stavali.")}</h2>
+    <h2>{lines("Z čoho sme|naozaj stavali.")}</h2>
     <p class="lead fade d2">Materiály z našich realizácií, tak ako sú v ich popise. Každý riadok
       vedie na stavbu, kde bol použitý.</p>
   </div>
@@ -903,7 +991,7 @@ def build(B):
 </div>''')
 
     tech += section(4, "Stena", "moss", f'''<div class="wrap tmotto" data-reveal>
-  <h2 class="fade">{lines("Chcete ju vidieť|<em>vrstvu po vrstve</em>?")}</h2>
+  <h2 class="fade">{lines("Chcete ju vidieť|vrstvu po vrstve?")}</h2>
   <div class="tmr fade d2">
     <p>Sedem vrstiev difúzne otvorenej steny si môžete roztiahnuť sami — každá má meno.</p>
     <div>{btn("Otvoriť stenu", "stena.html")}{btn("Realizácie", "realizacie.html", ghost=True, arrow=False)}</div>
@@ -919,7 +1007,7 @@ def build(B):
     # 6 — O NÁS — one column, one measure, the client's own words; the
     # years stand in the margin like marginalia
     # ═══════════════════════════════════════════════════════════════════
-    about = masthead("Kto sme a čo nám|ide <em>najlepšie</em>.",
+    about = masthead("„Práca s drevom mi|išla od ruky.“",
                      "",
                      name="O nás")
     # The essay used to run in a narrow column beside ~1000 px of nothing.
@@ -949,7 +1037,7 @@ def build(B):
         ("200 rokov", "Aj keď je to u nás ešte stále pomerne nová technológia, a my, konzervatívni "
                       "Slováci jej veľmi nedôverujeme, v USA a Kanade je osvedčená už viac ako "
                       "200 rokov a preverená náročnejšími klimatickými podmienkami, ako u nás.",
-         "beat4.jpg", "Rez stenou · vizualizácia", ""),
+         "draw-explod.jpg", "Základ, podlažia, strecha – kresba", ""),
     ]
     paras, stack = "", ""
     for j, (y, txt, img, capt, note) in enumerate(essay):
@@ -982,7 +1070,7 @@ def build(B):
   {root}
 </div>''')
     about += section(3, "Zákaznícke vyjadrenia", "paper", f'''<div class="wrap" data-reveal>
-  <h2 style="margin:18px 0 40px;max-width:16ch">{lines("Ľudia, ktorým sme|už <em>stavali</em>.")}</h2>
+  <h2 style="margin:18px 0 40px;max-width:16ch">{lines("Ľudia, ktorým sme|už stavali.")}</h2>
   {testimonials(full=True)}
   <p class="fine fade d3" style="margin-top:26px">Vyjadrenia sú prevzaté zo súčasného webu
     EcoDomčeka tak, ako ich zákazníci napísali. Ďalšie zverejníme, keď k nim budeme mať súhlas.</p>
@@ -1010,7 +1098,7 @@ def build(B):
     wall = f'''<section class="band wallpage" id="wall" data-sec="Stena">
   <div class="walltrack" data-wall>
     <div class="wallstage" data-reveal>
-      <h1 class="wl"><span class="rl"><span>Potiahnite <em>stenu</em>.</span></span></h1>
+      <h1 class="wl"><span class="rl"><span>Potiahnite stenu.</span></span></h1>
       <div class="slabs" style="aspect-ratio:{WL["W"]}/{WL["H"]}">{slabs}</div>
       <div class="tags">{tags}</div>
       <p class="tagdesc"></p>
@@ -1025,7 +1113,7 @@ def build(B):
   </div>
 </section>'''
     wall += section(1, "Prečo difúzne otvorená", "moss", f'''<div class="wrap wallwhy" data-reveal>
-  <h2 class="big fade">{lines("Prečo <em>difúzne</em>|otvorená?")}</h2>
+  <h2 class="big fade">{lines("Prečo difúzne|otvorená?")}</h2>
   <div class="wallcols fade d2">
     <p class="lead">Stena, ktorá vie prepustiť vodnú paru von. Vlhkosť v nej neostáva stáť —
       a to je hlavný dôvod, prečo drevostavba vydrží. Aj keď je to u nás ešte stále pomerne nová
@@ -1050,7 +1138,7 @@ def build(B):
   <div class="wrap masthead" data-reveal>
     <div class="mhead">
       <div>
-        <h1>{lines("Poďme si o tom|<em>pokecať</em>.")}</h1>
+        <h1 class="voice">{lines("„Roboty sa|nebojíme.“")}</h1>
         <p class="lead fade d2">Zavolajte kedykoľvek — alebo napíšte, čo staviate.
           Keď už nič iné, minimálne poradíme. Zadarmo.</p>
         <a class="tel-big fade d3" href="tel:{C.PHONE_RAW}" style="margin-top:34px">{C.PHONE}</a>
@@ -1069,7 +1157,7 @@ def build(B):
   </div>
 </section>''' + section(1, "Dopyt", "paper", f'''<div class="wrap split" data-reveal>
   <div class="kside">
-    <h2 style="margin:18px 0 22px">{lines("Napíšte nám,|čo <em>staviate</em>.")}</h2>
+    <h2 style="margin:18px 0 22px">{lines("Napíšte nám,|čo staviate.")}</h2>
     <p class="lead fade d2">Čím viac napíšete, tým presnejšie vieme odpovedať. Hodí sa:
       miesto stavby, či máte pozemok a projekt, a dokedy by ste chceli bývať.</p>
     <div class="idxlist fade d3" style="margin-top:30px">
@@ -1090,7 +1178,7 @@ def build(B):
     # practice (how long e-mails are kept) is left for EcoDomček to state
     # ═══════════════════════════════════════════════════════════════════
     legal = section(0, "Ochrana údajov", "paper", f'''<div class="wrap legal" data-reveal>
-  <h1>{lines("Ochrana osobných|<em>údajov</em>")}</h1>
+  <h1>{lines("Ochrana osobných|údajov")}</h1>
   <p class="ldraft mono fade d2">Návrh textu pre ostrú verziu webu — pred spustením ho EcoDomček, s.r.o. overí a doplní.</p>
   <div class="lgrid fade d2">
     <section><h2>Kto údaje spracúva</h2>
@@ -1120,7 +1208,7 @@ def build(B):
     # ═══════════════════════════════════════════════════════════════════
     lost = section(0, "Nenájdené", "paper", f'''<div class="wrap lost" data-reveal>
   <span class="lnum404 fade" aria-hidden="true">404</span>
-  <h1>{lines("Túto stránku|sme <em>nepostavili</em>.")}</h1>
+  <h1>{lines("Túto stránku|sme nepostavili.")}</h1>
   <p class="lead fade d2">Adresa neexistuje alebo sa zmenila. Všetko ostatné stojí na svojom mieste.</p>
   <div class="ctas fade d3">{btn("Na úvod", "index.html")}{btn("Realizácie", "realizacie.html", ghost=True, arrow=False)}{btn("Kontakt", "kontakt.html", ghost=True, arrow=False)}</div>
   <p class="fine fade d3" style="margin-top:26px">Alebo rovno zavolajte <a href="tel:{C.PHONE_RAW}">{C.PHONE}</a>.</p>

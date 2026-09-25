@@ -35,6 +35,7 @@ import content as C  # noqa: E402
 # they are: they were exported at their display size already.
 IMAGES = [
     "explod.jpg", "hero.jpg", "rez.jpg",
+    "draw-rez.jpg", "draw-explod.jpg", "draw-rezin.jpg",       # src/drawings.py
     "beat0.jpg", "beat1.jpg", "beat2.jpg", "beat3.jpg", "beat4.jpg",
     "beat5.jpg", "beat6.jpg", "beat7.jpg", "beat8.jpg",
     "lyr-base.webp", "lyr-ground.webp", "lyr-upper.webp", "lyr-roof.webp",
@@ -214,10 +215,46 @@ def page(file: str, title: str, desc: str, body: str, page_id: str,
 DIMS: dict[str, tuple[int, int]] = {}
 
 
+SINGLE = re.compile(r"(?<![\w\u00C0-\u024F])([aAiIkKoOsSuUvVzZ])\s+(?=\S)")
+
+
+def slovak(text: str) -> str:
+    """Slovak typesetting, the way a typesetter and not a chatbot does it:
+    the dash is the en dash with spaces (never the English em dash), bound
+    to the word before it; a one-letter preposition or conjunction never
+    ends a line; digit groups (a phone, 8 000 €) never break."""
+    text = re.sub(r"\s+—\s+", "\u00a0– ", text).replace("—", "–")
+    text = text.replace(" · ", ", ")                 # the interpunct list is a template habit
+    text = SINGLE.sub("\\1\u00a0", text)
+    text = re.sub(r"(\d) (?=\d{3}\b)", "\\1\u00a0", text)
+    return re.sub(r"(\d) (?=€|%)", "\\1\u00a0", text)
+
+
+def typeset(doc: str) -> str:
+    """slovak() on every text node (never inside script or style) and on the
+    words people read in attributes (alt, aria-label, title, content)."""
+    out, skip = [], False
+    for part in re.split(r"(<[^>]+>)", doc):
+        if part.startswith("<"):
+            low = part[:8].lower()
+            if low.startswith(("<script", "<style")):
+                skip = True
+            elif low.startswith(("</script", "</style")):
+                skip = False
+            part = re.sub(r'((?:alt|aria-label|title|content)=")([^"]*)(")',
+                          lambda m: m.group(1) + m.group(2).replace(" — ", " – ").replace("—", "–").replace(" · ", ", ") + m.group(3), part)
+            out.append(part)
+        else:
+            out.append(part if skip else slovak(part))
+    return "".join(out)
+
+
 def for_the_web(doc: str) -> str:
     """Every <img> the page shows: its WebP twin, and its real width and
     height so the layout never jumps while it loads. The share card and the
-    og:image stay JPEG — that is what Facebook and Messenger read."""
+    og:image stay JPEG — that is what Facebook and Messenger read. Then the
+    Slovak typesetting pass (typeset)."""
+    doc = typeset(doc)
     def img(m):
         tag, name = m.group(0), m.group(1)
         web = name[:-4] + ".webp" if name.endswith(".jpg") and (ASSETS / (name[:-4] + ".webp")).exists() else name

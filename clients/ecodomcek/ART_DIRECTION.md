@@ -950,3 +950,29 @@ vo formulári a v pätičke; proxy ju púšťa aj na subdoméne.
 
 Štítok „Koncept redizajnu“ a noindex ostávajú (rozhodnutie klienta: zatiaľ ukážka
 pre EcoDomček).
+
+## Fáza 24 — aby to nebola „ďalšia AI stránka" (2026-09-25)
+
+Diagnóza (merané na 17 stránkach): 121 anglických pomlčiek „—", 21 z 56 nadpisov s jedným
+zeleným kurzívnym slovom, ~500 štítkov verzálkami v mono, 164 „·", fotobankové vizualizácie,
+nadpisy-slogany, ktoré som napísal ja.
+
+1. **Slovenská typografia** — `typeset()` v builde: „–" s medzerami, pevné medzery za
+   jednopísmenovými slovami, skupiny číslic, „·" → čiarka. Výsledok: 0 „—", 0 „·" v texte
+   (ostáva len v ich slogane pod logom „EKO·LOGICKÉ, EKO·NOMICKÉ").
+2. **Nadpisy bez zeleného slova** — zelená kurzíva ostala len v úvode („kde *vonia* drevo"),
+   z 21 na 1.
+3. **Ich hlas** — nadpisy z ich vlastných viet (CONTENT_INVENTORY §3–§7): „Všetko máme, všetko
+   spravíme.", „Máme radi výzvy.", „Roboty sa nebojíme.", „Makli sme ostošesť.", „Poradíme,
+   prekonzultujeme. Zdarma ;)", „Kariéra staviteľa sa začala písať v roku 2007." — sadzba
+   `.voice` v pätkovom písme s úvodzovkami: iný typ nadpisu pre citát ako pre štruktúru
+   (**refokus**: grotesk pre štruktúru, pätkové pre ľudský hlas).
+4. **Menej štítkov** — dekoratívne preč („Kde sme to robili", „Ďalšie stavby", „Krok n zo 4");
+   ostatné bez verzálok a prestrkania, menu v textovom písme.
+5. **Kresby namiesto AI vizualizácií** — `src/drawings.py` (XDoG) pre rez a rozložený dom
+   v „Ako to ide" a na O nás; rez stenou ako vektorový výkres so šrafami (`wall_section()`,
+   7 vrstiev z C.WALL, hrúbky sú schéma — skutočné dodá klient); leto/zima ako schéma nad
+   kresbou (**igloo**: anotácia ako inžiniersky výkres). Vizualizácie ostávajú len tam, kde
+   stránka hovorí práve o nich (detail Lúčina) a úvodný film.
+6. **Strieška z loga** — deliace čiary sa na začiatku zdvihnú do plochého štítu v hrúbke čiary;
+   odrážky v zozname služieb sú ich trojfarebné logo.
