@@ -335,7 +335,7 @@
       introSeen = true;                                       // an in-page route home lands finished
       try { history.scrollRestoration = 'auto'; } catch (e) {}   // the rest of the site remembers as usual
       tweens.push(gsap.to(act, { x: 0, y: 0, scale: 1, duration: fast ? .55 : 1.15, ease: 'power3.inOut', overwrite: true,
-        onComplete: function () { gsap.set(act, { clearProps: 'transform' }); ScrollTrigger.refresh(); } }));
+        onComplete: function () { intro.settled = true; gsap.set(act, { clearProps: 'transform' }); ScrollTrigger.refresh(); } }));
       tweens.push(gsap.delayedCall(fast ? .12 : .6, reveal));
     }
     if (!seen) {
@@ -378,8 +378,24 @@
       });
       function seek(t) { want = t; if (!seeking && Math.abs(film.currentTime - t) > .015) { seeking = true; film.currentTime = t; } }
       var ease = gsap.parseEase('power1.inOut');
+      // the opened scale lives in CSS (--os): larger where the house stands
+      // beside the words, smaller where it sits under them
+      var OS = .86, SHIFT = 0;
+      function readOS() {
+        OS = parseFloat(getComputedStyle(act).getPropertyValue('--os')) || .86;
+        // how far left the opened house steps so its name column stays on
+        // screen (labels are laid out at the opened scale, visible or not)
+        SHIFT = 0;
+        if (!wide()) return;
+        var a = act.getBoundingClientRect(), x = gsap.getProperty(act, 'x') || 0, right = 0;
+        act.querySelectorAll('.ol div').forEach(function (d) { right = Math.max(right, d.getBoundingClientRect().right - a.left); });
+        var limit = innerWidth - parseFloat(getComputedStyle(poster).paddingRight);
+        SHIFT = Math.max(0, a.left - x + right - limit);
+      }
+      readOS();
       pin = track(ScrollTrigger.create({
         trigger: poster, start: 'top top', end: '+=130%', pin: true, anticipatePin: 1,
+        onRefresh: readOS,
         onUpdate: function (self) {
           if (!act.classList.contains('filming')) return;
           var p = self.progress;
@@ -391,7 +407,9 @@
           seek(END - q * (END - OPEN_T));
           // opened, the house spans 4-96 % of the frame: at .86 it clears both
           // headline lines, which overlap the frame's top and bottom 7 %
-          gsap.set(film, { scale: 1.3 - .44 * q, yPercent: -29.5 * (1 - q) });
+          // (stacked layouts); beside the words it opens at 1.03
+          gsap.set(film, { scale: 1.3 - (1.3 - OS) * q, yPercent: -29.5 * (1 - q) });
+          if (!intro || intro.settled) gsap.set(act, { x: -SHIFT * q });
           var open = p > .8;
           act.classList.toggle('open', open); poster.classList.toggle('opened', open);
         }

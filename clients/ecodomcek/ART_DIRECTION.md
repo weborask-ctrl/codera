@@ -860,3 +860,19 @@ obnovenie); nie pri návrate z podstránky (odkaz, späť, prechod v rámci webu
 Úvod začína hore (`scrollRestoration: manual` len počas neho), obnovenie pozície
 v prvej sekunde sa ignoruje. Poistka pre pomalé pripojenie 16 s (predtým 9 s),
 aby text neprišiel skôr ako postavený dom.
+
+## Fáza 19 — otvorený dom väčší, popisy pri dome (2026-09-25)
+
+**Pokyn.** Otvorený dom (v polohe vedľa textu) o 20 % väčší; popisy podlaží vedľa
+domu, nie pod nadpisom.
+
+**Riešenie.** Mierka otvoreného domu 0,86 → 1,03 (od 1101 px; tablet na šírku
+0,92). Popisy sú späť na dome ako technické anotácie (**igloo**: mono
+anotácia nad objektom ako na výkrese) — no v **jednom stĺpci vpravo**: od
+pravého okraja každého podlažia vodiaca čiara s jantárovým bodom k číslu,
+názvu a poznámke (poznámka zalomená na „·“). Ľavé popisy by vošli do nadpisu,
+pravé za okraj obrazovky (zmerané na 1024–2560 px), preto scéna pri otváraní
+posunie dom doľava presne o toľko, koľko stĺpec potrebuje (meria sa pri každom
+prepočte; na 1440 ~110 px, medzera k nadpisu ostáva ≥ 20 px). Tablet na šírku:
+len číslo a názov (podlažia sú ~65 px od seba). Telefón a tablet na výšku:
+čísla na dome ostávajú, zoznam je pod domom (nie pod nadpisom).
