@@ -551,7 +551,7 @@ def build(B):
         closeup = (f'''<figure class="wdet fade d2"><div class="frame">
     <img src="{photo_src(p)}" alt="" loading="lazy" decoding="async"
       style="transform-origin:{det[0]}% {det[1]}%"></div>{cap("Detail z fotografie · " + det[2])}</figure>'''
-                   if det and photo_src(p) else "")
+                   if det and photo_src(p) and SHOTS[p["photo"]][0] >= 800 else "")   # a 420 px photo cannot carry a 1.7× crop
         body += section(2, "Slovami konateľa", "paper", f'''<div class="wrap words{" hasdet" if closeup else ""}" data-reveal>
   <blockquote class="fade">„{esc(p["text"])}“</blockquote>
   {closeup}
