@@ -278,6 +278,24 @@ def crawl_files() -> None:
 
 
 # ── assets pipeline ───────────────────────────────────────────────────────
+def retina(im):
+    """The client's photos are 420–880 px phone JPEGs; on a 2× screen the
+    browser stretches them ~1.6× with a soft filter, and a second lossy
+    pass (WebP q76) added its own artefacts. Classical processing only —
+    no model invents detail that the photo does not have:
+    soften the JPEG blocks a little, enlarge with Lanczos (≤ 1300 px,
+    ≤ 1.65×), sharpen edges above a noise threshold (flat plaster and sky
+    stay clean), add weak wide local contrast, lift the colour slightly."""
+    from PIL import Image, ImageEnhance, ImageFilter
+    im = im.convert("RGB")
+    a = Image.blend(im, im.filter(ImageFilter.SMOOTH), .35)
+    w = min(1300, round(im.width * 1.65))
+    a = a.resize((w, round(im.height * w / im.width)), Image.LANCZOS)
+    a = a.filter(ImageFilter.UnsharpMask(radius=1.6, percent=85, threshold=4))
+    a = a.filter(ImageFilter.UnsharpMask(radius=24, percent=14, threshold=0))
+    return ImageEnhance.Color(a).enhance(1.06)
+
+
 def copy_assets() -> None:
     ASSETS.mkdir(parents=True, exist_ok=True)
     for name in IMAGES:
@@ -295,7 +313,11 @@ def copy_assets() -> None:
     for f in sorted(ASSETS.iterdir()):
         if f.suffix in (".jpg", ".webp", ".png"):
             im = Image.open(f)
-            if f.suffix == ".jpg":
+            if f.name.startswith("foto-") and f.suffix == ".jpg":
+                # their real photos: sharpened for retina, saved ONCE at high quality
+                retina(im).save(f.with_suffix(".webp"), quality=88, method=6)
+                DIMS[f.with_suffix(".webp").name] = im.size     # same aspect; CSS sets the size
+            elif f.suffix == ".jpg":
                 im.save(f.with_suffix(".webp"), quality=76, method=6)  # −23 %, worst PSNR 35 dB
                 DIMS[f.with_suffix(".webp").name] = im.size
             DIMS[f.name] = im.size

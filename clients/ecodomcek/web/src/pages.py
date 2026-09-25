@@ -111,11 +111,12 @@ def street():
         src = photo_src(p)
         if src:
             w, hh = SHOTS[p["photo"]]
-            h = min(h, hh)
+            # a ratio of the street's height (CSS --hh), so the street fills
+            # the viewport it is pinned in; the photos are served at 1.65×
             pic = (f'<img src="{src}" alt="{_h.escape(p["shot"])}" loading="lazy" decoding="async" '
-                   f'style="height:{h}px;--h:{h}px;aspect-ratio:{w}/{hh}">')
+                   f'style="--r:{h / 400:.2f};aspect-ratio:{w}/{hh}">')
         else:
-            pic = f'<span class="lot" style="height:{h}px;--h:{h}px"><i>Fotografiu doplní EcoDomček</i></span>'
+            pic = f'<span class="lot" style="--r:{h / 400:.2f}"><i>Fotografiu doplní EcoDomček</i></span>'
         out += (f'<a class="house-lot" href="realizacia-{p["slug"]}.html">{pic}'
                 f'<span class="cap"><span class="yr">{p["year"]}</span><b>{_h.escape(title_of(p))}</b>'
                 f'<span class="where">{_h.escape(p["place"])}</span></span></a>')
@@ -176,6 +177,46 @@ def build(B):
         return '<div class="proc fade d2">' + "".join(
             f"<div><b>{n}</b><h3>{esc(t)}</h3><p>{esc(d)}</p></div>"
             for n, t, d in C.PROCESS) + "</div>"
+
+    # the home's process as a build log (basement.md: dense rows of real
+    # content between vast type; igloo.md: mono annotation). Every step
+    # carries something real: the first step IS the call, the others a
+    # visualisation that shows literally that step — the cutaway is the
+    # layout, the exploded house is the assembly order, the interior is
+    # the finish. All labelled "vizualizácia".
+    STEP_ART = {
+        "02": ("rez.jpg", "Rez domom · dispozícia · vizualizácia", "Rez domom s dispozíciou oboch podlaží — vizualizácia"),
+        "03": ("explod.jpg", "Základ, prízemie, poschodie, strecha · vizualizácia", "Dom rozložený na základ, podlažia a strechu — vizualizácia"),
+        "04": ("beat5.jpg", "Hotový interiér · vizualizácia", "Dokončená kuchyňa s jedálňou — vizualizácia"),
+    }
+
+    def build_log():
+        rows = ""
+        for n, t, d in C.PROCESS:
+            if n in STEP_ART:
+                f, capt, alt = STEP_ART[n]
+                art = (f'<figure class="lart"><div class="frame clipimg"><img src="assets/{f}" alt="{esc(alt)}" '
+                       f'loading="lazy" decoding="async"></div>{cap(capt)}</figure>')
+            else:
+                art = (f'<div class="lart lcall"><span class="mono">Prvý krok je telefonát</span>'
+                       f'<a class="lphone" href="tel:{C.PHONE_RAW}">{C.PHONE}</a>'
+                       f'<a class="fine" href="mailto:{C.EMAIL}">{C.EMAIL}</a></div>')
+            rows += (f'<li class="lrow fade"><span class="lnum" aria-hidden="true">{n}</span>'
+                     f'<div class="ltext"><h3>{esc(t)}</h3><p>{esc(d)}</p></div>{art}</li>')
+        return f'<ol class="blog">{rows}</ol>'
+
+    def quotes_home():
+        """Both real quotes, one large and one set against it — the band
+        was a single quote with its right half empty."""
+        big, small = C.TESTIMONIALS[1], C.TESTIMONIALS[0]
+        return f'''<div class="qhome">
+  <span class="qmark" aria-hidden="true">„</span>
+  <figure class="qbig fade"><blockquote>„{esc(big["quote"])}“</blockquote>
+    <figcaption><b>{esc(big["author"])}</b><span>{esc(big["note"])}</span></figcaption></figure>
+  <figure class="qsmall fade d2"><blockquote>„{esc(small["quote"])}“</blockquote>
+    <figcaption><b>{esc(small["author"])}</b><span>Zdroj oboch: ecodomcek.sk</span></figcaption>
+    <a class="qmore" href="o-nas.html">Kto sme a čo nám ide najlepšie <span aria-hidden="true">→</span></a></figure>
+</div>'''
 
     def contact_band(current="index.html"):
         """The closing beat of every page except kontakt.html.
@@ -312,10 +353,12 @@ def build(B):
 </div>
 <div class="street" data-street><div class="strack">{street()}</div></div>
 <div class="wrap"><div class="more">{btn("Všetkých osem realizácií", "realizacie.html")}</div></div>''') + section(4, "Vyjadrenie", "sand", f'''<div class="wrap" data-reveal>
-  {testimonials(pick=1, giant=True)}
+  {quotes_home()}
 </div>''') + section(5, "Ako to ide", "paper", f'''<div class="wrap" data-reveal>
-  <h2 class="big fade">{lines("Od prvého telefonátu|po kolaudáciu.")}</h2>
-  {process()}
+  <div class="loghead"><h2 class="big fade">{lines("Od prvého telefonátu|po kolaudáciu.")}</h2>
+    <p class="fade d2">Štyri kroky od základov až po kolaudáciu. Poradenstvo je
+      zadarmo — stačí zavolať.</p></div>
+  {build_log()}
 </div>''') + contact_band("index.html")
 
     # who we are, for search engines — only facts from content.py, which

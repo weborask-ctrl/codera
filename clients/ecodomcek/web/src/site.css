@@ -1287,6 +1287,10 @@ h2.big em{font-style:normal;color:var(--moss)}
   padding-inline:var(--gut);will-change:transform}
 .strack::after{content:"";position:absolute;left:0;right:0;bottom:92px;height:1px;background:var(--ink)}
 .house-lot{position:relative;display:flex;flex-direction:column;align-items:flex-start}
+/* one street height; each house is a ratio of it (terraces .75) — the
+   pinned frame is filled instead of a 400 px strip floating in 900 px */
+.street{--hh:clamp(300px,min(58vh,40vw),540px)}
+.house-lot img,.lot{height:calc(var(--r,1) * var(--hh))}
 .house-lot img{display:block;width:auto;max-width:none;box-shadow:0 24px 44px -34px rgba(35,31,26,.7);
   transition:transform .6s var(--ease)}
 .house-lot:hover img{transform:translateY(-8px)}
@@ -1305,7 +1309,7 @@ h2.big em{font-style:normal;color:var(--moss)}
   .street::-webkit-scrollbar{display:none}
   .strack{gap:22px}
   .house-lot{scroll-snap-align:start;scroll-margin-left:var(--gut)}
-  .house-lot img,.lot{height:calc(var(--h) * .6)!important}
+  .street{--hh:240px}
   .lot{width:180px}
 }
 @media (prefers-reduced-motion:reduce){
@@ -1328,3 +1332,59 @@ h2.big em{font-style:normal;color:var(--moss)}
 .handle .h-drag,.handle .h-rm{display:none}
 @media (max-width:820px){ .handle .h-wide{display:none} .handle .h-drag{display:inline} }
 @media (prefers-reduced-motion:reduce){ .handle .h-wide,.handle .h-drag{display:none} .handle .h-rm{display:inline} }
+
+/* ── úvod: two real quotes (refokus.md: the serif is the human voice;
+   kpr.md: type layered behind — the hanging mark sits behind the quote) */
+.qhome{position:relative;display:grid;grid-template-columns:minmax(0,7fr) minmax(0,4fr);
+  gap:clamp(28px,5vw,96px);align-items:end}
+.qmark{position:absolute;left:-.04em;top:0;z-index:0;pointer-events:none;height:.5em;overflow:visible;
+  font-family:var(--serif);font-weight:300;font-size:clamp(200px,22vw,360px);line-height:0;color:var(--moss)}
+.qhome figure{position:relative;z-index:1;margin:0}
+.qbig blockquote{margin:0;padding-top:clamp(70px,8vw,130px);font-family:var(--serif);font-weight:300;
+  font-size:clamp(28px,3.9vw,64px);line-height:1.08;letter-spacing:-.02em;max-width:22ch}
+.qhome figcaption{margin-top:24px;display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline;
+  font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink)}
+.qhome figcaption b{font-weight:500;letter-spacing:.06em}
+.qsmall{border-top:1px solid var(--ink);padding-top:22px}
+.qsmall blockquote{margin:0;font-family:var(--serif);font-weight:300;font-size:clamp(22px,2vw,32px);
+  line-height:1.2;letter-spacing:-.01em}
+.qmore{display:inline-block;margin-top:34px;font-size:15px;border-bottom:1px solid currentColor;padding-bottom:3px}
+.qmore:hover{color:var(--moss)}
+@media (max-width:820px){
+  .qhome{grid-template-columns:1fr;gap:40px}
+  .qmark{font-size:200px;top:-.36em}
+  .qbig blockquote{padding-top:70px}
+}
+
+/* ── úvod: the build log (basement.md: hairline rows dense with real
+   content, a vast numeral per row; igloo.md: mono annotation) ─────── */
+.loghead{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:clamp(24px,5vw,90px);
+  align-items:end;margin-bottom:clamp(30px,5vh,60px)}
+.loghead h2{margin:0}
+.loghead p{margin:0;max-width:40ch;font-size:clamp(16px,1.25vw,19px);line-height:1.5;color:var(--ink2)}
+.blog{list-style:none;margin:0;padding:0;border-bottom:1px solid var(--ink)}
+.lrow{display:grid;grid-template-columns:minmax(90px,1.3fr) minmax(0,3.2fr) minmax(0,5fr);
+  gap:clamp(18px,3vw,56px);align-items:start;border-top:1px solid var(--ink);
+  padding:clamp(20px,3vh,34px) 0}
+.lnum{font-family:var(--serif);font-weight:300;font-size:clamp(64px,7.4vw,128px);line-height:.8;
+  letter-spacing:-.04em;color:var(--moss)}
+.ltext h3{margin:4px 0 0;font-size:clamp(26px,2.5vw,40px);line-height:1.04;letter-spacing:-.02em;font-weight:300}
+.ltext p{margin:16px 0 0;max-width:34ch;font-size:clamp(15px,1.1vw,17px);line-height:1.55;color:var(--ink2)}
+.lart{margin:0}
+.lart .frame{aspect-ratio:16/9}
+.lart .frame img{transition:transform 1.2s var(--ease)}
+.lrow:hover .lart .frame img{transform:scale(1.03)}
+.lcall{aspect-ratio:16/9;display:flex;flex-direction:column;justify-content:flex-end;gap:10px;
+  padding:clamp(18px,2.2vw,34px);background:var(--ink);color:var(--paper)}
+.lcall .mono{color:#b8c79c}
+.lphone{font-family:var(--serif);font-weight:300;font-size:clamp(34px,4.2vw,72px);line-height:1;
+  letter-spacing:-.02em;color:var(--glow)}
+.lphone:hover{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:.12em}
+.lcall .fine{color:rgba(243,238,227,.82)}
+@media (max-width:820px){
+  .loghead{grid-template-columns:1fr;gap:16px}
+  .lrow{grid-template-columns:auto minmax(0,1fr);row-gap:18px;column-gap:18px}
+  .lnum{font-size:56px}
+  .lart{grid-column:1/-1}
+  .lcall{aspect-ratio:auto;min-height:190px}
+}
