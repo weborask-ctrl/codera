@@ -820,3 +820,24 @@ hlavička sa škáluje `zoom: var(--hz)` (1 pri 1440×900, max. 2,2). 1440 bez z
 
 **Subdoména.** ecodomcek.codera.sk: proxy mapuje stránky aj súbory, neznáma adresa
 dostane 404 konceptu; koncept má vlastnú CSP bez inline skriptov.
+
+## Fáza 18 — dom najprv sám, potom slovo (2026-09-25)
+
+**Pokyn.** Na začiatku len animácia domu cez celú obrazovku; potom sa dom odsunie
+na kraj a zmenší; až potom príde text — o 30 % väčší, v zaujímavejšom písme.
+
+**Choreografia.** Pri prvej návšteve (za reláciu) sa dom stavia cez celé okno,
+hlavička aj text čakajú. Keď je postavený, za 1,15 s sa presunie na svoje miesto
+v kompozícii (vpravo, na telefóne pod nadpis) a nadpis vyjde po riadkoch. Zdroj:
+**lusion** (objekt je prvý herec, obsah prichádza k nemu), **exoape** (pokojné
+tempo, jedno gesto naraz). Čitateľnosť nad choreografiou: akýkoľvek vstup
+(koliesko, dotyk, kláves, klik, posun) úvod hneď ukončí (0,55 s); po 9 s sa
+ukončí sám; opätovné načítanie ani návrat na úvod ho neopakujú; pri obmedzenom
+pohybe sa neukáže vôbec — rovno konečné rozloženie.
+
+**Písmo.** Nadpis je **Fraunces** (SOFT 100, WONK 1, opsz 144, váha 340): mäkké,
+trochu „ručne rezané“ pätky patria drevu a remeslu viac ako chladný grotesk;
+kurzíva *vonia* v zelenej je jediný akcent. Zdroj: **pangram** (písmo ako hrdina,
+jedno veľké vyhlásenie), **exoape** (ľahká váha v obrom merítku). Veľkosť
++30 % (1440: 76 → 99 px; telefón 41 → 53 px); stĺpce úvodu 7 : 5 v prospech textu.
+Newsreader ostáva pre ostatné nadpisy — Fraunces je len hlas úvodu.
