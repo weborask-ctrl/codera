@@ -900,3 +900,19 @@ kamera 0,85 × „celý dom na obrazovke“); na kraji o 40 % väčší ako pôv
 pevné ×1,3 → strop ×1,82, kde to miesto dovolí (medzera k textu 2 %, okraj
 1 %). Šírka domu: 1440 px 426 → 593 (+39 %), 1920 +37 %, 2560 +33 %,
 1024–1280 +39 %; telefón 314 → 378 (+20 % — viac nedovolí šírka obrazovky).
+
+## Fáza 21 — rozložený dom rovnako veľký ako zložený (2026-09-25)
+
+**Pokyn.** Keď sa dom otvorí po poschodiach, majú ostať rovnako veľké ako zložený
+dom (predtým sa pri otváraní zmenšoval na ×1,03).
+
+**Riešenie.** `landAim` počíta aj otvorený stav (OPEN): rovnaká mierka ako
+pristátie, rovnaký stred; výšku obmedzuje len menu hore a spodok obrazovky
+(popisok vizualizácie sa pri otvorení stratí). Rozložený dom je ~2× vyšší než
+zložený, takže vedľa neho už miesto na stĺpec popisov nie je — každé podlažie
+má preto štítok priamo na sebe: jantárový bod na okraji podlažia, krátka čiara
+a papierový štítok (číslo, názov, poznámka po riadkoch) smerom dovnútra
+(**igloo**: anotácia nad objektom). Merané 1024–2560 px: mierka otvoreného =
+pristátie (2000×1007: −1,5 %), štítky sa neprekrývajú s textom, s okrajom ani
+navzájom. Telefón/tablet na výšku: bez zmeny (čísla na dome, zoznam pod ním —
+medzi tlačidlami a spodkom obrazovky sa rozložený dom v plnej veľkosti nezmestí).
