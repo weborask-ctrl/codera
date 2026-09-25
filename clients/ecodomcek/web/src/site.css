@@ -519,7 +519,7 @@ h1 em,h2 em,h3 em{font-style:normal;color:var(--moss)}
 .words blockquote{margin:0}
 .pager{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:24px;align-items:center;
   border-top:1px solid var(--line);padding-top:26px}
-.pager .np{display:flex;align-items:center;gap:16px}
+.pager .np{display:flex;flex-direction:row;align-items:center;gap:clamp(14px,1.6vw,24px)}
 .pager .np img{width:72px;height:72px;object-fit:cover;flex:none;background:var(--paper2)}
 .pager .np span{display:flex;flex-direction:column;gap:6px}
 .pager .np b{font-weight:300;font-size:clamp(18px,1.6vw,25px);letter-spacing:-.016em;line-height:1.15}
@@ -711,8 +711,11 @@ h2.big em{font-style:normal;color:var(--moss)}
   .hright .pill:not(.go){display:none}
   .pill.go{display:none}
   .poster{padding-top:96px}
-  .poster h1,.poster .l2{font-size:clamp(40px,11.5vw,64px)}
-  .poster .house{width:min(92vw,420px)}
+  /* a portrait tablet is not a phone: 820×1180 got a 420 px house and
+     64 px type in the middle of an empty screen. Both now grow with the
+     height left over; on a phone 92vw / 11.5vw still bind, as before */
+  .poster h1,.poster .l2{font-size:clamp(40px,11.5vw,96px)}
+  .poster .house{width:min(92vw,max(420px,calc((100svh - 480px) * 1.34)))}
   .poster .l1{margin-bottom:-8px}
   .poster .l2{margin-top:-8px}
   .poster .vz{position:static;margin-top:18px}
@@ -1400,3 +1403,23 @@ h2.big em{font-style:normal;color:var(--moss)}
   .lart{grid-column:1/-1}
   .lcall{aspect-ratio:auto;min-height:190px}
 }
+
+/* ── the tablet tier (600–980 px, iPad portrait) ───────────────────────
+   Measured at 820×1180: the phone layout left a third of the screen
+   empty — photos capped at 540 px, spec tables at 420 px, the wall's
+   text in one narrow column. A tablet is wide enough for the desktop's
+   pairing of photo and text; it keeps the phone's single-column nav. */
+@media (min-width:600px) and (max-width:980px){
+  .job{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);align-items:end;gap:24px}
+  .job.nophoto{grid-template-columns:minmax(0,1fr)}
+  .jpic{width:100%}
+  .jtext ul{max-width:none}
+  .jtext li{grid-template-columns:92px minmax(0,1fr)}
+  .pinl img{width:100%}
+  .wallwhy .wallcols{grid-template-columns:1fr 1fr}
+}
+
+/* prev / next on the project sheet: 72 px stamps left the band empty at
+   every width; the neighbour's photo is the reason to click */
+.pager .pth,.pager .pth img{width:clamp(96px,11vw,150px);height:clamp(96px,11vw,150px)}
+.pager .np img{width:clamp(96px,11vw,150px);height:clamp(96px,11vw,150px)}
