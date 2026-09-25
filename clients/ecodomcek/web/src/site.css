@@ -640,15 +640,17 @@ body[data-band="moss"] .pill.go,body[data-band="dusk"] .pill.go{background:var(-
    screen that carries the proposition ended on a headline with no way out of
    it. The house is now sized off the height left after the type, not off a
    flat 330px reserve. */
+/* 2026-09-25: the words BESIDE the house, the house as large as the
+   frame allows (lusion.md: the object is the exhibit; cowboy.md: headline
+   and CTA together). Phones and portrait tablets stack words over house. */
 .poster{position:relative;width:100%;min-height:100svh;display:grid;
-  grid-template-rows:auto auto auto auto auto;justify-items:center;align-content:center;
-  padding:clamp(76px,8.5vh,108px) var(--gut) clamp(28px,4vh,52px);text-align:center}
-.poster h1,.poster .l2{font-size:clamp(46px,9.2vw,148px);line-height:.92;letter-spacing:-.04em;margin:0;font-weight:300;
-  position:relative;z-index:1}
-.poster .l2 em{font-style:normal;color:var(--moss)}
-.poster .l1{margin-bottom:calc(-.22 * clamp(46px,9.2vw,148px))}
-.poster .l2{margin-top:calc(-.26 * clamp(46px,9.2vw,148px))}
-.poster .house{position:relative;z-index:2;width:min(42vw,calc((100svh - 452px) * 1.34));
+  grid-template-columns:minmax(0,5fr) minmax(0,7fr);align-items:center;column-gap:clamp(16px,3vw,56px);
+  padding:clamp(84px,10vh,112px) var(--gut) clamp(40px,6vh,72px);text-align:left}
+.ptext{position:relative;z-index:3}
+.poster h1{font-size:clamp(40px,5.3vw,100px);line-height:.95;letter-spacing:-.04em;margin:0;font-weight:300}
+.poster h1 em{font-style:normal;color:var(--moss)}
+.poster h1 .rl>span{white-space:normal}
+.poster .house{position:relative;z-index:2;width:min(100%,calc((100svh - 150px) * 1.34));
   aspect-ratio:1500/1119;margin:0 auto}
 .house .lyr{position:absolute;will-change:transform}
 .house .lyr .mat{position:absolute;inset:0;width:100%;height:auto;display:block;pointer-events:none;
@@ -658,9 +660,9 @@ body[data-band="moss"] .pill.go,body[data-band="dusk"] .pill.go{background:var(-
   stroke-linejoin:round;stroke-linecap:round;opacity:.72}
 .house .ink path.sil{stroke-width:1.5;opacity:1}
 .house .pin{display:none}
-.poster .sub{margin-top:clamp(14px,2.2vh,26px);max-width:38ch;font-size:clamp(16px,1.25vw,20px);
+.poster .sub{margin-top:clamp(18px,3vh,32px);max-width:34ch;font-size:clamp(16px,1.35vw,21px);line-height:1.5;
   color:var(--ink2)}
-.poster .ctas{margin-top:16px;justify-content:center;display:flex;flex-wrap:wrap;gap:12px}
+.poster .ctas{margin-top:clamp(20px,3vh,32px);display:flex;flex-wrap:wrap;gap:12px}
 .poster .vz{position:absolute;right:var(--gut);bottom:22px;color:var(--ink2)}
 .vz{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2)}
 /* The type is the poster; the house is its guest. noomo.md (LIKED) sets an
@@ -672,7 +674,8 @@ body[data-band="moss"] .pill.go,body[data-band="dusk"] .pill.go{background:var(-
    `typeset` lands with the first painted frame, `built` now only marks the
    house as seated. */
 .poster .rl>span{transition-delay:0s;transition-duration:.55s}
-.poster.typeset .l1 .rl>span,.poster.typeset .l2 .rl>span{transform:none}
+.poster.typeset .rl>span{transform:none}
+.poster h1 .rl:nth-child(2)>span{transition-delay:.08s}
 .poster.typeset .fade{opacity:1;transform:none}
 .poster.typeset .fade.d2{transition-delay:.12s}
 
@@ -714,11 +717,12 @@ h2.big em{font-style:normal;color:var(--moss)}
   /* a portrait tablet is not a phone: 820×1180 got a 420 px house and
      64 px type in the middle of an empty screen. Both now grow with the
      height left over; on a phone 92vw / 11.5vw still bind, as before */
-  .poster h1,.poster .l2{font-size:clamp(40px,11.5vw,96px)}
-  .poster .house{width:min(92vw,max(420px,calc((100svh - 480px) * 1.34)))}
-  .poster .l1{margin-bottom:-8px}
-  .poster .l2{margin-top:-8px}
-  .poster .vz{position:static;margin-top:18px}
+  .poster{grid-template-columns:minmax(0,1fr);justify-items:center;align-content:center;text-align:center;row-gap:clamp(8px,2vh,24px)}
+  .ptext{max-width:none;display:flex;flex-direction:column;align-items:center}
+  .poster h1{font-size:clamp(38px,10.4vw,88px)}
+  .poster .ctas{justify-content:center}
+  .poster .house{width:min(92vw,max(360px,calc((100svh - 560px) * 1.34)))}
+  .poster .vz{position:static;margin-top:6px}
 }
 
 /* ═══ STENA — seven slabs you pull apart ═══════════════════════════════ */
@@ -1194,7 +1198,7 @@ h2.big em{font-style:normal;color:var(--moss)}
 /* the film has a paper ground, not alpha: while it plays, the headline
    sits above the house (dark type on the same paper reads identically,
    and no line of the headline is ever covered) */
-.poster.filmed h1,.poster.filmed .l2{position:relative;z-index:3}
+.poster.filmed .ptext{z-index:3}
 /* the closed house is lower and smaller than the exploded one: the still
    is framed the way the film ends — pushed in, centred between the lines */
 .house.still .still{transform:translateY(-29.5%) scale(1.3)}
@@ -1233,8 +1237,10 @@ h2.big em{font-style:normal;color:var(--moss)}
 .house.open .ol:nth-child(3) i,.house.open .ol:nth-child(3) div{transition-delay:.16s,.36s}
 .house.open .ol:nth-child(4) i,.house.open .ol:nth-child(4) div{transition-delay:.24s,.44s}
 .olegend{display:none}
-@media (max-width:820px){
-  /* no room beside the house on a phone: numbered points on it, the names below */
+@media all{
+  /* numbered points on the house at every width; the names live in the
+     text column (igloo.md: the annotation is an engineering drawing).
+     Side labels ran over the headline once the words sat beside the house */
   .ol div{display:none}
   .ol i{width:0;height:0}
   .ol i::before{width:18px;height:18px;margin:-9px 0 0 -9px;background:var(--ink)}
@@ -1472,3 +1478,36 @@ h2.big em{font-style:normal;color:var(--moss)}
   body.nav-open[data-band] .menu i{background:var(--ink)}
 }
 @media (max-width:820px){ body.nav-open header nav .nfoot a.nphone,header nav .nfoot a.nphone{color:#94571f} }
+
+/* phones: the film's frame carries ~19 % paper on each side, so it may
+   bleed past the screen edge — the house itself then spans the width */
+@media (max-width:600px){
+  .poster{overflow:hidden}
+  .poster .house{width:128vw;max-width:none;margin-inline:calc(50% - 64vw)}
+}
+
+/* the floor names beside the house: a ruled list under the CTAs, shown
+   only while the house stands open */
+.olegend li{display:flex;align-items:baseline;gap:8px}
+.olegend i{display:none;font-style:normal}
+@media (min-width:821px){
+  .olegend{flex-direction:column;align-items:stretch;justify-content:flex-start;gap:0;margin-top:clamp(22px,3.5vh,40px);
+    max-width:420px;font-size:15px;color:var(--ink);border-top:1px solid var(--line)}
+  .olegend li{gap:14px;padding:9px 0;border-bottom:1px solid var(--line2)}
+  .olegend b{color:var(--amber-ink)}
+  .olegend i{display:block;margin-left:auto;font-size:13px;color:var(--ink2);text-align:right}
+  .ol i::before{width:22px;height:22px;margin:-11px 0 0 -11px}
+  .ol.l i::before{margin:-11px -11px 0 0}
+  .ol::after{font-size:10.5px}
+}
+/* the legend hangs under the CTAs without taking layout space: the closed
+   poster centres words and house on the same line */
+@media (min-width:821px){
+  .olegend{position:absolute;left:0;top:100%;width:min(100%,420px)}
+  .olegend li{padding:clamp(5px,.9vh,9px) 0}
+}
+@media (min-width:821px) and (max-height:800px){
+  .olegend{margin-top:16px}
+  .olegend li{padding:4px 0}
+  .olegend i{display:none}
+}

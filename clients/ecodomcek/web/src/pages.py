@@ -312,19 +312,25 @@ def build(B):
     # layers apart again as the poster leaves.
     # ═══════════════════════════════════════════════════════════════════
     house = "".join(layer(n) for n in ("base", "ground", "upper", "roof"))
+    # 2026-09-25, client's call: the house must be bigger and the words
+    # BESIDE it, not wrapped around it (the noomo.md weave is retired).
+    # lusion.md: the 3D object is the product demo — one live exhibit per
+    # frame, calm type beside it; cowboy.md: one big headline with the CTA
+    # immediately under it. Phones stack the words above the house.
     hero = f'''<section class="band" id="hero" data-sec="Dom">
   <div class="poster">
-    <h1 class="l1"><span class="rl"><span>Vitajte vo svete,</span></span><span class="vh"> kde vonia drevo.</span></h1>
+    <div class="ptext">
+      <h1><span class="rl"><span>Vitajte vo svete,</span></span> <span class="rl"><span>kde <em>vonia</em> drevo.</span></span></h1>
+      <p class="sub fade">Montované drevodomy z Lúčiny pri Prešove. Od základov až po kolaudáciu.</p>
+      <div class="ctas fade d2">{btn("Pozrieť realizácie", "realizacie.html")}{btn("Otvoriť stenu", "stena.html", ghost=True, arrow=False)}</div>
+      <ol class="olegend" aria-label="Podlažia domu">{"".join(f"<li><b>{i + 1:02d}</b><span>{n}</span>" + (f"<i>{note}</i>" if note else "") + "</li>" for i, (_, _, n, note) in enumerate(OPEN))}</ol>
+    </div>
     <div class="house" data-house>{house}
       <video class="film" muted playsinline preload="auto" aria-hidden="true" tabindex="-1"
         poster="assets/hero-first.webp" data-wide="assets/hero" data-narrow="assets/hero-720"></video>
       <img class="still" src="assets/hero-last.webp" alt="" aria-hidden="true" loading="lazy">
       {open_labels()}
     </div>
-    <p class="l2" aria-hidden="true"><span class="rl"><span>kde <em>vonia</em> drevo.</span></span></p>
-    <p class="sub fade">Montované drevodomy z Lúčiny pri Prešove. Od základov až po kolaudáciu.</p>
-    <ol class="olegend" aria-label="Podlažia domu">{"".join(f"<li><b>{i + 1:02d}</b>{n}</li>" for i, (_, _, n, _) in enumerate(OPEN))}</ol>
-    <div class="ctas fade d2">{btn("Pozrieť realizácie", "realizacie.html")}{btn("Otvoriť stenu", "stena.html", ghost=True, arrow=False)}</div>
     <span class="vz mono">vizualizácia · Rodinný dom Lúčina 2024</span>
   </div>
 </section>'''

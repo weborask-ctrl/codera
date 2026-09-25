@@ -739,7 +739,12 @@
     if (busy) return;
     busy = true;
     var label = curtain.querySelector('b');
-    var link = document.querySelector('header nav a[href="' + (url.pathname.split('/').pop() || 'index.html') + '"]');
+    // the target's file: from the path, or from '#p/…' in the one-file
+    // build, whose path is always index.html — every curtain said "Úvod"
+    var file = url.pathname.split('/').pop() || 'index.html';
+    if (url.hash && /^#p\//.test(url.hash)) file = url.hash.slice(3);
+    if (/^realizacia-/.test(file)) file = 'realizacie.html';       // a sheet belongs to its chapter
+    var link = document.querySelector('header nav a[href="' + file + '"]');
     label.textContent = link ? link.childNodes[0].textContent.trim() : '';   // the name, not its count
     document.documentElement.classList.add('leaving');
 
