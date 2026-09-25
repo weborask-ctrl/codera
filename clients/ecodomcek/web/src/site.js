@@ -15,6 +15,16 @@
   'use strict';
 
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // the intro plays on every fresh arrival at the home page — a typed link,
+  // a new tab, a reload — but not when coming back from a page of this site
+  // (in-page route, back button, or a link from a subpage)
+  var introSeen = (function () {
+    var nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+    var type = nav ? nav.type : 'navigate';
+    if (type === 'reload') return false;
+    if (type === 'back_forward') return true;
+    try { return !!document.referrer && new URL(document.referrer).host === location.host; } catch (e) { return false; }
+  })();
   var wide = function () { return matchMedia('(min-width:821px)').matches; };
   gsap.registerPlugin(ScrollTrigger);
 
@@ -245,13 +255,13 @@
     }
     // ── the intro (client, 2026-09-25): first the house alone, full screen,
     // while it draws, builds and closes; then it glides to its place at the
-    // side, smaller, and only then the words and the menu arrive. Once per
-    // visit — coming back to the home page lands on the finished poster. Any
+    // side, smaller, and only then the words and the menu arrive. On a fresh
+    // arrival only (see introSeen) — coming back from a subpage lands on the
+    // finished poster. Any
     // input (wheel, touch, key, click) skips to that end state at once, so
     // the words never wait on someone who wants to read or move on.
     var intro = null;
-    var seen = false;
-    try { seen = sessionStorage.getItem('ecd-intro') === '1'; } catch (e) {}
+    var seen = introSeen;
     function reveal() {
       poster.classList.add('typeset'); poster.classList.remove('intro');
       document.body.classList.remove('intro');
@@ -309,7 +319,10 @@
       gsap.set(act, { scale: s2, x: sx - geo.ax - s2 * (px - geo.ax), y: sy - geo.ay - s2 * (py - geo.ay) });
     }
     function skip(e) {                                        // any wish to move on is honoured at once
-      if (e && e.type === 'scroll' && scrollY < 4) return;    // (a scrollbar drag counts; a restore to 0 does not)
+      if (e && e.type === 'scroll') {                         // a scrollbar drag counts; the browser
+        if (scrollY < 4) return;                              // restoring a reload's old position does not:
+        if (performance.now() - intro.t0 < 1200) { scrollTo(0, 0); return; }   // it lands in the first second
+      }
       finishIntro(true);
     }
     var INPUT = ['wheel', 'touchstart', 'keydown', 'pointerdown', 'scroll'];
@@ -319,20 +332,27 @@
       gsap.ticker.remove(follow);
       INPUT.forEach(function (t) { removeEventListener(t, skip, true); });
       removeEventListener('resize', place);
-      try { sessionStorage.setItem('ecd-intro', '1'); } catch (e) {}
+      introSeen = true;                                       // an in-page route home lands finished
+      try { history.scrollRestoration = 'auto'; } catch (e) {}   // the rest of the site remembers as usual
       tweens.push(gsap.to(act, { x: 0, y: 0, scale: 1, duration: fast ? .55 : 1.15, ease: 'power3.inOut', overwrite: true,
         onComplete: function () { gsap.set(act, { clearProps: 'transform' }); ScrollTrigger.refresh(); } }));
       tweens.push(gsap.delayedCall(fast ? .12 : .6, reveal));
     }
     if (!seen) {
-      intro = { done: false };
+      intro = { done: false, t0: performance.now() };
+      // the intro is a first frame: it starts at the top, whatever the
+      // browser remembers from the last visit of this tab
+      try { history.scrollRestoration = 'manual'; } catch (e) {}
+      if (scrollY) scrollTo(0, 0);
       poster.classList.add('intro'); document.body.classList.add('intro');
       place();
       tl.call(place, null, 0);                                // again when it starts: fonts and layout are final
       INPUT.forEach(function (t) { addEventListener(t, skip, { capture: true, passive: true }); });
       addEventListener('resize', place);
       gsap.ticker.add(follow);
-      tweens.push(gsap.delayedCall(9, function () { finishIntro(false); }));   // a film that never ends
+      // a film that never ends: a slow line may take seconds to deliver it,
+      // and without it the layers seat after 6 s (see the guard above)
+      tweens.push(gsap.delayedCall(16, function () { finishIntro(false); }));
       // leaving the page mid-intro must not leave the menu hidden elsewhere
       tweens.push({ kill: function () {
         gsap.ticker.remove(follow);
@@ -852,6 +872,7 @@
   }
 
   function swap(doc, url, push) {
+    introSeen = true;                                         // moving within the site: never the intro again
     var next = doc.getElementById('main');
     if (!next) { location.href = url.href; return; }
     main.replaceWith(next);
