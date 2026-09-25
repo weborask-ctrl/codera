@@ -784,3 +784,24 @@ stavby, s popisom „Detail z fotografie · …". Pri 420 px fotke nie.
 
 **Zámerne nechané:** Služby — riadky bez dokladu ostávajú bez obrázka
 (vizualizácia by sa tvárila ako dôkaz).
+
+## Fáza 16 — tablet a menu (2026-09-25)
+
+Meraný iPad na výšku (820×1180) dostával telefónne rozloženie a tretina
+obrazovky ostávala prázdna.
+
+- **Hero:** dom bol obmedzený na 420 px a nadpis na 64 px uprostred
+  vysokej obrazovky; oboje teraz rastie s výškou, ktorá zostane (na
+  telefóne naďalej rozhoduje 92vw / 11,5vw — telefóny sú bez zmeny).
+- **Tabletová vrstva 600–980 px:** Realizácie párujú fotku a údaje ako
+  desktop; obrázky príbehu O nás na plnú šírku; text Steny v dvoch stĺpcoch.
+- **Predchádzajúca / ďalšia stavba:** 72 px známky → 96–150 px, obe v riadku.
+- **Menu (≤ 820 px):** namiesto roletky s 11 px popismi na 32 px cieľoch
+  (neskoršie desktopové pravidlo prebilo zamýšľaných 52 px) celoplošný
+  papierový panel: veľké slová (pangram.md, rovnaký hlas ako zoznam
+  služieb na úvode), ciele ≥ 56 px, aktuálna stránka machovou s bodkou,
+  telefón dole. Zamknutý scroll, Escape zatvára, na tmavých stránkach
+  sa do panelu nepreliali svetlé tokeny.
+
+LOCAL: 820×1180, 1180×820, 768×1024, 390×844, 360×740, 1440×900; bundle
+z `file://`. Skutočný iPad NOT VALIDATED.
