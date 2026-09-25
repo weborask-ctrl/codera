@@ -23,7 +23,51 @@ import { type NextRequest, NextResponse } from "next/server"
  *
  * Previews only: Vercel's toolbar loads from vercel.live and is allowed there.
  */
+/**
+ * Client concepts published as one self-contained file (the EcoDomček
+ * redesign: public/demos/ecodomcek/index.html, built outside this app by
+ * clients/ecodomcek/web/src/publish.py). They carry their scripts inline and
+ * their fonts and film as data: URIs, so the nonce policy above would block
+ * all of it — measured 2026-09-25 on the preview: no script ran, no font or
+ * video loaded. Their own policy allows exactly that and nothing external.
+ *
+ * ecodomcek.codera.sk serves the concept at its root (the domain has to be
+ * added to the Vercel project, with a CNAME in DNS). The file routes its
+ * pages with #p/… hashes, so every path on that host is the same file.
+ */
+const CONCEPT_HOST = "ecodomcek.codera.sk"
+const CONCEPT_PATH = "/demos/ecodomcek/"
+const CONCEPT_FILE = "/demos/ecodomcek/index.html"
+const CONCEPT_POLICY = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob:",
+  "font-src 'self' data:",
+  "media-src 'self' data: blob:",
+  "connect-src 'self' data: blob:",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+].join("; ")
+
+function concept(request: NextRequest) {
+  const host = (request.headers.get("host") ?? "").split(":")[0].toLowerCase()
+  const onHost = host === CONCEPT_HOST
+  if (!onHost && !request.nextUrl.pathname.startsWith(CONCEPT_PATH)) return null
+  const response =
+    onHost && !request.nextUrl.pathname.startsWith(CONCEPT_PATH)
+      ? NextResponse.rewrite(new URL(CONCEPT_FILE, request.url))
+      : NextResponse.next()
+  response.headers.set("Content-Security-Policy", CONCEPT_POLICY)
+  return response
+}
+
 export function proxy(request: NextRequest) {
+  const own = concept(request)
+  if (own) return own
+
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64")
   const dev = process.env.NODE_ENV === "development"
   const preview = process.env.VERCEL_ENV === "preview"

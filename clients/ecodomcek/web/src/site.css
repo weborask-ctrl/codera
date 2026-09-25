@@ -1,0 +1,1658 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   EcoDomček — art direction „Vonia drevo"
+
+   Two type voices (refokus.md): an engineered grotesque carries structure,
+   a warm serif carries the human moments. Colour lives INSIDE the bands,
+   never in the shell. Every act has a different SHAPE — beat variety over
+   effect variety; a page that repeats one split screen reads as a template.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Self-hosted, subsetted by `src/fonts.mjs` — the three faces used to come
+   from fonts.googleapis.com on every page load. `swap` so the copy is
+   readable while the face arrives; the fallback stacks below are chosen
+   for width, not looks. */
+@font-face{font-family:'Hanken Grotesk';src:url(hanken.woff2) format('woff2');
+  font-weight:300 500;font-style:normal;font-display:swap}
+@font-face{font-family:'Newsreader';src:url(newsreader.woff2) format('woff2');
+  font-weight:200 300;font-style:normal;font-display:swap}
+@font-face{font-family:'IBM Plex Mono';src:url(plex-mono.woff2) format('woff2');
+  font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:'IBM Plex Mono';src:url(plex-mono-500.woff2) format('woff2');
+  font-weight:500;font-style:normal;font-display:swap}
+
+:root{
+  --paper:#f3eee3; --paper2:#eae3d4; --sand:#e2d6bd; --white:#fbf9f4;
+  --ink:#231f1a; --ink2:#6b6357; --line:rgba(35,31,26,.16); --line2:rgba(35,31,26,.09);
+  --moss:#3f5a2a; --moss-deep:#24331a; --amber:#c9762a; --glow:#f2b563;
+  /* amber that passes WCAG AA: small text on paper, white text on a button */
+  --amber-ink:#94571f; --amber-btn:#a96323;
+  --dusk:#12100e;
+  --sans:'Hanken Grotesk','Helvetica Neue',Arial,sans-serif;
+  --serif:'Newsreader',Georgia,'Times New Roman',serif;
+  --mono:'IBM Plex Mono','SF Mono',Menlo,monospace;
+  --gut:clamp(20px,4.4vw,72px);
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:auto;overflow-x:clip}
+body{margin:0;overflow-x:clip;background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;
+  font-feature-settings:"tnum" 0}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%;height:auto}
+::selection{background:var(--amber);color:var(--paper)}
+:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
+
+/* ── type scale ──────────────────────────────────────────────────────── */
+h1,h2,h3{margin:0;font-weight:300;letter-spacing:-.026em;line-height:.99}
+h1{font-size:clamp(40px,6.2vw,104px)}
+h2{font-size:clamp(31px,3.9vw,62px);line-height:1.02}
+h3{font-size:clamp(21px,1.7vw,27px);line-height:1.15;letter-spacing:-.015em}
+p{margin:0;max-width:44ch}
+.lead{font-size:clamp(18px,1.35vw,22px);line-height:1.5}
+.serif{font-family:var(--serif);font-weight:300;font-style:normal;letter-spacing:-.012em}
+.eko{color:var(--moss)}
+.mono{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink2)}
+/* .fine is SENTENCES (notes, statuses, addresses) — body face at a readable
+   size; 11 px mono made them the smallest text on the page (2026-09-25) */
+.fine{font-family:var(--sans);font-size:14.5px;line-height:1.55;letter-spacing:0;color:var(--ink2)}
+
+
+/* ── chrome ──────────────────────────────────────────────────────────── */
+header{position:fixed;inset:0 0 auto;z-index:40;display:flex;align-items:center;
+  justify-content:space-between;gap:16px;padding:16px var(--gut);pointer-events:none;
+  mix-blend-mode:normal}
+header>*{pointer-events:auto}
+.brand{display:flex;align-items:center;gap:11px}
+.brand svg{flex:none}
+.brand b{font-size:13px;font-weight:500;letter-spacing:.2em}
+.brand i{display:block;font-family:var(--mono);font-size:8.5px;font-style:normal;
+  letter-spacing:.13em;color:var(--ink2);margin-top:2px}
+.pill{display:inline-flex;align-items:center;gap:9px;height:40px;padding:0 18px;
+  border:1px solid var(--line);border-radius:999px;background:rgba(243,238,227,.82);
+  backdrop-filter:blur(9px);font-family:var(--mono);font-size:12px;letter-spacing:.12em;
+  text-transform:uppercase;transition:background .3s,border-color .3s,color .3s}
+.pill:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.pill .dot{width:5px;height:5px;border-radius:50%;background:var(--amber)}
+nav{display:flex;gap:6px}
+nav a{padding:0 14px;height:40px;display:inline-flex;align-items:center;font-family:var(--mono);
+  font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);
+  border-radius:999px;transition:color .25s,background .25s}
+nav a:hover{color:var(--ink);background:rgba(35,31,26,.06)}
+
+/* running index, bottom right */
+#idx{position:fixed;right:var(--gut);bottom:22px;z-index:35;font-family:var(--mono);font-size:12px;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);display:flex;align-items:baseline;gap:10px}
+#idx b{font-weight:500;color:var(--ink)}
+#idx s{text-decoration:none;opacity:.45}
+
+/* ── band system: colour lives in the bands, never in the shell ──────── */
+.band{position:relative;padding:clamp(72px,11vh,150px) 0;
+  transition:background .6s var(--ease),color .6s var(--ease)}
+.band.sand{background:var(--sand)}
+.band.moss{background:var(--moss-deep);color:#e8e6dc}
+.band.dusk{background:var(--dusk);color:#f3eee3}
+.band.moss .mono,.band.moss .fine,
+.band.dusk .mono,.band.dusk .fine,.band.dusk .band.moss p,.band.dusk p{color:rgba(243,238,227,.86)}
+.wrap{padding-inline:var(--gut)}
+.rule{height:1px;background:var(--line);border:0;margin:0}
+.band.moss .rule,.band.dusk .rule{background:rgba(243,238,227,.18)}
+
+/* ── reveal primitives ───────────────────────────────────────────────── */
+/* the clip box reaches past the line box: Slovak carons and acutes over
+   capitals (Č, Ľ, Ž, Ú) and descenders stay inside it; the negative margin
+   keeps the line where it was */
+.rl{display:block;overflow:hidden;padding:.2em 0 .12em;margin:-.2em 0 -.12em}
+@media (min-width:821px){ .rl>span{white-space:nowrap} }
+.rl>span{display:block;transform:translateY(135%);transition:transform .95s var(--ease)}
+.on .rl>span{transform:none}
+.rl:nth-child(2)>span{transition-delay:.06s}
+.fade{opacity:0;transform:translateY(14px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+.on .fade{opacity:1;transform:none}
+.on .fade.d1{transition-delay:.1s} .on .fade.d2{transition-delay:.18s}
+.on .fade.d3{transition-delay:.26s} .on .fade.d4{transition-delay:.34s}
+.clipimg{clip-path:inset(0 0 100% 0);transition:clip-path 1.15s var(--ease)}
+.on .clipimg{clip-path:inset(0 0 0 0)}
+@media (prefers-reduced-motion:reduce){
+  .rl>span,.fade,.clipimg{transition:none!important;transform:none!important;opacity:1!important;
+    clip-path:none!important}
+}
+
+/* ── figure: an image is always a framed object, never wallpaper ─────── */
+figure{margin:0;position:relative}
+.frame{position:relative;overflow:hidden;background:var(--paper2)}
+.band.moss .frame,.band.dusk .frame{background:#1b1813}
+.frame img{width:100%;height:100%;object-fit:cover}
+.frame.obj img{object-fit:contain}
+.cap{margin-top:10px;display:flex;justify-content:space-between;gap:16px;align-items:baseline;
+  font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2)}
+.band.moss .cap,.band.dusk .cap{color:rgba(243,238,227,.5)}
+
+/* ═══ split: stage sticks, text scrolls ═══════════════════════════════ */
+.split{display:grid;grid-template-columns:minmax(0,43fr) minmax(0,57fr);
+  gap:clamp(26px,4vw,72px);align-items:start}
+.split.mirror{grid-template-columns:minmax(0,57fr) minmax(0,43fr)}
+.split.mirror .col-a{order:2}
+.sticky{position:sticky;top:0;height:100svh;display:flex;align-items:center;
+  padding:clamp(84px,10vh,128px) 0}
+.sticky figure{width:100%}
+.steps{display:flex;flex-direction:column}
+.step{min-height:100svh;display:flex;flex-direction:column;justify-content:center;gap:20px;
+  padding:clamp(84px,10vh,128px) 0}
+
+/* numbered pins on the drawing + legend beside it */
+.pins{position:absolute;inset:0;z-index:3;pointer-events:none}
+.pin{position:absolute;opacity:0;transform:scale(.6);transition:opacity .4s var(--ease),transform .4s var(--ease)}
+.pin.on{opacity:1;transform:none}
+.pin s{position:absolute;left:-5px;top:-5px;width:10px;height:10px;border-radius:50%;
+  background:var(--amber);box-shadow:0 0 0 5px rgba(201,118,42,.18);text-decoration:none}
+.pin b{position:absolute;left:14px;top:-11px;font-family:var(--mono);font-size:12px;font-weight:500;
+  letter-spacing:.06em;color:var(--ink);background:var(--paper);padding:3px 6px;
+  border:1px solid var(--line)}
+.idxlist{border-top:1px solid var(--line)}
+.idxlist div{display:flex;gap:16px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--line);
+  opacity:.28;transition:opacity .5s var(--ease)}
+.idxlist div.on{opacity:1}
+.idxlist b{font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.06em;
+  color:var(--amber-ink);width:24px;flex:none}
+.idxlist span{flex:1}
+.band.moss .idxlist,.band.moss .idxlist div{border-color:rgba(243,238,227,.18)}
+
+/* ═══ full-bleed wide moment + fact row ══════════════════════════════ */
+.wide figure{width:100%}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(20px,3vw,56px);
+  margin-top:clamp(30px,4vh,52px);border-top:1px solid var(--line);padding-top:24px}
+.facts div b{display:block;font-size:clamp(26px,2.6vw,40px);font-weight:300;letter-spacing:-.02em}
+.facts div span{display:block;margin-top:6px;font-family:var(--mono);font-size:12px;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--ink2)}
+
+/* ═══ quote — the serif voice, no image, a typographic rest ══════════ */
+.quote{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:clamp(26px,5vw,90px);
+  align-items:end}
+.quote blockquote{margin:0;font-family:var(--serif);font-weight:300;
+  font-size:clamp(30px,4.2vw,68px);line-height:1.07;letter-spacing:-.02em}
+.quote .who,.essay .who{margin-top:26px;display:flex;gap:14px;align-items:baseline}
+.quote .who b{font-weight:500;font-size:15px}
+.sig{font-family:var(--serif);font-size:clamp(19px,1.5vw,24px);line-height:1.5;font-weight:300}
+
+/* ═══ technical: image + spec table ═════════════════════════════════ */
+.spec{width:100%;border-collapse:collapse;font-size:15px}
+.spec tr{border-bottom:1px solid rgba(243,238,227,.16)}
+.spec tr:first-child{border-top:1px solid rgba(243,238,227,.16)}
+.spec td{padding:11px 0;vertical-align:baseline;color:#efede3}
+.spec td:first-child{width:34px;font-family:var(--mono);font-size:12px;letter-spacing:.06em;
+  color:var(--glow)}
+.spec td:last-child{text-align:right;font-family:var(--mono);font-size:12px;
+  color:rgba(243,238,227,.5);white-space:nowrap}
+
+/* ═══ room band: three images in a row, different rhythm ════════════ */
+.rooms{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,1.6vw,26px)}
+.rooms figure:nth-child(2){margin-top:clamp(24px,5vh,64px)}
+.rooms .frame{aspect-ratio:3/4}
+.rooms h3{margin-top:14px}
+.rooms p{margin-top:8px;font-size:15.5px;line-height:1.55;color:var(--ink2)}
+
+/* ═══ project index — density as credibility ════════════════════════ */
+.index{border-top:1px solid var(--line)}
+.index a{display:grid;grid-template-columns:78px minmax(0,1fr) minmax(0,240px) 130px;
+  gap:clamp(12px,2vw,32px);align-items:center;padding:19px 0;border-bottom:1px solid var(--line);
+  position:relative;transition:padding-left .45s var(--ease),color .3s}
+.index a:hover{padding-left:16px}
+.index a::before{content:"";position:absolute;inset:0 -16px;background:rgba(35,31,26,.04);
+  opacity:0;transition:opacity .3s}
+.index a:hover::before{opacity:1}
+.index .yr{font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--ink2)}
+.index .nm{font-size:clamp(18px,1.5vw,23px);letter-spacing:-.01em}
+.index .pl{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink2)}
+.index .tg{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink2);text-align:right}
+/* the photo that follows the pointer. The script owns `transform` (it
+   writes the pointer position every frame), so the box is anchored at the
+   viewport's corner and centred with margins; the entrance scales the
+   image inside, never the box. Without top/left a fixed box sits at its
+   static position — the end of the document — which is why it never showed. */
+#peek{position:fixed;left:0;top:0;margin:0;z-index:30;width:250px;height:250px;
+  pointer-events:none;opacity:0;transition:opacity .3s var(--ease);
+  overflow:hidden;box-shadow:0 30px 70px -40px rgba(35,31,26,.8)}
+#peek.on{opacity:1}
+#peek img{width:100%;height:100%;object-fit:cover;transform:scale(1.08);transition:transform .5s var(--ease)}
+#peek.on img{transform:none}
+
+/* ═══ process + services ════════════════════════════════════════════ */
+.proc{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(16px,2.2vw,40px);
+  border-top:1px solid var(--line)}
+.proc div{padding-top:20px;border-right:1px solid var(--line2);padding-right:clamp(12px,1.6vw,28px)}
+.proc div:last-child{border-right:0}
+.proc b{font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--amber-ink);display:block}
+.proc h3{margin-top:12px}
+.proc p{margin-top:9px;font-size:15px;line-height:1.55;color:var(--ink2)}
+.svc{columns:3;column-gap:clamp(20px,3vw,56px);margin-top:clamp(34px,5vh,64px)}
+.svc div{break-inside:avoid;display:flex;gap:12px;align-items:baseline;padding:9px 0;
+  border-bottom:1px solid var(--line2);font-size:16px}
+.svc i{font-family:var(--mono);font-size:12px;font-style:normal;letter-spacing:.08em;
+  color:var(--ink2);width:20px;flex:none}
+
+/* ═══ the closing band ══════════════════════════════════ */
+/* Every page but kontakt.html ends here. Two things only: where to go next
+   (which differs per page, so the beat is not a repeat) and the phone. The
+   form it replaced ran 1330 px desktop / 1940 px mobile on all fourteen. */
+/* the closing band owns its own rhythm — stacked on the generic .band
+   padding it left ~120 px of nothing above the footer (rule 21).
+   kontakt.html builds its own hero and carries no #kontakt. */
+#kontakt{padding-block:clamp(52px,7vh,86px) clamp(34px,4.4vh,54px)}
+.closing{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:clamp(30px,5vw,80px);
+  align-items:end}
+.closing .mono{display:block;color:rgba(243,238,227,.5);margin-bottom:12px}
+.next{display:block;color:inherit}
+.next b{display:block;font-size:clamp(30px,4.2vw,62px);font-weight:300;line-height:1;
+  letter-spacing:-.03em;transition:color .3s}
+.next:hover b{color:var(--glow)}
+.next b svg,.next b span{transition:transform .35s var(--ease)}
+.next:hover b svg{transform:translateX(8px)}
+.reach{text-align:right;justify-self:end}
+.reach .tel-big{font-size:clamp(30px,4.2vw,62px)}
+.reachrow{display:flex;align-items:center;gap:22px;margin-top:22px;justify-content:flex-end;
+  flex-wrap:wrap}
+@media (max-width:820px){
+  .closing{grid-template-columns:1fr;gap:38px;align-items:start}
+  .reach{text-align:left;justify-self:start}
+  .reachrow{justify-content:flex-start}
+}
+
+/* ═══ contact ═══════════════════════════════════════════════════════ */
+.contact{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(30px,5vw,88px);
+  align-items:start}
+.tel-big{white-space:nowrap;font-size:clamp(34px,5.2vw,86px);font-weight:300;letter-spacing:-.025em;color:var(--glow);
+  line-height:1;display:inline-block}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:8px}
+/* the form reads on paper (its home is kontakt.html's paper band); a dark
+   band gets the light variant below */
+.form label{display:flex;flex-direction:column;gap:8px;font-family:var(--mono);font-size:12px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ink2)}
+.form label.wide{grid-column:1/-1}
+.form input,.form textarea{background:transparent;border:0;border-bottom:1px solid rgba(35,31,26,.35);
+  color:var(--ink);font-family:var(--sans);font-size:18px;padding:10px 0;resize:none;transition:border-color .3s}
+.form input::placeholder,.form textarea::placeholder{color:rgba(107,99,87,.75)}
+.form input:focus,.form textarea:focus{outline:0;border-color:var(--amber)}
+.band.dusk .form label,.band.moss .form label{color:rgba(243,238,227,.62)}
+.band.dusk .form input,.band.dusk .form textarea,.band.moss .form input,.band.moss .form textarea{
+  border-bottom-color:rgba(243,238,227,.3);color:#f3eee3}
+.band.dusk .form input:focus,.band.dusk .form textarea:focus{border-color:var(--glow)}
+.btn{display:inline-flex;align-items:center;gap:11px;height:56px;padding:0 30px;border-radius:999px;
+  background:var(--amber-btn);color:#fff;font-size:16px;font-weight:500;width:fit-content;
+  transition:transform .35s var(--ease),background .3s}
+.btn:hover{transform:translateY(-2px);background:#8f541e}
+.btn svg{transition:transform .35s var(--ease)}
+.btn:hover svg{transform:translateX(4px)}
+/* the secondary action: an outline, so two CTAs never weigh the same */
+.btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px rgba(35,31,26,.28)}
+.btn.ghost:hover{background:rgba(35,31,26,.05)}
+.band.moss .btn.ghost,.band.dusk .btn.ghost,footer .btn.ghost{color:#f3eee3;
+  box-shadow:inset 0 0 0 1px rgba(243,238,227,.34)}
+.band.moss .btn.ghost:hover,.band.dusk .btn.ghost:hover{background:rgba(243,238,227,.08)}
+/* an accent word on a moss band: moss on moss is invisible */
+.band.moss h1 em,.band.moss h2 em,.band.moss h3 em{color:#a9c585}
+
+/* ═══ footer ════════════════════════════════════════════════════════ */
+footer{background:var(--dusk);color:rgba(243,238,227,.72);padding:clamp(38px,5vh,62px) 0 26px}
+.fgrid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:clamp(24px,3.2vw,52px)}
+footer a:hover{color:var(--glow)}
+footer .big{font-family:var(--serif);font-size:clamp(21px,1.85vw,29px);line-height:1.25;
+  color:#f3eee3;font-weight:300;max-width:20ch}
+.fcol h4{margin:0 0 14px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;
+  text-transform:uppercase;color:rgba(243,238,227,.66);font-weight:400}
+.fcol div{padding:5px 0;font-size:15px}
+.fnav{display:flex;flex-direction:column;gap:2px}
+.fnav a{padding:4px 0;display:block}
+.fbot{margin-top:clamp(24px,3.2vh,38px);padding-top:18px;border-top:1px solid rgba(243,238,227,.14);
+  display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:rgba(243,238,227,.64)}
+
+/* ═══ narrow ════════════════════════════════════════════════════════ */
+@media (max-width:1040px){
+  .quote{grid-template-columns:1fr;gap:26px}
+  .contact{grid-template-columns:1fr}
+  .svc{columns:2}
+  .index a{grid-template-columns:60px minmax(0,1fr);row-gap:4px}
+  .index .pl,.index .tg{grid-column:2;text-align:left}
+  .fgrid{grid-template-columns:1fr 1fr}
+  footer .big{grid-column:1/-1}
+}
+@media (max-width:820px){
+  nav{display:none}
+  #kontakt{padding-block:44px 26px}
+  footer{padding-top:28px}
+  footer .big{font-size:19px;line-height:1.35}
+  .fcol h4{margin-bottom:10px}
+  .fcol div{padding:3px 0;font-size:14px}
+  /* the hamburger already carries the map; a seven-item vertical list
+     down the footer was ~250 px of duplicate navigation */
+  .fnav{flex-direction:row;flex-wrap:wrap;gap:0 20px}
+  .fcol:last-child{grid-column:1/-1}
+  .fbot{margin-top:20px}
+  .brand i{display:none}
+  #idx{display:none}
+  .split,.split.mirror{grid-template-columns:1fr;gap:0}
+  .split .col-a,.split.mirror .col-a{order:-1}
+  .sticky{position:sticky;top:0;height:auto;padding:74px 0 10px;z-index:5;
+    background:linear-gradient(180deg,var(--paper) 0%,var(--paper) 86%,rgba(243,238,227,0) 100%)}
+  .band.moss .sticky{background:linear-gradient(180deg,var(--moss-deep) 0%,var(--moss-deep) 86%,rgba(36,51,26,0) 100%)}
+  .steps{position:relative;z-index:2}
+  .step{min-height:auto;padding:22px 0 56px}
+  #idx{display:none}
+  .rooms{grid-template-columns:1fr;gap:34px}
+  .rooms figure:nth-child(2){margin-top:0}
+  .rooms .frame{aspect-ratio:4/3}
+  .proc{grid-template-columns:1fr 1fr;row-gap:26px}
+  .proc div{border-right:0}
+  .facts{grid-template-columns:1fr;gap:18px}
+  .form{grid-template-columns:1fr}
+  .svc{columns:1}
+  #peek{display:none}
+}
+
+
+/* ── chrome inverts over the dark bands (the band owns the page) ─────── */
+body[data-band="moss"],body[data-band="dusk"]{color-scheme:dark}
+body[data-band="moss"] .brand b,body[data-band="dusk"] .brand b{color:#f3eee3}
+body[data-band="moss"] .brand i,body[data-band="dusk"] .brand i{color:rgba(243,238,227,.5)}
+body[data-band="moss"] nav a,body[data-band="dusk"] nav a{color:rgba(243,238,227,.68)}
+body[data-band="moss"] nav a:hover,body[data-band="dusk"] nav a:hover{color:#f3eee3;background:rgba(243,238,227,.1)}
+body[data-band="moss"] .pill,body[data-band="dusk"] .pill{color:#f3eee3;
+  border-color:rgba(243,238,227,.3);background:rgba(18,16,14,.55)}
+body[data-band="moss"] .pill:hover,body[data-band="dusk"] .pill:hover{background:#f3eee3;color:var(--ink)}
+body[data-band="moss"] #idx,body[data-band="dusk"] #idx{color:rgba(243,238,227,.55)}
+body[data-band="moss"] #idx b,body[data-band="dusk"] #idx b{color:#f3eee3}
+header .brand svg polyline:last-child{transition:stroke .5s var(--ease)}
+body[data-band="moss"] .brand svg polyline:last-child,
+body[data-band="dusk"] .brand svg polyline:last-child{stroke:#f3eee3}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   MULTI-PAGE SHELL — the site is seven documents that behave like one
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.skip{position:fixed;left:-9999px;top:12px;z-index:80;background:var(--ink);color:var(--paper);
+  padding:10px 16px;font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+.skip:focus{left:12px}
+
+/* the curtain: the site's one motif — things assemble level by level.
+   Four moss slabs stack from the ground up, the next page's name stands
+   in the middle, then the slabs lift off roof first and the page is there. */
+#curtain{position:fixed;inset:0;z-index:55;display:none;pointer-events:none}
+#curtain i{position:absolute;left:0;right:0;height:25.3%;background:var(--moss-deep);
+  transform:scaleY(0);transform-origin:50% 100%;will-change:transform;
+  box-shadow:inset 0 1px 0 rgba(243,238,227,.07)}
+#curtain i:nth-child(1){bottom:0}
+#curtain i:nth-child(2){bottom:25%}
+#curtain i:nth-child(3){bottom:50%}
+#curtain i:nth-child(4){bottom:75%}
+#curtain b{position:absolute;left:var(--gut);right:var(--gut);top:50%;margin-top:-.6em;text-align:center;
+  font-size:clamp(44px,8vw,132px);font-weight:300;letter-spacing:-.04em;line-height:1.2;color:#f3eee3;opacity:0}
+html.leaving{cursor:progress}
+
+/* nav marks the page you are on */
+nav a.on{color:var(--ink);background:rgba(35,31,26,.06)}
+body[data-band="moss"] nav a.on,body[data-band="dusk"] nav a.on{color:#f3eee3;background:rgba(243,238,227,.12)}
+.menu{display:none;width:40px;height:40px;border:1px solid var(--line);border-radius:999px;
+  background:rgba(243,238,227,.82);backdrop-filter:blur(9px);padding:0;cursor:pointer;
+  align-items:center;justify-content:center;flex-direction:column;gap:5px}
+.menu i{display:block;width:14px;height:1px;background:var(--ink);transition:transform .3s var(--ease)}
+body.nav-open .menu i:first-child{transform:translateY(3px) rotate(45deg)}
+body.nav-open .menu i:last-child{transform:translateY(-3px) rotate(-45deg)}
+
+/* the first paint: the page is composed before the veil lifts */
+body:not(.ready) #curtain{display:none}
+
+/* ── section rhythm shared by the subpages ──────────────────────────── */
+.masthead{padding-block:clamp(112px,17vh,190px) clamp(40px,7vh,86px)}
+/* the annotation line sits above the headline; p's 44ch cap is meant for
+   reading copy and broke it across two lines in 11px mono */
+.masthead .masthead h1{font-size:clamp(42px,6.4vw,104px);letter-spacing:-.03em;line-height:.97}
+.masthead h1 em{font-style:normal;color:var(--moss)}
+.masthead .lead{margin-top:clamp(22px,3vh,34px);max-width:46ch}
+.mhead{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:clamp(26px,5vw,80px);
+  align-items:end}
+.mmeta{display:flex;flex-direction:column;gap:10px;padding-bottom:8px}
+.mmeta div{display:flex;justify-content:space-between;gap:18px;padding:9px 0;
+  border-bottom:1px solid var(--line);font-family:var(--mono);font-size:12px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink2)}
+.mmeta div b{font-weight:500;color:var(--ink)}
+h1 em,h2 em,h3 em{font-style:normal;color:var(--moss)}
+
+@media (max-width:820px){
+  .menu{display:flex}
+  header nav{position:fixed;inset:64px 0 auto;display:flex;flex-direction:column;gap:0;
+    background:var(--paper);border-bottom:1px solid var(--line);padding:8px var(--gut) 20px;
+    transform:translateY(-120%);transition:transform .5s var(--ease);z-index:-1}
+  body.nav-open header nav{transform:none}
+  body.nav-open header{background:var(--paper)}
+  header nav a{height:52px;font-size:13px;letter-spacing:.14em;border-radius:0;
+    border-bottom:1px solid var(--line2);padding:0}
+  .pill{display:none}
+  .mhead{grid-template-columns:1fr;gap:26px}
+  .masthead{padding-block:clamp(96px,14vh,140px) clamp(30px,5vh,60px)}
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SUBPAGE COMPONENTS
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* services teaser on the homepage: an index, not cards */
+.more{margin-top:clamp(30px,4vh,52px)}
+
+/* project cards: the photo is 420 px, so it is never shown larger than it is */
+
+/* project detail: one honest photo plate beside the client's own words */
+.proj{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:clamp(26px,5vw,80px);
+  align-items:start}
+.plate .frame{aspect-ratio:1/1;background:var(--paper2)}
+.plate img{width:100%;height:100%;object-fit:cover}
+.ptext blockquote{margin:0;font-family:var(--serif);font-weight:300;
+  font-size:clamp(21px,2.1vw,33px);line-height:1.3;letter-spacing:-.014em}
+.spec.light tr{border-bottom:1px solid var(--line)}
+.spec.light tr:first-child{border-top:1px solid var(--line)}
+.spec.light td{color:var(--ink)}
+.spec.light td:first-child{width:auto;padding-right:24px;font-family:var(--mono);font-size:12px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink2);white-space:nowrap}
+.spec.light td:last-child{text-align:right;font-family:var(--sans);font-size:15px;color:var(--ink)}
+.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,1.6vw,26px);
+  margin-top:clamp(26px,4vh,48px)}
+.nextprev{display:flex;justify-content:space-between;gap:24px;border-top:1px solid var(--line);
+  padding-top:26px}
+.np{display:flex;flex-direction:column;gap:8px;transition:transform .4s var(--ease)}
+.np.next{text-align:right;align-items:flex-end}
+.np b{font-weight:300;font-size:clamp(19px,1.8vw,28px);letter-spacing:-.018em;
+  display:flex;align-items:center;gap:10px}
+.np:hover{transform:translateX(-6px)}
+.np.next:hover{transform:translateX(6px)}
+
+/* services page: a sticky jump index beside twelve rows */
+
+/* testimonials: two real ones, honestly labelled */
+.refs{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(20px,3vw,52px)}
+.ref{margin:0;padding:clamp(24px,3vw,40px);background:rgba(251,249,244,.6);
+  border:1px solid var(--line)}
+.band.sand .ref{background:rgba(251,249,244,.55);border-color:rgba(35,31,26,.12)}
+.ref blockquote{margin:0;font-family:var(--serif);font-weight:300;
+  font-size:clamp(19px,1.7vw,26px);line-height:1.35;letter-spacing:-.012em}
+.ref figcaption{margin-top:22px;padding-top:16px;border-top:1px solid var(--line);
+  display:flex;flex-direction:column;gap:5px}
+.ref figcaption b{font-weight:500;font-size:14px;letter-spacing:.02em}
+.ref figcaption span{font-family:var(--mono);font-size:12px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink2)}
+
+/* about: the story beside the first house */
+.story{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,420px);
+  gap:clamp(26px,5vw,80px);align-items:start}
+
+@media (max-width:1040px){
+  .refs{grid-template-columns:1fr}
+}
+@media (max-width:820px){
+  .proj,.story{grid-template-columns:1fr;gap:28px}
+  .plate{max-width:420px}
+  .trio{grid-template-columns:1fr;gap:26px}
+  .nextprev{flex-direction:column;gap:20px}
+  .np.next{text-align:left;align-items:flex-start}
+}
+
+/* the newest job gets the big frame — carried by the visualisation, which
+   is 1500 px wide, never by a 420 px reference photo blown up */
+.feature{display:block;margin-bottom:clamp(40px,6vh,80px)}
+.feature .fmeta{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:clamp(20px,4vw,64px);align-items:end;margin-top:20px}
+.feature h2{font-size:clamp(28px,3.4vw,52px);display:flex;align-items:center;gap:14px;
+  transition:gap .4s var(--ease)}
+.feature:hover h2{gap:22px}
+.feature p{color:var(--ink2)}
+@media (max-width:820px){.feature .fmeta{grid-template-columns:1fr;gap:12px}}
+
+/* ═══ project detail: catalogue plate with floating marks ═══════════════ */
+.crumbband{padding:clamp(96px,13vh,130px) 0 0}
+.crumb{display:inline-flex;align-items:center;min-height:44px;color:var(--ink2);transition:color .3s}
+.crumb:hover{color:var(--ink)}
+.crumbband + .band .masthead,.crumbband + section .masthead{padding-block:clamp(20px,4vh,40px) clamp(40px,7vh,86px)}
+.plateset{display:grid;grid-template-columns:minmax(0,520px) minmax(0,1fr);gap:clamp(30px,6vw,110px);align-items:start}
+.plateset.first{align-items:center}
+.words{max-width:62ch}
+.words blockquote{margin:0}
+.pager{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:24px;align-items:center;
+  border-top:1px solid var(--line);padding-top:26px}
+.pager .np{display:flex;flex-direction:row;align-items:center;gap:clamp(14px,1.6vw,24px)}
+.pager .np img{width:72px;height:72px;object-fit:cover;flex:none;background:var(--paper2)}
+.pager .np span{display:flex;flex-direction:column;gap:6px}
+.pager .np b{font-weight:300;font-size:clamp(18px,1.6vw,25px);letter-spacing:-.016em;line-height:1.15}
+.pager .np.next{flex-direction:row;justify-content:flex-end;text-align:right}
+.pager .np.next span{align-items:flex-end}
+.pager .allp{color:var(--ink2);white-space:nowrap}
+.pager .allp:hover{color:var(--ink)}
+
+/* ═══ services: the sand interruption + the staggered rows ═══════════════ */
+.sandbreak{background:var(--sand);margin:clamp(20px,4vh,40px) 0;padding:clamp(30px,5vh,56px) clamp(24px,4vw,56px);
+  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:center}
+.sandbreak .sig{max-width:34ch}
+
+/* ═══ about: one column, one measure, marginalia ═══════════════════════ */
+.essay{max-width:62ch;margin-left:clamp(0px,8vw,150px)}
+.para{position:relative;margin-top:22px}
+.para:first-child{margin-top:0}
+.para i{position:absolute;left:-150px;top:.55em;width:120px;text-align:right;font-style:normal;color:var(--moss)}
+.motto{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:clamp(32px,6vw,110px);align-items:center}
+.motto .sig{max-width:52ch}
+/* one root, two endings: the root is set once, big, and both words grow
+   out of the same vertical rule — the pun is the layout */
+.root{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:0;align-items:end;
+  font-family:var(--serif);font-weight:300;letter-spacing:-.03em;line-height:.9}
+.root b{grid-row:1/3;align-self:center;font-weight:300;font-size:clamp(84px,10.5vw,184px);color:var(--moss);
+  padding-right:clamp(10px,1.2vw,20px);border-right:1px solid var(--ink)}
+.root span{display:flex;flex-direction:column;padding:clamp(8px,1.2vh,16px) 0 clamp(8px,1.2vh,16px) clamp(10px,1.2vw,20px)}
+.root span+span{border-top:1px solid var(--line)}
+.root i{font-style:normal;font-size:clamp(38px,4vw,68px)}
+.root small{margin-top:10px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  line-height:1.4;color:var(--ink)}
+@media (max-width:820px){
+  .motto{grid-template-columns:1fr;gap:34px}
+  .root b{font-size:clamp(64px,21vw,110px)}
+  .root i{font-size:clamp(30px,10vw,48px)}
+}
+.motto blockquote{margin:24px 0 30px;font-family:var(--serif);font-weight:300;
+  font-size:clamp(34px,5vw,80px);line-height:1.04;letter-spacing:-.02em}
+.motto blockquote em{font-style:normal;color:var(--moss)}
+.refs.full{grid-template-columns:1fr;gap:0}
+.refs.full .ref{background:transparent;border:0;border-top:1px solid var(--line);padding:clamp(24px,4vh,48px) 0;
+  display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:clamp(20px,4vw,72px)}
+.refs.full .ref:last-child{border-bottom:1px solid var(--line)}
+.refs.full .ref blockquote{font-size:clamp(22px,2.4vw,38px);max-width:34ch}
+.refs.full .ref figcaption{margin:0;padding:0;border:0}
+.cw{align-items:start}
+.cw .refs{grid-template-columns:1fr}
+
+/* ═══ realizácie: filters with honest counts ═══════════════════════════ */
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:clamp(26px,4vh,44px)}
+.filters button{font:inherit;font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink2);background:transparent;border:1px solid var(--line);padding:9px 13px;cursor:pointer;
+  transition:color .3s,border-color .3s,background .3s}
+.filters button sup{font-size:10.5px;margin-left:3px;color:var(--amber-ink)}
+.filters button:hover{color:var(--ink);border-color:var(--ink2)}
+.filters button.on{color:var(--paper);background:var(--ink);border-color:var(--ink)}
+
+/* nav superscripts */
+nav a sup{font-size:10.5px;margin-left:3px;color:var(--amber-ink);letter-spacing:0}
+
+/* reveal tuning after the motionsites read: 28 px, 700 ms, one-way, CTA last */
+.fade{transform:translateY(28px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+
+@media (max-width:820px){
+  .plateset{grid-template-columns:1fr;gap:26px}
+  .pager{grid-template-columns:1fr;gap:18px}
+  .pager .np.next{flex-direction:row-reverse;justify-content:flex-end;text-align:left}
+  .pager .np.next span{align-items:flex-start}
+  .rel{grid-template-columns:1fr}
+  .sandbreak{grid-template-columns:1fr;padding:26px 20px}
+  .essay{margin-left:0}
+  .para i{position:static;display:block;margin-bottom:6px;text-align:left;width:auto}
+  .refs.full .ref{grid-template-columns:1fr;gap:14px}
+}
+
+/* honest empty plate: no photo is not a broken image, it is a labelled gap */
+.noimg{display:flex;align-items:center;justify-content:center;width:100%;height:100%;
+  aspect-ratio:1/1;padding:20px;text-align:center;color:var(--ink2);background:var(--paper2);
+  border:1px dashed var(--line)}
+.pager .pth{width:72px;height:72px;flex:none;display:block;background:var(--paper2)}
+.pager .pth img{width:72px;height:72px;object-fit:cover;display:block}
+.pager .pth .noimg{font-size:0}
+.plate .frame{aspect-ratio:auto}
+.plate img{width:100%;height:auto;display:block}
+.plate .noimg{aspect-ratio:1/1}
+
+/* mastheads run full width: long Slovak titles wrap, they never clip */
+.masthead h1 .rl>span{white-space:normal}
+.masthead h1{max-width:14ch}
+.crumbband + section .masthead h1{font-size:clamp(34px,5.2vw,76px);max-width:18ch}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   V7 — the poster hero, the split bar, the big typographic sections
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* the bar is three detached pills: mark · pages · call */
+header{padding:14px var(--gut);gap:12px;align-items:flex-start}
+.brand{height:44px;padding:0 16px 0 10px;border:1px solid var(--line);border-radius:999px;
+  background:rgba(243,238,227,.86);backdrop-filter:blur(9px)}
+.brand i{display:none}
+.brand b{font-size:13px}
+header nav{height:44px;padding:0 6px;border:1px solid var(--line);border-radius:999px;
+  background:rgba(243,238,227,.86);backdrop-filter:blur(9px);align-items:center;gap:0}
+header nav a{height:32px;padding:0 12px;font-size:11.5px}
+.hright{display:flex;gap:8px;align-items:center}
+.pill{height:44px}
+.pill.go{background:var(--ink);color:var(--paper);border-color:var(--ink);gap:8px}
+.pill.go:hover{background:var(--amber);border-color:var(--amber);color:#fff}
+body[data-band="moss"] .brand,body[data-band="dusk"] .brand,
+body[data-band="moss"] header nav,body[data-band="dusk"] header nav{
+  background:rgba(18,16,14,.55);border-color:rgba(243,238,227,.3)}
+body[data-band="moss"] .pill.go,body[data-band="dusk"] .pill.go{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+
+/* ── the poster: giant type, the house in front of it ─────────────────── */
+#hero{padding:0;min-height:100svh;display:grid;place-items:center}
+/* The poster has to FIT: measured 2026-09-18, both CTAs sat below the fold at
+   1440x900, 1280x720 and 1920x1080, and at 1920 so did the lede — the one
+   screen that carries the proposition ended on a headline with no way out of
+   it. The house is now sized off the height left after the type, not off a
+   flat 330px reserve. */
+/* 2026-09-25: the words BESIDE the house, the house as large as the
+   frame allows (lusion.md: the object is the exhibit; cowboy.md: headline
+   and CTA together). Phones and portrait tablets stack words over house. */
+.poster{position:relative;width:100%;min-height:100svh;display:grid;
+  grid-template-columns:minmax(0,5fr) minmax(0,7fr);align-items:center;column-gap:clamp(16px,3vw,56px);
+  padding:clamp(84px,10vh,112px) var(--gut) clamp(40px,6vh,72px);text-align:left}
+.ptext{position:relative;z-index:3}
+.poster h1{font-size:clamp(40px,5.3vw,100px);line-height:.95;letter-spacing:-.04em;margin:0;font-weight:300}
+.poster h1 em{font-style:normal;color:var(--moss)}
+.poster h1 .rl>span{white-space:normal}
+.poster .house{position:relative;z-index:2;width:min(100%,calc((100svh - 150px) * 1.34));
+  aspect-ratio:1500/1119;margin:0 auto}
+.house .lyr{position:absolute;will-change:transform}
+.house .lyr .mat{position:absolute;inset:0;width:100%;height:auto;display:block;pointer-events:none;
+  user-select:none;opacity:0}
+.house .lyr .ink{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.house .ink path{fill:none;stroke:var(--ink);stroke-width:1;vector-effect:non-scaling-stroke;
+  stroke-linejoin:round;stroke-linecap:round;opacity:.72}
+.house .ink path.sil{stroke-width:1.5;opacity:1}
+.house .pin{display:none}
+.poster .sub{margin-top:clamp(18px,3vh,32px);max-width:34ch;font-size:clamp(16px,1.35vw,21px);line-height:1.5;
+  color:var(--ink2)}
+.poster .ctas{margin-top:clamp(20px,3vh,32px);display:flex;flex-wrap:wrap;gap:12px}
+.poster .vz{position:absolute;right:var(--gut);bottom:22px;color:var(--ink2)}
+.vz{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2)}
+/* The type is the poster; the house is its guest. noomo.md (LIKED) sets an
+   enormous headline first and passes the object THROUGH the letters — the
+   object never withholds the words. This used to gate on `.built`, so the
+   proposition, the lede and both CTAs were invisible for the 4.5 s the house
+   took to assemble; activetheory.md's REFUSE clause is exactly that failure
+   ("the offer readable in one pass"), and CLAUDE.md #2 forbids it outright.
+   `typeset` lands with the first painted frame, `built` now only marks the
+   house as seated. */
+.poster .rl>span{transition-delay:0s;transition-duration:.55s}
+.poster.typeset .rl>span{transform:none}
+.poster h1 .rl:nth-child(2)>span{transition-delay:.08s}
+.poster.typeset .fade{opacity:1;transform:none}
+.poster.typeset .fade.d2{transition-delay:.12s}
+
+/* ── the big statement headline (no label lines above it any more) ──── */
+h2.big{font-size:clamp(38px,5.6vw,92px);letter-spacing:-.034em;line-height:.96;margin:0 0 clamp(30px,5vh,60px)}
+h2.big em{font-style:normal;color:var(--moss)}
+
+
+/* the wall teaser: text left, the section drawing as a pull handle right */
+.wallteaser{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:clamp(30px,5vw,90px);align-items:center}
+.wallteaser h2{font-size:clamp(38px,5.2vw,86px);letter-spacing:-.034em;line-height:.96;margin:0 0 22px}
+.wallteaser .lead{margin-bottom:30px}
+.wt-art{display:block;position:relative;overflow:hidden;background:#1b1813;aspect-ratio:4/3}
+.wt-art img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease)}
+.wt-art:hover img{transform:scale(1.04)}
+.wt-art .vz{position:absolute;left:14px;bottom:12px;color:rgba(243,238,227,.6)}
+
+/* one giant quote across the width */
+.refs.giant{grid-template-columns:1fr}
+.refs.giant .ref{background:transparent;border:0;padding:0}
+.refs.giant .ref blockquote{font-size:clamp(28px,4.4vw,72px);line-height:1.08;letter-spacing:-.02em;max-width:22ch}
+.refs.giant .ref figcaption{border-top:0;padding-top:0;margin-top:28px;flex-direction:row;gap:18px;align-items:baseline}
+
+/* subpage mastheads: one statement, one sentence */
+.masthead h1{max-width:14ch;font-size:clamp(46px,7.4vw,124px);letter-spacing:-.036em}
+.masthead .lead{max-width:44ch}
+
+@media (max-width:1040px){
+  .wallteaser{grid-template-columns:1fr}
+}
+@media (max-width:820px){
+  header{padding:12px var(--gut)}
+  .brand{padding:0 12px 0 8px}
+  header nav{height:auto;border-radius:0;padding:8px var(--gut) 20px;border:0;border-bottom:1px solid var(--line);
+    background:var(--paper);backdrop-filter:none}
+  .hright .pill:not(.go){display:none}
+  .pill.go{display:none}
+  .poster{padding-top:96px}
+  /* a portrait tablet is not a phone: 820×1180 got a 420 px house and
+     64 px type in the middle of an empty screen. Both now grow with the
+     height left over; on a phone 92vw / 11.5vw still bind, as before */
+  .poster{grid-template-columns:minmax(0,1fr);justify-items:center;align-content:center;text-align:center;row-gap:clamp(8px,2vh,24px)}
+  .ptext{max-width:none;display:flex;flex-direction:column;align-items:center}
+  .poster h1{font-size:clamp(38px,10.4vw,88px)}
+  .poster .ctas{justify-content:center}
+  .poster .house{width:min(92vw,max(360px,calc((100svh - 560px) * 1.34)))}
+  .poster .vz{position:static;margin-top:6px}
+}
+
+/* ═══ STENA — seven slabs you pull apart ═══════════════════════════════ */
+.wallpage{padding:0}
+.walltrack{height:280svh}
+.wallstage{position:sticky;top:0;height:100svh;display:grid;grid-template-rows:auto 1fr auto auto auto auto auto;
+  align-content:center;justify-items:center;padding:clamp(84px,11vh,120px) var(--gut) 24px;gap:clamp(8px,1.6vh,18px)}
+.wl{font-size:clamp(36px,5.4vw,84px);letter-spacing:-.036em;line-height:.95;margin:0;text-align:center}
+.wl em{font-style:normal;color:var(--moss)}
+.slabs{position:relative;width:min(100%,calc((100svh - 430px) * 1.768));touch-action:pan-y;cursor:grab;
+  user-select:none;-webkit-user-select:none}
+.slabs.drag{cursor:grabbing}
+.slab{position:absolute;will-change:transform}
+.slab img{width:100%;height:auto;display:block;pointer-events:none;
+  filter:drop-shadow(0 18px 24px rgba(35,31,26,.14))}
+.tags{position:relative;width:min(100%,calc((100svh - 430px) * 1.768));height:clamp(64px,9vh,84px)}
+.tag p{display:none}
+.tagdesc{margin:0;max-width:52ch;text-align:center;font-size:clamp(14px,1.1vw,17px);color:var(--ink2);min-height:3em;line-height:1.5}
+.tag{position:absolute;top:0;opacity:0;transform:translateY(8px);
+  transition:opacity .45s var(--ease),transform .45s var(--ease);pointer-events:none}
+.tag.on{opacity:1;transform:none}
+.tag b{display:block;font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.14em;color:var(--amber-ink)}
+.tag span{display:block;margin-top:4px;font-size:clamp(13px,1.05vw,16px);font-weight:500;letter-spacing:-.01em;line-height:1.2}
+.tag p{margin-top:6px;font-size:clamp(11.5px,.85vw,13px);line-height:1.4;color:var(--ink2)}
+.handle{display:flex;align-items:center;gap:20px;color:var(--ink2);transition:opacity .4s}
+.handle i{width:44px;height:1px;background:var(--moss);position:relative}
+.handle i::after{content:"";position:absolute;right:-1px;top:-4px;width:8px;height:8px;
+  border-top:1px solid var(--moss);border-right:1px solid var(--moss);transform:rotate(45deg);
+  animation:nudgex 2s var(--ease) infinite}
+@keyframes nudgex{0%,100%{transform:translateX(0) rotate(45deg)}50%{transform:translateX(6px) rotate(45deg)}}
+.walltrack.touched .handle{opacity:0}
+.wallbar{display:flex;align-items:center;gap:14px;width:min(100%,560px)}
+.meter{flex:1;height:1px;background:var(--line);position:relative}
+.meter b{position:absolute;left:0;top:-3px;height:7px;width:7px;border-radius:50%;background:var(--amber);
+  transform:translateX(-50%)}
+.wallstage .vz{margin-top:6px;text-align:center}
+.wallwhy .wallcols{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,4vw,64px);margin-bottom:36px}
+.wallwhy .btn{margin-right:12px}
+@media (max-width:820px){
+  .walltrack{height:auto}
+  .wallstage{position:static;height:auto;padding-top:96px;gap:16px}
+  .slabs{width:100%;touch-action:pan-y}
+  .tags{height:auto;min-height:70px;width:100%}
+  .tag{position:static;display:none;transform:none;width:auto!important;left:auto!important}
+  .tag.last{display:block;opacity:1}
+  .tag span{font-size:15px}
+  .tagdesc{text-align:left;font-size:14px}
+  .wallwhy .wallcols{grid-template-columns:1fr}
+  .wallwhy .btn{margin:0 0 10px}
+}
+
+/* the contact masthead is dusk: its data rows must read on dark */
+.band.dusk .mmeta div{border-color:rgba(243,238,227,.18);color:rgba(243,238,227,.55)}
+.band.dusk .mmeta div b{color:#f3eee3}
+.band.dusk .masthead .lead{color:rgba(243,238,227,.86)}
+.band.dusk .mhead{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:clamp(26px,5vw,80px);align-items:end}
+@media (max-width:820px){ .band.dusk .mhead{grid-template-columns:1fr;gap:34px} }
+/* an accent word on the dusk band: moss on near-black is invisible */
+.band.dusk h1 em,.band.dusk h2 em{color:#a9c585}
+
+/* ═══ STAVEBNÝ LIST — the project sheet ════════════════════════════════
+   igloo.md: mono annotation over the object like an engineer's drawing.
+   basement.md: vast type, then a hairline grid dense with real facts.
+   kpr.md: the year numeral runs behind the plate — type and object in one
+   space. pangram.md: the numeral bleeds to the page edge and owns it.
+   The plate develops bottom-up on arrival and HOLDS; nothing here is
+   scrubbed, so every resting frame is a finished, annotated drawing.   */
+.sheet{padding:clamp(94px,13vh,132px) 0 0}
+.sheet + .band{padding-block:clamp(40px,6.5vh,82px) clamp(72px,11vh,150px)}
+.sheettop{display:flex;justify-content:space-between;align-items:baseline;gap:20px;
+  padding-bottom:16px;border-bottom:1px solid var(--line)}
+.sheettop i{font-style:normal;opacity:.45}
+.crumb{transition:color .3s}
+.crumb:hover{color:var(--ink)}
+.sheetgrid{position:relative;display:grid;grid-template-columns:minmax(0,.66fr) minmax(0,1.34fr);
+  gap:0 clamp(24px,3.4vw,58px);align-items:end;padding-top:clamp(28px,5.5vh,64px)}
+.sheet h1{font-size:clamp(30px,3.9vw,58px);line-height:1.02;max-width:12ch}
+.sheet h1 .rl>span{white-space:normal}
+.scol{position:relative;z-index:1;min-width:0;display:flex;flex-direction:column;
+  justify-content:flex-end;height:100%;
+  padding-bottom:calc(clamp(96px,16.7vw,264px) * .74 + 44px + clamp(14px,2.4vh,30px))}
+.shot{font-size:clamp(15px,1.15vw,17.5px);line-height:1.45;color:var(--ink2);
+  max-width:30ch;margin-bottom:clamp(20px,4vh,46px)}
+/* the numeral: the file number of the sheet, flush to the paper's edge */
+/* the numeral is free of the column grid, so it always runs under the
+   plate — the layering is structural, not a lucky measurement */
+/* sized so the plate (which starts 32.4 vw into the column) covers at
+   most a third of the last digit — at 19 vw a narrow "1" vanished and
+   2021 read "202" */
+.syr{--yrs:clamp(96px,16.7vw,264px);
+  position:absolute;left:-.055em;bottom:calc(44px - .1em);z-index:1;
+  font-family:var(--serif);font-weight:200;font-size:var(--yrs);
+  line-height:.74;letter-spacing:-.055em;color:var(--ink);white-space:nowrap}
+/* the plate sits ON the numeral — kpr's type-layering, applied where it
+   costs no readability: a digit half-covered is still a digit, copy is not */
+/* image, caption and the annotation gutter in one grid, so the notes
+   share the image row exactly — a note always sits on its own line */
+.pl{position:relative;z-index:2;margin:0;min-width:0;justify-self:start;
+  width:min(100%,calc(var(--pw) + clamp(140px,13.5vw,206px)));
+  display:grid;grid-template-columns:minmax(0,1fr) clamp(140px,13.5vw,206px);
+  grid-template-areas:"img notes" "cap notes";align-content:start}
+.plimg{grid-area:img;position:relative;background:var(--paper2);overflow:hidden;
+  box-shadow:0 24px 60px -30px rgba(35,31,26,.5)}
+.plimg img{width:100%;height:100%;object-fit:cover}
+.plimg .noimg{display:none}
+.plimg:empty,.plimg{background:var(--paper2)}
+.cover{position:absolute;inset:0;background:var(--paper);z-index:3;
+  clip-path:inset(0 0 0 0)}
+.edge{position:absolute;left:0;right:0;top:100%;height:1px;background:var(--amber);z-index:4;
+  opacity:0;box-shadow:0 0 14px 1px rgba(201,118,42,.55)}
+/* a working level: a hairline across the plate, its number at the far end */
+.ln{position:absolute;left:0;right:0;height:1px;background:rgba(251,249,244,.62);z-index:2;
+  transform:scaleX(0);transform-origin:0 50%;transition:transform .5s var(--ease);
+  box-shadow:0 1px 3px rgba(35,31,26,.35)}
+.ln.on{transform:scaleX(1)}
+.ln i{position:absolute;right:0;top:-8px;display:block;padding:2px 6px;background:var(--paper);
+  color:var(--ink);font-family:var(--mono);font-size:12px;font-style:normal;letter-spacing:.1em;
+  line-height:1.4;opacity:0;transition:opacity .4s var(--ease) .18s}
+.ln.on i{opacity:1}
+.plnotes{grid-area:notes;grid-row:1;position:relative}
+.lv{position:absolute;left:0;width:100%;transform:translateY(-50%);padding-left:16px;
+  opacity:0;transition:opacity .5s var(--ease)}
+.lv.on{opacity:1}
+.lv::before{content:"";position:absolute;left:0;top:50%;width:11px;height:1px;background:var(--moss)}
+.lv i{display:none}
+.lv b{display:block;font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--amber-ink)}
+.lv em{display:block;margin-top:3px;font-style:normal;font-size:clamp(13px,1.02vw,15.5px);
+  font-weight:400;line-height:1.3;letter-spacing:-.008em}
+.pl .cap{grid-area:cap;margin-top:12px}
+.pl .cap span:last-child{text-align:right}
+/* the hairline sheet under the plate: real rows only */
+.specs{padding-block:0}
+.sheetgrid,.specs>*{max-width:1460px;margin-inline:auto}
+.sttab{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 clamp(28px,5vw,90px);
+  border-top:1px solid var(--line)}
+.strow{display:grid;grid-template-columns:128px minmax(0,1fr);gap:14px;align-items:baseline;
+  padding:14px 0;border-bottom:1px solid var(--line2)}
+.strow b{font-weight:300;font-size:clamp(16px,1.25vw,19px);letter-spacing:-.01em}
+.stwide{margin-top:clamp(24px,4vh,46px)}
+.svlinks{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));
+  gap:0 clamp(20px,3vw,56px);margin-top:10px;border-top:1px solid var(--line)}
+.svlinks a{display:flex;align-items:center;gap:14px;padding:15px 0;
+  border-bottom:1px solid var(--line);transition:padding-left .35s var(--ease)}
+.svlinks a:hover{padding-left:10px}
+.svlinks i{font-family:var(--mono);font-size:12px;font-style:normal;letter-spacing:.08em;
+  color:var(--ink2);width:22px;flex:none}
+.svlinks span{flex:1;font-size:17px}
+@media (max-width:980px){
+  .sheetgrid{grid-template-columns:1fr;gap:clamp(22px,4vh,38px)}
+  .sheet h1{max-width:none}
+  .syr{--yrs:clamp(84px,22vw,190px);position:static;margin-top:clamp(10px,2vh,20px)}
+  .scol{padding-bottom:0}
+  .shot{max-width:46ch;margin-bottom:clamp(14px,2.4vh,24px)}
+  .pl{width:min(100%,calc(var(--pw) + clamp(140px,13.5vw,206px)));justify-self:start}
+}
+@media (max-width:560px){ .sheettop span{display:none} }
+@media (max-width:820px){
+  .pl{grid-template-columns:1fr;grid-template-areas:"img" "cap" "notes";
+    width:min(100%,var(--pw))}
+  .plnotes{grid-row:auto}
+  .plnotes{position:static;display:grid;gap:12px;margin-top:18px;
+    border-top:1px solid var(--line)}
+  .lv{position:static;transform:none;width:auto;padding:12px 0 0 0;opacity:1}
+  .lv::before{display:none}
+  .lv i{display:inline;margin-right:8px;font-family:var(--mono);font-size:12px;
+    font-style:normal;letter-spacing:.1em;color:var(--ink2)}
+  .lv b{display:inline}
+  .sttab{grid-template-columns:1fr}
+  .strow{grid-template-columns:112px minmax(0,1fr)}
+}
+@media (prefers-reduced-motion:reduce){
+  .cover{display:none}
+  .ln{transform:scaleX(1)}.ln i,.lv{opacity:1}
+}
+
+.band:has(> .words){padding-block:clamp(52px,7.5vh,104px)}
+/* the client's own words, at display scale — exoape.md: confidence comes
+   from a light weight held large, not from a small italic in a corner. */
+.words{position:relative;max-width:none;display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,.52fr);gap:clamp(24px,4vw,70px);
+  align-items:end;padding-block:clamp(6px,1.5vh,16px)}
+.words blockquote{position:relative;z-index:1;margin:0;font-family:var(--serif);font-weight:300;
+  font-size:clamp(21px,2.15vw,34px);line-height:1.34;letter-spacing:-.014em;max-width:28ch;
+  text-indent:-.42em}
+.wside{display:flex;flex-direction:column;justify-content:space-between;gap:clamp(30px,6vh,70px);height:100%}
+.simil{display:grid;border-top:1px solid var(--line)}
+.simil .mono{padding:14px 0 6px}
+.simil a{display:flex;align-items:center;gap:14px;padding:13px 0;
+  border-top:1px solid var(--line2);transition:padding-left .35s var(--ease)}
+.simil a:hover{padding-left:9px}
+.simil i{font-style:normal;color:var(--ink2);flex:none}
+.simil span:not(.mono){flex:1;font-size:clamp(15px,1.2vw,18px);letter-spacing:-.008em}
+.words .who{padding-top:16px;border-top:1px solid var(--line)}
+.words .who b{display:block;font-weight:400;font-size:clamp(15px,1.15vw,17px);letter-spacing:-.005em}
+.words .who .mono{display:block;margin-top:6px}
+.words .who i{font-style:normal;opacity:.5}
+/* with a close-up the gap between the words and the side column is
+   a frame on a real detail of the same photo */
+.words.hasdet{grid-template-columns:minmax(0,1fr) minmax(0,.6fr) minmax(0,.52fr)}
+.wdet{margin:0;align-self:stretch;display:flex;flex-direction:column}
+.wdet .frame{flex:1;min-height:320px}
+.wdet .frame img{transform:scale(1.7)}
+@media (max-width:1100px) and (min-width:821px){
+  .words.hasdet{grid-template-columns:minmax(0,1fr) minmax(0,.7fr)}
+  .words.hasdet .wside{grid-column:1/-1}
+}
+@media (max-width:820px){
+  .words{grid-template-columns:1fr;gap:26px;align-items:start}
+  .words.hasdet{grid-template-columns:1fr}
+  .wdet .frame{flex:none;aspect-ratio:4/3;min-height:0}
+  .wside{gap:26px;height:auto}
+  .words blockquote{max-width:none}
+}
+
+/* ═══ TECHNOLÓGIA — prečo tomu veriť ═══════════════════════════════════
+   Not a third copy of the house or the wall: five KINDS of content
+   (refokus.md) — the client's own doubt with its counter-numeral, a live
+   physics exhibit (lusion.md stage block, igloo.md annotation), the
+   season line in the scene (kpr.md), a linked ledger (basement.md), the
+   motto. Colour: moss world, the numeral in glow, one dark stage.      */
+.tmast{padding-block:clamp(118px,17vh,190px) clamp(60px,10vh,120px)}
+.tmgrid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);
+  gap:clamp(30px,5vw,90px);align-items:end}
+.tmast h1{font-size:clamp(44px,6.4vw,110px)}
+.tmast h1 em,.band.moss.tmast h1 em{font-style:normal;color:var(--glow)}
+.tq{margin:clamp(26px,4.5vh,52px) 0 0;font-family:var(--serif);font-weight:300;
+  font-size:clamp(19px,1.55vw,25px);line-height:1.42;max-width:36ch;color:#f3eee3}
+.twho{margin-top:20px;padding-top:14px;border-top:1px solid rgba(243,238,227,.18);max-width:36ch}
+.twho b{display:block;font-weight:400;font-size:15px;color:#f3eee3}
+.twho .mono{display:block;margin-top:5px}
+.t200{justify-self:end;text-align:right;padding-bottom:6px}
+.t200 b{display:block;font-family:var(--serif);font-weight:200;font-size:clamp(120px,16.5vw,272px);
+  line-height:.78;letter-spacing:-.05em;color:var(--glow)}
+.t200 .mono{display:block;margin-top:16px}
+
+/* 01 — the stage: a dark block in paper chrome, the wall in section */
+.tex{display:grid;gap:clamp(24px,4vh,44px)}
+.texhead{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px clamp(24px,4vw,70px);
+  align-items:end}
+.stage{position:relative;margin:0;aspect-ratio:21/9;background:#161512;overflow:hidden;
+  border-radius:2px;touch-action:pan-y}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.vend{position:absolute;top:18px;color:rgba(243,238,227,.66);pointer-events:none}
+.vend.out{left:20px}.vend.in{right:20px}
+.vbs{position:absolute;inset:0}
+/* one button per layer, exactly over its band; the name runs along it */
+.vb{position:absolute;top:0;bottom:0;left:calc(11% + (var(--c) - var(--w) / 2) * .70);
+  width:calc(var(--w) * .70);background:none;border:0;padding:0;margin:0;cursor:pointer;
+  color:rgba(243,238,227,.72);font:inherit;-webkit-tap-highlight-color:transparent}
+.vb i{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);font-family:var(--mono);
+  font-size:12px;font-style:normal;letter-spacing:.08em}
+.vb span{position:absolute;left:50%;bottom:44px;transform:translateX(-50%) rotate(180deg);
+  writing-mode:vertical-rl;font-family:var(--mono);font-size:12px;letter-spacing:.13em;
+  text-transform:uppercase;white-space:nowrap;transition:color .3s}
+.vb:hover,.vb.on,.vb:focus-visible{color:#fff}
+.vb:focus-visible{outline:1px solid var(--glow);outline-offset:-1px}
+.vcap{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 30px;align-items:baseline}
+.vdesc{font-size:clamp(16px,1.25vw,19px);line-height:1.5;max-width:60ch;min-height:3em}
+.vdesc b{font-weight:500}
+
+/* 02 — the season line belongs to its image */
+.seas{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(18px,3vw,48px);
+  align-items:start}
+.seas figure{margin:0}
+.seas .frame{aspect-ratio:4/3}
+.seas img{width:100%;height:100%;object-fit:cover}
+.seas .sz{grid-column:2;grid-row:1/3;margin-top:clamp(56px,12vh,170px)}
+.seas h2{font-size:clamp(34px,4.5vw,76px);line-height:.98;margin:clamp(14px,2.4vh,26px) 0 12px}
+.tpay{grid-column:1;grid-row:2;align-self:start;margin:clamp(34px,6vh,70px) 0 0;max-width:30ch;font-family:var(--serif);font-weight:300;
+  font-size:clamp(20px,1.65vw,27px);line-height:1.42}
+.tpay .mono{display:block;margin-top:16px}
+
+/* 03 — the ledger: each material leads to the job it went into */
+.tmat{display:grid;grid-template-columns:minmax(0,.78fr) minmax(0,1.22fr);gap:clamp(30px,5vw,90px);
+  align-items:start}
+.tmh{position:sticky;top:clamp(92px,13vh,130px)}
+.tmh h2{margin:14px 0 20px}
+.mledger{border-top:1px solid var(--line)}
+.mledger a{display:grid;grid-template-columns:minmax(0,1.35fr) 128px 44px minmax(0,1fr) 16px;gap:14px;
+  align-items:baseline;padding:17px 0;border-bottom:1px solid var(--line);
+  transition:padding-left .35s var(--ease)}
+.mledger a:hover{padding-left:10px}
+.mledger b{font-weight:400;font-size:clamp(17px,1.4vw,21px);letter-spacing:-.012em;line-height:1.25}
+.mledger i{font-style:normal}
+.mledger em{font-style:normal;font-size:14.5px;color:var(--ink2);line-height:1.3}
+.mledger svg{align-self:center}
+
+/* 04 — the motto */
+.tmotto{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,.65fr);gap:clamp(30px,5vw,90px);
+  align-items:end}
+.tmotto h2{font-size:clamp(40px,5.4vw,94px)}
+.tmr p{color:rgba(243,238,227,.86);margin-bottom:22px;max-width:30ch}
+.tmr .btn{margin:0 10px 10px 0}
+
+@media (max-width:980px){
+  .tmgrid{grid-template-columns:1fr}
+  .t200{justify-self:start;text-align:left}
+  .tmat{grid-template-columns:1fr}
+  .tmh{position:static}
+  .tmotto{grid-template-columns:1fr}
+}
+@media (max-width:820px){
+  .texhead{grid-template-columns:1fr}
+  /* the wall turns on its side: outside at the top, the room below —
+     vapour rises out of the house, the names read horizontally */
+  .stage{aspect-ratio:4/5}
+  .vend.out{top:14px;left:16px}.vend.in{top:auto;bottom:14px;left:16px;right:auto}
+  .vb{left:0;right:0;width:auto;bottom:auto;top:calc(12% + (var(--c) - var(--w) / 2) * .72);
+    height:calc(var(--w) * .72)}
+  .vb i{left:16px;bottom:auto;top:50%;transform:translateY(-50%)}
+  .vb span{left:46px;bottom:auto;top:50%;transform:translateY(-50%);writing-mode:horizontal-tb}
+  .vcap{grid-template-columns:1fr}
+  .seas{grid-template-columns:1fr;gap:34px}
+  .seas .sz{margin-top:0}
+  .tpay{grid-column:auto;grid-row:auto;margin:0}
+  .seas .sz{grid-column:auto;grid-row:auto}
+  .mledger a{grid-template-columns:minmax(0,1fr) auto;gap:4px 12px}
+  .mledger b{grid-column:1/-1}
+  .mledger span{grid-column:1}
+  .mledger i{grid-column:2;grid-row:2;text-align:right}
+  .mledger em{grid-column:1/-1}
+  .mledger svg{display:none}
+}
+
+/* ═══ SLUŽBY — a ledger with its evidence ═══════════════════════════════
+   basement.md: real rows are the credibility engine — every service shows
+   the jobs where the client named that work, a service we cannot prove is
+   a plain row. refokus.md: his hook in the serif, the service in the
+   grotesque. pangram.md: the name owns its row.                         */
+.svmast{padding-block:clamp(118px,17vh,180px) clamp(40px,7vh,80px)}
+.svgrid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:clamp(30px,5vw,90px);
+  align-items:end}
+.svmast .lead{margin-top:clamp(22px,4vh,40px);max-width:40ch}
+.svtoc{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 clamp(18px,2.4vw,40px);
+  border-top:1px solid var(--line)}
+.svtoc a{padding:11px 0;border-bottom:1px solid var(--line2);font-size:clamp(15px,1.1vw,17px);
+  letter-spacing:-.005em;transition:padding-left .3s var(--ease),color .3s}
+.svtoc a:hover{padding-left:8px;color:var(--moss)}
+.svtoc sup{margin-left:3px;font-family:var(--mono);font-size:12px;color:var(--amber-ink)}
+.srows{border-top:1px solid var(--line)}
+.srow{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr) minmax(0,1fr);
+  gap:clamp(20px,3vw,56px);align-items:start;padding:clamp(30px,5vh,54px) 0;
+  border-bottom:1px solid var(--line);scroll-margin-top:90px}
+/* no proof to show: the client's own voice is the row, set larger */
+.srow:not(.has) .stext{grid-column:2/4;max-width:54ch;font-size:clamp(18px,1.42vw,21.5px);
+  line-height:1.5;color:var(--ink)}
+.shook{display:block;font-size:clamp(17px,1.35vw,21px);color:var(--ink2);margin-bottom:6px}
+.srow h2{font-size:clamp(32px,3.6vw,60px);line-height:1}
+.srow h2 .rl>span{white-space:normal}
+.stext{max-width:46ch;color:var(--ink2);font-size:16.5px;line-height:1.62;padding-top:6px}
+.sev .mono{display:block;margin:6px 0 12px}
+.sev .fine{display:block;margin-top:14px}
+.sev .fine:hover{color:var(--ink)}
+.sstrip{display:flex;flex-wrap:wrap;gap:10px}
+.sstrip a{position:relative;display:block;width:clamp(60px,4.9vw,84px)}
+.sstrip img,.sstrip .noph{display:block;width:100%;aspect-ratio:1;object-fit:cover;background:var(--paper2);
+  transition:transform .4s var(--ease),filter .4s}
+.sstrip .noph{box-shadow:none;border:1px dashed var(--ink2);background:transparent;
+  display:grid;place-items:center}
+/* the same dashed lot as on the street: no photo is a fact, not a gap */
+.sstrip .noph em{font-family:var(--mono);font-style:normal;font-size:12px;letter-spacing:.1em;
+  text-transform:uppercase;line-height:1.3;text-align:center;color:var(--ink)}
+.sstrip a:hover img{transform:translateY(-3px);filter:saturate(1.1)}
+.sstrip i{display:block;margin-top:6px;font-style:normal}
+.sstrip b{position:absolute;left:0;top:calc(100% + 4px);z-index:3;width:max-content;max-width:220px;
+  padding:5px 8px;background:var(--ink);color:var(--paper);font-size:14px;font-weight:400;line-height:1.3;
+  opacity:0;transform:translateY(-4px);pointer-events:none;transition:opacity .25s,transform .25s}
+.sstrip a:hover b,.sstrip a:focus-visible b{opacity:1;transform:none}
+/* the last labels open leftward, so they never run off the page */
+.sstrip a:nth-last-child(-n+2) b{left:auto;right:0}
+@media (max-width:980px){
+  .svgrid{grid-template-columns:1fr}
+  .srow{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .srow:not(.has) .stext{grid-column:2}
+  .sev{grid-column:1/-1}
+}
+@media (max-width:820px){
+  .svtoc{grid-template-columns:1fr 1fr}
+  .srow{grid-template-columns:minmax(0,1fr);gap:14px;padding:30px 0}
+  .sev{min-width:0}
+  .srow:not(.has) .stext{grid-column:auto}
+  /* on a phone the evidence is a swipe, not a wrap */
+  .sstrip{flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x mandatory;margin-inline:calc(-1 * var(--gut));
+    padding-inline:var(--gut);scroll-padding-inline:var(--gut);scrollbar-width:none}
+  .sstrip::-webkit-scrollbar{display:none}
+  .sstrip a{flex:none;width:112px;scroll-snap-align:start}
+  .sstrip b{display:block;position:static;opacity:1;transform:none;background:none;color:var(--ink);padding:2px 0 0;
+    font-size:14px;max-width:none;width:auto}
+}
+
+/* ═══ ÚVOD — the services are the hero of their band ════════════════════
+   pangram.md: the word owns the frame. basement.md: a count only where a
+   job proves it, and the pointer carries that job's real photo.         */
+.svchead{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr);gap:clamp(20px,4vw,70px);
+  align-items:end;padding-bottom:clamp(18px,3vh,30px);border-bottom:1px solid var(--line)}
+.svchead h2{font-size:clamp(26px,2.6vw,42px)}
+.svchead p{color:var(--ink2);max-width:36ch;justify-self:end}
+.svcwords{padding-top:clamp(16px,3vh,34px);font-size:clamp(40px,6.2vw,108px);font-weight:300;
+  letter-spacing:-.045em;line-height:1.02}
+.svcwords a{display:inline;margin-right:.24em;transition:color .35s var(--ease)}
+.svcwords a:not(:last-child)::after{content:"/";margin-left:.24em;color:var(--sand);font-weight:200}
+.svcwords a:hover{color:var(--moss)}
+.svcwords sup{position:relative;top:-.05em;margin-left:.06em;font-family:var(--mono);font-size:max(.15em,11px);
+  font-weight:500;letter-spacing:0;color:var(--amber-ink);vertical-align:super}
+@media (max-width:820px){
+  .svchead{grid-template-columns:1fr}
+  .svchead p{justify-self:start}
+  .svcwords{font-size:clamp(34px,10.4vw,52px);line-height:1.06}
+}
+
+/* ═══ REALIZÁCIE — a chronicle of the real jobs ═════════════════════════
+   The work leads (exoape.md); every row is a real job with its real photo
+   at an honest size (basement.md); the year is the sheet's numeral.     */
+.realmast{padding-block:clamp(110px,15vh,160px) 0}
+.realmast h1{font-size:clamp(40px,5.3vw,90px)}
+.realmast + .band{padding-top:clamp(28px,5vh,56px)}
+.rmgrid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(24px,4vw,70px);align-items:end}
+.rmr .lead{max-width:42ch}
+.rmr .filters{margin-top:22px}
+.yeargroup{display:grid;grid-template-columns:minmax(0,.55fr) minmax(0,1.45fr);gap:clamp(20px,4vw,70px);
+  border-top:1px solid var(--line);padding-block:clamp(28px,5vh,60px)}
+.yeargroup.empty{display:none}
+.ynum{position:sticky;top:clamp(92px,13vh,124px);align-self:start;font-family:var(--serif);font-weight:200;
+  font-size:clamp(80px,10.5vw,180px);line-height:.8;letter-spacing:-.05em;color:var(--ink)}
+.jobs{display:grid;gap:clamp(36px,6vh,72px)}
+.job{display:grid;grid-template-columns:fit-content(600px) minmax(220px,1fr);gap:clamp(20px,3vw,48px);
+  align-items:end}
+.job.off{display:none}
+.jpic{width:min(var(--w),40vw);box-shadow:0 24px 50px -34px rgba(35,31,26,.55)}
+.jpic .clipimg{overflow:hidden;background:var(--paper2)}
+.jpic img{width:100%;transition:transform .7s var(--ease)}
+.job:hover .jpic img{transform:scale(1.025)}
+.jtext .mono{display:block}
+.jtext h2{font-size:clamp(26px,2.5vw,42px);line-height:1.04;margin:8px 0 18px}
+.jtext ul{list-style:none;margin:0;padding:0;border-top:1px solid var(--line2);max-width:420px}
+.jtext li{display:grid;grid-template-columns:118px minmax(0,1fr);gap:10px;padding:8px 0;
+  border-bottom:1px solid var(--line2);font-size:15px;line-height:1.35}
+.jtext li .mono{font-size:12px;align-self:center}
+.jgo{display:inline-flex;align-items:center;gap:10px;margin-top:18px;color:var(--moss);font-weight:500;
+  transition:gap .3s var(--ease)}
+.job:hover .jgo{gap:16px}
+.job.nophoto{grid-template-columns:minmax(0,1fr)}
+.job.nophoto .jtext{max-width:520px;padding:22px 0 0;border-top:1px dashed var(--line)}
+.chron-note{border-top:1px solid var(--line);padding-top:22px}
+@media (max-width:980px){
+  .rmgrid{grid-template-columns:1fr}
+  .job{grid-template-columns:minmax(0,1fr)}
+  .jpic{width:min(var(--w),100%)}
+}
+@media (max-width:820px){
+  .yeargroup{grid-template-columns:minmax(0,1fr);gap:18px;padding-block:26px 34px}
+  .ynum{position:static;font-size:clamp(64px,19vw,96px)}
+  .jobs{gap:40px}
+}
+
+/* ═══ the hero film ════════════════════════════════════════════════════
+   The layers plot and ignite exactly where the film's first frame has
+   them, then the film takes over and closes the house for real; its last
+   frame holds. Reduced motion: the closed house as a still — the layout,
+   not a fallback. No JS / blocked autoplay: the layers as before.       */
+.house .film,.house .still{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  pointer-events:none;display:block;transform-origin:50% 50%;
+  /* video colour conversion leaves its paper a level or two off the page's;
+     a feathered mask melts the box edge into the real paper (the house spans
+     x 20–82 %, y 4–96 % of the frame, so the feather never touches it) */
+  -webkit-mask-image:linear-gradient(90deg,transparent 4%,#000 18%,#000 82%,transparent 96%),
+    linear-gradient(180deg,transparent 0,#000 3%,#000 97%,transparent 100%);
+  -webkit-mask-composite:source-in;
+  mask-image:linear-gradient(90deg,transparent 4%,#000 18%,#000 82%,transparent 96%),
+    linear-gradient(180deg,transparent 0,#000 3%,#000 97%,transparent 100%);
+  mask-composite:intersect}
+/* the film has a paper ground, not alpha: while it plays, the headline
+   sits above the house (dark type on the same paper reads identically,
+   and no line of the headline is ever covered) */
+.poster.filmed .ptext{z-index:3}
+/* the closed house is lower and smaller than the exploded one: the still
+   is framed the way the film ends — pushed in, centred between the lines */
+.house.still .still{transform:translateY(-29.5%) scale(1.3)}
+.house .film{opacity:0}
+.house.filming .film{opacity:1}
+.house.filming .lyr{visibility:hidden}
+.house .still{display:none}
+.house.still .still{display:block}
+.house.still .lyr,.house.still .film{display:none}
+
+/* ═══ the opened house ═════════════════════════════════════════════════
+   Scroll rewinds the film: the closed house lifts apart level by level
+   and each level is named on its own line (igloo.md: mono annotation over
+   the object like an engineer's drawing). The labels hold at full ink
+   while open and only exist in that state.                             */
+.olabels{position:absolute;inset:0;pointer-events:none;z-index:4}
+/* positions are the layer boxes at the opened scale (.86 about the centre) */
+.ol{position:absolute;top:calc(50% + (var(--y) - 50%) * .86);display:flex;align-items:center;transform:translateY(-50%)}
+.ol.r{left:calc(50% + (var(--x) - 50%) * .86)}
+.ol.l{right:calc(50% - (var(--x) - 50%) * .86);flex-direction:row-reverse;text-align:right}
+.ol i{display:block;height:1px;width:clamp(36px,5vw,96px);background:var(--ink);transform:scaleX(0);
+  transform-origin:0 50%;transition:transform .5s var(--ease)}
+.ol.l i{transform-origin:100% 50%}
+.ol i::before{content:"";position:absolute;width:5px;height:5px;border-radius:50%;background:var(--amber);
+  margin-top:-2px;margin-left:-2px}
+.ol.l i::before{right:-2px;margin-left:0;margin-right:-2px}
+.ol i{position:relative}
+.ol div{padding:0 12px;white-space:nowrap;opacity:0;transform:translateY(6px);
+  transition:opacity .45s var(--ease) .2s,transform .45s var(--ease) .2s}
+.ol b{display:block;font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.14em;color:var(--amber-ink)}
+.ol span{display:block;font-size:clamp(16px,1.3vw,21px);letter-spacing:-.01em;line-height:1.2;margin-top:2px}
+.ol em{display:block;font-style:normal;font-size:clamp(12.5px,.95vw,14px);color:var(--ink2);margin-top:3px}
+.house.open .ol i{transform:none}
+.house.open .ol div{opacity:1;transform:none}
+.house.open .ol:nth-child(2) i,.house.open .ol:nth-child(2) div{transition-delay:.08s,.28s}
+.house.open .ol:nth-child(3) i,.house.open .ol:nth-child(3) div{transition-delay:.16s,.36s}
+.house.open .ol:nth-child(4) i,.house.open .ol:nth-child(4) div{transition-delay:.24s,.44s}
+.olegend{display:none}
+@media all{
+  /* numbered points on the house at every width; the names live in the
+     text column (igloo.md: the annotation is an engineering drawing).
+     Side labels ran over the headline once the words sat beside the house */
+  .ol div{display:none}
+  .ol i{width:0;height:0}
+  .ol i::before{width:18px;height:18px;margin:-9px 0 0 -9px;background:var(--ink)}
+  .ol.l i::before{margin:-9px -9px 0 0}
+  .ol::after{content:attr(data-n);position:absolute;top:50%;transform:translate(-50%,-50%);left:0;
+    font-family:var(--mono);font-size:9px;color:var(--paper);opacity:0;transition:opacity .3s}
+  .ol.l::after{left:auto;right:0;transform:translate(50%,-50%)}
+  .ol i::before{transform:scale(0);transition:transform .35s var(--ease)}
+  .house.open .ol i::before{transform:none}
+  .house.open .ol::after{opacity:1}
+  .olegend{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 14px;list-style:none;margin:10px 0 0;
+    padding:0;font-size:14px;color:var(--ink2);opacity:0;transition:opacity .4s}
+  .olegend b{font-family:var(--mono);font-size:12px;color:var(--ink);margin-right:5px}
+  .poster.opened .olegend{opacity:1}
+}
+@media (prefers-reduced-motion:reduce){ .olabels,.olegend{display:none} }
+
+/* ═══ O NÁS — the story with its pictures ══════════════════════════════
+   The essay keeps its marginal years; a sticky frame on the right shows
+   the real job from each part of the story (the paragraph in the middle
+   of the screen decides). On a phone each picture follows its paragraph. */
+.story{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.9fr);gap:clamp(30px,5vw,90px);
+  align-items:start}
+.story .essay{max-width:52ch;margin-left:clamp(0px,9vw,150px)}
+.story .para{margin-top:clamp(56px,14vh,150px)}
+.story .para:first-child{margin-top:0}
+.story .para .sig{font-size:clamp(19px,1.55vw,24px);line-height:1.5}
+.pinl{display:none}
+.stack{position:sticky;top:clamp(96px,14vh,130px);height:min(70vh,640px)}
+.sf{position:absolute;inset:0;margin:0;display:grid;grid-template-rows:minmax(0,1fr) auto;gap:14px;
+  opacity:0;transition:opacity .7s var(--ease)}
+.sf.on{opacity:1}
+.sfimg{overflow:hidden;background:var(--paper2);box-shadow:0 30px 60px -40px rgba(35,31,26,.6)}
+.sfimg img{width:100%;height:100%;object-fit:cover;transform:scale(1.06);transition:transform 1.4s var(--ease)}
+.sf.on .sfimg img{transform:none}
+.sf figcaption .mono{display:block}
+.sf figcaption .fine{margin-top:6px;max-width:44ch}
+@media (max-width:980px){
+  .story{grid-template-columns:minmax(0,1fr)}
+  .story .essay{margin-left:0;max-width:none}
+  .stack{display:none}
+  .story .para{margin-top:48px}
+  .pinl{display:block;margin:18px 0 0}
+  .pinl img{width:min(100%,560px);box-shadow:0 20px 40px -30px rgba(35,31,26,.6)}
+  .pinl figcaption{margin-top:10px}
+  .pinl .fine{margin-top:6px}
+}
+@media (prefers-reduced-motion:reduce){ .sf,.sfimg img{transition:none} }
+
+/* on dark bands and in the footer the small amber goes light again */
+.band.moss,.band.dusk,footer,#curtain,body[data-band="moss"] header,body[data-band="dusk"] header{--amber-ink:#e0a15e}
+
+/* the source line under a reference sits on sand: one step darker */
+.band.sand .ref figcaption span{color:#564f45}
+
+/* ═══ ÚVOD — the street of their builds ════════════════════════════════
+   Eight real jobs on one ground line, 2008 → 2024, as they were built;
+   a house stands taller than a terrace, the job without a photograph is
+   an empty lot. The work leads (the research: real photographs of built
+   work are the strongest quality signal); desktop walks it sideways. */
+.streethead{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:clamp(20px,4vw,70px);align-items:end}
+.streethead .lead{max-width:40ch}
+.street{position:relative;overflow:hidden;padding-block:clamp(34px,6vh,70px) clamp(20px,4vh,40px)}
+.strack{position:relative;display:flex;align-items:flex-end;gap:clamp(30px,3.4vw,64px);width:max-content;
+  padding-inline:var(--gut);will-change:transform}
+.strack::after{content:"";position:absolute;left:0;right:0;bottom:92px;height:1px;background:var(--ink)}
+.house-lot{position:relative;display:flex;flex-direction:column;align-items:flex-start}
+/* one street height; each house is a ratio of it (terraces .75) — the
+   pinned frame is filled instead of a 400 px strip floating in 900 px */
+.street{--hh:clamp(300px,min(58vh,40vw),540px)}
+.house-lot img,.lot{height:calc(var(--r,1) * var(--hh))}
+.house-lot img{display:block;width:auto;max-width:none;box-shadow:0 24px 44px -34px rgba(35,31,26,.7);
+  transition:transform .6s var(--ease)}
+.house-lot:hover img{transform:translateY(-8px)}
+.lot{display:flex;align-items:center;justify-content:center;width:260px;
+  border:1px dashed rgba(35,31,26,.35);border-bottom:0;color:var(--ink2);font-family:var(--mono);
+  font-size:12px;letter-spacing:.12em;text-transform:uppercase;text-align:center;padding:20px}
+.lot i{font-style:normal;max-width:18ch}
+.house-lot .cap{display:block;height:92px;padding-top:14px;max-width:240px}
+.house-lot .yr{display:block;font-family:var(--serif);font-weight:300;font-size:22px;line-height:1;letter-spacing:-.02em}
+.house-lot b{display:block;margin-top:6px;font-weight:400;font-size:15.5px;line-height:1.25}
+.house-lot .where{display:block;margin-top:3px;font-family:var(--mono);font-size:12px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink2)}
+@media (max-width:820px){
+  .streethead{grid-template-columns:1fr}
+  .street{overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .street::-webkit-scrollbar{display:none}
+  .strack{gap:22px}
+  .house-lot{scroll-snap-align:start;scroll-margin-left:var(--gut)}
+  .street{--hh:240px}
+  .lot{width:180px}
+}
+@media (prefers-reduced-motion:reduce){
+  .street{overflow-x:auto}
+}
+
+/* visually hidden, still read: the hero headline is ONE h1 split around the house */
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+/* reduced motion: the wall is shown fully spread and does not move with
+   the scroll, so it must not keep a 280svh scroll track — that was
+   1.8 screens of empty paper under a still image */
+@media (prefers-reduced-motion:reduce){
+  .walltrack{height:auto}
+  .wallstage{position:relative;height:auto;min-height:100svh}
+}
+
+/* the hint says only what works here: scroll moves the wall on desktop,
+   phones drag, reduced motion starts open and drags closed */
+.handle .h-drag,.handle .h-rm{display:none}
+@media (max-width:820px){ .handle .h-wide{display:none} .handle .h-drag{display:inline} }
+@media (prefers-reduced-motion:reduce){ .handle .h-wide,.handle .h-drag{display:none} .handle .h-rm{display:inline} }
+
+/* ── úvod: two real quotes (refokus.md: the serif is the human voice;
+   kpr.md: type layered behind — the hanging mark sits behind the quote) */
+.qhome{position:relative;display:grid;grid-template-columns:minmax(0,7fr) minmax(0,4fr);
+  gap:clamp(28px,5vw,96px);align-items:end}
+.qmark{position:absolute;left:-.04em;top:0;z-index:0;pointer-events:none;height:.5em;overflow:visible;
+  font-family:var(--serif);font-weight:300;font-size:clamp(200px,22vw,360px);line-height:0;color:var(--moss)}
+.qhome figure{position:relative;z-index:1;margin:0}
+.qbig blockquote{margin:0;padding-top:clamp(70px,8vw,130px);font-family:var(--serif);font-weight:300;
+  font-size:clamp(28px,3.9vw,64px);line-height:1.08;letter-spacing:-.02em;max-width:22ch}
+.qhome figcaption{margin-top:24px;display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline;
+  font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink)}
+.qhome figcaption b{font-weight:500;letter-spacing:.06em}
+.qsmall{border-top:1px solid var(--ink);padding-top:22px}
+.qsmall blockquote{margin:0;font-family:var(--serif);font-weight:300;font-size:clamp(22px,2vw,32px);
+  line-height:1.2;letter-spacing:-.01em}
+.qmore{display:inline-block;margin-top:34px;font-size:15px;border-bottom:1px solid currentColor;padding-bottom:3px}
+.qmore:hover{color:var(--moss)}
+@media (max-width:820px){
+  .qhome{grid-template-columns:1fr;gap:40px}
+  .qmark{font-size:200px;top:-.36em}
+  .qbig blockquote{padding-top:70px}
+}
+
+/* ── úvod: the build log (basement.md: hairline rows dense with real
+   content, a vast numeral per row; igloo.md: mono annotation) ─────── */
+.loghead{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:clamp(24px,5vw,90px);
+  align-items:end;margin-bottom:clamp(30px,5vh,60px)}
+.loghead h2{margin:0}
+.loghead p{margin:0;max-width:40ch;font-size:clamp(16px,1.25vw,19px);line-height:1.5;color:var(--ink2)}
+.blog{list-style:none;margin:0;padding:0;border-bottom:1px solid var(--ink)}
+.lrow{display:grid;grid-template-columns:minmax(90px,1.3fr) minmax(0,3.2fr) minmax(0,5fr);
+  gap:clamp(18px,3vw,56px);align-items:start;border-top:1px solid var(--ink);
+  padding:clamp(20px,3vh,34px) 0}
+.lnum{font-family:var(--serif);font-weight:300;font-size:clamp(64px,7.4vw,128px);line-height:.8;
+  letter-spacing:-.04em;color:var(--moss)}
+.ltext h3{margin:4px 0 0;font-size:clamp(26px,2.5vw,40px);line-height:1.04;letter-spacing:-.02em;font-weight:300}
+.ltext p{margin:16px 0 0;max-width:34ch;font-size:clamp(15px,1.1vw,17px);line-height:1.55;color:var(--ink2)}
+.lart{margin:0}
+.lart .frame{aspect-ratio:16/9}
+.lart .frame img{transition:transform 1.2s var(--ease)}
+.lrow:hover .lart .frame img{transform:scale(1.03)}
+.lcall{aspect-ratio:16/9;display:flex;flex-direction:column;justify-content:flex-end;gap:10px;
+  padding:clamp(18px,2.2vw,34px);background:var(--ink);color:var(--paper)}
+.lcall .mono{color:#b8c79c}
+.lphone{font-family:var(--serif);font-weight:300;font-size:clamp(34px,4.2vw,72px);line-height:1;
+  letter-spacing:-.02em;color:var(--glow)}
+.lphone:hover{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:.12em}
+.lcall .fine{color:rgba(243,238,227,.82)}
+@media (max-width:820px){
+  .loghead{grid-template-columns:1fr;gap:16px}
+  .lrow{grid-template-columns:auto minmax(0,1fr);row-gap:18px;column-gap:18px}
+  .lnum{font-size:56px}
+  .lart{grid-column:1/-1}
+  .lcall{aspect-ratio:auto;min-height:190px}
+}
+
+/* ── the tablet tier (600–980 px, iPad portrait) ───────────────────────
+   Measured at 820×1180: the phone layout left a third of the screen
+   empty — photos capped at 540 px, spec tables at 420 px, the wall's
+   text in one narrow column. A tablet is wide enough for the desktop's
+   pairing of photo and text; it keeps the phone's single-column nav. */
+@media (min-width:600px) and (max-width:980px){
+  .job{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);align-items:end;gap:24px}
+  .job.nophoto{grid-template-columns:minmax(0,1fr)}
+  .jpic{width:100%}
+  .jtext ul{max-width:none}
+  .jtext li{grid-template-columns:92px minmax(0,1fr)}
+  .pinl img{width:100%}
+  .wallwhy .wallcols{grid-template-columns:1fr 1fr}
+}
+
+/* prev / next on the project sheet: 72 px stamps left the band empty at
+   every width; the neighbour's photo is the reason to click */
+.pager .pth,.pager .pth img{width:clamp(96px,11vw,150px);height:clamp(96px,11vw,150px)}
+.pager .np img{width:clamp(96px,11vw,150px);height:clamp(96px,11vw,150px)}
+
+/* ── the phone / tablet menu: a full panel, not a dropdown ─────────────
+   Was: 11 px mono labels on 32 px targets (a later desktop rule beat the
+   52 px one) over a page that kept scrolling. Now the links are the big
+   words the home's service list already speaks (pangram.md: the word
+   owns the frame), ≥ 56 px targets, and the first step — the call — at
+   the foot. It wipes down like the page curtain. */
+.nfoot{display:none}
+@media (max-width:1100px){
+  body header nav,body[data-band] header nav{position:fixed;inset:0;z-index:-1;height:100dvh;
+    display:flex;flex-direction:column;align-items:stretch;gap:0;overflow-y:auto;
+    padding:clamp(84px,12vh,120px) var(--gut) max(24px,env(safe-area-inset-bottom));
+    background:var(--paper);border:0;border-radius:0;backdrop-filter:none;transform:none;
+    clip-path:inset(0 0 100% 0);visibility:hidden;
+    transition:clip-path .55s var(--ease),visibility 0s linear .55s}
+  body.nav-open header nav{clip-path:inset(0);visibility:visible;transition:clip-path .55s var(--ease)}
+  body.nav-open{overflow:hidden}
+  header nav a{height:auto;min-height:56px;display:flex;align-items:center;justify-content:flex-start;
+    padding:6px 0;border-radius:0;border-bottom:1px solid var(--line);background:none;
+    font-family:var(--sans);font-weight:300;font-size:clamp(32px,8.6vw,58px);line-height:1.05;
+    letter-spacing:-.03em;text-transform:none;color:var(--ink)}
+  body[data-band] header nav a{color:var(--ink)}
+  header nav a sup{align-self:flex-start;margin:.5em 0 0 6px;font-family:var(--mono);font-size:12px;
+    letter-spacing:.06em;color:var(--amber-ink)}
+  header nav a.on{background:none;color:var(--moss)}
+  header nav a.on::after{content:"";width:.28em;height:.28em;margin-left:.3em;border-radius:50%;background:var(--moss)}
+  .nfoot{display:flex;flex-direction:column;gap:8px;margin-top:auto;padding-top:28px}
+  .nfoot span{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2)}
+  .nfoot a{min-height:0;border:0;padding:0;font-size:16px;letter-spacing:0}
+  header nav .nfoot .nphone{font-family:var(--serif);font-size:clamp(34px,9vw,52px);letter-spacing:-.02em;
+    color:var(--amber-ink)}
+  body.nav-open header{background:transparent}
+  body.nav-open .brand{background:var(--paper)}
+}
+@media (max-width:1100px) and (prefers-reduced-motion:reduce){
+  body header nav,body[data-band] header nav,body.nav-open header nav{transition:none}
+}
+/* the panel is paper on every page: the dark bands' header tokens
+   (light amber, light type) must not leak into it */
+@media (max-width:1100px){
+  body.nav-open[data-band] header{--amber-ink:#94571f}
+  body.nav-open[data-band] header nav a,body.nav-open[data-band] header nav a:hover{color:var(--ink)}
+  body.nav-open[data-band] header nav a.on{color:var(--moss)}
+  body.nav-open[data-band] .brand{background:var(--paper);border-color:var(--line)}
+  body.nav-open[data-band] .brand b{color:var(--ink)}
+  body.nav-open[data-band] .menu{border-color:var(--line)}
+  body.nav-open[data-band] .menu i{background:var(--ink)}
+}
+@media (max-width:1100px){ body.nav-open header nav .nfoot a.nphone,header nav .nfoot a.nphone{color:#94571f} }
+
+/* phones: the film's frame carries ~19 % paper on each side, so it may
+   bleed past the screen edge — the house itself then spans the width */
+@media (max-width:600px){
+  .poster{overflow:hidden}
+  .poster .house{width:128vw;max-width:none;margin-inline:calc(50% - 64vw)}
+}
+
+/* the floor names beside the house: a ruled list under the CTAs, shown
+   only while the house stands open */
+.olegend li{display:flex;align-items:baseline;gap:8px}
+.olegend i{display:none;font-style:normal}
+@media (min-width:821px){
+  .olegend{flex-direction:column;align-items:stretch;justify-content:flex-start;gap:0;margin-top:clamp(22px,3.5vh,40px);
+    max-width:420px;font-size:15px;color:var(--ink);border-top:1px solid var(--line)}
+  .olegend li{gap:14px;padding:9px 0;border-bottom:1px solid var(--line2)}
+  .olegend b{color:var(--amber-ink)}
+  .olegend i{display:block;margin-left:auto;font-size:14px;color:var(--ink2);text-align:right}
+  .ol i::before{width:22px;height:22px;margin:-11px 0 0 -11px}
+  .ol.l i::before{margin:-11px -11px 0 0}
+  .ol::after{font-size:12px}
+}
+/* the legend hangs under the CTAs without taking layout space: the closed
+   poster centres words and house on the same line */
+@media (min-width:821px){
+  .olegend{position:absolute;left:0;top:100%;width:min(100%,420px)}
+  .olegend li{padding:clamp(5px,.9vh,9px) 0}
+}
+@media (min-width:821px) and (max-height:800px){
+  .olegend{margin-top:16px}
+  .olegend li{padding:4px 0}
+  .olegend i{display:none}
+}
+
+/* ── úvod: the services as panels (cowboy.md imagery, refokus.md colour
+   inside the work, basement.md dense rows below) ────────────────────── */
+.panels{display:flex;gap:clamp(8px,.8vw,14px);height:clamp(440px,68vh,640px);margin-top:clamp(30px,5vh,56px)}
+.panel{position:relative;flex:1 1 0;min-width:0;overflow:hidden;background:var(--dusk);color:#f3eee3;
+  transition:flex-grow .7s var(--ease)}
+.panel.open{flex-grow:4.2}
+.panel img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(var(--z,1.02));
+  transition:transform 1.2s var(--ease),filter .7s var(--ease);filter:saturate(.9) brightness(.86)}
+.panel.open img{transform:scale(calc(var(--z,1.02) * 1.03));filter:none}
+.pshade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,16,14,.42) 0,rgba(18,16,14,0) 20%,rgba(18,16,14,0) 32%,rgba(18,16,14,.8) 100%)}
+.pbody{position:absolute;left:0;right:0;bottom:0;padding:clamp(16px,2vw,32px);display:flex;flex-direction:column;gap:6px}
+.phook{font-family:var(--serif);font-style:normal;font-size:clamp(16px,1.3vw,21px);color:#e3dccb}
+.pname{font-weight:300;font-size:clamp(26px,2.9vw,50px);line-height:1;letter-spacing:-.025em;white-space:nowrap}
+.pmore{display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .7s var(--ease),opacity .45s}
+.pmore>*{min-height:0;overflow:hidden}
+.pmore{justify-items:start}
+.panel.open .pmore{grid-template-rows:1fr;opacity:1;transition-delay:.15s}
+.ptext2{display:block;max-width:46ch;margin-top:10px;font-size:clamp(15px,1.05vw,17px);line-height:1.5;color:#efe8da}
+.pcount{display:inline-block;justify-self:start;width:max-content;margin-top:14px;padding:7px 12px;border:1px solid rgba(243,238,227,.45);border-radius:999px;
+  font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#f3eee3}
+.pcap{position:absolute;left:clamp(16px,2vw,32px);top:clamp(14px,1.8vw,26px);font-size:12px;color:#f3eee3;
+  text-shadow:0 1px 8px rgba(0,0,0,.45);opacity:0;transition:opacity .4s}
+.panel.open .pcap{opacity:1}
+/* closed panels: the name stands up the side */
+.panel:not(.open) .phook{display:none}
+.panel:not(.open) .pname{writing-mode:vertical-rl;transform:rotate(180deg);font-size:clamp(22px,1.9vw,32px)}
+.panel:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
+.svcrest{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));column-gap:clamp(16px,2.4vw,40px);
+  margin-top:clamp(26px,4vh,44px);border-top:1px solid var(--ink)}
+.svcrest>.mono{grid-column:1/-1;padding:14px 0 4px;color:var(--ink2)}
+.svcrest a{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"h s" "n s";align-items:end;
+  padding:14px 0 16px;border-bottom:1px solid var(--line)}
+.svcrest a i{grid-area:h;font-family:var(--serif);font-style:normal;font-size:15px;color:var(--ink2)}
+.svcrest a b{grid-area:n;font-weight:300;font-size:clamp(21px,1.8vw,30px);letter-spacing:-.02em;line-height:1.1}
+.svcrest a span{grid-area:s;color:var(--ink2);transition:transform .35s var(--ease)}
+.svcrest a:hover b{color:var(--moss)}
+.svcrest a:hover span{transform:translateX(5px);color:var(--ink)}
+@media (max-width:1040px){ .svcrest{grid-template-columns:repeat(2,minmax(0,1fr))} }
+/* touch widths: the panels become a row of cards to swipe, all open */
+@media (max-width:820px){
+  .panels{height:auto;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;
+    margin-inline:calc(-1 * var(--gut));padding-inline:var(--gut);gap:12px}
+  .panels::-webkit-scrollbar{display:none}
+  .panel,.panel.open{flex:0 0 min(82vw,440px);height:min(118vw,560px);scroll-snap-align:start;scroll-margin-left:var(--gut)}
+  .panel img{transform:scale(var(--z,1));filter:none}
+  .panel:not(.open) .phook{display:block}
+  .panel:not(.open) .pname{writing-mode:horizontal-tb;transform:none;font-size:clamp(28px,8vw,40px)}
+  .panel .pmore{grid-template-rows:1fr;opacity:1}
+  .panel .pcap{opacity:1}
+  .ptext2{font-size:14.5px}
+}
+@media (max-width:520px){ .svcrest{grid-template-columns:minmax(0,1fr)} }
+@media (prefers-reduced-motion:reduce){
+  .panel,.panel img,.pmore,.pcap{transition:none!important}
+}
+
+/* 821–1100 px (iPad landscape, small laptops): the nav pill no longer fits
+   beside the logo and the call buttons — the phone number wrapped and
+   "Dopyt" fell off the screen. The full-screen menu takes over; the call
+   buttons stay, there is room for them now */
+@media (max-width:1100px){ .menu{display:flex} }
+@media (max-width:1100px){
+  body.nav-open[data-band] .pill{background:var(--paper);border-color:var(--line);color:var(--ink)}
+  body.nav-open[data-band] .pill.go{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+}
+
+/* ── Realizácie: where they stand (Natural Earth outline + the jobs'
+   places; igloo.md: annotation with leaders, basement.md: real data) ── */
+.geo{display:grid;grid-template-columns:minmax(0,.72fr) minmax(0,2.2fr);gap:clamp(24px,4vw,72px);align-items:center}
+.geotext h2{margin:0 0 20px}
+.geotext p{max-width:36ch;color:var(--ink2);font-size:clamp(16px,1.2vw,18.5px);line-height:1.55;margin:0 0 22px}
+.gfacts{display:flex;gap:clamp(18px,2.4vw,40px);margin:0 0 22px;padding:16px 0;border-block:1px solid var(--line)}
+.gfacts dt{font-family:var(--serif);font-weight:300;font-size:clamp(34px,3.4vw,54px);line-height:1;letter-spacing:-.03em;color:var(--moss)}
+.gfacts dd{margin:6px 0 0;font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink2)}
+.skmap{position:relative;margin:0;width:100%}
+.skmap svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.skmap .sk{fill:var(--paper2);stroke:var(--ink);stroke-width:.35;stroke-linejoin:round}
+.skmap .route{fill:none;stroke:var(--moss);stroke-width:.5;stroke-dasharray:1.6 1.4;opacity:.85}
+.skmap .lead{fill:none;stroke:var(--ink);stroke-width:.3}
+.skmap .gpin{fill:var(--amber-btn)}
+.skmap .ghome{fill:var(--moss)}
+.skmap .gpin,.skmap .ghome{stroke:var(--paper);stroke-width:1}
+.skmap .pn{font:600 5px var(--mono);fill:#fff;text-anchor:middle;dominant-baseline:middle}
+.gl{position:absolute;display:flex;gap:10px;transform:translateY(-.9em);font-size:clamp(12px,1vw,15px);line-height:1.3;white-space:nowrap}
+.gl.gw{transform:translate(-50%,calc(-100% - 16px));flex-direction:column;align-items:center;text-align:center;gap:4px;
+  padding:6px 10px;background:var(--paper);border:1px solid var(--line)}
+.gn{flex:none;display:inline-grid;place-items:center;width:1.7em;height:1.7em;border-radius:50%;background:var(--ink);
+  color:var(--paper);font-family:var(--mono);font-size:11px}
+.gl.gw .gn{display:none}
+.gl b,.glegend b{font-weight:500;margin-right:8px}
+.gl em,.glegend em{font-style:normal;font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--amber-ink)}
+.gl a,.glegend a{display:block;color:var(--ink2);border-bottom:1px solid transparent;width:max-content}
+.gl a:hover,.glegend a:hover{color:var(--ink);border-bottom-color:currentColor}
+.gl a i,.glegend a i{font-style:normal;font-family:var(--mono);font-size:12px;margin-right:8px;color:var(--ink)}
+.glegend{display:none;list-style:none;margin:18px 0 0;padding:0}
+@media (max-width:1100px){
+  .geo{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:820px){
+  .gl{display:none}
+  .skmap .lead{display:none}
+  .glegend{display:grid;gap:12px}
+  .glegend li{display:flex;gap:12px;align-items:flex-start;padding-top:12px;border-top:1px solid var(--line)}
+  .glegend a{width:auto}
+}
+@media (max-width:820px){ .skmap .gpin{r:8} .skmap .ghome{r:9} .skmap .pn{font-size:9px} }
+
+/* ── the enquiry: the client's own checklist as fields ──────────────── */
+.inquiry .pick{border:0;margin:0 0 22px;padding:0;min-width:0}
+.inquiry .pick legend{padding:0;margin-bottom:10px;font-family:var(--mono);font-size:12px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink2)}
+.inquiry .pick div{display:flex;flex-wrap:wrap;gap:8px}
+.form .pick{margin:0}
+.chip{position:relative;display:inline-flex;cursor:pointer}
+.chip input{position:absolute;opacity:0;width:1px;height:1px}
+.chip span{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border:1px solid rgba(35,31,26,.3);
+  border-radius:999px;font-family:var(--sans);font-size:15px;letter-spacing:0;text-transform:none;color:var(--ink);
+  transition:background .25s,border-color .25s,color .25s}
+.chip:hover span{border-color:var(--ink)}
+.chip input:checked+span{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.chip input:focus-visible+span{outline:2px solid var(--amber);outline-offset:2px}
+.form .req{font-style:normal;color:var(--amber-ink);margin-left:6px;letter-spacing:.08em}
+.ferr{font-style:normal;font-family:var(--sans);font-size:14px;letter-spacing:0;text-transform:none;color:#a3321f;min-height:0}
+.form label.bad input{border-color:#a3321f}
+.fdone{margin-top:26px;padding:22px 24px;border:1px solid var(--line);background:var(--white)}
+.fdone b{display:block;font-weight:500;font-size:19px;margin-bottom:8px}
+.fdone p{margin:0 0 16px;color:var(--ink2);line-height:1.55}
+.fdone a{border-bottom:1px solid currentColor}
+.fcopied{display:block;margin-top:10px}
+/* the form grew: its introduction stays beside it instead of ending half-way */
+@media (min-width:821px){ .kside{position:sticky;top:clamp(96px,14vh,130px);align-self:start} }
+
+/* ── 404 ─────────────────────────────────────────────────────────────── */
+.lost{position:relative;min-height:calc(100svh - 160px);display:flex;flex-direction:column;justify-content:center;
+  padding-block:clamp(110px,16vh,160px) clamp(40px,8vh,90px)}
+.lost h1{position:relative;z-index:1;font-size:clamp(46px,7vw,120px);max-width:12ch}
+.lost .lead{position:relative;z-index:1;max-width:40ch;margin-top:22px}
+.lost .ctas{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.lost .fine a{border-bottom:1px solid currentColor}
+.lnum404{position:absolute;right:var(--gut);bottom:clamp(20px,6vh,70px);font-family:var(--serif);font-weight:200;
+  font-size:clamp(150px,25vw,400px);line-height:.8;letter-spacing:-.05em;color:#8c8170}
+@media (max-width:820px){ .lost{padding-bottom:clamp(170px,40vw,260px)} .lnum404{bottom:20px} }
