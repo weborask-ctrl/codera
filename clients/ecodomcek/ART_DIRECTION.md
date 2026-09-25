@@ -860,3 +860,43 @@ obnovenie); nie pri návrate z podstránky (odkaz, späť, prechod v rámci webu
 Úvod začína hore (`scrollRestoration: manual` len počas neho), obnovenie pozície
 v prvej sekunde sa ignoruje. Poistka pre pomalé pripojenie 16 s (predtým 9 s),
 aby text neprišiel skôr ako postavený dom.
+
+## Fáza 19 — otvorený dom väčší, popisy pri dome (2026-09-25)
+
+**Pokyn.** Otvorený dom (v polohe vedľa textu) o 20 % väčší; popisy podlaží vedľa
+domu, nie pod nadpisom.
+
+**Riešenie.** Mierka otvoreného domu 0,86 → 1,03 (od 1101 px; tablet na šírku
+0,92). Popisy sú späť na dome ako technické anotácie (**igloo**: mono
+anotácia nad objektom ako na výkrese) — no v **jednom stĺpci vpravo**: od
+pravého okraja každého podlažia vodiaca čiara s jantárovým bodom k číslu,
+názvu a poznámke (poznámka zalomená na „·“). Ľavé popisy by vošli do nadpisu,
+pravé za okraj obrazovky (zmerané na 1024–2560 px), preto scéna pri otváraní
+posunie dom doľava presne o toľko, koľko stĺpec potrebuje (meria sa pri každom
+prepočte; na 1440 ~110 px, medzera k nadpisu ostáva ≥ 20 px). Tablet na šírku:
+len číslo a názov (podlažia sú ~65 px od seba). Telefón a tablet na výšku:
+čísla na dome ostávajú, zoznam je pod domom (nie pod nadpisom).
+
+## Fáza 20 — dom sa zväčší po animácii, nie počas nej (2026-09-25)
+
+**Pokyn.** Nezväčšovať dom na začiatku, ale po skončení animácie — vtedy nech je
+väčší a celý lepšie viditeľný.
+
+**Úvod.** Kamera už nepribližuje: zmestí celý dom (rozložené poschodia, najvyšší
+stav) na obrazovku a pri stavbe len posúva záber, aby dom ostal v strede —
+nič sa neoreže.
+
+**Po animácii.** Záverečné priblíženie (`landAim`) už nie je pevné ×1,3, ale
+vypočíta sa z rozloženia: dom vyplní priestor napravo od nadpisu a textu
+(merané z obdĺžnikov riadkov), nad popiskom vizualizácie, 1,5 % od okraja
+obrazovky; na telefóne šírku po 3 % okraje. Výsledok (šírka domu): 1440 px
+426 → 548 (+29 %), 1920 → 729, 2560 → 968, telefón 390 314 → 366 (+17 %).
+Otváranie scrollom plynulo prejde z tejto veľkosti na otvorený dom (fáza 19).
+Okraje filmu sa prelínajú do papiera (maska), aby väčšie priblíženie neukázalo
+hranu rámu.
+
+**Oprava 20b — presné čísla od klienta.** Na začiatku o 15 % menší (úvodná
+kamera 0,85 × „celý dom na obrazovke“); na kraji o 40 % väčší ako pôvodné
+pevné ×1,3 → strop ×1,82, kde to miesto dovolí (medzera k textu 2 %, okraj
+1 %). Šírka domu: 1440 px 426 → 593 (+39 %), 1920 +37 %, 2560 +33 %,
+1024–1280 +39 %; telefón 314 → 378 (+20 % — viac nedovolí šírka obrazovky).

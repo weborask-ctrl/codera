@@ -192,7 +192,7 @@
       // the size the frame is actually drawn at, in device pixels: a 2560
       // screen or a retina laptop drew the 1200 film at 1.2–1.5× (soft), the
       // one-file build's 720 film at up to 2.4×
-      var px = film.getBoundingClientRect().width * (window.devicePixelRatio || 1) * 1.3;   // the push-in
+      var px = film.getBoundingClientRect().width * (window.devicePixelRatio || 1) * (small ? 1.45 : 1.75);   // the push-in
       // phones never take the 2 MB film, whatever their pixel density
       var tier = small ? (px <= 900 ? 'narrow' : 'wide') : (px > 1400 && film.dataset.big ? 'big' : 'wide');
       var url = film.dataset.src ? (webm && film.dataset.srcWebm ? film.dataset.srcWebm : film.dataset.src)
@@ -221,9 +221,11 @@
           return;
         }
         // the landing: the camera pushes in on the closed house (the film
-        // ends with it low in the frame — measured centre 72.7 %, height 48 %)
+        // ends with it low in the frame) until it fills the room beside the
+        // words — see landAim()
         if (act.classList.contains('filming') && !scrubbing) {
-          landing = gsap.to(film, { yPercent: -29.5, scale: 1.3, duration: 1.3, ease: 'power2.inOut' });
+          landAim();
+          landing = gsap.to(film, { x: LAND.x, y: LAND.y, scale: LAND.s, duration: 1.3, ease: 'power2.inOut' });
           tweens.push(landing);
         }
       }
@@ -277,17 +279,56 @@
       }
       return TOP[TOP.length - 1][1];
     }
+    // the landed house: as large as the room beside the words allows (to the
+    // right of the headline, above the caption; on phones the full width),
+    // centred in it. A film transform { s, x, y } in px, from the layout.
+    var LAND = { s: 1.3, x: 0, y: 0 };
+    function landAim() {
+      var p = poster.getBoundingClientRect();
+      var saved = act.style.transform; act.style.transform = 'none';   // the frame as laid out
+      var r = act.getBoundingClientRect(); act.style.transform = saved;
+      var F = { l: r.left - p.left, t: r.top - p.top, w: r.width, h: r.height };
+      var fx = F.l + F.w / 2, fy = F.t + F.h / 2, T = top(9);
+      var cx0 = F.l + F.w * (BOX.l + BOX.r) / 2, cy0 = F.t + F.h * (T + BOX.b) / 2;   // the built house
+      var cw = F.w * (BOX.r - BOX.l), ch = F.h * (BOX.b - T);
+      var pad = parseFloat(getComputedStyle(poster).paddingRight) || 20;
+      // the paper may run to the edge, the house not: 1 % (1.5 % on phones,
+      // where the house spans the width)
+      var edge = wide() ? Math.max(12, innerWidth * .01) : Math.max(6, innerWidth * .015);
+      var L0 = edge, R0 = p.width - edge, T0 = innerHeight * .12, B0 = innerHeight * .94, cx = fx;
+      if (wide()) {
+        var right = 0, rg = document.createRange();
+        poster.querySelectorAll('.ptext h1, .ptext .sub, .ptext .ctas > *').forEach(function (el) {
+          rg.selectNodeContents(el);
+          [].forEach.call(rg.getClientRects(), function (q) { right = Math.max(right, q.right - p.left); });
+        });
+        L0 = right + Math.max(20, innerWidth * .02);
+        var vz = poster.querySelector('.vz');
+        if (vz) B0 = vz.getBoundingClientRect().top - p.top - 16;
+        cx = (L0 + R0) / 2;
+      }
+      // client, 2026-09-25: 40 % larger than the old fixed ×1.3 landing —
+      // as far as the room allows (a phone is 1.56 at most: its width)
+      var s = Math.max(1.3, Math.min(1.3 * 1.4, (R0 - L0) / cw, (B0 - T0) / ch));
+      var cy = Math.min(Math.max(fy, T0 + ch * s / 2), B0 - ch * s / 2);
+      LAND = { s: s, x: cx - fx - s * (cx0 - fx), y: cy - fy - s * (cy0 - fy) };
+    }
     var geo = null, cam = null;
     function measure() {                                      // the untransformed frame, once per layout
       gsap.set(act, { clearProps: 'transform' });
       var a = act.getBoundingClientRect(), f = (film || act).getBoundingClientRect();
       geo = { ax: a.left + a.width / 2, ay: a.top + a.height / 2, f: f };
     }
-    function aim(t) {                                         // the camera: the house fills the screen
+    function aim(t) {
+      // the camera: the whole house on the screen as it starts (the levels
+      // apart, at their tallest), then held at that size — it pans with the
+      // house as the levels settle, it does not zoom (client, 2026-09-25:
+      // the house grows after the animation, not during it)
       var f = geo.f, y0 = f.top + f.height * top(t), y1 = f.top + f.height * BOX.b;
       var x0 = f.left + f.width * BOX.l, x1 = f.left + f.width * BOX.r;
       var mx = innerWidth < innerHeight ? .98 : .9;           // portrait: edge to edge
-      var s = Math.min(innerWidth * mx / (x1 - x0), innerHeight * .86 / (y1 - y0));
+      // … and 15 % short of filling it (client: smaller at the start)
+      var s = .85 * Math.min(innerWidth * mx / (x1 - x0), innerHeight * .86 / (f.height * (BOX.b - top(0))));
       var cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
       return { x: innerWidth / 2 - geo.ax - s * (cx - geo.ax), y: innerHeight / 2 - geo.ay - s * (cy - geo.ay), s: s };
     }
@@ -305,17 +346,19 @@
       gsap.set(act, { x: cam.x, y: cam.y, scale: cam.s });
     }
     function landIn() {
-      // the landing push-in (film ×1.3, up 29.5 %), taken in one step and
-      // cancelled by the camera — the picture does not move, only its split
+      // the landing push-in (LAND), taken in one step and cancelled by the
+      // camera — the picture does not move, only its split; the glide to
+      // the layout then carries the house to its landed size
       if (!geo || !film) return;
       gsap.ticker.remove(follow);                             // the camera holds still from here
+      landAim();
       var f = geo.f, s = gsap.getProperty(act, 'scale'), tx = gsap.getProperty(act, 'x'), ty = gsap.getProperty(act, 'y');
       var fx = f.left + f.width / 2, fy = f.top + f.height / 2;
       var cx = f.left + f.width * (BOX.l + BOX.r) / 2, cy = f.top + f.height * (top(9) + BOX.b) / 2;
       var sx = geo.ax + s * (cx - geo.ax) + tx, sy = geo.ay + s * (cy - geo.ay) + ty;       // on screen now
-      var px = fx + 1.3 * (cx - fx), py = fy + 1.3 * (cy - fy) - .295 * f.height;          // after the push-in
-      var s2 = s / 1.3;
-      gsap.set(film, { yPercent: -29.5, scale: 1.3 });
+      var px = fx + LAND.s * (cx - fx) + LAND.x, py = fy + LAND.s * (cy - fy) + LAND.y;   // after the push-in
+      var s2 = s / LAND.s;
+      gsap.set(film, { x: LAND.x, y: LAND.y, scale: LAND.s });
       gsap.set(act, { scale: s2, x: sx - geo.ax - s2 * (px - geo.ax), y: sy - geo.ay - s2 * (py - geo.ay) });
     }
     function skip(e) {                                        // any wish to move on is honoured at once
@@ -335,7 +378,7 @@
       introSeen = true;                                       // an in-page route home lands finished
       try { history.scrollRestoration = 'auto'; } catch (e) {}   // the rest of the site remembers as usual
       tweens.push(gsap.to(act, { x: 0, y: 0, scale: 1, duration: fast ? .55 : 1.15, ease: 'power3.inOut', overwrite: true,
-        onComplete: function () { gsap.set(act, { clearProps: 'transform' }); ScrollTrigger.refresh(); } }));
+        onComplete: function () { intro.settled = true; gsap.set(act, { clearProps: 'transform' }); ScrollTrigger.refresh(); } }));
       tweens.push(gsap.delayedCall(fast ? .12 : .6, reveal));
     }
     if (!seen) {
@@ -378,8 +421,28 @@
       });
       function seek(t) { want = t; if (!seeking && Math.abs(film.currentTime - t) > .015) { seeking = true; film.currentTime = t; } }
       var ease = gsap.parseEase('power1.inOut');
+      // the opened scale lives in CSS (--os): larger where the house stands
+      // beside the words, smaller where it sits under them
+      var OS = .86, SHIFT = 0;
+      function readOS() {
+        OS = parseFloat(getComputedStyle(act).getPropertyValue('--os')) || .86;
+        // a new layout, a new landing: re-aim, and re-seat a landed house at rest
+        landAim();
+        if (done && !scrubbing && (!landing || !landing.isActive()) && (!intro || intro.settled))
+          gsap.set(film, { x: LAND.x, y: LAND.y, scale: LAND.s });
+        // how far left the opened house steps so its name column stays on
+        // screen (labels are laid out at the opened scale, visible or not)
+        SHIFT = 0;
+        if (!wide()) return;
+        var a = act.getBoundingClientRect(), x = gsap.getProperty(act, 'x') || 0, right = 0;
+        act.querySelectorAll('.ol div').forEach(function (d) { right = Math.max(right, d.getBoundingClientRect().right - a.left); });
+        var limit = innerWidth - parseFloat(getComputedStyle(poster).paddingRight);
+        SHIFT = Math.max(0, a.left - x + right - limit);
+      }
+      readOS();
       pin = track(ScrollTrigger.create({
         trigger: poster, start: 'top top', end: '+=130%', pin: true, anticipatePin: 1,
+        onRefresh: readOS,
         onUpdate: function (self) {
           if (!act.classList.contains('filming')) return;
           var p = self.progress;
@@ -391,7 +454,9 @@
           seek(END - q * (END - OPEN_T));
           // opened, the house spans 4-96 % of the frame: at .86 it clears both
           // headline lines, which overlap the frame's top and bottom 7 %
-          gsap.set(film, { scale: 1.3 - .44 * q, yPercent: -29.5 * (1 - q) });
+          // (stacked layouts); beside the words it opens at 1.03
+          gsap.set(film, { scale: LAND.s - (LAND.s - OS) * q, x: LAND.x * (1 - q), y: LAND.y * (1 - q) });
+          if (!intro || intro.settled) gsap.set(act, { x: -SHIFT * q });
           var open = p > .8;
           act.classList.toggle('open', open); poster.classList.toggle('opened', open);
         }

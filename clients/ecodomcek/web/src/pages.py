@@ -89,15 +89,21 @@ OPEN = [("roof", "r", "Strecha", "plochá"),
 
 
 def open_labels():
-    out = ""
+    # --x: the level's edge on its own side (the numbered points, stacked
+    # layouts); --xr: its right edge, --cx: the column the names hang in
+    # beside the house (side layouts) — all in % of the frame
+    out, rights = "", []
+    for k, *_ in OPEN:
+        l = LAY["layers"][k]
+        rights.append((l["x"] + l["w"]) / LAY["W"] * 100)
     for i, (k, side, name, note) in enumerate(OPEN):
         l = LAY["layers"][k]
         y = (l["y"] + l["h"] * .5) / LAY["H"] * 100
         x = ((l["x"] + l["w"]) if side == "r" else l["x"]) / LAY["W"] * 100
-        em = f"<em>{note}</em>" if note else ""
-        out += (f'<div class="ol {side}" data-n="{i + 1}" style="--y:{y:.1f}%;--x:{x:.1f}%"><i></i>'
+        em = "".join(f"<em>{n}</em>" for n in note.split(" · ")) if note else ""
+        out += (f'<div class="ol {side}" data-n="{i + 1}" style="--y:{y:.1f}%;--x:{x:.1f}%;--xr:{rights[i]:.1f}"><i></i>'
                 f'<div><b>{i + 1:02d}</b><span>{name}</span>{em}</div></div>')
-    return f'<div class="olabels">{out}</div>'
+    return f'<div class="olabels" style="--cx:{max(rights):.1f}">{out}</div>'
 
 
 def street():
@@ -407,7 +413,6 @@ def build(B):
       <h1><span class="rl"><span>Vitajte vo svete,</span></span> <span class="rl"><span>kde <em>vonia</em> drevo.</span></span></h1>
       <p class="sub fade">Montované drevodomy z Lúčiny pri Prešove. Od základov až po kolaudáciu.</p>
       <div class="ctas fade d2">{btn("Pozrieť realizácie", "realizacie.html")}{btn("Otvoriť stenu", "stena.html", ghost=True, arrow=False)}</div>
-      <ol class="olegend" aria-label="Podlažia domu">{"".join(f"<li><b>{i + 1:02d}</b><span>{n}</span>" + (f"<i>{note}</i>" if note else "") + "</li>" for i, (_, _, n, note) in enumerate(OPEN))}</ol>
     </div>
     <div class="house" data-house>{house}
       <video class="film" muted playsinline preload="auto" aria-hidden="true" tabindex="-1"
@@ -415,6 +420,7 @@ def build(B):
       <img class="still" src="assets/hero-last.webp" alt="" aria-hidden="true" loading="lazy">
       {open_labels()}
     </div>
+    <ol class="olegend" aria-label="Podlažia domu">{"".join(f"<li><b>{i + 1:02d}</b><span>{n}</span>" + (f"<i>{note}</i>" if note else "") + "</li>" for i, (_, _, n, note) in enumerate(OPEN))}</ol>
     <span class="vz mono">vizualizácia · Rodinný dom Lúčina 2024</span>
   </div>
 </section>'''
