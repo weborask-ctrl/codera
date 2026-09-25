@@ -6,6 +6,7 @@ Seven page types, each with a DIFFERENT SHAPE, one shared component set.
 section, page, …) so the helpers stay in one place.
 """
 import json
+import math
 import re
 import pathlib
 
@@ -152,6 +153,66 @@ def plate_img(p, esc, eager=False, size=None):
         return (f'<img src="{src}" alt="{esc(p["shot"])}" loading="{"eager" if eager else "lazy"}" '
                 f'decoding="async"{wh}>')
     return '<span class="noimg mono">Fotografiu doplní EcoDomček</span>'
+
+
+# ── where they built: Natural Earth outline (src/geo.py) + the jobs' places.
+# Places are municipality centres, so the map says "orientačne"; the garage
+# has no place on its sheet and is not drawn.
+SK = json.loads((REND / "sk.json").read_text())
+PLACES = [  # name, lat, lon, project slugs, label side
+    ("Žilina", 49.223, 18.740, ["2015-budatin"]),
+    ("Prešov", 48.998, 21.239, ["2021-bungalov-presov"]),
+    ("Lúčina", 48.970, 21.380, ["2024-lucina", "2008-prvotina"]),
+    ("pri Košiciach", 48.716, 21.261, ["2023-kosice", "2021-terasa"]),
+    ("Chrastné", 48.630, 21.360, ["2019-terasa-chrastne"]),
+]
+BASE = "Lúčina"
+
+
+def km(a, b):
+    (la1, lo1), (la2, lo2) = [(math.radians(x), math.radians(y)) for x, y in (a, b)]
+    h = math.sin((la2 - la1) / 2) ** 2 + math.cos(la1) * math.cos(la2) * math.sin((lo2 - lo1) / 2) ** 2
+    return 6371 * 2 * math.asin(math.sqrt(h))
+
+
+def sk_map(esc):
+    import math as _m
+    k = _m.cos(_m.radians(SK["lat0"]))
+    x0, y0, x1, y1 = SK["box"]
+    S = 100
+    pad, side = 10, 128                                  # label column right of the country
+    W, H = (x1 - x0) * S + pad * 2 + side, (y1 - y0) * S + pad * 2
+    def xy(lat, lon):
+        return ((lon * k - x0) * S + pad, (-lat - y0) * S + pad)
+    ring = " ".join(f"{(x - x0) * S + pad:.1f},{(y - y0) * S + pad:.1f}" for x, y in SK["ring"])
+    by = {p["slug"]: p for p in C.PROJECTS}
+    base = next(pl for pl in PLACES if pl[0] == BASE)
+    bx, by_ = xy(base[1], base[2])
+    lines_, pins, labels, legend = "", "", "", ""
+    east = [pl for pl in PLACES if pl[2] > 20]
+    ly = {pl[0]: 18 + i * ((H - 36) / max(1, len(east) - 1)) for i, pl in enumerate(sorted(east, key=lambda q: -q[1]))}
+    for i, (name, lat, lon, slugs) in enumerate(PLACES):
+        x, y = xy(lat, lon)
+        if name != BASE:                                  # from home to the job: a flat arc
+            mx, my = (bx + x) / 2, (by_ + y) / 2 - abs(bx - x) * .18
+            lines_ += f'<path class="route" d="M{bx:.1f},{by_:.1f} Q{mx:.1f},{my:.1f} {x:.1f},{y:.1f}"/>'
+        pins += (f'<circle class="{"ghome" if name == BASE else "gpin"}" cx="{x:.1f}" cy="{y:.1f}" r="{5.2 if name == BASE else 4.4}"/>'
+                 f'<text class="pn" x="{x:.1f}" y="{y + .3:.1f}">{i + 1}</text>')
+        jobs = "".join(f'<a href="realizacia-{sl}.html"><i>{by[sl]["year"]}</i>{esc(title_of(by[sl]))}</a>' for sl in slugs)
+        head = f'<b>{esc(name)}</b>' + ('<em>tu sme doma</em>' if name == BASE else f'<em>{round(km(base[1:3], (lat, lon)))} km</em>')
+        if lon > 20:                                      # east: a leader to the label column
+            tx, ty = (x1 - x0) * S + pad + 14, ly[name]
+            lines_ += f'<path class="lead" d="M{x:.1f},{y:.1f} L{tx - 8:.1f},{ty:.1f} L{tx - 2:.1f},{ty:.1f}"/>'
+            labels += (f'<div class="gl" style="left:{tx / W * 100:.2f}%;top:{ty / H * 100:.2f}%">'
+                       f'<span class="gn">{i + 1}</span><div>{head}{jobs}</div></div>')
+        else:                                             # west: the label sits over the pin
+            labels += (f'<div class="gl gw" style="left:{x / W * 100:.2f}%;top:{y / H * 100:.2f}%">'
+                       f'<span class="gn">{i + 1}</span><div>{head}{jobs}</div></div>')
+        legend += f'<li><span class="gn">{i + 1}</span><div>{head}{jobs}</div></li>'
+    svg = (f'<svg viewBox="0 0 {W:.1f} {H:.1f}" aria-hidden="true">'
+           f'<polygon class="sk" points="{ring}"/>{lines_}{pins}</svg>')
+    return (f'<figure class="skmap" style="aspect-ratio:{W:.1f}/{H:.1f}">{svg}{labels}</figure>'
+            f'<ol class="glegend">{legend}</ol>')
 
 
 def build(B):
@@ -480,6 +541,20 @@ def build(B):
     real += section(1, "Kronika", "paper", f'''<div class="wrap chronicle">{groups}
   <p class="fine chron-note">Fotografie sú zo skutočných realizácií EcoDomčeka, v rozlíšení, v akom
     ich máme. Garážo-sklado-terasu (2019) zatiaľ bez fotografie.</p>
+</div>''')
+    placed = sum(len(pl[3]) for pl in PLACES)
+    far = max(PLACES, key=lambda pl: km(next(q for q in PLACES if q[0] == BASE)[1:3], pl[1:3]))
+    far_km = round(km(next(q for q in PLACES if q[0] == BASE)[1:3], far[1:3]))
+    real += section(2, "Kde stoja", "paper", f'''<div class="wrap geo" data-reveal>
+  <div class="geotext">
+    <h2 class="fade">{lines("Od Žiliny|po <em>Košice</em>.")}</h2>
+    <p class="fade d2">Vychádzame z Lúčiny pri Prešove. {placed} z {len(C.PROJECTS)} realizácií má na
+      stavebnom liste miesto — najďalej {esc(far[0])}, {far_km} km vzdušnou čiarou.</p>
+    <dl class="gfacts fade d3"><div><dt>{len(PLACES)}</dt><dd>miest</dd></div>
+      <div><dt>{placed}</dt><dd>stavieb na mape</dd></div><div><dt>{far_km}</dt><dd>km najďalej</dd></div></dl>
+    <p class="fine fade d3">Poloha orientačne — stred obce. Obrys: Natural Earth.</p>
+  </div>
+  <div class="fade d2">{sk_map(esc)}</div>
 </div>''')
     real += contact_band("realizacie.html")
     page("realizacie.html", "Realizácie — EcoDomček",

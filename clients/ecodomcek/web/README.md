@@ -204,3 +204,9 @@ otvorené HTML iPad zobrazí bez JavaScriptu. Po zmene: `python3 src/build.py &&
 python3 src/bundle.py` a súbor znova skopírovať (s riadkom
 `<meta name="robots" content="noindex, nofollow">`). Na produkčný
 www.codera.sk sa dostane len zlúčením vetvy.
+
+## Mapa „Kde stoja" (Realizácie)
+
+Obrys Slovenska je z Natural Earth 1:10m (public domain, cez `world-atlas`, ISC),
+predspracovaný do `renders/sk.json` skriptom `src/geo.py` (návod v jeho hlavičke).
+Miesta realizácií sú v `src/pages.py` (`PLACES`) — stredy obcí, preto „orientačne".
