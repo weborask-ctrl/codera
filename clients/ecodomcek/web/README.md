@@ -217,3 +217,18 @@ Miesta realizácií sú v `src/pages.py` (`PLACES`) — stredy obcí, preto „o
 `<base href="/">` (zdroje z koreňa webu, funguje na hlbokých adresách) a `noindex`;
 nie je v sitemap ani v jednosúborovom bundli. Ak by web bežal v podpriečinku,
 `base` treba upraviť.
+
+## Kresby perom (namiesto AI vizualizácií)
+
+`python3 src/drawings.py` spraví z `renders/rez.jpg` a `renders/explod.jpg` kresby perom
+`renders/draw-rez.jpg`, `draw-explod.jpg` a výrez interiéru `draw-rezin.jpg` (XDoG: rozdiel
+dvoch Gaussových rozmazaní, prah = čiara; pozadie mimo objektu sa maže). Build ich kopíruje
+ako `assets/draw-*.jpg` + WebP. Scény s lístím (interiéry, terasa) sa takto nekreslia — vzniká
+šum. Rez stenou je vektorový výkres priamo v `pages.py` (`wall_section()`, zo `C.WALL`), leto
+a zima na Technológii sú schémy nad kresbou (`season_svg()`).
+
+## Typografia
+
+`build.py` → `typeset()` prejde každý text stránky: pomlčka „–" s medzerami namiesto „—",
+pevná medzera za jednopísmenovými slovami (v, k, s, z, a, o, u, i), neoddeliteľné skupiny číslic
+(telefón, 8 000 €), „·" v texte → čiarka. Stačí písať normálne; build to vysadí.

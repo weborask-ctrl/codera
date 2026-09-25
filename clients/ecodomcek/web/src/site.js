@@ -821,7 +821,7 @@
     k.addEventListener('input', function () { if (k.getAttribute('aria-invalid') === 'true' && okContact(val('kontakt'))) flag(''); });
     f.addEventListener('submit', function (e) {
       e.preventDefault();
-      if (!val('kontakt')) { flag('Napíšte telefón alebo e-mail — inak sa vám nemáme ako ozvať.'); k.focus(); return; }
+      if (!val('kontakt')) { flag('Napíšte telefón alebo e-mail – inak sa vám nemáme ako ozvať.'); k.focus(); return; }
       if (!okContact(val('kontakt'))) { flag('Toto nevyzerá ako telefón ani e-mail.'); k.focus(); return; }
       flag('');
       var rows = [
@@ -830,7 +830,7 @@
         ['Projekt', checked('projekt').join('')], ['Bývať od', val('kedy')]
       ].filter(function (r) { return r[1]; }).map(function (r) { return r[0] + ': ' + r[1]; });
       text = rows.join('\n') + (val('body') ? '\n\n' + val('body') : '');
-      var subj = 'Dopyt z webu' + (checked('co').length ? ' — ' + checked('co').join(', ') : '') +
+      var subj = 'Dopyt z webu' + (checked('co').length ? ' – ' + checked('co').join(', ') : '') +
                  (val('meno') ? ' (' + val('meno') + ')' : '');
       location.href = 'mailto:' + f.dataset.mail + '?subject=' + encodeURIComponent(subj) +
         '&body=' + encodeURIComponent(text);
@@ -838,7 +838,7 @@
     });
     var copy = f.querySelector('[data-copy]'), said = f.querySelector('.fcopied');
     copy.addEventListener('click', function () {
-      function ok() { said.textContent = 'Skopírované — vložte do e-mailu alebo správy.'; }
+      function ok() { said.textContent = 'Skopírované – vložte do e-mailu alebo správy.'; }
       if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, fallback);
       else fallback();
       function fallback() {
