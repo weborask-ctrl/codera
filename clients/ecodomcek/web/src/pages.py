@@ -131,6 +131,19 @@ def photo_src(p):
     return f'assets/foto-{p["photo"]}.jpg' if p.get("photo") else None
 
 
+# where each photo's close-up looks: a real detail of that build, chosen by
+# eye (window trim, cladding, deck boards, railing) — (x %, y %, what)
+DETAIL = {
+    "2008-prvotina": (60, 45, "okná s červeným lemovaním"),
+    "2015-budatin": (55, 36, "fasáda z cementovláknitých dosiek"),
+    "2019-terasa-chrastne": (34, 40, "zastrešenie terasy"),
+    "2021-bungalov-presov": (55, 74, "smrekovcová terasa"),
+    "2021-terasa": (34, 56, "zábradlie"),
+    "2023-kosice": (30, 38, "okno so žalúziou"),
+    "2024-lucina": (62, 44, "rhombus profil a Fundermax"),
+}
+
+
 def plate_img(p, esc, eager=False, size=None):
     """The photo, or an honest empty plate when we have none."""
     src = photo_src(p)
@@ -532,8 +545,16 @@ def build(B):
         sim = "".join(
             f'<a href="realizacia-{q["slug"]}.html"><i class="mono">{q["year"]}</i>'
             f'<span>{esc(title_of(q))}</span>{ARROW}</a>' for q in same)
-        body += section(2, "Slovami konateľa", "paper", f'''<div class="wrap words" data-reveal>
+        # the close-up: the same photo, already loaded, framed on one real
+        # detail — it fills the gap between the words and the side column
+        det = DETAIL.get(p.get("photo", ""))
+        closeup = (f'''<figure class="wdet fade d2"><div class="frame">
+    <img src="{photo_src(p)}" alt="" loading="lazy" decoding="async"
+      style="transform-origin:{det[0]}% {det[1]}%"></div>{cap("Detail z fotografie · " + det[2])}</figure>'''
+                   if det and photo_src(p) else "")
+        body += section(2, "Slovami konateľa", "paper", f'''<div class="wrap words{" hasdet" if closeup else ""}" data-reveal>
   <blockquote class="fade">„{esc(p["text"])}“</blockquote>
+  {closeup}
   <div class="wside">
     <div class="simil fade d2"><span class="mono">Z rovnakej kategórie</span>{sim}</div>
     <div class="who fade d3"><b>{esc(C.DIRECTOR)}</b>
