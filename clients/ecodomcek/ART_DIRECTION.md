@@ -876,3 +876,21 @@ posunie dom doľava presne o toľko, koľko stĺpec potrebuje (meria sa pri kaž
 prepočte; na 1440 ~110 px, medzera k nadpisu ostáva ≥ 20 px). Tablet na šírku:
 len číslo a názov (podlažia sú ~65 px od seba). Telefón a tablet na výšku:
 čísla na dome ostávajú, zoznam je pod domom (nie pod nadpisom).
+
+## Fáza 20 — dom sa zväčší po animácii, nie počas nej (2026-09-25)
+
+**Pokyn.** Nezväčšovať dom na začiatku, ale po skončení animácie — vtedy nech je
+väčší a celý lepšie viditeľný.
+
+**Úvod.** Kamera už nepribližuje: zmestí celý dom (rozložené poschodia, najvyšší
+stav) na obrazovku a pri stavbe len posúva záber, aby dom ostal v strede —
+nič sa neoreže.
+
+**Po animácii.** Záverečné priblíženie (`landAim`) už nie je pevné ×1,3, ale
+vypočíta sa z rozloženia: dom vyplní priestor napravo od nadpisu a textu
+(merané z obdĺžnikov riadkov), nad popiskom vizualizácie, 1,5 % od okraja
+obrazovky; na telefóne šírku po 3 % okraje. Výsledok (šírka domu): 1440 px
+426 → 548 (+29 %), 1920 → 729, 2560 → 968, telefón 390 314 → 366 (+17 %).
+Otváranie scrollom plynulo prejde z tejto veľkosti na otvorený dom (fáza 19).
+Okraje filmu sa prelínajú do papiera (maska), aby väčšie priblíženie neukázalo
+hranu rámu.
