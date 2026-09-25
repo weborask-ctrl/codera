@@ -205,6 +205,7 @@
       var scrubbing = false, landing = null, pin = null;
       function built() {
         if (done) return; done = true; poster.classList.add('built');
+        if (intro && !intro.done) gsap.delayedCall(.3, function () { finishIntro(false); });
         // the landing: the camera pushes in on the closed house (the film
         // ends with it low in the frame — measured centre 72.7 %, height 48 %)
         if (act.classList.contains('filming') && !scrubbing) {
@@ -238,8 +239,58 @@
       tweens.push(ft);
       tl = ft; houseTl = ft;
     }
-    /* the words do not wait for the house */
-    function typeset() { poster.classList.add('typeset'); }
+    // ── the intro (client, 2026-09-25): first the house alone, full screen,
+    // while it draws, builds and closes; then it glides to its place at the
+    // side, smaller, and only then the words and the menu arrive. Once per
+    // visit — coming back to the home page lands on the finished poster. Any
+    // input (wheel, touch, key, click) skips to that end state at once, so
+    // the words never wait on someone who wants to read or move on.
+    var intro = null;
+    var seen = false;
+    try { seen = sessionStorage.getItem('ecd-intro') === '1'; } catch (e) {}
+    function reveal() {
+      poster.classList.add('typeset'); poster.classList.remove('intro');
+      document.body.classList.remove('intro');
+    }
+    function place() {                                        // the house, centred over the whole screen
+      if (!intro || intro.done) return;
+      gsap.set(act, { clearProps: 'transform' });
+      var r = act.getBoundingClientRect();
+      var s = Math.min(innerWidth / r.width, innerHeight / r.height);
+      gsap.set(act, { x: innerWidth / 2 - (r.left + r.width / 2), y: innerHeight / 2 - (r.top + r.height / 2),
+        scale: s, transformOrigin: '50% 50%' });
+    }
+    function skip(e) {                                        // any wish to move on is honoured at once
+      if (e && e.type === 'scroll' && scrollY < 4) return;    // (a scrollbar drag counts; a restore to 0 does not)
+      finishIntro(true);
+    }
+    var INPUT = ['wheel', 'touchstart', 'keydown', 'pointerdown', 'scroll'];
+    function finishIntro(fast) {
+      if (!intro || intro.done) return;
+      intro.done = true;
+      INPUT.forEach(function (t) { removeEventListener(t, skip, true); });
+      removeEventListener('resize', place);
+      try { sessionStorage.setItem('ecd-intro', '1'); } catch (e) {}
+      tweens.push(gsap.to(act, { x: 0, y: 0, scale: 1, duration: fast ? .55 : 1.15, ease: 'power3.inOut', overwrite: true,
+        onComplete: function () { gsap.set(act, { clearProps: 'transform' }); ScrollTrigger.refresh(); } }));
+      tweens.push(gsap.delayedCall(fast ? .12 : .6, reveal));
+    }
+    if (!seen) {
+      intro = { done: false };
+      poster.classList.add('intro'); document.body.classList.add('intro');
+      place();
+      tl.call(place, null, 0);                                // again when it starts: fonts and layout are final
+      INPUT.forEach(function (t) { addEventListener(t, skip, { capture: true, passive: true }); });
+      addEventListener('resize', place);
+      tweens.push(gsap.delayedCall(9, function () { finishIntro(false); }));   // a film that never ends
+      // leaving the page mid-intro must not leave the menu hidden elsewhere
+      tweens.push({ kill: function () {
+        INPUT.forEach(function (t) { removeEventListener(t, skip, true); });
+        removeEventListener('resize', place);
+        document.body.classList.remove('intro');
+      } });
+    }
+    function typeset() { if (!intro) poster.classList.add('typeset'); }
     if (document.body.classList.contains('ready')) { typeset(); tl.play(); }
     else { pendingPlay = tl; pendingTypeset = typeset; }
 

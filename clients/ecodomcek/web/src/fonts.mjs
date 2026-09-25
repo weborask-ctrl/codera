@@ -15,7 +15,7 @@
  * (the „Slovak quotes", the em dash, the ellipsis), the euro and the arrows.
  *
  * Only the outputs are committed. Licences: SIL Open Font License 1.1 for
- * all three families.
+ * all four families.
  *
  * Needs `subset-font`, which Node resolves from the repository's own
  * node_modules. Only regenerating the faces needs it — `build.py` copies the
@@ -56,6 +56,13 @@ for (const [a, b] of RANGES) {
 const FACES = [
   { out: "hanken.woff2", src: "hankengrotesk/HankenGrotesk[wght].ttf", axes: { wght: { min: 300, max: 500 } } },
   { out: "newsreader.woff2", src: "newsreader/Newsreader[opsz,wght].ttf", axes: { wght: { min: 200, max: 300 } } },
+  /* the poster headline (2026-09-25, client: "krajší, zaujímavejší font"):
+     Fraunces pinned to its display optical size, fully SOFT (rounded like
+     sanded timber) and WONK on (the leaning n, h, m); upright and italic */
+  { out: "fraunces.woff2", src: "fraunces/Fraunces[SOFT,WONK,opsz,wght].ttf",
+    axes: { opsz: 144, SOFT: 100, WONK: 1, wght: { min: 300, max: 400 } } },
+  { out: "fraunces-italic.woff2", src: "fraunces/Fraunces-Italic[SOFT,WONK,opsz,wght].ttf",
+    axes: { opsz: 144, SOFT: 100, WONK: 1, wght: { min: 300, max: 400 } } },
   { out: "plex-mono.woff2", src: "ibmplexmono/IBMPlexMono-Regular.ttf", axes: {} },
   { out: "plex-mono-500.woff2", src: "ibmplexmono/IBMPlexMono-Medium.ttf", axes: {} },
 ]
