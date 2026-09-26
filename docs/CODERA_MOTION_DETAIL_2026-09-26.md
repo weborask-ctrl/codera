@@ -30,3 +30,5 @@ Reproduce entry checks with `node scripts/metal-entry-check.mjs` and the current
 ## Codera rule
 
 Treat resolution, compression fidelity, displayed pixel density and seek latency as separate requirements. Compare identical decoded timestamps at the same viewport and DPR. Never silently trade an approved detail level for fewer bytes. Any smaller replacement must pass visual comparison and a cold-entry plus forward/reverse performance check; document the trade-off. A larger asset is acceptable here because Marcus explicitly approved longer preparation. Keep layout, typography, projects, pricing and legal drafts outside this correction.
+
+CI also exposed a portfolio-test race: programmatic scrolling ran while main was still inert under the entry cover, before the long motion layout settled. The test now awaits interactive main before scrolling and retains ordinary pointer-hit checks. A delayed-download reproduction at 1280×720 passed preview opening, Escape and focus return. No portfolio production code changed.

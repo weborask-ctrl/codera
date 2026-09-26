@@ -22,6 +22,9 @@ test.describe("Silver production homepage", () => {
     await page.goto("/")
     await expect(page.locator('.project')).toHaveCount(5)
     await expect(page.locator('.project .concept,.project-caption')).toHaveCount(0)
+    // The entry cover intentionally blocks visitors while motion layout is prepared.
+    // Do not programmatically scroll an inert page before that layout is final.
+    await expect(page.locator('main')).toHaveJSProperty('inert', false, { timeout: 25000 })
     await page.locator('.project').first().evaluate(el=>el.scrollIntoView({block:'start'}))
     await page.locator('.project-preview').first().click()
     await expect(page.locator('.project-dialog')).toBeVisible()
