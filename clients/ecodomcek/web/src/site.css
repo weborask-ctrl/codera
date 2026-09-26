@@ -1844,31 +1844,3 @@ header nav a,.pill{font-size:14px}
   background:var(--mark) center/contain no-repeat}
 .svtoc a:hover{padding-left:32px}
 
-/* ── the wall in section (wall_section()): drawn, not rendered ────────── */
-.wt-art{display:grid;place-items:center;padding:clamp(16px,3vw,44px) clamp(16px,3vw,44px) clamp(34px,4vw,54px)}
-.wsec{display:block;width:100%;height:auto;color:var(--paper);overflow:visible}
-.wsec path,.wsec rect,.wsec polygon,.wsec polyline{fill:none;stroke:currentColor;stroke-width:1.4;stroke-linejoin:round}
-.wsec .thin{stroke-width:.8}
-.wsec .dot{fill:currentColor;stroke:none}
-.wsec .brake{stroke-width:2.6;stroke-dasharray:9 5}
-.wsec text{fill:currentColor;font-family:var(--sans);font-size:15.5px}
-.wsec .n{font-family:var(--mono);fill:var(--glow,#e8b86a)}
-.wsec .side{font-family:var(--mono);font-size:12.5px;opacity:.72}
-.wt-art:hover .wsec{transform:none}
-.paper-ink .wsec,.stack .wsec{color:var(--ink)}
-.stack .wsec .n,.paper-ink .wsec .n{fill:var(--amber-ink)}
-.wt-art{aspect-ratio:auto;background:transparent;border:1px solid rgba(243,238,227,.22);
-  padding:clamp(18px,2.6vw,40px) clamp(14px,2vw,32px) clamp(40px,4.4vw,58px)}
-/* summer and winter over the same drawing (season_svg) */
-.seas .frame.drawn{position:relative;aspect-ratio:1500/1119;background:var(--paper)}
-.seas .frame.drawn img{object-fit:contain}
-.season{position:absolute;inset:0;width:100%;height:100%}
-.season path,.season circle{fill:none;stroke:var(--amber);stroke-width:5;stroke-linecap:round}
-.season.zima path{stroke:var(--ink2);stroke-width:4}
-.season .heat{stroke:var(--amber);stroke-width:6}
-.season .back{stroke:var(--amber);stroke-width:5;stroke-dasharray:14 10}
-.season.zima .heat,.season.zima .back{stroke:var(--amber)}
-/* a phone draws the wall at half size: the numbers stay, larger; the names
-   are on the wall page itself */
-@media (max-width:600px){ .wsec .nm{display:none} .wsec text{font-size:22px} .wsec .side{font-size:18px}
-  .wt-art{justify-items:start;overflow:hidden} .wt-art .wsec{width:152%;max-width:none} }
