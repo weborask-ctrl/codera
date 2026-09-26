@@ -14,10 +14,11 @@ outputs a one-page design brief. Then read the chosen family's record
 in `styles/` and the relevant system files (04–09). `10` is the audit
 companion; `03` is the industry prior.
 
-Motion entry decision (2026-09-26): prepare a short opening, then continuously
-fetch the full sharp video in the background. The blocking full-film gate is
-superseded. See 13_CODERA_CURRENT_SYSTEM.md and
-../docs/CODERA_FAST_ENTRY_2026-09-26.md for measured limits and current tests.
+Motion stability correction (2026-09-26): progressive playback was rejected for
+severe stuttering. Animate only a completely prepared Blob; a short cover can
+release to a sharp static hero. Fast first entry with immediate full motion
+is still unresolved. See 13_CODERA_CURRENT_SYSTEM.md and
+../docs/CODERA_MOTION_STABILITY_2026-09-26.md.
 
 ## Files
 

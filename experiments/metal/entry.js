@@ -23,10 +23,10 @@
   };
   if (!enabled) return;
   // Fail open even when the main bundle is blocked or fails to initialize.
-  watchdog = setTimeout(leave, 12000);
+  watchdog = setTimeout(leave, 4000);
   document.addEventListener('visibilitychange', () => {
     clearTimeout(watchdog);
-    if (!finished && !document.hidden) watchdog = setTimeout(leave, 12000);
+    if (!finished && !document.hidden) watchdog = setTimeout(leave, 4000);
   });
   document.addEventListener('DOMContentLoaded', () => {
     if (finished) return;
@@ -35,6 +35,6 @@
     document.body.append(cover); progress = cover.querySelector('progress'); skip = cover.querySelector('button'); progress.value = percent;
     for (const el of document.body.children) { if (el !== cover && !el.inert) { el.inert = true; el.dataset.entryInert = ''; } }
     skip.addEventListener('click', leave);
-    skipTimer = setTimeout(() => { skip.hidden = false; }, 3000);
+    skipTimer = setTimeout(() => { skip.hidden = false; }, 1500);
   }, { once: true });
 })();
