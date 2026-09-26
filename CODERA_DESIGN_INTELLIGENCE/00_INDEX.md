@@ -14,9 +14,10 @@ outputs a one-page design brief. Then read the chosen family's record
 in `styles/` and the relevant system files (04–09). `10` is the audit
 companion; `03` is the industry prior.
 
-Motion entry decision (2026-09-26): Marcus requested a fully prepared video
-before the website reveal. The current bible documents the loader, browser
-cache, static exits and both cold-entry and prepared-scroll measurements.
+Motion entry decision (2026-09-26): prepare a short opening, then continuously
+fetch the full sharp video in the background. The blocking full-film gate is
+superseded. See 13_CODERA_CURRENT_SYSTEM.md and
+../docs/CODERA_FAST_ENTRY_2026-09-26.md for measured limits and current tests.
 
 ## Files
 

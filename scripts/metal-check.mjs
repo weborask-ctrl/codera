@@ -29,8 +29,10 @@ async function slowSeekRecovery() {
   try {
     await slow.goto(url,{waitUntil:'domcontentloaded'});
     await slow.waitForFunction(()=>window.__coderaMotion?.active&&window.__coderaMotion.prepared);
+    await slow.waitForFunction(()=>window.__coderaMotion.fullyBuffered||window.__coderaMotion.delivery==='prepared-fallback');
     assert((await slow.locator('video').getAttribute('src')).startsWith('blob:'));
     await slow.route('**/*.mp4',route=>route.abort());
+    await slow.route('**/*.m4s',route=>route.abort());
     for(const p of [.85,.15,.95]){
       await slow.evaluate(p=>scrollTo(0,p*(document.querySelector('.journey').offsetHeight-innerHeight)),p);
       await slow.waitForFunction(p=>Math.abs(window.__coderaMotion.progress-p)<.003&&Math.abs(window.__coderaMotion.displayedTime-window.__coderaMotion.targetTime)<.12&&!document.querySelector('video').seeking,p);
@@ -96,7 +98,7 @@ async function captionFallback(mode) {
   },mode);
   try {
     await fallback.goto(url,{waitUntil:'domcontentloaded'});
-    await fallback.waitForFunction(()=>document.querySelector('video').readyState>=2);
+    await fallback.waitForFunction(()=>window.__coderaMotion.active&&document.querySelector('video').readyState>=2);
     await fallback.evaluate(()=>{const journey=document.querySelector('.journey');scrollTo(0,.33*(journey.offsetHeight-innerHeight));});
     await fallback.waitForFunction(()=>Math.abs(window.__coderaMotion.progress-.33)<.002&&!document.querySelector('video').seeking);
     await fallback.waitForFunction(()=>document.querySelector('.beat-detail').getAttribute('aria-hidden')==='false');
