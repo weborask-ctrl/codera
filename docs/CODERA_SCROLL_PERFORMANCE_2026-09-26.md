@@ -1,5 +1,7 @@
 # Scroll performance — 2026-09-26
 
+**SUPERSEDED:** Marcus rejected the full-download startup delay after PR #114. Use CODERA_SCROLL_STREAMING_2026-09-26.md for the replacement; measurements below are historical.
+
 Status: tested locally and explicitly approved for merge on 2026-09-26, limited to motion and bible documentation. Deployment must be verified after merge. The legal/footer drafts in this checkout predate this change and remain pending.
 
 ## Riešenie
