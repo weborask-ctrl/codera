@@ -100,95 +100,6 @@ def open_labels():
     return f'<div class="olabels">{out}</div>'
 
 
-def wall_section():
-    """The wall as a draftsman draws it (client, 2026-09-25: no AI renders):
-    the seven layers of C.WALL in section, outside on top, each with the
-    hatch a builder reads — slats, battens, stipple, studs with insulation,
-    the dashed vapour brake, plasterboard. Thicknesses are a schema, not a
-    scale: the real ones are the client's to give. Inline, so it takes the
-    page's type and colour (currentColor)."""
-    x0, x1, lx = 24, 372, 402                     # the cut, and where the names start
-    hs = [30, 34, 24, 128, 6, 50, 18]
-    y, g, labels = 58, [], []
-    for (num, name), h in zip(C.WALL, hs):
-        top, bot, mid = y, y + h, y + h / 2
-        if num == "01":                           # rhombus slats
-            for x in range(x0, x1 - 40, 46):
-                g.append(f'<polygon points="{x},{top + 4} {x + 40},{top} {x + 44},{bot - 4} {x + 4},{bot}"/>')
-        elif num in ("02", "06"):                 # battens in section, the gap around them
-            g.append(f'<rect x="{x0}" y="{top}" width="{x1 - x0}" height="{h}" class="thin"/>')
-            for x in range(x0 + 20, x1 - 20, 74):
-                g.append(f'<rect x="{x}" y="{top + 5}" width="22" height="{h - 10}"/>'
-                         f'<path d="M{x} {top + 5}L{x + 22} {bot - 5}M{x + 22} {top + 5}L{x} {bot - 5}" class="thin"/>')
-            if num == "02":                       # the air moves in the gap
-                for x in (x0 + 64, x0 + 212):
-                    g.append(f'<path d="M{x} {mid}h40m-7 -4l7 4-7 4" class="thin"/>')
-        elif num == "03":                         # fibreboard: stipple
-            g.append(f'<rect x="{x0}" y="{top}" width="{x1 - x0}" height="{h}"/>')
-            for i, x in enumerate(range(x0 + 6, x1 - 4, 9)):
-                g.append(f'<circle cx="{x}" cy="{top + 7 + (i * 7) % (h - 12)}" r="1.1" class="dot"/>')
-        elif num == "04":                         # studs (the timber cross) with insulation between
-            g.append(f'<rect x="{x0}" y="{top}" width="{x1 - x0}" height="{h}"/>')
-            studs = list(range(x0 + 10, x1 - 30, 112))
-            for x in studs:
-                g.append(f'<rect x="{x}" y="{top}" width="26" height="{h}"/>'
-                         f'<path d="M{x} {top}L{x + 26} {bot}M{x + 26} {top}L{x} {bot}" class="thin"/>')
-            for a, b in zip(studs, studs[1:] + [x1 - 4]):
-                pts, k = [], 0
-                for x in range(a + 30, b - 2, 8):
-                    pts.append(f"{x},{top + 8 if k % 2 == 0 else bot - 8}")
-                    k += 1
-                g.append(f'<polyline points="{" ".join(pts)}" class="thin"/>')
-        elif num == "05":                         # vapour brake
-            g.append(f'<path d="M{x0} {mid}H{x1}" class="brake"/>')
-        else:                                     # plasterboard, painted
-            g.append(f'<rect x="{x0}" y="{top}" width="{x1 - x0}" height="{h}"/>')
-            g.append("".join(f'<path d="M{x} {bot}l{h} {-h}" class="thin"/>' for x in range(x0, x1 - h, 12)))
-        ly = max(mid, labels[-1][0] + 21) if labels else mid
-        labels.append((ly, num, name, mid))
-        y = bot
-    lab = "".join(f'<path d="M{x1 + 6} {m}H{lx - 30}L{lx - 8} {ly}" class="thin"/>'
-                  f'<text x="{lx}" y="{ly + 4}"><tspan class="n">{n}</tspan><tspan class="nm"> {esc_(nm)}</tspan></text>'
-                  for ly, n, nm, m in labels)
-    return (f'<svg class="wsec" viewBox="0 0 700 {y + 44}" role="img" aria-label="Rez stenou: '
-            f'{esc_(", ".join(nm for _, nm in C.WALL))}">'
-            f'<text x="{x0}" y="40" class="side">Zvonku</text><text x="{x0}" y="{y + 26}" class="side">Dnu</text>'
-            f'<g class="cut">{"".join(g)}</g>{lab}</svg>')
-
-
-def season_svg(which):
-    """An annotation over the cut-away drawing (renders/draw-rez.jpg, 1500×1119):
-    summer — the sun's heat meets the wall and stays out; winter — snow
-    outside, the stove's warmth kept in. A schema of the client's own sentence
-    ("v lete chladí, v zime je teplučký"), no figures."""
-    if which == "leto":
-        rays = "".join(f'<path d="M{190 + 70 * __import__("math").cos(a / 57.3):.0f} {170 + 70 * __import__("math").sin(a / 57.3):.0f}'
-                       f'l{26 * __import__("math").cos(a / 57.3):.0f} {26 * __import__("math").sin(a / 57.3):.0f}"/>'
-                       for a in range(0, 360, 30))
-        # the heat reaches the roof and the wall and goes back out (measured
-        # on the drawing: main roof ~y 225, west wall x 517, annex roof ~y 510)
-        hits = "".join(f'<path d="M{x0} {y0}L{x1} {y1}" class="heat"/><path d="M{x1} {y1}l{bx} {by}" class="back"/>'
-                       for x0, y0, x1, y1, bx, by in ((250, 150, 680, 214, 40, -70), (252, 205, 500, 330, -60, 50),
-                                                      (215, 232, 330, 492, 60, -40)))
-        body = f'<circle cx="190" cy="170" r="48"/>{rays}{hits}'
-    else:
-        flakes = "".join(f'<path d="M{x - 11} {y}h22M{x} {y - 11}v22M{x - 8} {y - 8}l16 16M{x + 8} {y - 8}l-16 16"/>'
-                         for x, y in ((120, 120), (260, 200), (170, 330), (420, 110), (80, 420), (1330, 140), (1450, 420),
-                                      (640, 70), (1180, 60), (1450, 700)))
-        # the stove's warmth, and arrows along the inside of the shell turned back in
-        warm = "".join(f'<path d="M{x} {y}c-14 -20 14 -34 0 -54s14 -34 0 -54" class="heat"/>'
-                       for x, y in ((660, 820), (700, 810), (740, 820)))
-        keep = "".join(f'<path d="M{x} {y}l{dx} {dy}" class="back"/>'
-                       for x, y, dx, dy in ((545, 640, 60, 0), (1355, 640, -60, 0), (950, 262, 0, 55)))
-        body = f'{flakes}{warm}{keep}'
-    return f'<svg class="season {which}" viewBox="0 0 1500 1119" aria-hidden="true">{body}</svg>'
-
-
-def esc_(t):
-    import html as _h
-    return _h.escape(t)
-
-
 def street():
     """The eight jobs on one ground line, 2008 → 2024, as they were built:
     a house stands taller than a terrace, the job without a photograph is
@@ -348,9 +259,9 @@ def build(B):
     # layout, the exploded house is the assembly order, the interior is
     # the finish. All labelled "vizualizácia".
     STEP_ART = {
-        "02": ("draw-rez.jpg", "Rez domom, dispozícia – kresba", "Kresba perom: rez domom s dispozíciou oboch podlaží"),
-        "03": ("draw-explod.jpg", "Základ, prízemie, poschodie, strecha – kresba", "Kresba perom: dom rozložený na základ, podlažia a strechu"),
-        "04": ("draw-rezin.jpg", "Hotový interiér – kresba", "Kresba perom: dokončené izby, obývačka s krbom a jedáleň"),
+        "02": ("rez.jpg", "Rez domom, dispozícia – vizualizácia", "Rez domom s dispozíciou oboch podlaží – vizualizácia"),
+        "03": ("explod.jpg", "Základ, prízemie, poschodie, strecha – vizualizácia", "Dom rozložený na základ, podlažia a strechu – vizualizácia"),
+        "04": ("beat5.jpg", "Hotový interiér – vizualizácia", "Dokončená kuchyňa s jedálňou – vizualizácia"),
     }
 
     def build_log():
@@ -522,7 +433,7 @@ def build(B):
         (3, "foto-2019-terasa-chrastne.jpg", "40% 50%", "Foto: luxusná terasa, 2019"),
         (5, "foto-2024-lucina.jpg", "22% 30%", "Foto: rhombus profil, Lúčina 2024"),
         (8, "foto-2015-budatin.jpg", "50% 40%", "Foto: Budatín pri Žiline, 2015"),
-        (9, "draw-rezin.jpg", "50% 50%", "Kresba: hotový interiér"),
+        (9, "beat5.jpg", "55% 50%", "Vizualizácia: interiér"),
     ]
 
     def svc_count(i):
@@ -566,8 +477,8 @@ def build(B):
     <div class="fade d3">{btn("Roztiahnuť stenu", "stena.html")}</div>
   </div>
   <a class="wt-art" href="stena.html" aria-label="Otvoriť stenu">
-    {wall_section()}
-    <span class="vz mono">Schéma skladby steny, nie mierka</span>
+    <img src="assets/beat4.jpg" alt="Rez stenou – vizualizácia" loading="lazy">
+    <span class="vz mono">Vizualizácia</span>
   </a>
 </div>''') + section(3, "Ulica", "paper", f'''<div class="wrap streethead" data-reveal>
   <h2 class="big fade voice">{lines("„Kariéra staviteľa|sa začala písať|v roku 2007.“")}</h2>
@@ -953,14 +864,14 @@ def build(B):
     tech += section(2, "Leto a zima", "paper", f'''<div class="wrap tsea" data-reveal>
   <div class="seas">
     <figure class="sl fade">
-      <div class="frame drawn"><img src="assets/draw-rez.jpg" alt="Kresba domu v lete: slnko, teplo ostáva vonku" loading="lazy">{season_svg("leto")}</div>
+      <div class="frame clipimg"><img src="assets/beat6.jpg" alt="Terasa v lete – vizualizácia" loading="lazy"></div>
       <h2 class="voice">„V lete chladí,</h2>
-      {cap("Schéma, nie výpočet – kresba")}
+      {cap("Terasa – vizualizácia")}
     </figure>
     <figure class="sz fade d2">
-      <div class="frame drawn"><img src="assets/draw-rez.jpg" alt="Kresba domu v zime: sneh vonku, teplo ostáva dnu" loading="lazy">{season_svg("zima")}</div>
+      <div class="frame clipimg"><img src="assets/beat3.jpg" alt="Obývačka v zime – vizualizácia" loading="lazy"></div>
       <h2 class="voice">v zime je teplučký.“</h2>
-      {cap("Schéma, nie výpočet – kresba")}
+      {cap("Obývačka – vizualizácia")}
     </figure>
     <blockquote class="tpay fade d3">„Investícia do tohto typu technológie sa reálne vypláca tak
       v komforte bývania, zo zdravotného hľadiska, ako aj finančne.“
@@ -1037,7 +948,7 @@ def build(B):
         ("200 rokov", "Aj keď je to u nás ešte stále pomerne nová technológia, a my, konzervatívni "
                       "Slováci jej veľmi nedôverujeme, v USA a Kanade je osvedčená už viac ako "
                       "200 rokov a preverená náročnejšími klimatickými podmienkami, ako u nás.",
-         "draw-explod.jpg", "Základ, podlažia, strecha – kresba", ""),
+         "beat4.jpg", "Rez stenou – vizualizácia", ""),
     ]
     paras, stack = "", ""
     for j, (y, txt, img, capt, note) in enumerate(essay):

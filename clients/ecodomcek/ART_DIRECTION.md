@@ -976,3 +976,8 @@ nadpisy-slogany, ktoré som napísal ja.
    stránka hovorí práve o nich (detail Lúčina) a úvodný film.
 6. **Strieška z loga** — deliace čiary sa na začiatku zdvihnú do plochého štítu v hrúbke čiary;
    odrážky v zozname služieb sú ich trojfarebné logo.
+
+**Oprava 24b — kresby späť na vizualizácie (klient, 2026-09-26).** Bod 5 (kresby perom,
+výkres steny, schéma leta a zimy) klient vrátil: „čo si menil kresby, chcem vrátiť späť ako to
+bolo". Vizualizácie sú späť na všetkých miestach, `src/drawings.py` a `draw-*.jpg` sú zmazané.
+Ostatné body fázy 24 ostávajú.

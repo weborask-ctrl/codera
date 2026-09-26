@@ -35,7 +35,6 @@ import content as C  # noqa: E402
 # they are: they were exported at their display size already.
 IMAGES = [
     "explod.jpg", "hero.jpg", "rez.jpg",
-    "draw-rez.jpg", "draw-explod.jpg", "draw-rezin.jpg",       # src/drawings.py
     "beat0.jpg", "beat1.jpg", "beat2.jpg", "beat3.jpg", "beat4.jpg",
     "beat5.jpg", "beat6.jpg", "beat7.jpg", "beat8.jpg",
     "lyr-base.webp", "lyr-ground.webp", "lyr-upper.webp", "lyr-roof.webp",
