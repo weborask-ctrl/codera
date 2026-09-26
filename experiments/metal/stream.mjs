@@ -33,7 +33,7 @@ export function createMotionStream(video, { onData, onError, onBytes }) {
   }
   function priorities() {
     // Current image first, then a small runway in the direction of travel.
-    // Idle at the opening downloads ~1 second, never the entire movie.
+    // Idle at the opening downloads 0.55 seconds, never the entire movie.
     return [wanted, ...Array.from({length: 10}, (_, i) => wanted + direction * (i + 1)), wanted - direction]
       .filter(i => i >= 0 && i < count && !present.has(i));
   }

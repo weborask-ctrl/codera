@@ -16,10 +16,29 @@ try {
   const startupMs = Date.now() - start;
   const initial = await page.evaluate(() => window.__coderaMotion);
   assert(startupMs < 6000, `Startup took ${startupMs} ms at 10 Mbit/s`);
-  assert(initial.downloadedBytes < 2000000);
+  assert(initial.downloadedBytes < 500000);
   assert.equal(initial.delivery, 'segments');
   await page.waitForTimeout(5000);
   assert((await page.evaluate(() => window.__coderaMotion.downloadedBytes)) < 9000000, 'Idle hero must not download the whole film');
+  const motion = await page.evaluate(async () => {
+    const video = document.querySelector('video');
+    let count = 0, last = performance.now(), longestGap = 0, running = true;
+    const frame = now => { if (!running) return; longestGap = Math.max(longestGap, now - last); last = now; count++; video.requestVideoFrameCallback(frame); };
+    video.requestVideoFrameCallback(frame);
+    const start = performance.now(), travel = document.querySelector('.journey').offsetHeight - innerHeight;
+    await new Promise(resolve => {
+      function tick(now) {
+        const p = Math.min(1, (now - start) / 8000);
+        scrollTo(0, travel * (p < .5 ? p * 1.9 : (1 - p) * 1.9));
+        if (p < 1) requestAnimationFrame(tick); else resolve();
+      }
+      requestAnimationFrame(tick);
+    });
+    running = false;
+    return { count, longestGap };
+  });
+  assert(motion.count > 20, 'Continuous cold scroll must present intermediate frames');
+  assert(motion.longestGap < 1500, `Cold scroll starved decoding for ${motion.longestGap} ms`);
   for (const p of [.95, .1, .5, 1, 0]) {
     await page.evaluate(p => scrollTo(0, p * (document.querySelector('.journey').offsetHeight - innerHeight)), p);
     await page.waitForFunction(p => Math.abs(window.__coderaMotion.progress - p) < .003 && Math.abs(window.__coderaMotion.targetTime - window.__coderaMotion.displayedTime) < .1, p, { timeout: 8000 });
