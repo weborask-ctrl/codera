@@ -23,7 +23,7 @@
   };
   if (!enabled) return;
   // Fail open even when the main bundle is blocked or fails to initialize.
-  watchdog = setTimeout(leave, 30000);
+  watchdog = setTimeout(leave, 95000);
   document.addEventListener('DOMContentLoaded', () => {
     if (finished) return;
     cover = document.createElement('div'); cover.id = 'entry-loader'; cover.setAttribute('role', 'status'); cover.setAttribute('aria-label', 'Pripravujeme úvod Codery');

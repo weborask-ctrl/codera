@@ -27,11 +27,11 @@ async function prepareVideo() {
   if(preparing || prepared || mediaBlobUrl)return;
   preparing=true;loadedPercent=0;
   try {
-    const mediaUrl='/media/journey-prepared-v2.mp4';
+    const mediaUrl='/media/journey-scroll-1080.mp4';
     let cache, cached;
     try{cache=await caches.open('codera-motion');cached=await cache.match(mediaUrl);}catch{}
     diagnostics.cacheHit=!!cached;
-    const response=cached||await fetch(mediaUrl,{cache:'force-cache',signal:AbortSignal.timeout(30000)});
+    const response=cached||await fetch(mediaUrl,{cache:'force-cache',signal:AbortSignal.timeout(90000)});
     if(!response.ok)throw new Error(`HTTP ${response.status}`);
     const total=Number(response.headers.get('content-length'));
     const chunks=[];let loaded=0;
