@@ -1,6 +1,8 @@
 # Prepared Codera entry — 2026-09-26
 
-## Prepared entry and scroll video — current decision, 2026-09-26
+**Quality settings and timeouts superseded:** see [Motion detail correction](CODERA_MOTION_DETAIL_2026-09-26.md). The prepared-entry architecture below remains current; the 25 MB encode and 30-second limit are historical.
+
+## Prepared entry and scroll video — original decision, 2026-09-26
 
 Marcus requested restoring fully prepared playback, with video preparation BEFORE revealing the website. This explicitly supersedes the fragmented streaming of PR #115 and the previous blanket ban on a full-download gate. Do not return to a visible finished homepage waiting for video, or to network-dependent fragment seeking, without a new user decision.
 

@@ -18,9 +18,9 @@ try {
   await page.mouse.wheel(0, 1000); await page.waitForTimeout(500);
   assert.equal(await page.evaluate(() => scrollY), 0);
   await page.screenshot({ path: 'test-results/entry/loader.png' });
-  await page.waitForFunction(() => window.__coderaMotion.prepared && !document.documentElement.classList.contains('codera-loading'), null, { timeout: 30000 });
+  await page.waitForFunction(() => window.__coderaMotion.prepared && !document.documentElement.classList.contains('codera-loading'), null, { timeout: 90000 });
   const coldMs = Date.now() - start;
-  assert.equal(await page.evaluate(() => window.__coderaMotion.downloadedBytes), 25059756);
+  assert.equal(await page.evaluate(() => window.__coderaMotion.downloadedBytes), 50378423);
   assert.equal(await page.locator('main').evaluate(el => el.inert), false);
   assert.deepEqual(await page.locator('video').evaluate(v => [v.videoWidth, v.videoHeight]), [1920, 1080]);
   await cdp.send('Network.emulateNetworkConditions', { offline: true, latency: 0, downloadThroughput: 0, uploadThroughput: 0 });

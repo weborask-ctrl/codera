@@ -9,10 +9,10 @@ const url=process.env.METAL_URL||'http://127.0.0.1:4327';
 const out=resolve('test-results/metal');await mkdir(out,{recursive:true});
 const report={checks:[],consoleErrors:[],measurements:{}};
 function passed(name){report.checks.push(name);console.log(`PASS ${name}`);}
-const range=await fetch(`${url}${process.env.METAL_PRODUCTION ? "/motion/metal" : "/media"}/journey-prepared-v2.mp4`,{headers:{Range:'bytes=0-63'}});
+const range=await fetch(`${url}${process.env.METAL_PRODUCTION ? "/motion/metal" : "/media"}/journey-scroll-1080.mp4`,{headers:{Range:'bytes=0-63'}});
 assert.equal(range.status,206);assert.equal((await range.arrayBuffer()).byteLength,64);passed('Video byte ranges');
 // The standalone server owns invalid-range handling; production delegates static ranges to Next/CDN.
-if(!process.env.METAL_PRODUCTION){const badRange=await fetch(`${url}${process.env.METAL_PRODUCTION ? "/motion/metal" : "/media"}/journey-prepared-v2.mp4`,{headers:{Range:'bytes=999999999-'}});assert.equal(badRange.status,416);passed('Invalid range rejected');}
+if(!process.env.METAL_PRODUCTION){const badRange=await fetch(`${url}${process.env.METAL_PRODUCTION ? "/motion/metal" : "/media"}/journey-scroll-1080.mp4`,{headers:{Range:'bytes=999999999-'}});assert.equal(badRange.status,416);passed('Invalid range rejected');}
 const source=await (await fetch(url)).text();assert(!source.includes('{{'));assert(source.includes('kontakt@codera.sk'));passed('Business facts rendered without JavaScript');
 const browser=await chromium.launch({channel:process.env.BROWSER_CHANNEL||'msedge',headless:true});
 async function installVisibilitySimulation(page) {
