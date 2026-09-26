@@ -1,2 +1,2 @@
-// Current entry and fallback checks live with the progressive-delivery suite.
-import './metal-ahead-check.mjs';
+// Progressive motion was rejected for cold-scroll stalls; verify complete preparation.
+import './metal-stable-entry-check.mjs';

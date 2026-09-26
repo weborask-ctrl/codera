@@ -3,7 +3,7 @@ import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 // Build from the same reviewed source as the lightweight local prototype.
 await mkdir('public/silver/fonts',{recursive:true});
 await mkdir('public/silver/vendor',{recursive:true});
-for(const name of ['style.css','refinement.css','signature.css','main.mjs','stream-ahead.mjs','entry.js','entry.css']){
+for(const name of ['style.css','refinement.css','signature.css','main.mjs','entry.js','entry.css']){
   const source=await readFile(`experiments/metal/${name}`,'utf8');
   await writeFile(`public/silver/${name}`,source.replaceAll('/fonts/','/silver/fonts/').replaceAll('/media/','/motion/metal/'));
 }

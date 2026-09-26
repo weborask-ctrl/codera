@@ -1,3 +1,5 @@
+**REJECTED BY USER FOR SEVERE STUTTERING.** Superseded by [Motion stability correction](CODERA_MOTION_STABILITY_2026-09-26.md). Fast startup did not make continuous cold scrolling acceptable.
+
 # Short prepared entry with full background prefetch — 2026-09-26
 
 ## Riešenie
