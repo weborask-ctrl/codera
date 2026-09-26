@@ -974,17 +974,18 @@ h2.big em{font-style:normal;color:var(--moss)}
 .vend{position:absolute;top:18px;color:rgba(243,238,227,.66);pointer-events:none}
 .vend.out{left:20px}.vend.in{right:20px}
 .vbs{position:absolute;inset:0}
-/* one button per layer, exactly over its band; the name runs along it */
-.vb{position:absolute;top:0;bottom:0;left:calc(11% + (var(--c) - var(--w) / 2) * .70);
-  width:calc(var(--w) * .70);background:none;border:0;padding:0;margin:0;cursor:pointer;
-  color:rgba(243,238,227,.72);font:inherit;-webkit-tap-highlight-color:transparent}
-.vb i{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);font-family:var(--mono);
-  font-size:12px;font-style:normal;letter-spacing:.08em}
-.vb span{position:absolute;left:50%;bottom:44px;transform:translateX(-50%) rotate(180deg);
-  writing-mode:vertical-rl;font-family:var(--mono);font-size:12px;letter-spacing:.13em;
-  text-transform:uppercase;white-space:nowrap;transition:color .3s}
+/* one hit area per layer, placed by JS exactly over its band; its flag
+   sits in the drawing's top margin on a pole down into the band (igloo.md
+   annotation). Flags are never dimmed below reading contrast. */
+.vb{position:absolute;top:0;bottom:0;background:none;border:0;padding:0;margin:0;cursor:pointer;
+  color:rgba(243,238,227,.86);font:inherit;-webkit-tap-highlight-color:transparent}
+.vl{position:absolute;z-index:2;display:flex;gap:8px;align-items:baseline;padding-left:9px;
+  font-family:var(--mono);font-size:12px;line-height:1;white-space:nowrap;transition:color .25s}
+.vl i{font-style:normal;color:var(--glow);letter-spacing:.06em}
 .vb:hover,.vb.on,.vb:focus-visible{color:#fff}
-.vb:focus-visible{outline:1px solid var(--glow);outline-offset:-1px}
+.vb:focus-visible{outline:none}
+.vb:focus-visible .vl{outline:1px solid var(--glow);outline-offset:4px}
+.vkey{display:none}
 .vcap{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 30px;align-items:baseline}
 .vdesc{font-size:clamp(16px,1.25vw,19px);line-height:1.5;max-width:60ch;min-height:3em}
 .vdesc b{font-weight:500}
@@ -1032,14 +1033,19 @@ h2.big em{font-style:normal;color:var(--moss)}
 }
 @media (max-width:820px){
   .texhead{grid-template-columns:1fr}
-  /* the wall turns on its side: outside at the top, the room below —
-     vapour rises out of the house, the names read horizontally */
-  .stage{aspect-ratio:4/5}
-  .vend.out{top:14px;left:16px}.vend.in{top:auto;bottom:14px;left:16px;right:auto}
-  .vb{left:0;right:0;width:auto;bottom:auto;top:calc(12% + (var(--c) - var(--w) / 2) * .72);
-    height:calc(var(--w) * .72)}
-  .vb i{left:16px;bottom:auto;top:50%;transform:translateY(-50%)}
-  .vb span{left:46px;bottom:auto;top:50%;transform:translateY(-50%);writing-mode:horizontal-tb}
+  /* the same section, taller: more wall, the gap's rise reads */
+  .stage{aspect-ratio:1/1}
+  .vend.out{top:auto;bottom:14px;left:4px;writing-mode:vertical-rl;transform:rotate(180deg)}
+  .vend.in{top:auto;bottom:30px;right:10px}
+  /* on a phone the flags keep their numbers; the key carries the names */
+  .vn{display:none}
+  .vkey{display:grid;grid-template-columns:1fr;margin:-8px 0 0;padding:0;list-style:none;
+    border-top:1px solid var(--line)}
+  .vkey button{display:flex;gap:14px;align-items:baseline;width:100%;padding:11px 0;border:0;
+    border-bottom:1px solid var(--line);background:none;color:var(--ink);font:inherit;
+    font-size:16px;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .vkey i{font-family:var(--mono);font-size:12px;font-style:normal;color:var(--amber-ink);min-width:2ch}
+  .vkey button.on{color:var(--amber-ink)}
   .vcap{grid-template-columns:1fr}
   .seas{grid-template-columns:1fr;gap:34px}
   .seas .sz{margin-top:0}
@@ -1844,3 +1850,5 @@ header nav a,.pill{font-size:14px}
   background:var(--mark) center/contain no-repeat}
 .svtoc a:hover{padding-left:32px}
 
+
+@media (max-width:560px){.stage{aspect-ratio:4/5}}

@@ -981,3 +981,29 @@ nadpisy-slogany, ktoré som napísal ja.
 výkres steny, schéma leta a zimy) klient vrátil: „čo si menil kresby, chcem vrátiť späť ako to
 bolo". Vizualizácie sú späť na všetkých miestach, `src/drawings.py` a `draw-*.jpg` sú zmazané.
 Ostatné body fázy 24 ostávajú.
+
+## Fáza 25 — „Stena dýcha" ako výkres, nie ako šum (2026-09-26)
+
+Klient: „nevyzerá to vôbec profesionálne". Diagnóza pôvodného plátna: 270 náhodných bodiek
+a čiarok bez smeru (čítalo sa ako televízny šum), sedem takmer rovnakých hnedých pásov,
+latovanie ako plávajúce obdĺžniky, náhodná oranžová vlnovka, popisy otočené o 90° v nízkom
+kontraste, žiadne ohnisko.
+
+Nové riešenie v `initVapour()`:
+
+- **Rez stenou kreslený stavbárskymi značkami** (**igloo**: mono anotácia ako vrstva
+  inžinierskeho výkresu): rhombus dosky v reze s otvorenými škárami, šrafa 45° pre
+  drevovláknitú dosku, serpentína mäkkej izolácie, fólia čiarkobodkou, latovanie v predstene
+  ako rezané drevo s krížom a chránička, sadrokartón bodkovaný, ťažšie čiary na vonkajších
+  lícach a čiary prerušenia hore a dole, kde stena pokračuje.
+- **Popisy ako vlajky na stožiaroch** v hornom okraji výkresu. Vlajka, ktorá by zakryla
+  stožiar napravo, vystúpi vyššie, takže žiadna čiara nekríži text (merané: 0 prekryvov
+  pri 390 až 1920 px). Na telefóne ostanú na výkrese čísla a názvy nesie zoznam `.vkey` pod
+  ním, ktorý sa dá ťuknúť.
+- **Para ako mäkké svetlo so stopou** (**activetheory**): vzniká v izbe v pomalom rytme
+  nádychu (≈ 6,5 s), teplá v izbe, neutrálna v stene, chladná v medzere. Pri parobrzde sa
+  zdrží, takže je vidno „brzdí, ale neuzatvára", a vetraná medzera ju vynesie hore.
+  Kvalitatívne, žiadne čísla.
+- **Vstup → odpoveď hneď** (**lusion**): hover alebo ťuknutie rozsvieti vrstvu, ostatné
+  ustúpia a veta pod výkresom sa zmení. Redukovaný pohyb dostane jeden ustálený snímok toho
+  istého toku.

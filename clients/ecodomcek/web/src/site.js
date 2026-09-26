@@ -633,166 +633,258 @@
   }
 
   // ── technológia: the wall breathes ───────────────────────────────────
-  // A section through the seven layers with vapour moving from the room
-  // out. Qualitative, never a calculation: the brake slows it, the
-  // ventilated gap carries it away along the wall. The loop only runs
-  // while the stage is on screen (ScrollTrigger decides when), and the
-  // pointer maps to an answer at once — hover or tap a layer, read it
-  // (lusion.md). Reduced motion: one settled frame, drawn once.
+  // Stena dýcha — the wall in section, drawn the way a builder reads a
+  // drawing (igloo.md: mono annotation as the drawing layer over one
+  // atmosphere, light as the protagonist; lusion.md: one live exhibit in
+  // calm paper chrome, input maps to an answer at once; activetheory.md:
+  // particles as soft light with a memory, not dots). Standard drafting
+  // marks: rhombus boards cut with open joints, fibre-board hatch, the
+  // insulation coil, the membrane's dash-dot, timber cut with a cross,
+  // break lines where the wall goes on. The vapour is qualitative, never a
+  // calculation: born in the room in a slow breathing rhythm, held back at
+  // the brake, carried up and away by the ventilated gap. The loop only
+  // runs while the stage is on screen; reduced motion gets one settled
+  // frame of the same flow.
   function initVapour() {
     var fig = main.querySelector('[data-vapour]');
     if (!fig) return;
     var cv = fig.querySelector('canvas'), ctx = cv.getContext('2d');
+    var sc = document.createElement('canvas'), sx = sc.getContext('2d');   // the drawing, repainted on change
     var desc = main.querySelector('.vdesc'), base = desc ? desc.innerHTML : '';
     var btns = [].slice.call(fig.querySelectorAll('.vb'));
+    var keys = [].slice.call(main.querySelectorAll('.vkey button'));
     var fr = fig.dataset.bands.split(',').map(Number);          // outside → inside, as WALL_TEXT
-    // through-wall position u: 0 = outside edge of the stage, 1 = room edge.
-    var W, H, dpr, vert, O, I, edges = [], hover = -1, parts = [], raf = 0, last = 0;
-    var sp = .085;                                                // wall widths per second in open air
-    // speed factor per band, outside → inside (obklad … sadrokartón)
-    var SPEED = [.5, 0, .55, .42, .1, .7, .7];
-    var FILL = ['#4a3322', '#0e0d0c', '#3b2b1d', '#2d2820', '#1c1b18', '#221f1b', '#4b4740'];
+    var PAPER = '243,238,227', GLOW = '242,181,99';
+    var TINT = ['255,212,158', PAPER, '206,224,234'];           // room · wall · the gap (warm → cool)
+    var W = 0, H = 0, dpr, small, xs = [], y0, y1, hover = -1, parts = [], raf = 0, last = 0, clock = 0, due = 0;
+    function ink(a) { return 'rgba(' + PAPER + ',' + Math.min(1, a).toFixed(3) + ')'; }
+    function band(x) {
+      for (var i = 0; i < 7; i++) if (x >= xs[i] && x < xs[i + 1]) return i;
+      return x < xs[0] ? -1 : 7;                                  // -1 outside air, 7 the room
+    }
     function layout() {
-      var r = fig.getBoundingClientRect();
+      var r = fig.getBoundingClientRect(), ow = W, oh = H;
+      if (!r.width) return false;
       dpr = Math.min(2, devicePixelRatio || 1);
       W = r.width; H = r.height;
-      cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      vert = matchMedia('(max-width:820px)').matches;
-      O = vert ? .12 : .11; I = vert ? .16 : .19;
-      edges = [O]; var a = O;
-      fr.forEach(function (f) { a += f * (1 - O - I); edges.push(a); });
+      cv.width = sc.width = Math.round(W * dpr); cv.height = sc.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); sx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      small = matchMedia('(max-width:820px)').matches;
+      var O = small ? .07 : .11, I = small ? .13 : .19, a = O, i, j;
+      xs = [O * W];
+      fr.forEach(function (f) { a += f * (1 - O - I); xs.push(a * W); });
+      // callouts fly from their band like flags on poles. A flag that
+      // would cover a pole to its right climbs above that flag, so no
+      // pole ever crosses text (placed right to left).
+      var rh = small ? 21 : 23, top = small ? 14 : 18, lv = [], ax = [];
+      for (i = 6; i >= 0; i--) {
+        ax[i] = (xs[i] + xs[i + 1]) / 2;
+        var w = btns[i].querySelector('.vl').offsetWidth, L = 0;
+        for (j = i + 1; j < 7; j++) if (ax[j] < ax[i] + w + 12) L = Math.max(L, lv[j] + 1);
+        lv[i] = L;
+      }
+      var rows = Math.max.apply(null, lv) + 1;
+      y0 = top + rows * rh + (small ? 18 : 26);
+      y1 = H - (small ? 18 : 26);
+      btns.forEach(function (b, k) {
+        var vl = b.querySelector('.vl');
+        b.style.left = xs[k] + 'px'; b.style.width = (xs[k + 1] - xs[k]) + 'px';
+        b._ax = ax[k]; b._ly = top + (rows - 1 - lv[k]) * rh;
+        vl.style.left = (ax[k] - xs[k]) + 'px'; vl.style.top = b._ly + 'px';
+      });
+      if (ow && oh) parts.forEach(function (p) {
+        p.x *= W / ow; p.y *= H / oh;
+        p.h.forEach(function (q) { q[0] *= W / ow; q[1] *= H / oh; });
+      });
+      paint();
+      return true;
     }
-    function band(u) {
-      for (var i = 0; i < fr.length; i++) if (u >= edges[i] && u < edges[i + 1]) return i;
-      return u < O ? -1 : 7;                                      // -1 outside air, 7 room
+    // ── the drawing ──────────────────────────────────────────────────────
+    function layer(i) {
+      var c = sx, x0 = xs[i], x1 = xs[i + 1], w = x1 - x0, hh = y1 - y0;
+      var k = hover < 0 ? 1 : i === hover ? 1.9 : .5, y, n, t;
+      c.save(); c.beginPath(); c.rect(x0, y0, w, hh); c.clip();
+      if (i === hover) { c.fillStyle = 'rgba(' + GLOW + ',.08)'; c.fillRect(x0, y0, w, hh); }
+      c.lineWidth = .75; c.strokeStyle = ink(.22 * k); c.fillStyle = ink(.05 * k);
+      c.beginPath();
+      if (i === 0) {                          // rhombus profile, cut: slanted boards, open joints
+        var hb = Math.max(16, w * .8), s = w * .28;
+        for (y = y0 - hb * 2; y < y1 + hb; y += hb + 4) {
+          c.moveTo(x0 + 1.5, y + s); c.lineTo(x1 - 1.5, y); c.lineTo(x1 - 1.5, y + hb);
+          c.lineTo(x0 + 1.5, y + hb + s); c.closePath();
+        }
+        c.fill(); c.strokeStyle = ink(.5 * k); c.stroke();
+      } else if (i === 1) {                   // the ventilated gap: air, moving up
+        var gx = (x0 + x1) / 2, e = Math.min(6, w * .18);
+        for (n = 1; n < 4; n++) { y = y0 + hh * n / 4; c.moveTo(gx - e, y + e * .8); c.lineTo(gx, y); c.lineTo(gx + e, y + e * .8); }
+        c.strokeStyle = ink(.42 * k); c.stroke();
+      } else if (i === 2) {                   // wood-fibre board: fine 45° hatch
+        c.fillRect(x0, y0, w, hh);
+        for (n = 0; n < w + hh; n += 5) { c.moveTo(x0 + n, y0); c.lineTo(x0 + n - hh, y1); }
+        c.stroke();
+      } else if (i === 3) {                   // soft insulation: the serpentine, face to face
+        var P = Math.max(40, Math.min(w * .5, (y1 - y0) / 3.6)), q = P * .17, xl = x0 + 3 + q, xr = x1 - 3 - q;
+        y = y0 - P;
+        c.moveTo(xl, y - q);
+        for (; y < y1 + P; y += P) {
+          c.lineTo(xr, y - q); c.arc(xr, y, q, -Math.PI / 2, Math.PI / 2, false);
+          c.lineTo(xl, y + P / 2 - q); c.arc(xl, y + P / 2, q, -Math.PI / 2, Math.PI / 2, true);
+        }
+        c.strokeStyle = ink(.3 * k); c.stroke();
+      } else if (i === 4) {                   // the vapour brake: a membrane, dash-dot
+        c.setLineDash([10, 3, 2, 3]); c.lineWidth = 1.4; c.strokeStyle = ink(.8 * k);
+        c.moveTo((x0 + x1) / 2, y0); c.lineTo((x0 + x1) / 2, y1); c.stroke(); c.setLineDash([]);
+      } else if (i === 5) {                   // service cavity: battens cut (the cross), a conduit
+        var bw = w - 5, bh = Math.min(bw * .8, 34), step = Math.max(bh * 3.2, hh / 3.4);
+        for (y = y0 + step * .35; y < y1; y += step) {
+          c.rect(x0 + 2.5, y, bw, bh);
+          c.moveTo(x0 + 2.5, y); c.lineTo(x0 + 2.5 + bw, y + bh);
+          c.moveTo(x0 + 2.5 + bw, y); c.lineTo(x0 + 2.5, y + bh);
+          var cr = Math.min(5, w * .16), cy = y + step / 2 + bh / 2;
+          c.moveTo(x0 + w * .38 + cr, cy); c.arc(x0 + w * .38, cy, cr, 0, 6.283);
+        }
+        c.strokeStyle = ink(.36 * k); c.stroke();
+      } else if (i === 6) {                   // gypsum board: stipple, then the painted face
+        c.fillStyle = ink(.08 * k); c.fillRect(x0, y0, w, hh);
+        var seed = 7;
+        c.fillStyle = ink(.34 * k);
+        for (n = 0; n < w * hh / 34; n++) {
+          seed = (seed * 16807) % 2147483647; var rx = seed / 2147483647;
+          seed = (seed * 16807) % 2147483647; var ry = seed / 2147483647;
+          c.fillRect(x0 + rx * w, y0 + ry * hh, .9, .9);
+        }
+      }
+      c.restore();
     }
-    // map (u through the wall, v along it) to the screen
-    function X(u, v) { return vert ? v * W : u * W; }
-    function Y(u, v) { return vert ? u * H : v * H; }
-    function rect(u0, u1, v0, v1, fill) {
-      ctx.fillStyle = fill;
-      if (vert) ctx.fillRect(v0 * W, u0 * H, (v1 - v0) * W, (u1 - u0) * H);
-      else ctx.fillRect(u0 * W, v0 * H, (u1 - u0) * W, (v1 - v0) * H);
+    function paint() {
+      var c = sx, i;
+      c.clearRect(0, 0, W, H);
+      // the air on both sides: cold outside, a warm lamp-lit room
+      var g = c.createLinearGradient(0, 0, W, 0);
+      g.addColorStop(0, '#1a2124'); g.addColorStop(xs[0] / W, '#151a1a');
+      g.addColorStop(xs[7] / W, '#18140f'); g.addColorStop(1, '#2b1e12');
+      c.fillStyle = g; c.fillRect(0, 0, W, H);
+      var rg = c.createRadialGradient(W, H * .62, 0, W, H * .62, Math.max(W * .3, H * .75));
+      rg.addColorStop(0, 'rgba(' + GLOW + ',.24)'); rg.addColorStop(1, 'rgba(' + GLOW + ',0)');
+      c.fillStyle = rg; c.fillRect(0, 0, W, H);
+      c.fillStyle = '#11100e'; c.fillRect(xs[0], y0, xs[7] - xs[0], y1 - y0);   // the cut has its own ground
+      for (i = 0; i < 7; i++) layer(i);
+      // faces: the two outer faces are cut lines, heavier
+      for (i = 0; i <= 7; i++) {
+        var on = hover >= 0 && (i === hover || i === hover + 1);
+        c.lineWidth = i === 0 || i === 7 ? 1.4 : .9;
+        c.strokeStyle = on ? 'rgba(' + GLOW + ',.9)' : ink(i === 0 || i === 7 ? .7 : .42);
+        c.beginPath(); c.moveTo(xs[i], y0); c.lineTo(xs[i], y1); c.stroke();
+      }
+      // break lines: the wall goes on above and below
+      var xm = (xs[3] + xs[4]) / 2;
+      c.lineWidth = .9; c.strokeStyle = ink(.55);
+      [y0, y1].forEach(function (y) {
+        c.beginPath(); c.moveTo(xs[0] - 10, y); c.lineTo(xm - 7, y); c.lineTo(xm - 2.5, y - 8);
+        c.lineTo(xm + 2.5, y + 8); c.lineTo(xm + 7, y); c.lineTo(xs[7] + 10, y); c.stroke();
+      });
+      // the poles, from each flag down into its band
+      btns.forEach(function (b, k) {
+        var on = k === hover, x = Math.round(b._ax) + .5, yb = y0 + (small ? 12 : 18);
+        c.lineWidth = 1; c.strokeStyle = on ? 'rgba(' + GLOW + ',1)' : ink(hover < 0 ? .38 : .2);
+        c.beginPath(); c.moveTo(x, b._ly + 2); c.lineTo(x, yb); c.stroke();
+        c.fillStyle = on ? 'rgba(' + GLOW + ',1)' : ink(.85);
+        c.beginPath(); c.arc(x, yb, on ? 3 : 2, 0, 6.283); c.fill();
+      });
+      // the direction, once: from the room, out
+      if (!small) {
+        var ay = y1 - 16, ax0 = W - 26, ax1 = xs[7] + 18;
+        c.strokeStyle = ink(.4); c.lineWidth = 1; c.beginPath();
+        c.moveTo(ax0, ay); c.lineTo(ax1, ay); c.moveTo(ax1 + 7, ay - 4); c.lineTo(ax1, ay); c.lineTo(ax1 + 7, ay + 4);
+        c.stroke();
+      }
     }
-    function line(u0, v0, u1, v1) {
-      ctx.beginPath(); ctx.moveTo(X(u0, v0), Y(u0, v0)); ctx.lineTo(X(u1, v1), Y(u1, v1)); ctx.stroke();
-    }
-    function spawn(p, anywhere) {
-      p.u = anywhere ? O * .2 + Math.random() * (1 - O * .2) : 1 - Math.random() * I * .9;
-      p.v = .06 + Math.random() * .88;
-      p.r = .8 + Math.random() * 1.4;
-      p.a = .45 + Math.random() * .5;
-      p.j = Math.random() * 6.28;
+    // ── the vapour ───────────────────────────────────────────────────────
+    function spawn(p) {
+      p.x = W - Math.random() * (W - xs[7]) * .8;
+      p.y = y0 + 10 + Math.random() * (y1 - y0 - 20);
+      p.r = .8 + Math.random() * 1.2; p.a = .4 + Math.random() * .5;
+      p.j = Math.random() * 6.283; p.up = 0; p.on = 1; p.h = []; p.ht = 0;
       return p;
     }
     function step(dt) {
+      clock += dt;
+      var Ww = xs[7] - xs[0], v = Ww * .16, gx = (xs[1] + xs[2]) / 2, gw = xs[2] - xs[1];
+      due += dt * parts.length / 19 * (.55 + .45 * Math.sin(clock * .97));   // one breath ≈ 6.5 s
+      for (var k = 0; k < parts.length && due >= 1; k++) if (!parts[k].on) { spawn(parts[k]); due -= 1; }
+      if (due > 2) due = 2;
       parts.forEach(function (p) {
-        var b = band(p.u);
-        p.j += dt * 2;
-        if (b === 1) {                                            // the ventilated gap: carried along the wall
-          p.v -= dt * .2; p.u -= dt * sp * .05; p.s = -1;
-          if (p.v < .01) spawn(p);
-          return;
+        if (!p.on) return;
+        p.j += dt * 1.7;
+        if (p.up || p.x < xs[2]) {                                // the gap takes it up and away
+          p.up += dt;
+          p.x += (gx + Math.sin(p.j) * gw * .2 - p.x) * Math.min(1, dt * 2.5);
+          p.y -= dt * v * (.25 + .45 * Math.min(1, p.up / 1.5));
+          if (p.y < y0 - 2) p.on = 0;
+        } else {
+          var b = band(p.x), f = b === 7 ? .55 : b === 3 ? .4 : b === 4 ? .045 : b === 2 ? .5 : .62;
+          var d = p.x - xs[5];                                    // closing on the brake: held back
+          if (d > 0 && d < 32) f = Math.min(f, .045 + .575 * d / 32);
+          p.x -= dt * v * f * (.8 + .2 * Math.sin(p.j * .6));
+          p.y += Math.sin(p.j) * dt * (b === 7 ? 10 : 2.5);
+          p.y = Math.max(y0 + 6, Math.min(y1 - 6, p.y));
         }
-        var f = b === 7 ? .45 : b === -1 ? 1.3 : SPEED[b];
-        p.s = sp * f * (.75 + .25 * Math.sin(p.j * .7));
-        p.u -= dt * p.s;
-        p.v += Math.sin(p.j) * dt * (b === 7 ? .05 : .008);
-        if (b === 7) p.u += Math.cos(p.j * 1.3) * dt * .012;
-        if (p.u > 1) p.u = 1;
-        if (p.u < 0) spawn(p);
+        p.ht += dt;
+        if (p.ht > .05) { p.ht = 0; p.h.push([p.x, p.y]); if (p.h.length > 8) p.h.shift(); }
       });
     }
-    function draw() {
+    function render() {
       ctx.clearRect(0, 0, W, H);
-      // outside: cold; the room: warm, lamp-lit (the season story in light)
-      var g = vert ? ctx.createLinearGradient(0, 0, 0, H) : ctx.createLinearGradient(0, 0, W, 0);
-      g.addColorStop(0, '#111615'); g.addColorStop(O, '#171b19');
-      g.addColorStop(1 - I, '#241b13'); g.addColorStop(1, '#33241a');
-      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-      var rg = ctx.createRadialGradient(X(1, .55), Y(1, .55), 0, X(1, .55), Y(1, .55), Math.max(W, H) * .32);
-      rg.addColorStop(0, 'rgba(242,181,99,.20)'); rg.addColorStop(1, 'rgba(242,181,99,0)');
-      ctx.fillStyle = rg; ctx.fillRect(0, 0, W, H);
-      // the bands, outside → inside
-      for (var i = 0; i < 7; i++) {
-        var u0 = edges[i], u1 = edges[i + 1];
-        rect(u0, u1, 0, 1, FILL[i]);
-        ctx.strokeStyle = 'rgba(243,238,227,.07)'; ctx.lineWidth = 1;
-        var k, n;
-        if (i === 0) for (k = 1; k < 5; k++) line(u0 + (u1 - u0) * k / 5, 0, u0 + (u1 - u0) * k / 5, 1);
-        if (i === 1 || i === 5) {                                 // battens at intervals along the wall
-          for (k = 0; k < 7; k++) rect(u0 + (u1 - u0) * .22, u1 - (u1 - u0) * .22, k / 7 + .04, k / 7 + .085, '#3a2c20');
-        }
-        if (i === 2) { ctx.strokeStyle = 'rgba(243,238,227,.05)'; for (k = 0; k < 40; k++) line(u0, k / 40, u1, k / 40 + .01); }
-        if (i === 3) {                                            // studs across the frame, insulation between
-          ctx.strokeStyle = 'rgba(243,238,227,.06)';
-          for (k = 0; k < 26; k++) { var vv = k / 26; line(u0, vv, u1, vv + .02); }
-          for (k = 0; k < 3; k++) rect(u0, u1, k / 3 + .12, k / 3 + .165, '#5a4028');
-        }
-        if (i === 4) {                                            // the brake: a membrane, dashed
-          ctx.strokeStyle = 'rgba(214,206,190,.75)'; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.5;
-          line((u0 + u1) / 2, 0, (u0 + u1) / 2, 1); ctx.setLineDash([]); ctx.lineWidth = 1;
-        }
-        if (i === 5) {                                            // services in the cavity
-          ctx.strokeStyle = 'rgba(201,118,42,.55)'; ctx.beginPath();
-          for (k = 0; k <= 40; k++) { var t = k / 40, uu = u0 + (u1 - u0) * (.5 + Math.sin(t * 9) * .18);
-            if (k) ctx.lineTo(X(uu, t), Y(uu, t)); else ctx.moveTo(X(uu, t), Y(uu, t)); }
-          ctx.stroke();
-        }
-        if (i === 6) { ctx.strokeStyle = 'rgba(243,238,227,.35)'; line(u1 - .002, 0, u1 - .002, 1); }
-        if (i === hover) rect(u0, u1, 0, 1, 'rgba(242,181,99,.13)');
-        ctx.strokeStyle = 'rgba(243,238,227,.14)'; line(u0, 0, u0, 1);
-      }
-      ctx.strokeStyle = 'rgba(243,238,227,.14)'; line(edges[7], 0, edges[7], 1);
-      // vapour
-      ctx.strokeStyle = ctx.fillStyle = '#f3eee3'; ctx.lineCap = 'round';
+      ctx.drawImage(sc, 0, 0, W, H);
+      ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round';
       parts.forEach(function (p) {
-        var fade = p.u < O ? Math.max(0, p.u / O) : 1, x = X(p.u, p.v), y = Y(p.u, p.v);
-        ctx.globalAlpha = p.a * fade;
-        if (p.s === -1) {                                         // rising in the gap
-          ctx.lineWidth = p.r * 1.2; ctx.beginPath(); ctx.moveTo(x, y);
-          ctx.lineTo(X(p.u, p.v + .035), Y(p.u, p.v + .035)); ctx.stroke();
-        } else if (p.s > sp * .3) {                               // moving freely: a streak
-          var du = Math.min(.02, p.s * .2);
-          ctx.globalAlpha = p.a * fade * .72;
-          ctx.lineWidth = p.r * 1.25; ctx.beginPath(); ctx.moveTo(x, y);
-          ctx.lineTo(X(p.u + du, p.v), Y(p.u + du, p.v)); ctx.stroke();
-        } else {                                                  // held by the wall: a dot
-          ctx.beginPath(); ctx.arc(x, y, p.r, 0, 6.283); ctx.fill();
+        if (!p.on) return;
+        var tint = TINT[p.up ? 2 : p.x > xs[7] ? 0 : 1];
+        var f = p.up ? Math.max(0, Math.min(1, (p.y - y0) / 50)) : 1, n = p.h.length, m;
+        ctx.lineWidth = p.r * 1.4;
+        for (m = 1; m < n; m++) {                                 // the trail: older is fainter
+          ctx.strokeStyle = 'rgba(' + tint + ',' + (p.a * f * .32 * m / n).toFixed(3) + ')';
+          ctx.beginPath(); ctx.moveTo(p.h[m - 1][0], p.h[m - 1][1]);
+          ctx.lineTo(m === n - 1 ? p.x : p.h[m][0], m === n - 1 ? p.y : p.h[m][1]); ctx.stroke();
         }
+        ctx.fillStyle = 'rgba(' + tint + ',' + (p.a * f).toFixed(3) + ')';
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.283); ctx.fill();
       });
-      ctx.globalAlpha = 1; ctx.lineWidth = 1;
+      ctx.globalCompositeOperation = 'source-over';
     }
     function loop(t) {
       var dt = last ? Math.min(.05, (t - last) / 1000) : .016; last = t;
-      step(dt); draw();
+      step(dt); render();
       raf = requestAnimationFrame(loop);
     }
     function start() { if (!raf && !reduce) { last = 0; raf = requestAnimationFrame(loop); } }
     function stop() { cancelAnimationFrame(raf); raf = 0; }
-    function settle() { for (var s = 0; s < 900; s++) step(1 / 30); draw(); }
-    function populate() {
-      var n = vert ? 150 : 270;
-      parts = []; for (var k = 0; k < n; k++) parts.push(spawn({}, true));
-    }
-    layout(); populate(); settle();
-    // pointer → answer
+    function settle() { for (var s = 0; s < 660; s++) step(1 / 30); render(); }
+    if (!layout()) return;
+    for (var k = 0, n = Math.round(Math.min(380, Math.max(140, (xs[7] - xs[0]) * (y1 - y0) / 1100))); k < n; k++) parts.push({ on: 0, h: [] });
+    settle();
+    // pointer → answer: the band lights, the others step back, the sentence changes
     function pick(i) {
       hover = i;
       btns.forEach(function (b, k) { b.classList.toggle('on', k === i); });
+      keys.forEach(function (b, k) { b.classList.toggle('on', k === i); b.setAttribute('aria-pressed', k === i); });
       if (desc) desc.innerHTML = i < 0 ? base :
-        '<b>' + btns[i].querySelector('span').textContent + '.</b> ' + btns[i].dataset.s;
-      if (!raf) draw();
+        '<b>' + btns[i].querySelector('.vn').textContent + '.</b> ' + btns[i].dataset.s;
+      paint();
+      if (!raf) render();
     }
+    function toggle(i) { pick(hover === i && !matchMedia('(hover:hover)').matches ? -1 : i); }
     btns.forEach(function (b, i) {
       b.addEventListener('mouseenter', function () { pick(i); });
       b.addEventListener('focus', function () { pick(i); });
-      b.addEventListener('click', function () { pick(hover === i && !matchMedia('(hover:hover)').matches ? -1 : i); });
+      b.addEventListener('click', function () { toggle(i); });
     });
+    keys.forEach(function (b, i) { b.addEventListener('click', function () { pick(hover === i ? -1 : i); }); });
     fig.addEventListener('mouseleave', function () { pick(-1); });
-    function onResize() { layout(); if (!raf) draw(); }
+    function onResize() { if (layout() && !raf) render(); }
     addEventListener('resize', onResize);
+    // the flags are measured in the mono face: measure again once it is in
+    if (document.fonts) document.fonts.ready.then(function () { if (fig.isConnected) onResize(); });
     // the router kills page tweens on every swap; the loop and the
     // listener must die with this page
     tweens.push({ kill: function () { stop(); removeEventListener('resize', onResize); } });
