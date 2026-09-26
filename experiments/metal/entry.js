@@ -23,7 +23,11 @@
   };
   if (!enabled) return;
   // Fail open even when the main bundle is blocked or fails to initialize.
-  watchdog = setTimeout(leave, 95000);
+  watchdog = setTimeout(leave, 12000);
+  document.addEventListener('visibilitychange', () => {
+    clearTimeout(watchdog);
+    if (!finished && !document.hidden) watchdog = setTimeout(leave, 12000);
+  });
   document.addEventListener('DOMContentLoaded', () => {
     if (finished) return;
     cover = document.createElement('div'); cover.id = 'entry-loader'; cover.setAttribute('role', 'status'); cover.setAttribute('aria-label', 'Pripravujeme úvod Codery');
@@ -31,6 +35,6 @@
     document.body.append(cover); progress = cover.querySelector('progress'); skip = cover.querySelector('button'); progress.value = percent;
     for (const el of document.body.children) { if (el !== cover && !el.inert) { el.inert = true; el.dataset.entryInert = ''; } }
     skip.addEventListener('click', leave);
-    skipTimer = setTimeout(() => { skip.hidden = false; }, 8000);
+    skipTimer = setTimeout(() => { skip.hidden = false; }, 3000);
   }, { once: true });
 })();

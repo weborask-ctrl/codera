@@ -16,15 +16,41 @@ let trigger, timeline, scrub, active = false, desiredTime = 0, pendingFrame = 0,
 let loadWatchdog = 0, seekWatchdog = 0, captionFallback = 0, retries = 0;
 let userMotion = null, failed = false, sampleCount = 0, latencyTotal = 0, seekStarted = 0;
 let preparing = false, prepared = false, deferredEntry = false, mediaBlobUrl = '', loadedPercent = 0;
+let stream = null, streamReady = false, fullDelivery = false;
 const diagnostics = { targetTime: 0, displayedTime: 0, progress: 0, seeks: 0, averageSeekMs: 0, active: false, resolution: '', mediaOffset, mediaFps, reason: 'initializing', lastIssue: '', retries: 0, downloadedBytes: 0, prepared: false };
 Object.defineProperty(window, '__coderaMotion', { value: diagnostics });
 
 function wantsMotion() { return userMotion ?? (!reduced.matches && !smallTouch.matches); }
-// Fetch once before entering the long scene. Random range requests during a
-// scroll caused 300–800 ms stalls even when the browser itself ran at 60 Hz.
-// Retain compressed video only (~50 MB), never hundreds of decoded bitmaps.
 async function prepareVideo() {
+  if (fullDelivery) { void prepareFullVideo(); return; }
+  if (preparing || prepared || stream) return;
+  preparing = true;
+  try {
+    const { createMotionStream } = await import('./stream-ahead.mjs');
+    stream = createMotionStream(video, {
+      onBytes(bytes, cached) { diagnostics.downloadedBytes += bytes; diagnostics.cacheHit = cached === diagnostics.downloadedBytes; },
+      onProgress(opening, all) { window.__coderaEntry?.progress(Math.floor(opening * 96)); diagnostics.bufferedPercent = Math.round(all * 100); diagnostics.fullyBuffered = all === 1; },
+      onReady() { streamReady = true; mediaReady(); },
+      onData() { if (streamReady && !prepared) mediaReady(); schedule(); },
+      onError: fallbackFullVideo,
+    });
+    if (!stream) { fallbackFullVideo(new Error('MSE unavailable')); return; }
+    diagnostics.delivery = 'prefetch-segments';
+    void stream.start();
+  } catch (error) { fallbackFullVideo(error); }
+}
+function fallbackFullVideo(error) {
+  stream?.destroy(); stream = null; streamReady = false;
+  fullDelivery = true; preparing = false; prepared = false;
+  diagnostics.prepared = false; diagnostics.lastIssue = `stream: ${error.message}`;
+  // A compatibility fallback must never trap the visitor behind a full download.
+  window.__coderaEntry?.failed();
+  configure();
+}
+// Compatibility fallback retains the stable full-Blob path in the background.
+async function prepareFullVideo() {
   if(preparing || prepared || mediaBlobUrl)return;
+  diagnostics.delivery = 'prepared-fallback';
   preparing=true;loadedPercent=0;
   try {
     const mediaUrl='/media/journey-scroll-1080.mp4';
@@ -59,6 +85,7 @@ function watchLoading() {
 function retryVideo(reason) {
   diagnostics.lastIssue = reason;
   if ((!active && !preparing) || document.hidden) return;
+  if (stream) { fallbackFullVideo(new Error(reason)); return; }
   if (retries < 1) {
     retries++; diagnostics.retries++;
     video.load(); watchLoading();
@@ -75,7 +102,7 @@ function watchSeek() {
 video.addEventListener('progress',watchSeek);
 function mediaReady() {
   clearTimeout(loadWatchdog);
-  if(!prepared && mediaBlobUrl){
+  if(!prepared && (mediaBlobUrl || streamReady) && video.readyState >= 2){
     preparing=false;prepared=true;diagnostics.prepared=true;
     // A background download must not push down content someone already reads.
     deferredEntry=userMotion!==true && !journey.classList.contains('has-journey') && window.scrollY>24;
@@ -95,10 +122,13 @@ function mediaReady() {
 // Exactly one outstanding seek, with latest-scroll-wins backpressure. No decoded image bank.
 function requestFrame() {
   cancelAnimationFrame(pendingFrame); pendingFrame = 0;
-  if (!active || document.hidden || video.readyState < 2 || video.seeking || awaitingPresentation) return;
+  if (!active || document.hidden || !Number.isFinite(video.duration)) return;
   const localTime = Math.max(0,Math.min(desiredTime-mediaOffset,video.duration-1/mediaFps));
   // Seek only distinct frames, just inside the timestamp to avoid boundary rounding.
   const time = Math.min(Math.round(localTime*mediaFps)/mediaFps+.0005,video.duration-.001);
+  diagnostics.buffering = !!stream && stream.request(time) === null;
+  if (diagnostics.buffering) return;
+  if (video.readyState < 2 || video.seeking || awaitingPresentation) return;
   if (Math.abs(video.currentTime - time) < .5/mediaFps) return;
   seekStarted = performance.now();
   awaitingPresentation = !!video.requestVideoFrameCallback;

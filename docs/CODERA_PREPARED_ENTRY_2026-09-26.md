@@ -1,3 +1,5 @@
+**Historical delivery record:** current entry and prefetch rules are in [Fast entry](CODERA_FAST_ENTRY_2026-09-26.md). The approved high-detail payload remains unchanged.
+
 # Prepared Codera entry — 2026-09-26
 
 **Quality settings and timeouts superseded:** see [Motion detail correction](CODERA_MOTION_DETAIL_2026-09-26.md). The prepared-entry architecture below remains current; the 25 MB encode and 30-second limit are historical.
