@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 
@@ -25,27 +25,18 @@ async function installVisibilitySimulation(page) {
 }
 async function slowSeekRecovery() {
   const slow=await browser.newPage({viewport:{width:1280,height:800}});
-  const bytes=await readFile('public/motion/metal/journey-scroll-1080.mp4');
-  let hold=false,held=0,release;const gate=new Promise(resolve=>{release=resolve;});
-  await slow.route('**/*.mp4',async route=>{
-    if(hold){held++;await gate;}
-    const start=Number(/bytes=(\d+)-/.exec(route.request().headers().range||'')?.[1]||0);
-    const end=Math.min(start+524287,bytes.length-1);
-    await route.fulfill({status:206,headers:{'content-type':'video/mp4','accept-ranges':'bytes','content-range':`bytes ${start}-${end}/${bytes.length}`},body:bytes.subarray(start,end+1)}).catch(()=>{});
-  });
+  let requests=0;slow.on('request',r=>{if(r.url().endsWith('.mp4'))requests++;});
   try {
     await slow.goto(url,{waitUntil:'domcontentloaded'});
-    await slow.waitForFunction(()=>window.__coderaMotion?.displayedTime>2.5&&!document.querySelector('video').seeking);
-    hold=true;
-    await slow.evaluate(()=>scrollTo(0,.85*(document.querySelector('.journey').offsetHeight-innerHeight)));
-    await slow.waitForFunction(()=>document.querySelector('video').seeking&&window.__coderaMotion.targetTime>11);
-    await slow.waitForTimeout(6500);
-    assert(held>0,'A distant seek must actually wait for a network range');
-    assert.equal(await slow.evaluate(()=>window.__coderaMotion.retries),0,'Slow range downloads must not trigger a reload after five seconds');
-    release();
-    await slow.waitForFunction(()=>Math.abs(window.__coderaMotion.displayedTime-window.__coderaMotion.targetTime)<.12&&!document.querySelector('video').seeking);
-    passed('Slow remote range completes a distant seek without restarting the video');
-  } finally {release();await slow.close();}
+    await slow.waitForFunction(()=>window.__coderaMotion?.active&&window.__coderaMotion.prepared);
+    assert((await slow.locator('video').getAttribute('src')).startsWith('blob:'));
+    await slow.route('**/*.mp4',route=>route.abort());
+    for(const p of [.85,.15,.95]){
+      await slow.evaluate(p=>scrollTo(0,p*(document.querySelector('.journey').offsetHeight-innerHeight)),p);
+      await slow.waitForFunction(p=>Math.abs(window.__coderaMotion.progress-p)<.003&&Math.abs(window.__coderaMotion.displayedTime-window.__coderaMotion.targetTime)<.12&&!document.querySelector('video').seeking,p);
+    }
+    assert.equal(requests,1);passed('Prepared clip seeks both directions with media network blocked and only one download');
+  } finally {await slow.close();}
 }
 async function delayedMediaRecovery() {
   const slow=await browser.newPage({viewport:{width:1280,height:800}});
@@ -55,17 +46,17 @@ async function delayedMediaRecovery() {
     await slow.goto(url,{waitUntil:'domcontentloaded'});
     await slow.locator('#praca').evaluate(el=>el.scrollIntoView());
     const workStart=await slow.locator('#praca').evaluate(el=>el.getBoundingClientRect().top);
-    // Keep the real request pending through both startup deadlines. A late load must recover itself.
-    await slow.waitForFunction(()=>window.__coderaMotion?.retries>=1,{},{timeout:20000});
-    await slow.waitForFunction(()=>window.__coderaMotion.reason==='video-unavailable',{},{timeout:20000});
+    await slow.waitForFunction(()=>window.__coderaMotion?.reason==='preparing-video');
+    assert.equal(await slow.locator('.journey').evaluate(el=>el.offsetHeight),await slow.evaluate(()=>innerHeight));
     assert(Math.abs(await slow.locator('#praca').evaluate(el=>el.getBoundingClientRect().top)-workStart)<2);
     release();
-    await slow.waitForFunction(()=>window.__coderaMotion.active&&document.querySelector('video').readyState>=2,{},{timeout:15000});
+    await slow.waitForFunction(()=>window.__coderaMotion.prepared&&window.__coderaMotion.reason==='ready-to-start',{},{timeout:30000});
     assert(Math.abs(await slow.locator('#praca').evaluate(el=>el.getBoundingClientRect().top)-workStart)<2);
     await slow.evaluate(()=>scrollTo(0,0));
+    await slow.waitForFunction(()=>window.__coderaMotion.active);
     await slow.mouse.wheel(0,400);
     await slow.waitForFunction(()=>window.__coderaMotion.displayedTime>2.95);
-    passed('Late video recovery preserves portfolio position through both timeouts');
+    passed('Delayed download keeps a compact intro and preserves portfolio position; returning to top activates motion');
   } finally {release();await slow.close();}
 }
 async function hiddenMediaRecovery() {
@@ -75,13 +66,13 @@ async function hiddenMediaRecovery() {
   await hidden.route('**/*.mp4',async route=>{await gate;await route.continue().catch(()=>{});});
   try {
     await hidden.goto(url,{waitUntil:'domcontentloaded'});
-    await hidden.waitForFunction(()=>window.__coderaMotion?.active);
+    await hidden.waitForFunction(()=>window.__coderaMotion?.reason==='preparing-video');
     await hidden.evaluate(()=>window.__setTestHidden(true));
     await hidden.waitForTimeout(16000);
     assert.equal(await hidden.evaluate(()=>window.__coderaMotion.retries),0);
-    assert.equal(await hidden.evaluate(()=>window.__coderaMotion.active),true);
+    assert.equal(await hidden.evaluate(()=>window.__coderaMotion.active),false);
     await hidden.evaluate(()=>window.__setTestHidden(false));release();
-    await hidden.waitForFunction(()=>document.querySelector('video').readyState>=2);
+    await hidden.waitForFunction(()=>window.__coderaMotion.active&&document.querySelector('video').readyState>=2);
     await hidden.mouse.wheel(0,400);
     await hidden.waitForFunction(()=>window.__coderaMotion.displayedTime>2.95);
     passed('Simulated hidden-tab loading suspends watchdog and resumes scroll video');
@@ -203,7 +194,7 @@ try {
   await blocked.unroute('**/*.mp4');await blocked.locator('#motion-toggle').click();await blocked.waitForFunction(()=>window.__coderaMotion.active&&document.querySelector('video').readyState>=2);passed('Failed video can be retried without reloading');await blocked.close();
   const captionResults=await Promise.allSettled([captionFallback('absent'),captionFallback('stalled')]);
   for(const viewport of [{width:320,height:568},{width:844,height:390}]){
-    const short=await browser.newPage({viewport,hasTouch:true,isMobile:true});await short.goto(url);await short.locator('#motion-toggle').click();
+    const short=await browser.newPage({viewport,hasTouch:true,isMobile:true});await short.goto(url);await short.locator('#motion-toggle').click();await short.waitForFunction(()=>window.__coderaMotion.active);
     for(const progress of [.33,.93]){
       await short.evaluate(p=>scrollTo(0,p*(document.querySelector('.journey').offsetHeight-innerHeight)),progress);
       await short.waitForFunction(p=>Math.abs(window.__coderaMotion.progress-p)<.003,progress);

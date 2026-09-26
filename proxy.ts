@@ -97,7 +97,7 @@ export function proxy(request: NextRequest) {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
     "font-src 'self'",
-    "media-src 'self'",
+    "media-src 'self' blob:",
     `connect-src 'self'${preview ? " https://vercel.live wss://ws-us3.pusher.com" : ""}`,
     "worker-src 'self' blob:",
     "manifest-src 'self'",

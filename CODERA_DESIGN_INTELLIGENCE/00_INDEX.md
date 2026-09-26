@@ -6,7 +6,9 @@ from a catalogue-wide study of 1,290 production design systems
 (styles.refero.design) — 100% enumerated and characterized, 18 deep
 structural studies, synthesized into principles (never copies).
 
-**How to use it:** for any new project, run `DESIGN_DECISION_ENGINE.md`
+**For the current Codera website, read `13_CODERA_CURRENT_SYSTEM.md` first.**
+It distinguishes the deployed Silver baseline, local changes and historical
+studies. For any new client project, run `DESIGN_DECISION_ENGINE.md`
 first — it derives a style direction from the client context and
 outputs a one-page design brief. Then read the chosen family's record
 in `styles/` and the relevant system files (04–09). `10` is the audit
@@ -17,6 +19,7 @@ companion; `03` is the industry prior.
 | File | What it holds |
 | --- | --- |
 | `00_INDEX.md` | this map |
+| `13_CODERA_CURRENT_SYSTEM.md` | current Codera bible: pages, fonts, corners, golden-ratio use, scroll video and reusable rules |
 | `01_DESIGN_FOUNDATIONS.md` | cross-family principles: the light-majority fact, restraint grammar, scale ratios, whitespace, imagery discipline, review order |
 | `02_STYLE_TAXONOMY.md` | the 18 archetypes, their axes, legal and failing hybrids |
 | `03_INDUSTRY_STYLE_MATRIX.md` | industry → default / differentiator / avoid mapping + the construction-vs-kids calibration |

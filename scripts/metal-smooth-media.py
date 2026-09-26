@@ -21,7 +21,7 @@ if not args.reuse_interpolated:
         *encode, '-crf', '14', '-g', '6', '-keyint_min', '6', str(master)], check=True)
 # This offset is mirrored in main.mjs. Caption/story timestamps remain in source coordinates.
 subprocess.run(common + ['-ss', '2.583333', '-i', str(master), '-t', '11', '-an',
-    '-vf', 'cas=strength=0.55', *encode, '-crf', '15', '-g', '12', '-keyint_min', '12',
+    '-vf', 'cas=strength=0.55', *encode, '-crf', '15', '-g', '3', '-keyint_min', '3',
     '-profile:v', 'high', '-level:v', '4.2', str(output)], check=True)
 subprocess.run(common + ['-ss', '2.6', '-i', str(source), '-an',
     '-vf', 'unsharp=5:5:0.65:3:3:0,cas=strength=0.55', '-frames:v', '1',
