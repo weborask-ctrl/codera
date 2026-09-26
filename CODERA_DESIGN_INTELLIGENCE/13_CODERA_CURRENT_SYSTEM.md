@@ -46,6 +46,8 @@ The homepage is the only URL in the current sitemap. The demos carry `noindex`; 
 | **Work previews** | Five complete, sharp screenshots in one neutral translucent frame treatment. Outer and inner curves relate; inset is equal on all four sides. `object-fit: contain` keeps the full composition visible. Cards stack compactly on scroll and have accessible live/open actions. | Do not crop the sites to make card art look dramatic; no mismatched inner/outer radii or excessive empty sides. |
 | **Offers and process** | Two offers align by title, audience, price, details and CTA, including expanded details. `72` and `hodín` sit together and are optically centered as one group. Process and contact continue the same visual language. | Don't add a gratuitous third “premium” tier, invented urgency, or tiny type to fit more copy. |
 
+**Approved desktop refinement — 2026-09-26:** keep both original pricing summaries in their own cards. Activating either opens or closes both package contents together; preserve aligned rows and native keyboard access. Desktop project cards share a 24 px sticky edge for complete reverse overlap, and all frames use the same slightly brighter neutral glass. Mobile/tablet refinement remains a separate next step.
+
 Precise CSS lives in `experiments/metal/signature.css`; inspect the **last effective rule** and the rendered viewport before quoting a token. Earlier rules in `style.css` or `refinement.css` can be overridden later in the cascade. The current type source is also documented in `docs/CODERA_UNIFIED_TYPE.md`; its final headings-only correction supersedes its earlier full-type proposal.
 
 ## Motion site: what the existing engine actually does

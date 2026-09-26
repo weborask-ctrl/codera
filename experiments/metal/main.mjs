@@ -241,6 +241,16 @@ window.addEventListener('pageshow',resumeMedia);
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',configure,{once:true});
 else configure();
 
+// Keep both native summaries in place; either control compares both packages.
+const offerDetails=[...document.querySelectorAll('.offer-details')];
+for(const details of offerDetails){
+  details.querySelector('summary').addEventListener('click',event=>{
+    event.preventDefault();
+    const open=!details.open;
+    for(const offer of offerDetails)offer.open=open;
+  });
+}
+
 const menuButton=document.querySelector('.menu-button');
 const menu=document.querySelector('#mobile-menu');
 function closeMenu(){menu.hidden=true;menuButton.setAttribute('aria-expanded','false');menuButton.setAttribute('aria-label','Otvoriť menu');}
