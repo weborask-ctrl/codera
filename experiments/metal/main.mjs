@@ -1,3 +1,5 @@
+import { createMotionStream } from './stream.mjs';
+
 const video = document.querySelector('#journey-video');
 const film = document.querySelector('.film');
 const journey = document.querySelector('.journey');
@@ -15,34 +17,26 @@ const mediaFps = 60;
 let trigger, timeline, scrub, active = false, desiredTime = 0, pendingFrame = 0, awaitingPresentation = false;
 let loadWatchdog = 0, seekWatchdog = 0, captionFallback = 0, retries = 0;
 let userMotion = null, failed = false, sampleCount = 0, latencyTotal = 0, seekStarted = 0;
-let preparing = false, prepared = false, deferredEntry = false, mediaBlobUrl = '', loadedPercent = 0;
+let preparing = false, prepared = false, deferredEntry = false, stream = null;
 const diagnostics = { targetTime: 0, displayedTime: 0, progress: 0, seeks: 0, averageSeekMs: 0, active: false, resolution: '', mediaOffset, mediaFps, reason: 'initializing', lastIssue: '', retries: 0, downloadedBytes: 0, prepared: false };
 Object.defineProperty(window, '__coderaMotion', { value: diagnostics });
 
 function wantsMotion() { return userMotion ?? (!reduced.matches && !smallTouch.matches); }
-// Fetch once before entering the long scene. Random range requests during a
-// scroll caused 300–800 ms stalls even when the browser itself ran at 60 Hz.
-// Retain compressed video only (~50 MB), never hundreds of decoded bitmaps.
-async function prepareVideo() {
-  if(preparing || prepared || mediaBlobUrl)return;
-  preparing=true;loadedPercent=0;
-  try {
-    const response=await fetch('/media/journey-scroll-1080.mp4',{signal:AbortSignal.timeout(180000)});
-    if(!response.ok)throw new Error(`HTTP ${response.status}`);
-    const total=Number(response.headers.get('content-length'));
-    const chunks=[];let loaded=0;
-    if(response.body){
-      const reader=response.body.getReader();
-      while(true){const {done,value}=await reader.read();if(done)break;chunks.push(value);loaded+=value.byteLength;diagnostics.downloadedBytes=loaded;
-        const percent=total>0?Math.min(100,Math.floor(loaded/total*100)):0;
-        if(percent!==loadedPercent){loadedPercent=percent;toggle.querySelector('.motion-label').textContent=`Pripravujem video · ${percent} %`;}
-      }
-    }else{chunks.push(await response.arrayBuffer());}
-    mediaBlobUrl=URL.createObjectURL(new Blob(chunks,{type:'video/mp4'}));
-    video.src=mediaBlobUrl;video.preload='auto';video.load();watchLoading();
-  }catch(error){
-    preparing=false;failed=true;diagnostics.lastIssue=`download: ${error.message}`;configure();
-  }
+// Start from the opening fragment; subsequent fragments follow scroll demand.
+function prepareVideo() {
+  if(preparing || prepared || stream)return;
+  preparing=true;
+  stream=createMotionStream(video,{
+    onBytes:bytes=>{diagnostics.downloadedBytes+=bytes;},
+    onData:()=>schedule(),
+    onError:error=>{
+      diagnostics.lastIssue=error.message;
+      stream.fallbackNative();diagnostics.delivery='native';watchLoading();
+    },
+  });
+  diagnostics.delivery=stream.mode;
+  stream.start().catch(error=>{diagnostics.lastIssue=error.message;stream.fallbackNative();diagnostics.delivery='native';watchLoading();});
+  watchLoading();
 }
 function watchLoading() {
   clearTimeout(loadWatchdog);
@@ -54,7 +48,7 @@ function retryVideo(reason) {
   if ((!active && !preparing) || document.hidden) return;
   if (retries < 1) {
     retries++; diagnostics.retries++;
-    video.load(); watchLoading();
+    stream?.fallbackNative();diagnostics.delivery='native';video.load(); watchLoading();
   } else { preparing=false;failed = true; configure(); }
 }
 function watchSeek() {
@@ -68,7 +62,7 @@ function watchSeek() {
 video.addEventListener('progress',watchSeek);
 function mediaReady() {
   clearTimeout(loadWatchdog);
-  if(!prepared && mediaBlobUrl){
+  if(!prepared && stream){
     preparing=false;prepared=true;diagnostics.prepared=true;
     // A background download must not push down content someone already reads.
     deferredEntry=userMotion!==true && !journey.classList.contains('has-journey') && window.scrollY>24;
@@ -90,7 +84,9 @@ function requestFrame() {
   if (!active || document.hidden || video.readyState < 2 || video.seeking || awaitingPresentation) return;
   const localTime = Math.max(0,Math.min(desiredTime-mediaOffset,video.duration-1/mediaFps));
   // Seek only distinct frames, just inside the timestamp to avoid boundary rounding.
-  const time = Math.min(Math.round(localTime*mediaFps)/mediaFps+.0005,video.duration-.001);
+  const wantedTime = Math.min(Math.round(localTime*mediaFps)/mediaFps+.0005,video.duration-.001);
+  const time = stream?.request(wantedTime);
+  if(time==null)return;
   if (Math.abs(video.currentTime - time) < .5/mediaFps) return;
   seekStarted = performance.now();
   awaitingPresentation = !!video.requestVideoFrameCallback;
@@ -163,7 +159,7 @@ function configure() {
   toggle.hidden = !librariesReady;
   toggle.disabled = preparing;
   toggle.setAttribute('aria-pressed',String(active));
-  toggle.querySelector('.motion-label').textContent=failed?'Skúsiť animáciu znova':preparing?`Pripravujem video${loadedPercent?` · ${loadedPercent} %`:'…'}`:active?'Zastaviť pohyb':'Spustiť animáciu';
+  toggle.querySelector('.motion-label').textContent=failed?'Skúsiť animáciu znova':preparing?'Pripravujem video…':active?'Zastaviť pohyb':'Spustiť animáciu';
   toggle.querySelector('.pause-icon').textContent=active?'Ⅱ':'▷';
   if (!active) {
     video.pause();
@@ -209,17 +205,16 @@ function configure() {
 toggle.addEventListener('click',()=>{
   userMotion=!active;
   deferredEntry=false;
-  if(failed){failed=false;retries=0;if(mediaBlobUrl){URL.revokeObjectURL(mediaBlobUrl);mediaBlobUrl='';}prepared=false;diagnostics.prepared=false;video.removeAttribute('src');}
+  if(failed){failed=false;retries=0;stream?.destroy();stream=null;prepared=false;diagnostics.prepared=false;video.removeAttribute('src');}
   configure();
 });
 window.addEventListener('scroll',()=>{if(deferredEntry && window.scrollY<=24){deferredEntry=false;configure();}},{passive:true});
 reduced.addEventListener('change',()=>{userMotion=null;configure();});smallTouch.addEventListener('change',configure);
 function resumeMedia() {
   if(document.hidden || !wantsMotion())return;
-  if(failed && !mediaBlobUrl){failed=false;retries=0;configure();}
-  else if(failed && mediaBlobUrl){failed=false;retries=0;video.load();configure();}
-  else if(preparing && mediaBlobUrl){video.load();watchLoading();}
-  else if(active){if(video.readyState<2){video.load();watchLoading();}else mediaReady();}
+  if(failed){failed=false;retries=0;stream?.destroy();stream=null;prepared=false;diagnostics.prepared=false;configure();}
+  else if(preparing){watchLoading();}
+  else if(active){if(video.readyState>=2)mediaReady();else watchLoading();}
   window.ScrollTrigger?.refresh();schedule();
 }
 document.addEventListener('visibilitychange',()=>{
