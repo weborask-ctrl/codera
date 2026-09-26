@@ -818,6 +818,7 @@ def build(B):
     # the section bands outside → inside, the order WALL_TEXT uses. Widths
     # are schematic (the client confirms real thicknesses); names and
     # sentences are WALL_TEXT, shared with stena.html.
+    # src/section.py paints the material image with these same widths
     VBANDS = [("ob", 1.15), ("med", .85), ("dvd", 1.3), ("nos", 4.1), ("pb", .3),
               ("pre", 1.35), ("sdk", .55)]
     total = sum(w for _, w in VBANDS)
@@ -851,7 +852,8 @@ def build(B):
     <p class="lead fade d2">Difúzne otvorená stavba znamená, že stena vie prepustiť vodnú paru von.
       Vlhkosť v nej neostáva stáť — a to je hlavný dôvod, prečo drevostavba vydrží.</p>
   </div>
-  <figure class="stage fade d2" data-vapour data-bands="{bands_json}">
+  <figure class="stage fade d2" data-vapour data-bands="{bands_json}"
+    data-src="assets/sec-l.webp" data-thumb="assets/sec-s.webp">
     <canvas aria-hidden="true"></canvas>
     <span class="vend out mono">Zvonku</span><span class="vend in mono">Dnu</span>
     <div class="vbs" role="group" aria-label="Vrstvy steny">{lab}</div>

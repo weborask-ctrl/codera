@@ -657,6 +657,19 @@
     var PAPER = '243,238,227', GLOW = '242,181,99';
     var TINT = ['255,212,158', PAPER, '206,224,234'];           // room · wall · the gap (warm → cool)
     var W = 0, H = 0, dpr, small, xs = [], y0, y1, hover = -1, parts = [], raf = 0, last = 0, clock = 0, due = 0;
+    // the section in its materials (src/section.py): wide for the 21:9
+    // stage, tall for the square and portrait ones. Until it arrives, and
+    // if it never does, the drafted section below stands in.
+    var tex = null, texFor = '';
+    function loadTex() {
+      var want = small ? fig.dataset.thumb : fig.dataset.src;
+      if (!want || want === texFor) return;
+      texFor = want;
+      var im = new Image();
+      im.decoding = 'async';
+      im.onload = function () { if (texFor !== want || !fig.isConnected) return; tex = im; paint(); if (!raf) render(); };
+      im.src = want;
+    }
     function ink(a) { return 'rgba(' + PAPER + ',' + Math.min(1, a).toFixed(3) + ')'; }
     function band(x) {
       for (var i = 0; i < 7; i++) if (x >= xs[i] && x < xs[i + 1]) return i;
@@ -670,6 +683,7 @@
       cv.width = sc.width = Math.round(W * dpr); cv.height = sc.height = Math.round(H * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0); sx.setTransform(dpr, 0, 0, dpr, 0, 0);
       small = matchMedia('(max-width:820px)').matches;
+      loadTex();
       var O = small ? .07 : .11, I = small ? .13 : .19, a = O, i, j;
       xs = [O * W];
       fr.forEach(function (f) { a += f * (1 - O - I); xs.push(a * W); });
@@ -756,6 +770,40 @@
       }
       c.restore();
     }
+    // the image cut to the wall: width locked to the bands, so every layer
+    // of the picture sits exactly on its band; the wall height is a crop
+    function slice(c, i0, i1, dy) {
+      var nw = tex.naturalWidth, nh = tex.naturalHeight, s = (xs[7] - xs[0]) / nw;
+      var hh = y1 - y0, sh = Math.min(nh, hh / s), sy = (nh - sh) / 2;
+      var a = (xs[i0] - xs[0]) / s, b = (xs[i1] - xs[0]) / s;
+      c.drawImage(tex, a, sy, b - a, sh, xs[i0], y0 + dy, xs[i1] - xs[i0], hh);
+    }
+    function section() {
+      var c = sx, i;
+      c.save();
+      c.shadowColor = 'rgba(0,0,0,.55)'; c.shadowBlur = 40; c.shadowOffsetY = 18;
+      slice(c, 0, 7, 0);
+      c.restore();
+      if (hover >= 0) {
+        // the others step back into the dark; the chosen layer comes forward
+        c.fillStyle = 'rgba(12,11,9,.46)';
+        c.fillRect(xs[0], y0, xs[hover] - xs[0], y1 - y0);
+        c.fillRect(xs[hover + 1], y0, xs[7] - xs[hover + 1], y1 - y0);
+        c.save();
+        c.shadowColor = 'rgba(0,0,0,.7)'; c.shadowBlur = 26; c.shadowOffsetY = 12;
+        slice(c, hover, hover + 1, -6);
+        c.restore();
+        c.strokeStyle = 'rgba(' + GLOW + ',.9)'; c.lineWidth = 1;
+        c.strokeRect(xs[hover] + .5, y0 - 6 + .5, xs[hover + 1] - xs[hover] - 1, y1 - y0 - 1);
+      }
+      // the wall goes on above and below: the cut fades into the stage
+      var fh = Math.min(70, (y1 - y0) * .16);
+      [[y0, y0 + fh], [y1, y1 - fh]].forEach(function (p) {
+        var g = c.createLinearGradient(0, p[0], 0, p[1]);
+        g.addColorStop(0, 'rgba(18,17,15,.92)'); g.addColorStop(1, 'rgba(18,17,15,0)');
+        c.fillStyle = g; c.fillRect(xs[0] - 1, Math.min(p[0], p[1]) - (p[0] < p[1] ? 8 : 0), xs[7] - xs[0] + 2, fh + 8);
+      });
+    }
     function paint() {
       var c = sx, i;
       c.clearRect(0, 0, W, H);
@@ -767,22 +815,25 @@
       var rg = c.createRadialGradient(W, H * .62, 0, W, H * .62, Math.max(W * .3, H * .75));
       rg.addColorStop(0, 'rgba(' + GLOW + ',.24)'); rg.addColorStop(1, 'rgba(' + GLOW + ',0)');
       c.fillStyle = rg; c.fillRect(0, 0, W, H);
-      c.fillStyle = '#11100e'; c.fillRect(xs[0], y0, xs[7] - xs[0], y1 - y0);   // the cut has its own ground
-      for (i = 0; i < 7; i++) layer(i);
-      // faces: the two outer faces are cut lines, heavier
-      for (i = 0; i <= 7; i++) {
-        var on = hover >= 0 && (i === hover || i === hover + 1);
-        c.lineWidth = i === 0 || i === 7 ? 1.4 : .9;
-        c.strokeStyle = on ? 'rgba(' + GLOW + ',.9)' : ink(i === 0 || i === 7 ? .7 : .42);
-        c.beginPath(); c.moveTo(xs[i], y0); c.lineTo(xs[i], y1); c.stroke();
+      if (tex) section();
+      else {                                  // the drafted section, until the image is in
+        c.fillStyle = '#11100e'; c.fillRect(xs[0], y0, xs[7] - xs[0], y1 - y0);   // the cut has its own ground
+        for (i = 0; i < 7; i++) layer(i);
+        // faces: the two outer faces are cut lines, heavier
+        for (i = 0; i <= 7; i++) {
+          var on = hover >= 0 && (i === hover || i === hover + 1);
+          c.lineWidth = i === 0 || i === 7 ? 1.4 : .9;
+          c.strokeStyle = on ? 'rgba(' + GLOW + ',.9)' : ink(i === 0 || i === 7 ? .7 : .42);
+          c.beginPath(); c.moveTo(xs[i], y0); c.lineTo(xs[i], y1); c.stroke();
+        }
+        // break lines: the wall goes on above and below
+        var xm = (xs[3] + xs[4]) / 2;
+        c.lineWidth = .9; c.strokeStyle = ink(.55);
+        [y0, y1].forEach(function (y) {
+          c.beginPath(); c.moveTo(xs[0] - 10, y); c.lineTo(xm - 7, y); c.lineTo(xm - 2.5, y - 8);
+          c.lineTo(xm + 2.5, y + 8); c.lineTo(xm + 7, y); c.lineTo(xs[7] + 10, y); c.stroke();
+        });
       }
-      // break lines: the wall goes on above and below
-      var xm = (xs[3] + xs[4]) / 2;
-      c.lineWidth = .9; c.strokeStyle = ink(.55);
-      [y0, y1].forEach(function (y) {
-        c.beginPath(); c.moveTo(xs[0] - 10, y); c.lineTo(xm - 7, y); c.lineTo(xm - 2.5, y - 8);
-        c.lineTo(xm + 2.5, y + 8); c.lineTo(xm + 7, y); c.lineTo(xs[7] + 10, y); c.stroke();
-      });
       // the poles, from each flag down into its band
       btns.forEach(function (b, k) {
         var on = k === hover, x = Math.round(b._ax) + .5, yb = y0 + (small ? 12 : 18);

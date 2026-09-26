@@ -1007,3 +1007,22 @@ Nové riešenie v `initVapour()`:
 - **Vstup → odpoveď hneď** (**lusion**): hover alebo ťuknutie rozsvieti vrstvu, ostatné
   ustúpia a veta pod výkresom sa zmení. Redukovaný pohyb dostane jeden ustálený snímok toho
   istého toku.
+
+**25b — materiály namiesto čiar (klient, 2026-09-26).** Výkres klient zhodnotil ako
+„nie je to dobré" a z ponúknutých ciest vybral realistický rez. `src/section.py` kreslí rez
+stenou v materiáloch:
+- smrekovcové rhombus dosky s letokruhmi v reze a otvorenými škárami;
+- tmavá vetraná medzera s latou;
+- lisované drevovlákno;
+- voľné vlákna izolácie;
+- tenká fólia;
+- rezané laty predsteny s chráničkou;
+- sadrokartón s papierom a maľbou.
+
+Svetlo je nízke a z izby teplé, aby para ako svetlo nad materiálom vynikla (**lusion**: predmet
+ako exponát na tmavom javisku). Šírky vrstiev sú rovnaké ako `VBANDS`, preto zvýraznená vrstva
+sedí presne na svojom materiáli. Pri výbere sa vrstva vysunie so svetlým okrajom a ostatné
+stmavnú. Vlajky s popismi ostali (**igloo**: anotácia nad objektom). Obraz je procedurálny,
+lebo generovanie obrázkov tu nebolo k dispozícii (Higgsfield 0,4 kreditu, `FAL_KEY` nie je
+nastavený). Ak sa neskôr vyrobí fotorealistický render s rovnakými šírkami, nahradí
+`sec-*.webp` bez zmeny kódu. Kým sa obraz načíta, stojí na jeho mieste výkres z fázy 25.

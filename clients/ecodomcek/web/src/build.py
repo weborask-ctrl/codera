@@ -40,6 +40,7 @@ IMAGES = [
     "lyr-base.webp", "lyr-ground.webp", "lyr-upper.webp", "lyr-roof.webp",
     "wall-1-obklad.webp", "wall-2-latovanie.webp", "wall-3-doska.webp", "wall-4-ram.webp",
     "wall-5-parobrzda.webp", "wall-6-predstena.webp", "wall-7-sadrokarton.webp",
+    "sec-l.webp", "sec-s.webp",                       # src/section.py: the wall in section, in its materials
 ]
 PHOTOS = ["2024-lucina", "2023-kosice", "2021-bungalov-presov", "2021-terasa",
           "2019-terasa-chrastne", "2015-budatin", "2008-prvotina"]

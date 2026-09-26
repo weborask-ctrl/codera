@@ -26,6 +26,7 @@ Publikované: https://claude.ai/code/artifact/ec635947-fb5c-4b60-91e2-41bc54e1c3
 | `src/build.py` | shell (hlavička, pätička, meta), assety, zápis `dist/` |
 | `src/site.css`, `src/site.js` | jeden motion engine (GSAP + ScrollTrigger na natívnom scrolle), router s papierovou oponou |
 | `src/fonts.mjs` | orezané woff2 do `src/fonts/` (potrebuje `subset-font` z node_modules repozitára); stránka ich má samohostované, nie z fonts.googleapis.com — build kopíruje hotové súbory a nič nesťahuje |
+| `src/section.py` | rez stenou v materiáloch pre „Stena dýcha“ na Technológii (`renders/sec-l.webp`, `sec-s.webp`); procedurálne, šírky vrstiev = `VBANDS` v `pages.py`, spúšťa sa ručne `python3 src/section.py` a výsledok sa commitne |
 | `src/shots.cjs` | full-page zábery každej stránky (Playwright, desktop + mobil) |
 | `renders/` | vizualizácie domu z Lúčiny, štyri alfa vrstvy, kresba (`ink-4-150.json`), `photos/` = skutočné fotky realizácií |
 
