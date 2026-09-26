@@ -821,13 +821,15 @@ def build(B):
     VBANDS = [("ob", 1.15), ("med", .85), ("dvd", 1.3), ("nos", 4.1), ("pb", .3),
               ("pre", 1.35), ("sdk", .55)]
     total = sum(w for _, w in VBANDS)
-    lab, x = "", 0.0
-    for i, (key, w) in enumerate(VBANDS):
+    # each layer is a hit area over its band carrying a flag (JS places
+    # both from the measured bands); on a phone the flags keep only their
+    # numbers and the key under the stage carries the names
+    lab, key = "", ""
+    for i, _ in enumerate(VBANDS):
         n, s = C.WALL_TEXT[i]
-        c = (x + w / 2) / total * 100
-        lab += (f'<button class="vb" type="button" data-i="{i}" style="--c:{c:.2f}%;--w:{w / total * 100:.2f}%" '
-                f'data-s="{esc(s)}"><i>{i + 1:02d}</i><span>{esc(n)}</span></button>')
-        x += w
+        lab += (f'<button class="vb" type="button" data-i="{i}" data-s="{esc(s)}">'
+                f'<span class="vl"><i>{i + 1:02d}</i><span class="vn">{esc(n)}</span></span></button>')
+        key += f'<li><button type="button" aria-pressed="false"><i>{i + 1:02d}</i>{esc(n)}</button></li>'
     bands_json = ",".join(f"{w / total:.4f}" for _, w in VBANDS)
 
     tech = f'''<section class="band moss tmast" data-sec="Technológia" data-band="moss">
@@ -854,6 +856,7 @@ def build(B):
     <span class="vend out mono">Zvonku</span><span class="vend in mono">Dnu</span>
     <div class="vbs" role="group" aria-label="Vrstvy steny">{lab}</div>
   </figure>
+  <ol class="vkey" aria-label="Vrstvy steny, zvonku dnu">{key}</ol>
   <div class="vcap">
     <p class="vdesc" aria-live="polite">Para vzniká v dome — varením, dychom, sprchou — a stenou prechádza von.
       Parobrzda ju pribrzdí, vetraná medzera ju odvedie.</p>
