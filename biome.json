@@ -6,7 +6,8 @@
     "useIgnoreFile": true
   },
   "files": {
-    "ignoreUnknown": false
+    "ignoreUnknown": false,
+    "includes": ["**", "!clients/**", "!public/demos/ecodomcek/**"]
   },
   "css": {
     "parser": {

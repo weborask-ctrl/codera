@@ -51,3 +51,11 @@ node_modules/
 
 /.prototype-cache/
 /verify.log
+
+# generated single-file build of the EcoDomček proposal (python3 build.py)
+clients/ecodomcek/web/dist/
+clients/ecodomcek/web/dist-artifact/
+
+# python bytecode
+__pycache__/
+*.pyc
