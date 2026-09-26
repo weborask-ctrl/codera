@@ -14,9 +14,9 @@ outputs a one-page design brief. Then read the chosen family's record
 in `styles/` and the relevant system files (04–09). `10` is the audit
 companion; `03` is the industry prior.
 
-Motion delivery correction (2026-09-26): the full-video download gate was
-rejected after release. The current bible documents progressive fragments
-and requires cold-cache startup measurements, not only warm playback tests.
+Motion entry decision (2026-09-26): Marcus requested a fully prepared video
+before the website reveal. The current bible documents the loader, browser
+cache, static exits and both cold-entry and prepared-scroll measurements.
 
 ## Files
 
