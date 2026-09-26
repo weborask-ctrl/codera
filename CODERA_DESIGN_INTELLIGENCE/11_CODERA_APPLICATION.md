@@ -1,5 +1,7 @@
 # 11 — Codera Application
 
+**Historical study. Current decisions and implementation are in [13_CODERA_CURRENT_SYSTEM.md](13_CODERA_CURRENT_SYSTEM.md). Do not restore the old Ribbon Chamber or decorative micro-labels described below.**
+
 Applying the library to Codera itself (per the working document's
 Step 1 §9): the outcome of the broad study turned into a direction for
 Codera's own site — WITHOUT locking Codera into a full-dark aesthetic.

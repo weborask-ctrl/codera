@@ -18,7 +18,7 @@ Nothing is authoritative unless it lives here.
 | How work is run | this file |
 | Original human input, archived | `process/source/working-document-v0.5.docx` |
 | Design knowledge, reusable | `CODERA_DESIGN_INTELLIGENCE/` |
-| Visual contract for the current site | `CODERA_ART_DIRECTION_V2.md` |
+| Visual contract for the current site | `CODERA_DESIGN_INTELLIGENCE/13_CODERA_CURRENT_SYSTEM.md`; older art-direction documents are historical |
 | The brand mark | `brand/source/` (approved references) → `CODERA_3D_LOGO_DELIVERABLES/` (built asset) |
 | Current state of the product | `STATE.md` |
 | Everything still open | GitHub Issues |

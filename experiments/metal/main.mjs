@@ -1,3 +1,5 @@
+import { createMotionStream } from './stream.mjs';
+
 const video = document.querySelector('#journey-video');
 const film = document.querySelector('.film');
 const journey = document.querySelector('.journey');
@@ -12,25 +14,42 @@ const cameraPoints = [[0,2.6],[.38,5.7],[.67,9.5],[1,13.5]];
 // Story timestamps stay in the original master; the delivery clip omits unused handles.
 const mediaOffset = 2.583333;
 const mediaFps = 60;
-let trigger, timeline, scrub, active = false, desiredTime = 0, pendingFrame = 0;
+let trigger, timeline, scrub, active = false, desiredTime = 0, pendingFrame = 0, awaitingPresentation = false;
 let loadWatchdog = 0, seekWatchdog = 0, captionFallback = 0, retries = 0;
 let userMotion = null, failed = false, sampleCount = 0, latencyTotal = 0, seekStarted = 0;
-const diagnostics = { targetTime: 0, displayedTime: 0, progress: 0, seeks: 0, averageSeekMs: 0, active: false, resolution: '', mediaOffset, mediaFps, reason: 'initializing', lastIssue: '', retries: 0 };
+let preparing = false, prepared = false, deferredEntry = false, stream = null;
+const diagnostics = { targetTime: 0, displayedTime: 0, progress: 0, seeks: 0, averageSeekMs: 0, active: false, resolution: '', mediaOffset, mediaFps, reason: 'initializing', lastIssue: '', retries: 0, downloadedBytes: 0, prepared: false };
 Object.defineProperty(window, '__coderaMotion', { value: diagnostics });
 
 function wantsMotion() { return userMotion ?? (!reduced.matches && !smallTouch.matches); }
+// Start from the opening fragment; subsequent fragments follow scroll demand.
+function prepareVideo() {
+  if(preparing || prepared || stream)return;
+  preparing=true;
+  stream=createMotionStream(video,{
+    onBytes:bytes=>{diagnostics.downloadedBytes+=bytes;},
+    onData:()=>schedule(),
+    onError:error=>{
+      diagnostics.lastIssue=error.message;
+      stream.fallbackNative();diagnostics.delivery='native';watchLoading();
+    },
+  });
+  diagnostics.delivery=stream.mode;
+  stream.start().catch(error=>{diagnostics.lastIssue=error.message;stream.fallbackNative();diagnostics.delivery='native';watchLoading();});
+  watchLoading();
+}
 function watchLoading() {
   clearTimeout(loadWatchdog);
   // A hidden preview may deliberately suspend media loading. Time spent hidden is not failure.
-  if (active && !document.hidden && video.readyState < 2) loadWatchdog = setTimeout(()=>retryVideo('load-timeout'),15000);
+  if ((active || preparing) && !document.hidden && video.readyState < 2) loadWatchdog = setTimeout(()=>retryVideo('load-timeout'),15000);
 }
 function retryVideo(reason) {
   diagnostics.lastIssue = reason;
-  if (!active || document.hidden) return;
+  if ((!active && !preparing) || document.hidden) return;
   if (retries < 1) {
     retries++; diagnostics.retries++;
-    video.load(); watchLoading();
-  } else { failed = true; configure(); }
+    stream?.fallbackNative();diagnostics.delivery='native';video.load(); watchLoading();
+  } else { preparing=false;failed = true; configure(); }
 }
 function watchSeek() {
   clearTimeout(seekWatchdog);
@@ -43,6 +62,12 @@ function watchSeek() {
 video.addEventListener('progress',watchSeek);
 function mediaReady() {
   clearTimeout(loadWatchdog);
+  if(!prepared && stream){
+    preparing=false;prepared=true;diagnostics.prepared=true;
+    // A background download must not push down content someone already reads.
+    deferredEntry=userMotion!==true && !journey.classList.contains('has-journey') && window.scrollY>24;
+    configure();
+  }
   // Late data must recover a timed-out opening without requiring a button click.
   if (failed && wantsMotion()) { failed=false; configure(); }
   if (active) {
@@ -56,12 +81,15 @@ function mediaReady() {
 // Exactly one outstanding seek, with latest-scroll-wins backpressure. No decoded image bank.
 function requestFrame() {
   cancelAnimationFrame(pendingFrame); pendingFrame = 0;
-  if (!active || document.hidden || video.readyState < 2 || video.seeking) return;
+  if (!active || document.hidden || video.readyState < 2 || video.seeking || awaitingPresentation) return;
   const localTime = Math.max(0,Math.min(desiredTime-mediaOffset,video.duration-1/mediaFps));
   // Seek only distinct frames, just inside the timestamp to avoid boundary rounding.
-  const time = Math.min(Math.round(localTime*mediaFps)/mediaFps+.0005,video.duration-.001);
+  const wantedTime = Math.min(Math.round(localTime*mediaFps)/mediaFps+.0005,video.duration-.001);
+  const time = stream?.request(wantedTime);
+  if(time==null)return;
   if (Math.abs(video.currentTime - time) < .5/mediaFps) return;
   seekStarted = performance.now();
+  awaitingPresentation = !!video.requestVideoFrameCallback;
   video.currentTime = time;
   diagnostics.seeks++;
   watchSeek();
@@ -77,19 +105,22 @@ video.addEventListener('seeked', () => {
     // Some embedded browsers delay frame callbacks on paused video. Keep captions usable.
     clearTimeout(captionFallback);
     const settledTime=video.currentTime+mediaOffset;
-    captionFallback=setTimeout(()=>presentStory(settledTime),120);
+    captionFallback=setTimeout(()=>{awaitingPresentation=false;presentStory(settledTime);schedule();},120);
   }
-  requestFrame();
+  schedule();
 });
 if (video.requestVideoFrameCallback) {
-  const presented = (_now, info) => { clearTimeout(captionFallback); diagnostics.displayedTime = info.mediaTime+mediaOffset; presentStory(info.mediaTime+mediaOffset); video.requestVideoFrameCallback(presented); };
+  const presented = (_now, info) => { clearTimeout(captionFallback); awaitingPresentation=false;diagnostics.displayedTime = info.mediaTime+mediaOffset; presentStory(info.mediaTime+mediaOffset); video.requestVideoFrameCallback(presented);schedule(); };
   video.requestVideoFrameCallback(presented);
 }
 video.addEventListener('loadeddata', mediaReady);
 video.addEventListener('canplay', mediaReady);
 video.addEventListener('error', ()=>retryVideo(`media-error-${video.error?.code||'unknown'}`));
+let selectedBeat = null;
 function setBeatAccessibility(progress) {
   const selected = progress < .15 ? 0 : progress >= .17 && progress < .50 ? 1 : progress >= .74 ? 2 : -1;
+  if(selected===selectedBeat)return;
+  selectedBeat=selected;
   beats.forEach((beat,index)=>{beat.setAttribute('aria-hidden',String(index!==selected));for(const link of beat.querySelectorAll('a'))link.tabIndex=index===selected?0:-1;});
 }
 function update(progress) {
@@ -115,18 +146,20 @@ function presentStory(time) {
 function configure() {
   
   trigger?.kill();timeline?.kill();scrub?.kill();trigger=undefined;timeline=undefined;scrub=undefined;
-  cancelAnimationFrame(pendingFrame);pendingFrame=0;clearTimeout(loadWatchdog);clearTimeout(seekWatchdog);clearTimeout(captionFallback);
+  cancelAnimationFrame(pendingFrame);pendingFrame=0;awaitingPresentation=false;clearTimeout(loadWatchdog);clearTimeout(seekWatchdog);clearTimeout(captionFallback);
   const librariesReady = !!window.gsap && !!window.ScrollTrigger;
   const requested = wantsMotion();
-  active = requested && !failed && librariesReady;
+  active = requested && !failed && librariesReady && prepared && !deferredEntry;
+  if(requested && !failed && librariesReady && !prepared)prepareVideo();
   diagnostics.active=active;
-  diagnostics.reason = !librariesReady ? 'libraries-unavailable' : failed ? 'video-unavailable' : userMotion === false ? 'paused' : active ? 'scroll-video' : reduced.matches ? 'reduced-motion' : 'small-touch';
+  diagnostics.reason = !librariesReady ? 'libraries-unavailable' : failed ? 'video-unavailable' : userMotion === false ? 'paused' : active ? 'scroll-video' : requested && !prepared ? 'preparing-video' : deferredEntry ? 'ready-to-start' : reduced.matches ? 'reduced-motion' : 'small-touch';
   journey.dataset.motionState=diagnostics.reason;
   document.documentElement.classList.toggle('motion-enabled',active);
   if(active)journey.classList.add('has-journey');
   toggle.hidden = !librariesReady;
+  toggle.disabled = preparing;
   toggle.setAttribute('aria-pressed',String(active));
-  toggle.querySelector('.motion-label').textContent=failed?'Skúsiť animáciu znova':active?(video.readyState<2?'Načítavam video…':'Zastaviť pohyb'):'Spustiť animáciu';
+  toggle.querySelector('.motion-label').textContent=failed?'Skúsiť animáciu znova':preparing?'Pripravujem video…':active?'Zastaviť pohyb':'Spustiť animáciu';
   toggle.querySelector('.pause-icon').textContent=active?'Ⅱ':'▷';
   if (!active) {
     video.pause();
@@ -164,22 +197,24 @@ function configure() {
   const camera={progress:0};
   scrub=gsap.to(camera,{progress:1,duration:1,ease:'none',paused:true,onUpdate:()=>update(camera.progress)});
   trigger=ScrollTrigger.create({trigger:journey,start:'top top',end:'bottom bottom',animation:scrub,scrub:.55,onRefresh:self=>{scrub.progress(self.progress);update(self.progress);}});
-  if(!video.getAttribute('src')){video.src='/media/journey-scroll-1080.mp4';video.preload='auto';video.load();}
-  else if(video.readyState>=2)film.classList.add('is-ready');
+  if(video.readyState>=2)film.classList.add('is-ready');
   watchLoading();
   update(trigger.progress);
   presentStory(video.currentTime+mediaOffset);
 }
 toggle.addEventListener('click',()=>{
   userMotion=!active;
-  if(failed){failed=false;retries=0;video.removeAttribute('src');}
+  deferredEntry=false;
+  if(failed){failed=false;retries=0;stream?.destroy();stream=null;prepared=false;diagnostics.prepared=false;video.removeAttribute('src');}
   configure();
 });
+window.addEventListener('scroll',()=>{if(deferredEntry && window.scrollY<=24){deferredEntry=false;configure();}},{passive:true});
 reduced.addEventListener('change',()=>{userMotion=null;configure();});smallTouch.addEventListener('change',configure);
 function resumeMedia() {
   if(document.hidden || !wantsMotion())return;
-  if(failed){failed=false;retries=0;video.removeAttribute('src');configure();}
-  else if(active){if(video.readyState<2){video.load();watchLoading();}else mediaReady();}
+  if(failed){failed=false;retries=0;stream?.destroy();stream=null;prepared=false;diagnostics.prepared=false;configure();}
+  else if(preparing){watchLoading();}
+  else if(active){if(video.readyState>=2)mediaReady();else watchLoading();}
   window.ScrollTrigger?.refresh();schedule();
 }
 document.addEventListener('visibilitychange',()=>{
