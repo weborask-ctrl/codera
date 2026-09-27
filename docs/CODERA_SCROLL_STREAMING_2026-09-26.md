@@ -1,3 +1,5 @@
+**Historical delivery record:** current entry and prefetch rules are in [Fast entry](CODERA_FAST_ENTRY_2026-09-26.md). The approved high-detail payload remains unchanged.
+
 # Progressive scroll delivery — 2026-09-26
 
 ## Motion delivery correction — 2026-09-26
