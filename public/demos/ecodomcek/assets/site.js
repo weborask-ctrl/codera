@@ -1205,6 +1205,10 @@
   function go(url, push) {
     if (busy) return;
     busy = true;
+    // a click on a row leaves the page under the pointer: its mouseleave
+    // never comes, and the photo that followed it stayed on the next page
+    // (client, 2026-09-27: „čo je to v strede ten malý obrázok?")
+    if (peek) peek.classList.remove('on');
     var label = curtain.querySelector('b');
     // the target's file: from the path, or from '#p/…' in the one-file
     // build, whose path is always index.html — every curtain said "Úvod"
