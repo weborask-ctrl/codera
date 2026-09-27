@@ -7,7 +7,8 @@
    effect variety; a page that repeats one split screen reads as a template.
    ═══════════════════════════════════════════════════════════════════════ */
 
-/* Self-hosted, subsetted by `src/fonts.mjs` — the three faces used to come
+/* Licence: SIL Open Font License 1.1 — assets/fonts-OFL.txt (published with the fonts).
+   Self-hosted, subsetted by `src/fonts.mjs` — the three faces used to come
    from fonts.googleapis.com on every page load. `swap` so the copy is
    readable while the face arrives; the fallback stacks below are chosen
    for width, not looks. */
@@ -1870,3 +1871,5 @@ body.nav-open header{background:var(--paper)}
 .filters button{border:0;border-radius:0;background:none;padding:6px 0;color:var(--ink2)}
 .filters button:hover{color:var(--ink);background:none}
 .filters button.on{color:var(--ink);background:none;box-shadow:inset 0 -1px 0 currentColor}
+/* how the quotes are checked — said where they stand (zákon 108/2024) */
+.qnote{grid-column:1/-1;margin:0;max-width:70ch}
