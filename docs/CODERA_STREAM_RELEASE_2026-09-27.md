@@ -17,3 +17,9 @@ Production modules live in experiments/metal and are copied by scripts/silver-as
 - Source/header/content checks and the same portable browser script must also pass on the deployed origin after merge.
 
 Use SILVER_URL=https://www.codera.sk with npm run silver:check. Physical-device certification is not implied. The detailed cold-network measurements and pacing tradeoffs remain in [the original-film evaluation](CODERA_ORIGINAL_VIDEO_STREAM_2026-09-27.md). The four-second static escape and manual choice are preserved; network-bound playback cannot promise immediate arbitrary traversal on every connection.
+
+## Remote preview observation
+
+The first Vercel preview run exposed assumptions in the local smoke-test timeouts: motion became ready after 30.2 s on this connection, and full-film traversal exceeded its 15 s deadline before the data arrived. An isolated 1 MiB range transferred at 219,389 B/s from preview and 157,269 B/s from the existing production film. This was not evidence of fast cold entry. Ten checks passed and four timed out or hit a request-interception timing assertion; JavaScript/CSP errors remained zero. The harness now tests the initial buffered region separately, waits for confirmed full buffering before a warm sweep, records transfer timing and permits explicit remote timeout budgets. Keep the failed observation when interpreting subsequent tests.
+
+GitHub CI on initial release head 3ecbb63: Fast gate passed; end-to-end 34 passed and 2 intentionally skipped (the added native-MSE motion check targets Chromium).

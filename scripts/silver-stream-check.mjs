@@ -1,6 +1,8 @@
 // Production smoke/behavior checks. Run separately from performance benchmarks.
 // SILVER_URL=https://www.codera.sk node scripts/silver-stream-check.mjs
 // Optional: --headed; BROWSER_CHANNEL=msedge (default on Windows).
+// Slow remote runs can explicitly raise SILVER_READY_TIMEOUT_MS (45000),
+// SILVER_DOWNLOAD_TIMEOUT_MS (60000), and SILVER_SUITE_TIMEOUT_MS (240000).
 import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
@@ -11,7 +13,17 @@ const headed = process.argv.includes('--headed');
 const output = resolve(process.env.SILVER_REPORT || 'test-results/silver-stream/functional.json');
 const mediaPattern = /\/journey-stream-f60088d67cff\.mp4(?:\?|$)/;
 const checks = [], errors = [], violations = [];
-const report = { url, createdAt: new Date().toISOString(), headed, checks, limitations: [
+function timeout(name, fallback) {
+  const value = Number(process.env[name] ?? fallback);
+  assert.ok(Number.isSafeInteger(value) && value > 0 && value <= 3600000, `${name} must be an integer from 1 to 3600000 milliseconds`);
+  return value;
+}
+const timeouts = {
+  readyMs: timeout('SILVER_READY_TIMEOUT_MS', 45000),
+  downloadMs: timeout('SILVER_DOWNLOAD_TIMEOUT_MS', 60000),
+  suiteMs: timeout('SILVER_SUITE_TIMEOUT_MS', 240000),
+};
+const report = { url, createdAt: new Date().toISOString(), headed, timeouts, checks, network: [], measurements: {}, limitations: [
   'Browser automation does not establish physical presentation or universal smoothness.',
   'Touch is emulated. The fallback capability override is explicitly a simulation.',
   'Frame intervals come from real requestVideoFrameCallback metadata during the recorded sweep; no hardware FPS guarantee follows.',
@@ -28,12 +40,30 @@ const browser = await chromium.launch({
   channel: process.env.BROWSER_CHANNEL || (process.platform === 'win32' ? 'msedge' : undefined),
   args: ['--disable-background-timer-throttling', '--disable-renderer-backgrounding', '--disable-backgrounding-occluded-windows'],
 });
-const watchdog = setTimeout(() => { report.fatal = 'Suite exceeded 240 seconds'; void browser.close(); }, 240000);
+const watchdog = setTimeout(() => { report.fatal = `Suite exceeded ${timeouts.suiteMs} milliseconds`; void browser.close(); }, timeouts.suiteMs);
 async function setup(options = {}, label = 'desktop') {
   const context = await browser.newContext({ viewport: { width: 1280, height: 720 }, ...options });
-  const requests = [], responses = [];
-  context.on('request', request => { if (/\.mp4(?:\?|$)/.test(request.url())) requests.push({ url: request.url(), range: request.headers().range || null }); });
-  context.on('response', response => { if (mediaPattern.test(response.url())) responses.push({ url: response.url(), status: response.status(), headers: response.headers() }); });
+  const requests = [], responses = [], requestRecords = new Map();
+  context.on('request', request => {
+    if (!/\.mp4(?:\?|$)/.test(request.url())) return;
+    const record = { url: request.url(), range: request.headers().range || null, startedAtMs: Date.now() };
+    requests.push(record); requestRecords.set(request, record);
+  });
+  context.on('requestfinished', request => {
+    const record = requestRecords.get(request);
+    if (record) { record.finishedAtMs = Date.now(); record.fetchElapsedMs = record.finishedAtMs - record.startedAtMs; }
+  });
+  context.on('requestfailed', request => {
+    const record = requestRecords.get(request);
+    if (record) { record.failedAtMs = Date.now(); record.failure = request.failure()?.errorText || 'Unknown request failure'; }
+  });
+  context.on('response', response => {
+    if (!mediaPattern.test(response.url())) return;
+    const headers = response.headers();
+    responses.push({ url: response.url(), status: response.status(), headers,
+      cache: { control: headers['cache-control'] || null, age: headers.age || null, vercel: headers['x-vercel-cache'] || null, serviceWorker: response.fromServiceWorker() },
+      headersElapsedMs: Date.now() - (requestRecords.get(response.request())?.startedAtMs || Date.now()) });
+  });
   const page = await context.newPage();
   page.on('pageerror', error => errors.push({ label, error: String(error) }));
   await page.addInitScript(() => {
@@ -55,7 +85,10 @@ async function setup(options = {}, label = 'desktop') {
 }
 async function close(test) {
   if (!test.page.isClosed()) violations.push(...await test.page.evaluate(() => window.__streamCheck?.violations || []).catch(() => []));
+  const closingAtMs = Date.now();
   await test.context.close();
+  report.network.push({ label: test.label, contextClosingAtMs: closingAtMs, requests: test.requests, responses: test.responses,
+    note: 'Each test uses a fresh browser context. Closing intentionally aborts any unfinished stream; request failures at or after contextClosingAtMs must be distinguished from runtime failures.' });
 }
 const state = page => page.evaluate(() => {
   const motion = window.__coderaMotion || {}, video = document.querySelector('#journey-video');
@@ -69,7 +102,7 @@ const state = page => page.evaluate(() => {
   };
 });
 async function ready(page) {
-  await page.waitForFunction(() => window.__coderaMotion?.prepared || window.__coderaMotion?.error, null, { timeout: 45000 });
+  await page.waitForFunction(() => window.__coderaMotion?.prepared || window.__coderaMotion?.error, null, { timeout: timeouts.readyMs });
   const result = await state(page);
   assert.equal(result.error, '', result.error || 'Motion error'); assert.equal(result.prepared, true);
   await page.waitForFunction(() => !document.documentElement.classList.contains('codera-loading') && !document.querySelector('main').inert, null, { timeout: 6000 });
@@ -96,11 +129,17 @@ try {
   desktop = await setup();
   const page = desktop.page;
   const motionReady = await check('Native 1080p streaming starts under the real response CSP', async () => {
+    const navigationStarted = Date.now();
     const response = await page.goto(url, { waitUntil: 'domcontentloaded' });
     assert.equal(response.status(), 200);
     const csp = response.headers()['content-security-policy'];
     assert.ok(csp && /worker-src/.test(csp), 'Expected production CSP with worker policy');
     await active(page); const result = await state(page);
+    const readyAtMs = await page.evaluate(() => performance.timeOrigin + window.__coderaMotion.readyMs);
+    report.measurements.coldEntry = { freshBrowserContext: true, readyFromNavigationMs: result.readyMs,
+      activationObservedElapsedMs: Date.now() - navigationStarted,
+      readyFromMediaRequestMs: desktop.requests[0] ? readyAtMs - desktop.requests[0].startedAtMs : null,
+      note: 'Readiness requires the initial two seconds, not a full download. Activation may be an explicit test click after the four-second static escape. CDN cache state is reported separately.' };
     assert.deepEqual([result.media.width, result.media.height], [1920, 1080]);
     assert.equal(result.delivery, result.workerSupported ? 'native-mse-worker-single-fetch' : 'native-mse-single-fetch');
     assert.equal(result.buffered.transportWorker, result.workerSupported);
@@ -109,24 +148,44 @@ try {
     return { csp, ...result };
   });
   if (motionReady) {
-    await check('Forward and reverse scrolling present actual video frames', async () => {
-      await scroll(page, .72); const forward = await motionPast(page, 9.7, 1);
-      await scroll(page, .1); const reverse = await motionPast(page, 4.0, -1);
+    await check('Nearby forward and reverse scrolling work inside the initial two-second buffer', async () => {
+      // Progress .12 requests source time 3.579s: only .996s into the trimmed film.
+      await scroll(page, .12); const forward = await motionPast(page, 3.3, 1);
+      await scroll(page, .02); const reverse = await motionPast(page, 2.95, -1);
       assert.ok(reverse.actualFrameCount > forward.actualFrameCount); return { forward, reverse };
     });
+    let fullBufferConfirmed = false;
     await check('The content-hashed original stream uses one completed fetch without seek ranges', async () => {
-      await page.waitForFunction(() => window.__coderaMotion.buffer?.fullyBuffered, null, { timeout: 60000 });
+      const waitStarted = Date.now();
+      try {
+        await page.waitForFunction(() => window.__coderaMotion.buffer?.fullyBuffered || window.__coderaMotion.error, null, { timeout: timeouts.downloadMs });
+        const result = await state(page); assert.equal(result.error, '');
+        fullBufferConfirmed = result.buffered?.fullyBuffered === true;
+        assert.equal(fullBufferConfirmed, true);
+      } finally {
+        report.measurements.fullBuffer = { confirmed: fullBufferConfirmed, observedAtMs: Date.now(),
+          waitElapsedMs: Date.now() - waitStarted, elapsedFromMediaRequestMs: desktop.requests[0] ? Date.now() - desktop.requests[0].startedAtMs : null,
+          fetchElapsedMs: desktop.requests[0]?.fetchElapsedMs ?? null, state: await state(page).catch(() => null) };
+      }
+      await page.waitForFunction(() => window.__coderaMotion.buffer?.stream?.complete === true, null, { timeout: 5000 });
       assert.equal(desktop.requests.length, 1, JSON.stringify(desktop.requests));
       assert.match(desktop.requests[0].url, mediaPattern); assert.equal(desktop.requests[0].range, null);
       assert.equal(desktop.responses.length, 1); assert.equal(desktop.responses[0].status, 200);
       assert.equal(Number(desktop.responses[0].headers['content-length']), 50405743);
       return { requests: desktop.requests, responses: desktop.responses, state: await state(page) };
     });
+    await check('Forward and reverse scrolling present actual video frames across the fully buffered film', async () => {
+      if (!fullBufferConfirmed) return { skipped: true, reason: 'Full buffering was not confirmed; do not interpret network-limited traversal as a warm decode test.' };
+      await scroll(page, .72); const forward = await motionPast(page, 9.7, 1);
+      await scroll(page, .1); const reverse = await motionPast(page, 4.0, -1);
+      assert.ok(reverse.actualFrameCount > forward.actualFrameCount); return { forward, reverse };
+    });
     await check('Pause freezes presented frames; resume reaches the new position', async () => {
+      await scroll(page, .02); await motionPast(page, 2.95, -1);
       await page.locator('#motion-toggle').click(); await page.waitForTimeout(350);
-      const before = await state(page); await scroll(page, .4); await page.waitForTimeout(700);
+      const before = await state(page); await scroll(page, .12); await page.waitForTimeout(700);
       const paused = await state(page); assert.equal(paused.paused, true); assert.deepEqual(paused.lastFrame, before.lastFrame);
-      await page.locator('#motion-toggle').click(); const resumed = await motionPast(page, 5.8, 1);
+      await page.locator('#motion-toggle').click(); const resumed = await motionPast(page, 3.3, 1);
       assert.equal(resumed.paused, false); return { paused, resumed };
     });
     await check('Offstage motion stops and a top return restores the opening', async () => {
@@ -136,6 +195,8 @@ try {
       await scroll(page, 0); await motionPast(page, 2.65, -1); return { before, after, returned: await state(page) };
     });
     await check('Record real frame intervals during a continuous warm forward/reverse sweep', async () => {
+      if (!fullBufferConfirmed) return { skipped: true, reason: 'Full buffering was not confirmed; no warm performance measurement was performed.' };
+      assert.equal((await state(page)).buffered?.fullyBuffered, true);
       const start = await page.evaluate(() => performance.now());
       for (const direction of [1, -1]) for (let i = 1; i <= 80; i++) { await scroll(page, direction > 0 ? i / 80 : 1 - i / 80); await page.waitForTimeout(50); }
       const frames = await page.evaluate(start => window.__streamCheck.frames.filter(frame => frame.now >= start), start);
@@ -180,17 +241,35 @@ try {
       return { simulation: 'Only MediaSource.canConstructInDedicatedWorker is overridden; real media fetching and decoding remain active', result };
     } finally { await close(test); }
   });
-  await check('Skipping entry before delayed real media readiness never expands or starts the hero', async () => {
-    const test = await setup({}, 'entry-skip'); let release, blocked = 0;
+  await check('Late media readiness after static entry never expands or starts the hero', async () => {
+    const test = await setup({}, 'entry-skip'); let release, intercepted, blocked = 0, interceptionTimer;
     const gate = new Promise(resolve => { release = resolve; });
+    const requestIntercepted = new Promise(resolve => { intercepted = resolve; });
     try {
-      await test.context.route(mediaPattern, async route => { blocked++; await gate; await route.continue().catch(() => {}); });
+      await test.context.route(mediaPattern, async route => { blocked++; intercepted(); await gate; await route.continue().catch(() => {}); });
       await test.page.goto(url, { waitUntil: 'domcontentloaded' });
-      await test.page.locator('#entry-loader button').waitFor({ state: 'visible', timeout: 3500 }); assert.ok(blocked > 0);
-      await test.page.locator('#entry-loader button').click(); const before = await state(test.page); release(); await ready(test.page);
+      await Promise.race([requestIntercepted, new Promise((_, reject) => {
+        interceptionTimer = setTimeout(() => reject(new Error(`No real media request intercepted within ${timeouts.readyMs} milliseconds`)), timeouts.readyMs);
+      })]);
+      clearTimeout(interceptionTimer); assert.ok(blocked > 0);
+      assert.equal((await state(test.page)).prepared, false, 'Delayed media became ready before release');
+      let input = 'automatic-static-escape';
+      await check('Manual entry-skip input occurs before late media readiness when the cover remains', async () => {
+        const button = test.page.locator('#entry-loader button');
+        if (await test.page.evaluate(() => document.documentElement.classList.contains('codera-loading'))) {
+          await button.waitFor({ state: 'visible', timeout: 3500 }).catch(() => {});
+          if (await button.isVisible() && await test.page.evaluate(() => document.documentElement.classList.contains('codera-loading'))) {
+            await button.click(); input = 'manual-skip'; return { input, interceptedRequests: blocked };
+          }
+        }
+        return { skipped: true, reason: 'The four-second cover escaped before remote module/media interception was ready. The late-readiness assertion still checks automatic static escape; manual input is not claimed for this run.' };
+      });
+      await test.page.waitForFunction(() => !document.querySelector('main').inert, null, { timeout: 6000 });
+      const before = await state(test.page); assert.equal(before.active, false); assert.equal(before.hasJourney, false);
+      release(); await ready(test.page);
       const late = await state(test.page); assert.equal(late.active, false); assert.equal(late.paused, true); assert.equal(late.hasJourney, false); assert.equal(late.height, before.height);
-      return { blocked, before, late };
-    } finally { release(); await close(test); }
+      return { blocked, input, before, late, cacheNote: 'Playwright request routing disables HTTP cache for this context.' };
+    } finally { clearTimeout(interceptionTimer); release(); await close(test); }
   });
   await check('No uncaught JavaScript errors or browser CSP violations', async () => { assert.deepEqual(errors, []); assert.deepEqual(violations, []); return { errors, violations }; });
 } catch (error) { report.fatal = String(error.stack || error); }
