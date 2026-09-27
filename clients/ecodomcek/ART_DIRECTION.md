@@ -1056,3 +1056,11 @@ Z auditu „čo pôsobí na prvý pohľad ako z AI" klient vybral body 2, 3, 4 a
    - Prechod myšou alebo zameranie klávesnicou ukáže stavbu, ktorá službu dokazuje: Lúčina, terasa Chrastné, rhombus detail, Budatín.
    - Služba bez nafotenej stavby fotku nemení. Vizualizácia interiéru tu už nie je.
 5. **Vety, ktoré vysvetľovali web**, sú preč: „Číslo pri službe je počet…“, „Každý riadok vedie na stavbu…“, „zoradených tak, ako pribúdali… okrem garáže“, poznámka pod kronikou, „má na stavebnom liste miesto“ a „Potiahnite stenu a pozrite sa…“.
+
+## Fáza 28 — právne drobnosti (2026-09-27)
+
+Z právneho prehľadu klient vybral body a – c.
+
+- **a) Označenie AI.** Každá vizualizácia má popis „AI vizualizácia“: popisky, `alt` texty, štítky, og obrázok aj detail Lúčiny („vytvorili vizualizácie pomocou AI“). Pätička hovorí, že vizualizácie domu sú vytvorené pomocou AI a nie sú to fotografie realizácie. Dôvod: EÚ AI Act, článok 50 (od 2. 8. 2026), realistický obrázok vytvorený AI musí byť ako taký označený. Rez stenou v materiáloch (`section.py`) a výkresy sú kód, nie AI, preto označenie nemajú.
+- **b) Referencie.** Pri oboch citátoch na úvode aj na O nás je veta, odkiaľ referencie sú, a že spôsob overenia doplní EcoDomček pred spustením (`C.REVIEWS_NOTE`). Dôvod: zákon 108/2024 o ochrane spotrebiteľa požaduje uviesť, či a ako sa overuje, že recenzie sú od skutočných zákazníkov. Nič sme si nevymysleli, nevieme, ako to overujú.
+- **c) Licencia písiem.** `src/fonts/fonts-OFL.txt` obsahuje copyright riadky Hanken Grotesk, Newsreader a Fraunces a plný text SIL OFL 1.1. Build ho kopíruje do `assets/` k písmam a `site.css` sa naň odkazuje. Žiadne písmo nemá Reserved Font Name, takže podmnožina písma (subset) bez premenovania je v poriadku.

@@ -25,6 +25,7 @@ Publikované: https://claude.ai/code/artifact/ec635947-fb5c-4b60-91e2-41bc54e1c3
 | `src/pages.py` | sedem typov stránok, každý s iným tvarom; zdieľané komponenty |
 | `src/build.py` | shell (hlavička, pätička, meta), assety, zápis `dist/` |
 | `src/site.css`, `src/site.js` | jeden motion engine (GSAP + ScrollTrigger na natívnom scrolle), router s papierovou oponou |
+| `src/fonts/fonts-OFL.txt` | licencia písiem (SIL OFL 1.1 + copyright riadky), build ju publikuje do `assets/` spolu s písmami |
 | `src/fonts.mjs` | orezané woff2 do `src/fonts/` (potrebuje `subset-font` z node_modules repozitára); stránka ich má samohostované, nie z fonts.googleapis.com — build kopíruje hotové súbory a nič nesťahuje |
 | `src/section.py` | rez stenou v materiáloch pre „Stena dýcha“ na Technológii (`renders/sec-l.webp`, `sec-s.webp`); procedurálne, šírky vrstiev = `VBANDS` v `pages.py`, spúšťa sa ručne `python3 src/section.py` a výsledok sa commitne |
 | `src/shots.cjs` | full-page zábery každej stránky (Playwright, desktop + mobil) |

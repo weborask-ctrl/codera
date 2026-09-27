@@ -23,8 +23,13 @@ DIRECTOR = "Mgr. Roman Chovanec"
 MOTTO = "Čo je ekologické, je aj ekonomické."          # VERBATIM
 WELCOME = "Vitajte vo svete, kde vonia drevo."          # VERBATIM
 
-DISCLAIMER = ("Vizualizácie domu sú návrhové — nie sú to fotografie realizácie. "
+# EU AI Act art. 50: an AI-made realistic image says so
+DISCLAIMER = ("Vizualizácie domu sú vytvorené pomocou AI — nie sú to fotografie realizácie. "
               "Fotografie pri realizáciách sú skutočné.")
+# zákon 108/2024 (Omnibus): shown reviews say whether and how they are checked.
+# The client confirms how before launch; until then the page says only what we know.
+REVIEWS_NOTE = ("Referencie sú prevzaté zo súčasného webu ecodomcek.sk tak, ako ich zákazníci "
+                "napísali. Ako EcoDomček overuje, že sú od skutočných zákazníkov, doplní pred spustením.")
 
 NAV = [
     ("Úvod", "index.html"),

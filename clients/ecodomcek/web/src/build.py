@@ -309,7 +309,7 @@ def share_card() -> None:
     mono = face("hanken.woff2", 18, 400)                   # the label voice: the text grotesque, small
     d.text((64, 64), "ECODOMČEK", font=face("hanken.woff2", 20, 500), fill=ink)
     d.text((64, H - 70), "0908 704 281  ·  ecodomcek.sk", font=mono, fill=ink2)
-    d.text((W - 36 - d.textlength("vizualizácia", font=mono), H - 34), "vizualizácia", font=mono, fill=ink2)
+    d.text((W - 36 - d.textlength("AI vizualizácia", font=mono), H - 34), "AI vizualizácia", font=mono, fill=ink2)
     card.save(ASSETS / "og.jpg", quality=86, optimize=True, progressive=True)
 
 
@@ -379,6 +379,8 @@ def copy_assets() -> None:
         sys.exit("missing fonts: run `node src/fonts.mjs`")
     for f in fonts:
         shutil.copy2(f, ASSETS / f.name)
+    # the SIL Open Font License travels with the fonts (it asks to)
+    shutil.copy2(HERE / "fonts" / "fonts-OFL.txt", ASSETS / "fonts-OFL.txt")
     (ASSETS / "favicon.svg").write_text(FAVICON, encoding="utf-8")
 
 
