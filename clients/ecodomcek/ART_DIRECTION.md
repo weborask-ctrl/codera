@@ -1081,3 +1081,11 @@ text; skontroluj rozloženie na každej obrazovke; stačí napísať AI vizualiz
 - **AI označenie** je len v pätičke (`C.DISCLAIMER`, na každej stránke). Popisky pod obrázkami ho už nenesú, alt texty áno.
 - **Ultraširoké obrazovky (21:9 a viac).** Stránka drží proporcie obrazovky 16:9 s rovnakou výškou: obsah nejde do krajných okrajov a lišta je s ním zarovnaná.
 - **Overenie.** Kontrola bežala na 15 veľkostiach od 360×740 po 3440×1440 vrátane 844×390, 10 stránok, 7 polôh posunu. Sledovala pretečenie do strán, text cez text a prilepený text pod lištou. Ostali len riadky vlastných nadpisov s tesným riadkovaním a prvky, ktoré normálne odchádzajú hore.
+
+**29b — nič pod lištou (klient, 2026-09-27).** „Toto nechcem, aby zasahovalo nikde“: strecha
+otvoreného domu siahala k lište, ktorá bola priesvitná. Zmeny:
+- lišta je plná, bez priesvitnosti;
+- pri posúvaní dole sa schová a vráti sa hneď pri posune hore, pri otvorenom menu, pri kláves­nici a v prvých 120 px vždy ostáva;
+- otvorený dom drží od lišty odstup aspoň 24 px alebo 3 % výšky obrazovky.
+
+Merané v otvorenom stave pri ukázanej lište: 27 px pri 1280×720, 48 px pri 1920×1080, 75 px pri 1440×900, 98 px pri 1512×982, 110 px pri 1728×1117.

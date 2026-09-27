@@ -328,7 +328,7 @@
       var leg = poster.querySelector('.olegend'), tx = poster.querySelector('.ptext'), hd = document.querySelector('header');
       var U0 = T0, U1 = B0;
       if (wide()) {
-        U0 = (hd ? hd.getBoundingClientRect().bottom : 0) - p.top + 8;
+        U0 = (hd ? hd.getBoundingClientRect().bottom : 0) - p.top + Math.max(24, innerHeight * .03);
         U1 = innerHeight - p.top - 16;
       } else if (leg && tx) {
         U0 = tx.getBoundingClientRect().bottom - p.top + 10;
@@ -1231,6 +1231,20 @@
   });
 
   // ── chrome that lives across pages ───────────────────────────────────
+  // The bar steps aside while the reader scrolls down and comes back the
+  // moment they scroll up (client, 2026-09-27: nothing may slide under it —
+  // the opened house, pictures, the wall). Near the top, with the menu
+  // open or a key in the bar, it always stays.
+  var hdr = document.querySelector('header'), lastY = scrollY;
+  addEventListener('scroll', function () {
+    var y = scrollY, d = y - lastY;
+    if (Math.abs(d) < 6) return;
+    var keep = y < 120 || document.body.classList.contains('nav-open') ||
+      (hdr && hdr.contains(document.activeElement) && document.activeElement !== document.body);
+    document.body.classList.toggle('hdr-off', d > 0 && !keep);
+    lastY = y;
+  }, { passive: true });
+  if (hdr) hdr.addEventListener('focusin', function () { document.body.classList.remove('hdr-off'); });
   var menu = document.querySelector('header .menu');
   if (menu) {
     menu.addEventListener('click', function () {
