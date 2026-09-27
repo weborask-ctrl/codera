@@ -75,3 +75,31 @@ test.describe("Silver production homepage", () => {
     await expect(page.locator('#motion-toggle')).toBeVisible()
   })
 })
+
+
+test('original film streams through native MediaSource and reverses under CSP', async ({ page, browserName }) => {
+  test.skip(browserName !== 'chromium', 'Native AVC motion is covered here in Chromium; other engines retain the static homepage checks.')
+  await page.goto('/')
+  await page.waitForFunction(() => {
+    const state = (window as unknown as { __coderaMotion?: { prepared: boolean; error: string } }).__coderaMotion
+    return state?.prepared || state?.error
+  }, null, { timeout: 45000 })
+  const read = () => page.evaluate(() => {
+    const state = (window as unknown as { __coderaMotion: { error: string; delivery: string; active: boolean; paused: boolean; displayedTime: number; frames: unknown[] } }).__coderaMotion
+    const video = document.querySelector('video') as HTMLVideoElement
+    return { ...state, width: video.videoWidth, height: video.videoHeight }
+  })
+  let motion = await read()
+  expect(motion.error).toBe('')
+  expect(motion.delivery).toMatch(/^native-mse-(worker-)?single-fetch$/)
+  expect([motion.width, motion.height]).toEqual([1920, 1080])
+  await expect(page.locator('main')).toHaveJSProperty('inert', false, { timeout: 6000 })
+  if (!motion.active || motion.paused) await page.locator('#motion-toggle').click()
+  await page.locator('.journey').evaluate(element => scrollTo(0, element.getBoundingClientRect().top + scrollY + (element.clientHeight - innerHeight) * 0.7))
+  await expect.poll(async () => (await read()).displayedTime, { timeout: 20000 }).toBeGreaterThan(9.5)
+  await page.locator('.journey').evaluate(element => scrollTo(0, element.getBoundingClientRect().top + scrollY + (element.clientHeight - innerHeight) * 0.1))
+  await expect.poll(async () => (await read()).displayedTime, { timeout: 15000 }).toBeLessThan(4)
+  motion = await read()
+  expect(motion.frames.length).toBeGreaterThan(2)
+  expect(motion.error).toBe('')
+})

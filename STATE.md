@@ -3,7 +3,7 @@
 What is live, what was decided, and what must not be relearned. One file, kept
 short. Open work does **not** live here — it lives in GitHub Issues.
 
-Last reviewed: 2026-09-24 (Silver homepage release, PR #99) · Production: `https://www.codera.sk` ·
+Last reviewed: 2026-09-27 (original-film streaming release authorized) · Production: `https://www.codera.sk` ·
 Open backlog: see Issues.
 
 ---
@@ -17,11 +17,9 @@ The homepage is rendered by `app/route.ts` from `experiments/metal/index.html`
 and `lib/site-config.ts`; `prebuild` prepares its assets through
 `scripts/silver-assets.mjs`. Existing Next.js demo routes remain available.
 The hero reads “Vaša firma. V lepšom svetle.” and scrubs one 1920×1080 film
-through 600 viewport heights of native scroll. A warm dissolve accompanies
+through 700 viewport heights of native scroll. A warm dissolve accompanies
 the gold passage. Touch/reduced-motion visits start with a sharp static
-poster and can explicitly enable motion. Slow remote seeks allow 30 seconds
-without download progress; loading an opening frame does not reset the
-failed-seek retry budget.
+poster and can explicitly enable motion. Native MediaSource streams the unchanged 1080p60 detail export through a worker, with main-thread fallback. Entry requires an actual frame plus two seconds buffered. A four-second static escape remains available. Forward camera pacing follows available data; native page scroll is not blocked. See `docs/CODERA_STREAM_RELEASE_2026-09-27.md` for release checks and limits.
 
 Five compact stacked previews show complete screenshot compositions and
 open full-page 2880px previews. No decorative corner captions or micro-labels
@@ -38,7 +36,7 @@ not create new captured detail. See `experiments/metal/LOCAL_REFINEMENT.md` and
 the follow-up PR for measured results and release status.
 
 Validation: `npm run verify`, Playwright homepage/demo coverage, and
-`scripts/metal-check.mjs` (including delayed byte ranges, forward/reverse
+`scripts/silver-stream-check.mjs` (native worker transport, forward/reverse
 seeks, touch/reduced motion and recovery). Remote Vercel preview was checked
 in Edge; this does not represent physical-device testing.
 

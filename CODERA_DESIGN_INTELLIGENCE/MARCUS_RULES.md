@@ -2,6 +2,17 @@
 
 Recorded directly from Marcus on 2026-09-16. Apply to every website we design together, including Codera and client projects. Carry this file into future project instructions. These explicit preferences override conflicting visual-reference patterns or older aesthetic guidance.
 
+## Preserve supplied artwork — explicit correction, 2026-09-27
+
+Marcus rejected replacing the supplied Silver film with an authored realtime 3D
+scene. A request to improve loading, sharpness or scroll performance is NOT
+authorization to replace the artwork, camera journey, film or approved visual
+identity. Work with the supplied media. Technical delivery/decoding changes must
+preserve its content and be measured for detail and presentation. Explain a hard
+limit rather than substituting a new scene. A visual replacement requires explicit
+approval. The `experiments/silver-realtime` study is rejected and must not be
+presented as the current Codera direction or reused as the next default.
+
 ## Headings and section labels
 
 - Every heading must be beautiful, large, prominent and clearly readable. Preserve a deliberate hierarchy and responsive fit; do not make headings small, faint or incidental.
@@ -57,14 +68,8 @@ Marcus requested consistent alignment and visual weight between the heading and 
 
 Marcus removed the pointer-driven camera effect: keep the film stationary under mouse movement. Align both pricing offers by heading, audience, price, details and action rows, including when details expand. He explicitly authorized merging the accumulated Silver refinement, superseding the local-only constraint for this release.
 
-## Approved Silver finish — 2026-09-24
+Approved implementation and merge of direction C / precise curves on 2026-09-24. See docs/CODERA_SILVER_FINISH.md for selected typography, geometry, validation and source-video limits.
 
-Marcus selected typography C: one Geist voice, no repeated italic headline treatment. A and B are rejected. Apple is a reference for precision, not permission to redistribute SF Pro. Use restrained superellipse geometry with a rounded fallback and 1.618:1 heading/copy proportions where the real content benefits; mobile stays single-column. Preserve the approved content, video story, palette, complete framed previews and 499/699 pricing. Implementation and merge were explicitly authorized. Detailed decisions and media limits: docs/CODERA_SILVER_FINISH.md.
+2026-09-24 follow-up: simpler unified heading styles and Montserrat are the current implemented candidate after Marcus requested proceeding with merge. Permanent adoption awaits his visual evaluation. See docs/CODERA_UNIFIED_TYPE.md.
 
-## Simpler typography candidate — 2026-09-24
-
-Marcus requested one simple, consistent typographic voice inspired by Coca-Cola.com, with no contrasting headline-line styles. This supersedes the previous maximal heading scale: keep headings prominent, but use calmer sizes, consistent bold weight and natural spacing. Montserrat is the implemented, openly licensed alternative to bespoke TCCC Unity for this release. It is a candidate awaiting Marcus's visual evaluation, not an approved permanent font for the Codera bible. Preserve the existing logo and SVG wordmark. See docs/CODERA_UNIFIED_TYPE.md. Merge was explicitly requested.
-
-## Headings-only correction — 2026-09-24
-
-Marcus clarified that the new Montserrat typography applies ONLY to headings. Keep Geist and the previous sizes/spacing for card copy, prices, 72 hodín, navigation, buttons, forms and supporting paragraphs. Do not propagate a requested heading-font change to body text or card content. The new heading treatment remains a candidate pending visual evaluation; the tunnel fade remains approved.
+Headings-only correction: Montserrat applies only to h1/h2/h3. Preserve original Geist, sizes and spacing for body copy, bubble content, prices, 72 hodín, buttons, navigation and forms. A requested heading change is never authorization to restyle all text.

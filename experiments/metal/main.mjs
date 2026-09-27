@@ -1,328 +1,97 @@
-const video = document.querySelector('#journey-video');
-const film = document.querySelector('.film');
-const journey = document.querySelector('.journey');
-const toggle = document.querySelector('#motion-toggle');
-const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-const desktop = matchMedia('(min-width: 701px)');
-// Input preference does not flip when a phone rotates across a width breakpoint.
-const smallTouch = matchMedia('(pointer: coarse)');
-const beats = [...document.querySelectorAll('.hero-beat')];
-// Continuous camera journey, compressing the still handles in the supplied film.
-const cameraPoints = [[0,2.6],[.38,5.7],[.67,9.5],[1,13.5]];
-// Story timestamps stay in the original master; the delivery clip omits unused handles.
-const mediaOffset = 2.583333;
-const mediaFps = 60;
-let trigger, timeline, scrub, active = false, desiredTime = 0, pendingFrame = 0, awaitingPresentation = false;
-let loadWatchdog = 0, seekWatchdog = 0, captionFallback = 0, retries = 0;
-let userMotion = null, failed = false, sampleCount = 0, latencyTotal = 0, seekStarted = 0;
-let preparing = false, prepared = false, deferredEntry = false, mediaBlobUrl = '', loadedPercent = 0;
-const diagnostics = { targetTime: 0, displayedTime: 0, progress: 0, seeks: 0, averageSeekMs: 0, active: false, resolution: '', mediaOffset, mediaFps, reason: 'initializing', lastIssue: '', retries: 0, downloadedBytes: 0, prepared: false };
-Object.defineProperty(window, '__coderaMotion', { value: diagnostics });
+import './page-controls.mjs';
 
-function wantsMotion() { return userMotion ?? (!reduced.matches && !smallTouch.matches); }
-// Reuse a complete previous segmented cache without playing while it fills.
-async function cachedFragmentVideo() {
-  if (!(await caches.keys()).includes('codera-motion-segments-v1')) return null;
-  const cache = await caches.open('codera-motion-segments-v1');
-  const base = '/media/stream-v1/';
-  const names = ['init.mp4', ...Array.from({ length: 220 }, (_, i) => `segment-${String(i + 1).padStart(3, '0')}.m4s`)];
-  const keys = new Set((await cache.keys()).map(request => new URL(request.url).pathname));
-  if (!names.every(name => keys.has(base + name))) return null;
-  const parts = new Array(names.length); let next = 0, loaded = 0;
-  await Promise.all(Array.from({ length: 4 }, async () => {
-    while (next < names.length) {
-      const index = next++;
-      const response = await cache.match(base + names[index]);
-      if (!response) throw new Error('Incomplete cached film');
-      parts[index] = await response.arrayBuffer();
-      loaded += parts[index].byteLength;
-      diagnostics.downloadedBytes = loaded;
-    }
-  }));
-  return new Blob(parts, { type: 'video/mp4' });
+// The supplied Silver film, original framing, captions and fade are preserved.
+const root=document.documentElement;
+const journey=document.querySelector('.journey'),stage=document.querySelector('.stage');
+const video=document.querySelector('#journey-video'),film=document.querySelector('.film');
+const toggle=document.querySelector('#motion-toggle'),beats=[...document.querySelectorAll('.hero-beat')];
+const shade=document.querySelector('.film-shade'),tunnel=document.querySelector('.tunnel-fade');
+const bar=document.querySelector('.film-progress i');
+const reduced=matchMedia('(prefers-reduced-motion:reduce)'),touch=matchMedia('(pointer:coarse)');
+const points=[[0,2.6],[.38,5.7],[.67,9.5],[1,13.5]],offset=2.583333;
+const state={active:false,prepared:false,preparing:false,paused:false,reason:'initial',targetTime:2.6,displayedTime:2.6,progress:0,downloadedBytes:0,readyMs:0,error:'',frames:[],decode:[],stats:{},resolution:'1920×1080',source:'original AVC bytes'};
+window.__coderaMotion=state;
+let choice=null,worker,raf=0,lastTick=0,progress=0,target=0,visible=true,selected=-2,lastSent=-1;
+let bounds={top:0,distance:1};
+const clamp=x=>Math.max(0,Math.min(1,x)),ramp=(a,b,p)=>clamp((p-a)/(b-a));
+const bounded=(array,item)=>{array.push(item);if(array.length>1500)array.shift();};
+const wanted=()=>choice??(!reduced.matches&&!touch.matches&&(!location.hash||location.hash==='#top'));
+function map(value,inAxis,outAxis){let i=1;while(i<points.length-1&&value>points[i][inAxis])i++;const a=points[i-1],b=points[i];return a[outAxis]+(b[outAxis]-a[outAxis])*(value-a[inAxis])/(b[inAxis]-a[inAxis]);}
+function captions(time){
+  const p=clamp(map(time,1,0));
+  const alpha=[1-ramp(.08,.15,p),ramp(.17,.24,p)*(1-ramp(.44,.50,p)),ramp(.74,.86,p)];
+  const y=[-35*ramp(.08,.15,p),30*(1-ramp(.17,.24,p))-25*ramp(.44,.50,p),30*(1-ramp(.74,.86,p))];
+  let next=-1;
+  beats.forEach((beat,i)=>{beat.style.opacity=alpha[i];beat.style.visibility=alpha[i]>.001?'visible':'hidden';beat.style.transform=y[i]?`translateY(${y[i]}px)`:'none';if(alpha[i]>.5)next=i;});
+  if(next!==selected){selected=next;beats.forEach((beat,i)=>{beat.setAttribute('aria-hidden',String(i!==next));beat.querySelectorAll('a').forEach(a=>{a.tabIndex=i===next?0:-1;});});}
+  shade.style.setProperty('--reading-shade',String(.75*ramp(.17,.24,p)*(1-ramp(.44,.52,p))));
+  shade.style.opacity=1-.7*ramp(.44,.52,p)+.7*ramp(.72,.84,p);
+  const sine=v=>(1-Math.cos(Math.PI*v))/2;
+  tunnel.style.opacity=sine(ramp(.33,.407,p))*(1-sine(ramp(.425,.55,p)));
+  bar.style.transform=`scaleX(${p})`;
 }
-// Fetch once before entering the long scene. Random range requests during a
-// scroll caused 300–800 ms stalls even when the browser itself ran at 60 Hz.
-// Retain compressed video only (~50 MB), never hundreds of decoded bitmaps.
-async function prepareVideo() {
-  if(preparing || prepared || mediaBlobUrl)return;
-  preparing=true;loadedPercent=0;
+function label(){toggle.hidden=false;toggle.disabled=state.preparing;toggle.setAttribute('aria-pressed',String(state.active&&!state.paused));toggle.querySelector('.motion-label').textContent=state.error?'Skúsiť animáciu znova':state.preparing?'Pripravujem video…':state.active&&!state.paused?'Zastaviť pohyb':'Spustiť animáciu';toggle.querySelector('.pause-icon').textContent=state.active&&!state.paused?'Ⅱ':'▷';}
+function measure(){bounds={top:journey.getBoundingClientRect().top+scrollY,distance:Math.max(1,journey.offsetHeight-innerHeight)};update();}
+function update(){target=clamp((scrollY-bounds.top)/bounds.distance);if(state.prepared&&!state.active&&state.reason==='ready-to-start'&&wanted()&&scrollY<=24){activate();return;}wake();}
+function stop(){cancelAnimationFrame(raf);raf=0;lastTick=0;}
+function send(){const time=Math.max(0,map(progress,0,1)-offset),frame=Math.round(time*60);state.targetTime=time+offset;state.progress=progress;if(frame===lastSent)return;lastSent=frame;worker?.postMessage({type:'seek',time});}
+function tick(now){
+  raf=0;if(!state.active||state.paused||!visible||document.hidden)return;
+  const dt=Math.min(.05,lastTick?(now-lastTick)/1000:1/60);lastTick=now;
+  const error=target-progress;let step=error*(1-Math.exp(-dt/.16));
+  const time=map(progress,0,1);
+  // Damping is sufficient once native video is buffered.
+  state.bufferPaced=false;
+  // Let a slow incoming stream reduce forward camera speed continuously before
+  // exhausting its buffer. The page scroll remains native; requestedTime below
+  // records the raw scroll target separately so this lag is never hidden.
+  if(step>0&&!state.buffer?.fullyBuffered){
+    const sourceTime=time-offset;
+    const end=state.buffer?.buffered?.find(([a,b])=>a<=sourceTime+.001&&b>sourceTime)?.[1];
+    if(Number.isFinite(end)){
+      const headroom=Math.max(0,end-sourceTime-1/60);
+      const limit=dt*headroom/.75;
+      if(map(clamp(progress+step),0,1)-time>limit){step=clamp(map(time+limit,1,0))-progress;state.bufferPaced=true;}
+    }
+  }
+  progress=Math.abs(error)<.00001&&!state.bufferPaced?target:progress+step;
+  state.requestedTime=map(target,0,1);send();
+  if(progress!==target)raf=requestAnimationFrame(tick);else lastTick=0;
+}
+function wake(){if(!raf&&state.active&&!state.paused&&visible&&!document.hidden)raf=requestAnimationFrame(tick);}
+function syncVisibility(){const suspended=document.hidden||!visible||(!state.preparing&&(state.paused||!state.active));worker?.postMessage({type:'pause',value:suspended,release:document.hidden||!visible});if(suspended)stop();else{lastSent=-1;wake();}}
+function fail(error){state.error=String(error);state.active=false;state.preparing=false;state.paused=true;state.reason='failed';stop();worker?.terminate();worker=null;film.classList.remove('is-ready');video.style.opacity='0';captions(2.6);window.__coderaEntry?.failed();label();}
+function activate(){state.active=true;state.paused=false;state.reason='scroll-video';journey.classList.add('has-journey');root.classList.add('motion-enabled');measure();progress=target;lastSent=-1;film.classList.add('is-ready');video.style.opacity='1';syncVisibility();label();}
+async function prepare(){
   try {
-    const mediaUrl='/media/journey-scroll-1080.mp4';
-    let cache, cached;
-    try{cache=await caches.open('codera-motion');cached=await cache.match(mediaUrl);}catch{}
-    if (!cached) {
-      let restored;
-      try { restored = await cachedFragmentVideo(); } catch {}
-      if (restored) {
-        diagnostics.cacheHit = true; diagnostics.delivery = 'complete-fragment-blob';
-        mediaBlobUrl = URL.createObjectURL(restored);
-        video.src = mediaBlobUrl; video.preload = 'auto'; video.load(); watchLoading();
-        return;
-      }
+  if(state.preparing)return;
+  if(state.prepared){activate();return;}
+  state.preparing=true;state.error='';state.reason='preparing';label();
+  const {NativePlayer}=await import('./native-player.mjs');worker=new NativePlayer(video);
+  worker.onmessage=({data})=>{
+    if(data.stats)state.stats={...state.stats,...data.stats};
+    if(data.type==='status'){state.buffer={...data};if(state.preparing&&data.buffered){const end=data.buffered.find(([start])=>start<=.01)?.[1]||0;window.__coderaEntry?.progress(Math.min(98,end/2*98));}}
+    if(data.type==='ready'){state.preparing=false;state.prepared=true;state.readyMs=performance.now();state.delivery=data.delivery;state.reason='first-frame-ready';if(wanted()&&(choice===true||scrollY<=24||journey.classList.contains('has-journey')))activate();else{state.paused=true;state.reason=wanted()?'ready-to-start':'paused';syncVisibility();label();}window.__coderaEntry?.ready();}
+    if(data.type==='progress'){state.downloadedBytes=data.loaded;}
+    if(data.type==='frame'){
+      const frame=data.frame??data.frameIndex;state.displayedTime=frame/60+offset;
+      bounded(state.frames,{now:performance.now(),frame,target:state.targetTime,drawMs:data.drawMs,paintWaitMs:data.paintWaitMs});
+      if(state.active&&!state.paused)captions(state.displayedTime);
     }
-    diagnostics.delivery = 'complete-file-blob';
-    diagnostics.cacheHit=!!cached;
-    const response=cached||await fetch(mediaUrl,{cache:'force-cache',signal:AbortSignal.timeout(90000)});
-    if(!response.ok)throw new Error(`HTTP ${response.status}`);
-    const total=Number(response.headers.get('content-length'));
-    const chunks=[];let loaded=0;
-    if(response.body){
-      const reader=response.body.getReader();
-      while(true){const {done,value}=await reader.read();if(done)break;chunks.push(value);loaded+=value.byteLength;diagnostics.downloadedBytes=loaded;
-        const percent=total>0?Math.min(100,Math.floor(loaded/total*100)):0;
-        window.__coderaEntry?.progress(Math.round(percent*.96));
-        if(percent!==loadedPercent){loadedPercent=percent;toggle.querySelector('.motion-label').textContent=`Pripravujem video · ${percent} %`;}
-      }
-    }else{chunks.push(await response.arrayBuffer());}
-    const blob=new Blob(chunks,{type:'video/mp4'});
-    if(cache&&!cached){try{await cache.put(mediaUrl,new Response(blob,{headers:{'Content-Type':'video/mp4','Content-Length':String(blob.size)}}));}catch{}}
-    mediaBlobUrl=URL.createObjectURL(blob);
-    video.src=mediaBlobUrl;video.preload='auto';video.load();watchLoading();
-  }catch(error){
-    window.__coderaEntry?.failed();preparing=false;failed=true;diagnostics.lastIssue=`download: ${error.message}`;configure();
-  }
+    if(data.type==='decode')bounded(state.decode,{now:performance.now(),...data});
+    if(data.type==='error')fail(data.error);
+  };
+  worker.onerror=event=>fail(event.message||'Prehrávač sa nespustil.');
+  worker.postMessage({type:'init',media:'/media/journey-stream-f60088d67cff.mp4',transport:'mse',transportWorker:true,initialBufferSeconds:2,codec:'avc1.64002a',durationSeconds:11});
+  } catch(error){fail(error);}
 }
-function watchLoading() {
-  clearTimeout(loadWatchdog);
-  // A hidden preview may deliberately suspend media loading. Time spent hidden is not failure.
-  if ((active || preparing) && !document.hidden && video.readyState < 2) loadWatchdog = setTimeout(()=>retryVideo('load-timeout'),15000);
-}
-function retryVideo(reason) {
-  diagnostics.lastIssue = reason;
-  if ((!active && !preparing) || document.hidden) return;
-  if (retries < 1) {
-    retries++; diagnostics.retries++;
-    video.load(); watchLoading();
-  } else { preparing=false;failed = true;window.__coderaEntry?.failed(); configure(); }
-}
-function watchSeek() {
-  clearTimeout(seekWatchdog);
-  // Remote range requests may take longer than a local seek. Allow slow downloads
-  // to make progress instead of discarding their buffer every five seconds.
-  if (active && !document.hidden && video.seeking) {
-    seekWatchdog=setTimeout(()=>{if(video.seeking)retryVideo('seek-timeout');},30000);
-  }
-}
-video.addEventListener('progress',watchSeek);
-function mediaReady() {
-  clearTimeout(loadWatchdog);
-  if(!prepared && mediaBlobUrl){
-    preparing=false;prepared=true;diagnostics.prepared=true;diagnostics.fullyBuffered=true;
-    // A background download must not push down content someone already reads.
-    deferredEntry=userMotion!==true && !journey.classList.contains('has-journey') && window.scrollY>24;
-    configure();
-  }
-  // Late data must recover a timed-out opening without requiring a button click.
-  if (failed && wantsMotion()) { failed=false; configure(); }
-  if (active) {
-    film.classList.add('is-ready');
-    toggle.querySelector('.motion-label').textContent='Zastaviť pohyb';
-  }
-  diagnostics.resolution = `${video.videoWidth}×${video.videoHeight}`;
-  if(prepared){window.__coderaEntry?.progress(99);void window.__coderaEntry?.ready();}
-  schedule();
-}
-
-// Exactly one outstanding seek, with latest-scroll-wins backpressure. No decoded image bank.
-function requestFrame() {
-  cancelAnimationFrame(pendingFrame); pendingFrame = 0;
-  if (!active || document.hidden || video.readyState < 2 || video.seeking || awaitingPresentation) return;
-  const localTime = Math.max(0,Math.min(desiredTime-mediaOffset,video.duration-1/mediaFps));
-  // Seek only distinct frames, just inside the timestamp to avoid boundary rounding.
-  const time = Math.min(Math.round(localTime*mediaFps)/mediaFps+.0005,video.duration-.001);
-  if (Math.abs(video.currentTime - time) < .5/mediaFps) return;
-  seekStarted = performance.now();
-  awaitingPresentation = !!video.requestVideoFrameCallback;
-  video.currentTime = time;
-  diagnostics.seeks++;
-  watchSeek();
-}
-function schedule() { if (!pendingFrame && active && !document.hidden) pendingFrame = requestAnimationFrame(requestFrame); }
-video.addEventListener('seeked', () => {
-  clearTimeout(seekWatchdog);
-  // Reloading the opening frame is not a successful recovery of a distant seek.
-  if(Math.abs(video.currentTime+mediaOffset-desiredTime)<.1)retries=0;
-  if (seekStarted) { latencyTotal += performance.now() - seekStarted; diagnostics.averageSeekMs = Math.round(latencyTotal / ++sampleCount); }
-  if (!video.requestVideoFrameCallback) { diagnostics.displayedTime = video.currentTime+mediaOffset; presentStory(video.currentTime+mediaOffset); }
-  else {
-    // Some embedded browsers delay frame callbacks on paused video. Keep captions usable.
-    clearTimeout(captionFallback);
-    const settledTime=video.currentTime+mediaOffset;
-    captionFallback=setTimeout(()=>{awaitingPresentation=false;presentStory(settledTime);schedule();},120);
-  }
-  schedule();
-});
-if (video.requestVideoFrameCallback) {
-  const presented = (_now, info) => { clearTimeout(captionFallback); awaitingPresentation=false;diagnostics.displayedTime = info.mediaTime+mediaOffset; presentStory(info.mediaTime+mediaOffset); video.requestVideoFrameCallback(presented);schedule(); };
-  video.requestVideoFrameCallback(presented);
-}
-video.addEventListener('loadeddata', mediaReady);
-video.addEventListener('canplay', mediaReady);
-video.addEventListener('error', ()=>retryVideo(`media-error-${video.error?.code||'unknown'}`));
-let selectedBeat = null;
-function setBeatAccessibility(progress) {
-  const selected = progress < .15 ? 0 : progress >= .17 && progress < .50 ? 1 : progress >= .74 ? 2 : -1;
-  if(selected===selectedBeat)return;
-  selectedBeat=selected;
-  beats.forEach((beat,index)=>{beat.setAttribute('aria-hidden',String(index!==selected));for(const link of beat.querySelectorAll('a'))link.tabIndex=index===selected?0:-1;});
-}
-function update(progress) {
-  const points = cameraPoints;
-  let index=1;while(index<points.length-1&&progress>points[index][0])index++;
-  const [a,b]=[points[index-1],points[index]];
-  desiredTime=a[1]+(b[1]-a[1])*(progress-a[0])/(b[0]-a[0]);
-  diagnostics.targetTime=desiredTime;
-  diagnostics.progress=progress;
-  // ScrollTrigger already updates on an animation frame. Do not queue another
-  // display-frame delay; the seeking guard still allows only one decode at a time.
-  requestFrame();
-}
-function presentStory(time) {
-  if (!active || !timeline) return;
-  // Text follows the decoded image, including reverse scrolling and slow seeks.
-  let index=1;while(index<cameraPoints.length-1&&time>cameraPoints[index][1])index++;
-  const [a,b]=[cameraPoints[index-1],cameraPoints[index]];
-  const progress=Math.max(0,Math.min(1,a[0]+(b[0]-a[0])*(time-a[1])/(b[1]-a[1])));
-  timeline.progress(progress);
-  setBeatAccessibility(progress);
-}
-function configure() {
-  
-  trigger?.kill();timeline?.kill();scrub?.kill();trigger=undefined;timeline=undefined;scrub=undefined;
-  cancelAnimationFrame(pendingFrame);pendingFrame=0;awaitingPresentation=false;clearTimeout(loadWatchdog);clearTimeout(seekWatchdog);clearTimeout(captionFallback);
-  const librariesReady = !!window.gsap && !!window.ScrollTrigger;
-  const requested = wantsMotion();
-  if(!librariesReady)window.__coderaEntry?.failed();
-  active = requested && !failed && librariesReady && prepared && !deferredEntry;
-  if(requested && !failed && librariesReady && !prepared)prepareVideo();
-  diagnostics.active=active;
-  diagnostics.reason = !librariesReady ? 'libraries-unavailable' : failed ? 'video-unavailable' : userMotion === false ? 'paused' : active ? 'scroll-video' : requested && !prepared ? 'preparing-video' : deferredEntry ? 'ready-to-start' : reduced.matches ? 'reduced-motion' : 'small-touch';
-  journey.dataset.motionState=diagnostics.reason;
-  document.documentElement.classList.toggle('motion-enabled',active);
-  if(active)journey.classList.add('has-journey');
-  toggle.hidden = !librariesReady;
-  toggle.disabled = preparing;
-  toggle.setAttribute('aria-pressed',String(active));
-  toggle.querySelector('.motion-label').textContent=failed?'Skúsiť animáciu znova':preparing?`Pripravujem video${loadedPercent?` · ${loadedPercent} %`:'…'}`:active?'Zastaviť pohyb':'Spustiť animáciu';
-  toggle.querySelector('.pause-icon').textContent=active?'Ⅱ':'▷';
-  if (!active) {
-    video.pause();
-    // Freeze the current frame/composition without collapsing 2.6 screens of layout.
-    // Initial reduced-motion/touch visits still use the compact static opening.
-    if(!journey.classList.contains('has-journey')){
-      film.classList.remove('is-ready');
-      beats.forEach(beat=>{beat.removeAttribute('style');});
-      setBeatAccessibility(0);
-      document.querySelector('.film-progress i').style.transform='scaleX(0)';
-      document.querySelector('.film-shade').removeAttribute('style');
-    }
-    return;
-  }
-  const { gsap, ScrollTrigger } = window;
-  gsap.registerPlugin(ScrollTrigger);
-  ScrollTrigger.config({ignoreMobileResize:true});
-  gsap.set(beats[0],{autoAlpha:1,y:0,force3D:false});
-  gsap.set(beats.slice(1),{autoAlpha:0,y:30,force3D:false});
-  gsap.set('.film-shade',{'--reading-shade':0,opacity:1});
-  gsap.set('.tunnel-fade',{opacity:0});
-  timeline=gsap.timeline({paused:true,defaults:{ease:'none',force3D:false}})
-    .to(beats[0],{autoAlpha:0,y:-35,duration:.07},.08)
-    .to(beats[1],{autoAlpha:1,y:0,duration:.07},.17)
-    .to(beats[1],{autoAlpha:0,y:-25,duration:.06},.44)
-    .to(beats[2],{autoAlpha:1,y:0,duration:.12},.74)
-    .to('.film-shade',{'--reading-shade':.75,duration:.07},.17)
-    .to('.film-shade',{'--reading-shade':0,opacity:.3,duration:.08},.44)
-    .to('.film-shade',{opacity:1,duration:.12},.72)
-    // Fade through the scene's warm shadow before the source changes at ~6s.
-    // The short opaque hold bridges that cut; decoded frames drive both directions.
-    .to('.tunnel-fade',{opacity:1,duration:.077,ease:'sine.inOut'},.33)
-    .to('.tunnel-fade',{opacity:0,duration:.125,ease:'sine.inOut'},.425)
-    .to('.film-progress i',{scaleX:1,duration:1},0);
-  const camera={progress:0};
-  scrub=gsap.to(camera,{progress:1,duration:1,ease:'none',paused:true,onUpdate:()=>update(camera.progress)});
-  trigger=ScrollTrigger.create({trigger:journey,start:'top top',end:'bottom bottom',animation:scrub,scrub:.55,onRefresh:self=>{scrub.progress(self.progress);update(self.progress);}});
-  if(video.readyState>=2)film.classList.add('is-ready');
-  watchLoading();
-  update(trigger.progress);
-  presentStory(video.currentTime+mediaOffset);
-}
-window.addEventListener('codera:entry-skip',()=>{userMotion=false;configure();});
-toggle.addEventListener('click',()=>{
-  userMotion=!active;
-  deferredEntry=false;
-  if(failed){failed=false;retries=0;if(mediaBlobUrl){URL.revokeObjectURL(mediaBlobUrl);mediaBlobUrl='';}prepared=false;diagnostics.prepared=false;video.removeAttribute('src');}
-  configure();
-});
-window.addEventListener('scroll',()=>{if(deferredEntry && window.scrollY<=24){deferredEntry=false;configure();}},{passive:true});
-reduced.addEventListener('change',()=>{userMotion=null;configure();});smallTouch.addEventListener('change',configure);
-function resumeMedia() {
-  if(document.hidden || !wantsMotion())return;
-  if(failed && !mediaBlobUrl){failed=false;retries=0;configure();}
-  else if(failed && mediaBlobUrl){failed=false;retries=0;video.load();configure();}
-  else if(preparing && mediaBlobUrl){video.load();watchLoading();}
-  else if(active){if(video.readyState<2){video.load();watchLoading();}else mediaReady();}
-  window.ScrollTrigger?.refresh();schedule();
-}
-document.addEventListener('visibilitychange',()=>{
-  if(document.hidden){cancelAnimationFrame(pendingFrame);pendingFrame=0;clearTimeout(loadWatchdog);clearTimeout(seekWatchdog);}
-  else resumeMedia();
-});
-window.addEventListener('pageshow',resumeMedia);
-// Deferred library scripts must finish before deciding whether motion is available.
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',configure,{once:true});
-else configure();
-
-// Keep both native summaries in place; either control compares both packages.
-const offerDetails=[...document.querySelectorAll('.offer-details')];
-for(const details of offerDetails){
-  details.querySelector('summary').addEventListener('click',event=>{
-    event.preventDefault();
-    const open=!details.open;
-    for(const offer of offerDetails)offer.open=open;
-  });
-}
-
-const menuButton=document.querySelector('.menu-button');
-const menu=document.querySelector('#mobile-menu');
-function closeMenu(){menu.hidden=true;menuButton.setAttribute('aria-expanded','false');menuButton.setAttribute('aria-label','Otvoriť menu');}
-menuButton.addEventListener('click',()=>{const open=menu.hidden;menu.hidden=!open;menuButton.setAttribute('aria-expanded',String(open));menuButton.setAttribute('aria-label',open?'Zatvoriť menu':'Otvoriť menu');});
-menu.addEventListener('click',event=>{if(event.target.closest('a'))closeMenu();});
-document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!menu.hidden){closeMenu();menuButton.focus();}});
-desktop.addEventListener('change',()=>{if(desktop.matches)closeMenu();});
-document.querySelector('#dopyt button[type="submit"]').disabled=false;
-
-const preview=document.querySelector('.project-dialog');
-const previewImage=document.querySelector('#preview-image');
-const previewScroll=document.querySelector('.preview-scroll');
-let previewTrigger;
-function resetZoom(){previewScroll.classList.remove('is-zoomed');document.querySelector('#preview-zoom').setAttribute('aria-pressed','false');document.querySelector('#preview-zoom').textContent='Zväčšiť';}
-document.querySelectorAll('.project-preview').forEach(button=>{
-  button.hidden=false;
-  button.addEventListener('click',()=>{
-    previewTrigger=button;
-    document.querySelector('#preview-title').textContent=button.dataset.title;
-    document.querySelector('#preview-live').href=button.dataset.url;
-    previewImage.alt=`${button.dataset.title} — celá stránka, statický náhľad`;
-    previewImage.width=Number(button.dataset.width);previewImage.height=Number(button.dataset.height);
-    previewImage.src=`/media/projects/${button.dataset.project}-full.webp`;
-    resetZoom();preview.showModal();previewScroll.scrollTo(0,0);
-  });
-});
-document.querySelector('.close-dialog').addEventListener('click',()=>preview.close());
-document.querySelector('#preview-zoom').addEventListener('click',event=>{
-  const zoomed=previewScroll.classList.toggle('is-zoomed');
-  event.currentTarget.setAttribute('aria-pressed',String(zoomed));event.currentTarget.textContent=zoomed?'Prispôsobiť':'Zväčšiť';
-});
-previewImage.addEventListener('click',()=>document.querySelector('#preview-zoom').click());
-preview.addEventListener('close',()=>{previewImage.removeAttribute('src');resetZoom();previewTrigger?.focus({preventScroll:true});});
-document.querySelector('#dopyt').addEventListener('submit',event=>{
-  event.preventDefault();const form=event.currentTarget;
-  if(!form.reportValidity())return;
-  const data=new FormData(form);
-  const body=`Meno: ${data.get('name')}\nE-mail: ${data.get('email')}\n\n${data.get('message')}`;
-  const mailto=`mailto:${form.dataset.email}?subject=${encodeURIComponent('Nový projekt — Codera')}&body=${encodeURIComponent(body)}`;
-  const status=document.querySelector('#form-status');
-  status.textContent='Dopyt je pripravený na odoslanie vo vašom e-mailovom programe. Ak sa neotvoril, napíšte nám priamo na uvedený e-mail.';
-  window.location.href=mailto;
-});
+toggle.addEventListener('click',()=>{choice=!(state.active&&!state.paused);if(choice){if(state.error){state.prepared=false;state.error='';}void prepare();}else{state.paused=true;state.reason='paused';syncVisibility();label();}});
+window.addEventListener('codera:entry-skip',()=>{choice=false;state.paused=true;syncVisibility();label();});
+window.addEventListener('scroll',update,{passive:true});
+window.addEventListener('resize',measure,{passive:true});
+document.addEventListener('visibilitychange',syncVisibility);
+new IntersectionObserver(entries=>{const returning=!visible&&entries[0].isIntersecting;visible=entries[0].isIntersecting;if(returning&&state.active&&!state.paused){measure();progress=target;lastSent=-1;lastTick=0;}syncVisibility();},{rootMargin:'150px 0px'}).observe(stage);
+reduced.addEventListener('change',()=>{choice=null;if(wanted())void prepare();else{state.paused=true;syncVisibility();label();}});
+window.addEventListener('pageshow',syncVisibility);
+window.addEventListener('pagehide',event=>{stop();if(!event.persisted)worker?.terminate();});
+captions(2.6);label();if(wanted())void prepare();else window.__coderaEntry?.ready();

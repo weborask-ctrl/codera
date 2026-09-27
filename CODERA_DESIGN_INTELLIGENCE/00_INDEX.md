@@ -74,3 +74,5 @@ guidance.
    readable hold.
 7. Mobile is re-directed, not shrunk.
 8. Appropriateness beats attractiveness; extract logic, never copy.
+
+2026-09-27: [Original-film streaming release](../docs/CODERA_ORIGINAL_VIDEO_STREAM_2026-09-27.md) preserves the supplied artwork and encoded detail while changing delivery, decoding and scroll scheduling. Marcus authorized merge and testing.
