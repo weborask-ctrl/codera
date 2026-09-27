@@ -1,0 +1,91 @@
+{
+  "scope": "Built Next production server on localhost, actual nonce CSP, headless Edge",
+  "createdAt": "2026-09-27T18:57:28.087Z",
+  "summary": {
+    "passed": 14,
+    "failed": 0,
+    "skipped": 0
+  },
+  "checks": [
+    {
+      "name": "Native 1080p streaming starts under the real response CSP",
+      "status": "pass"
+    },
+    {
+      "name": "Forward and reverse scrolling present actual video frames",
+      "status": "pass"
+    },
+    {
+      "name": "The content-hashed original stream uses one completed fetch without seek ranges",
+      "status": "pass"
+    },
+    {
+      "name": "Pause freezes presented frames; resume reaches the new position",
+      "status": "pass"
+    },
+    {
+      "name": "Offstage motion stops and a top return restores the opening",
+      "status": "pass"
+    },
+    {
+      "name": "Record real frame intervals during a continuous warm forward/reverse sweep",
+      "status": "pass",
+      "detail": {
+        "frames": 629,
+        "intervalMedianMs": 16.700000000000728,
+        "intervalP95Ms": 16.80000000000109,
+        "longestIntervalMs": 66.89999999999964,
+        "acceptance": "Observation, not a universal FPS assertion",
+        "firstFrame": {
+          "now": 4826.7,
+          "mediaTime": 0.033333,
+          "presentationTime": 4812.3,
+          "presentedFrames": 75
+        },
+        "lastFrame": {
+          "now": 15480.7,
+          "mediaTime": 0.233333,
+          "presentationTime": 15468.5,
+          "presentedFrames": 703
+        }
+      }
+    },
+    {
+      "name": "Both individual pricing controls expand and collapse both offers",
+      "status": "pass"
+    },
+    {
+      "name": "All five full previews retain sufficient resolution and contain framing",
+      "status": "pass"
+    },
+    {
+      "name": "reduced-motion keeps static readable entry and makes no video request",
+      "status": "pass"
+    },
+    {
+      "name": "touch keeps static readable entry and makes no video request",
+      "status": "pass"
+    },
+    {
+      "name": "no-js keeps static readable entry and makes no video request",
+      "status": "pass"
+    },
+    {
+      "name": "Explicit simulation: unavailable worker MediaSource falls back to main-thread MSE",
+      "status": "pass"
+    },
+    {
+      "name": "Skipping entry before delayed real media readiness never expands or starts the hero",
+      "status": "pass"
+    },
+    {
+      "name": "No uncaught JavaScript errors or browser CSP violations",
+      "status": "pass"
+    }
+  ],
+  "limitations": [
+    "Browser automation does not establish physical presentation or universal smoothness.",
+    "Touch is emulated. The fallback capability override is explicitly a simulation.",
+    "Frame intervals come from real requestVideoFrameCallback metadata during the recorded sweep; no hardware FPS guarantee follows."
+  ]
+}

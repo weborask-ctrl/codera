@@ -1,0 +1,14 @@
+{
+  "originalFileSha256": "534dbd425c030f1dda75ac60937f363e29e9af1ed0e1a0f11c6aed483c38d1f0",
+  "encodedSampleSha256": "f60088d67cffaea794ac679739be8947b201737c39a7cbd6101b3de2b16501bb",
+  "remuxSampleSha256": "f60088d67cffaea794ac679739be8947b201737c39a7cbd6101b3de2b16501bb",
+  "identicalEncodedSamples": true,
+  "width": 1920,
+  "height": 1080,
+  "fps": 60,
+  "frames": 660,
+  "fragments": 220,
+  "encodedBytes": 50373431,
+  "containerBytes": 50405743,
+  "remuxFileSha256": "9ae694d90bce8facb440cf4c6da9c8c587e463caddbb3ef4218c6cca32470a29"
+}
