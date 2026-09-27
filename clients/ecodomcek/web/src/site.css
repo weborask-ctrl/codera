@@ -1665,7 +1665,8 @@ h2.big em{font-style:normal;color:var(--moss)}
    screen; it glides to the side, smaller; then the words, 30 % larger, in
    Fraunces (SOFT, WONK — warm, a little hand-made, like the timber). ──── */
 body.intro header{opacity:0;pointer-events:none}
-header{transition:opacity .6s var(--ease)}
+header{transition:opacity .6s var(--ease),transform .4s var(--ease)}
+body.hdr-off header{transform:translateY(-105%)}
 .poster.intro .ptext,.poster.intro .vz{visibility:hidden}
 .poster h1{font-family:var(--display);font-weight:340;letter-spacing:-.025em;line-height:.98}
 .poster h1 em{font-style:italic;font-weight:320}
@@ -1919,3 +1920,10 @@ html{scroll-padding-top:calc(var(--hh,64px) + 16px)}
   :root{--gut:max(72px,calc((100vw - 100vh * 16 / 9) / 2))}
   header{padding-inline:calc(var(--gut) / var(--hz,1))}
 }
+
+/* the bar is solid: whatever passes it (when it is showing) does not
+   shine through as a smudge */
+header{background:var(--paper)}
+body[data-band="moss"] header{background:#1f2c17}
+body[data-band="dusk"] header{background:#12100e}
+@media (prefers-reduced-motion:reduce){ header{transition:opacity .01s} }
