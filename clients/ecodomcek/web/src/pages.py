@@ -117,7 +117,8 @@ def street():
             pic = (f'<img src="{src}" alt="{_h.escape(p["shot"])}" loading="lazy" decoding="async" '
                    f'style="--r:{h / 400:.2f};aspect-ratio:{w}/{hh}">')
         else:
-            pic = f'<span class="lot" style="--r:{h / 400:.2f}"><i>Fotografiu doplní EcoDomček</i></span>'
+            facts = "".join(f"<span><em>{_h.escape(k)}</em>{_h.escape(v)}</span>" for k, v in p["specs"][:3])
+            pic = f'<span class="lot" style="--r:{h / 400:.2f}">{facts}<i>bez fotografie</i></span>'
         out += (f'<a class="house-lot" href="realizacia-{p["slug"]}.html">{pic}'
                 f'<span class="cap"><span class="yr">{p["year"]}</span><b>{_h.escape(title_of(p))}</b>'
                 f'<span class="where">{_h.escape(p["place"])}</span></span></a>')
@@ -409,6 +410,11 @@ def build(B):
       <h1><span class="rl"><span>Vitajte vo svete,</span></span> <span class="rl"><span>kde <em>vonia</em> drevo.</span></span></h1>
       <p class="sub fade">Montované drevodomy z Lúčiny pri Prešove. Od základov až po kolaudáciu.</p>
       <div class="ctas fade d2">{btn("Pozrieť realizácie", "realizacie.html")}</div>
+      <dl class="pfacts fade d3">
+        <div><dt>2007</dt><dd>prvý vlastný drevodom</dd></div>
+        <div><dt>{len(C.PROJECTS)}</dt><dd>realizácií od Žiliny po Košice</dd></div>
+        <div><dt>Zdarma</dt><dd>poradíme a prekonzultujeme</dd></div>
+      </dl>
     </div>
     <div class="house" data-house>{house}
       <video class="film" muted playsinline preload="auto" aria-hidden="true" tabindex="-1"
@@ -471,7 +477,7 @@ def build(B):
     <img src="assets/beat4.jpg" alt="Rez stenou – AI vizualizácia" loading="lazy">
   </a>
 </div>''') + section(3, "Ulica", "paper", f'''<div class="wrap streethead" data-reveal>
-  <h2 class="big fade">{lines("Kariéra staviteľa|sa začala písať|v roku 2007.")}</h2>
+  <h2 class="big fade">{lines("Kariéra staviteľa sa|začala písať v roku 2007.")}</h2>
   <p class="lead fade d2">Osem stavieb od roku 2008 – od nášho prvého domčeka po dvojpodlažný dom
     pri Košiciach.</p>
 </div>
@@ -479,7 +485,7 @@ def build(B):
 <div class="wrap"><div class="more">{btn("Všetkých osem realizácií", "realizacie.html")}</div></div>''') + section(4, "Vyjadrenie", "sand", f'''<div class="wrap" data-reveal>
   {quotes_home()}
 </div>''') + section(5, "Ako to ide", "paper", f'''<div class="wrap" data-reveal>
-  <div class="loghead"><h2 class="big fade">{lines("Poradíme,|prekonzultujeme.|Zdarma ;)")}</h2>
+  <div class="loghead"><h2 class="big fade">{lines("Poradíme, prekonzultujeme.|Zdarma ;)")}</h2>
     <p class="fade d2">Štyri kroky od základov až po kolaudáciu. Poradenstvo je
       zadarmo — stačí zavolať.</p></div>
   {build_log()}
@@ -731,7 +737,7 @@ def build(B):
     def evidence(i):
         return [p for p in C.PROJECTS if i in p["services"]]
 
-    rows = ""
+    rows, items = "", []
     for i, (u, n, t) in enumerate(C.SERVICES):
         ev = evidence(i)
         # the newest photographed job leads, large; the rest stay a strip
@@ -758,10 +764,20 @@ def build(B):
         if i == 10:                                   # the free consultation: the call is the proof
             proof = (f'<div class="sev fade d2">{btn("Zavolajte " + C.PHONE, "tel:" + C.PHONE_RAW, arrow=False)}'
                      f'<a class="fine" href="mailto:{C.EMAIL}">{C.EMAIL}</a></div>')
-        rows += (f'<article class="srow{" has" if proof else ""}" id="s{i}" data-reveal>'
-                 f'<div class="sname"><span class="shook serif fade">{esc(u)}</span>'
-                 f'<h2>{lines(esc(n))}</h2></div>'
-                 f'<p class="stext fade d2">{esc(t)}</p>{proof}{more}</article>')
+        items.append((bool(proof), f'<article class="srow{" has" if proof else ""}" id="s{i}" data-reveal>'
+                      f'<div class="sname"><span class="shook serif fade">{esc(u)}</span>'
+                      f'<h2>{lines(esc(n))}</h2></div>'
+                      f'<p class="stext fade d2">{esc(t)}</p>{proof}{more}</article>'))
+    # two services with no job to show stand side by side (client,
+    # 2026-09-27: a lone sentence left the right half of the row empty)
+    k = 0
+    while k < len(items):
+        if not items[k][0] and k + 1 < len(items) and not items[k + 1][0]:
+            rows += f'<div class="spair">{items[k][1]}{items[k + 1][1]}</div>'
+            k += 2
+        else:
+            rows += items[k][1]
+            k += 1
 
     toc = "".join(
         f'<a href="#s{i}">{esc(n)}{f"<sup>{len(evidence(i))}</sup>" if evidence(i) else ""}</a>'

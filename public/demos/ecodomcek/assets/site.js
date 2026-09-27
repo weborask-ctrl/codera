@@ -363,8 +363,12 @@
       var leg = poster.querySelector('.olegend'), tx = poster.querySelector('.ptext'), hd = document.querySelector('header');
       var U0 = T0, U1 = B0;
       if (wide()) {
-        U0 = (hd ? hd.getBoundingClientRect().bottom : 0) - p.top + Math.max(24, innerHeight * .03);
-        U1 = innerHeight - p.top - 16;
+        // the bar and the screen are measured as the pinned poster sees them
+        // (its top at the screen's top) — the page may be anywhere when this
+        // runs (a jump mid-intro put the opened house 1370 px down, over the
+        // services)
+        U0 = (hd ? hd.getBoundingClientRect().bottom : 0) + Math.max(24, innerHeight * .03);
+        U1 = innerHeight - 16;
       } else if (leg && tx) {
         U0 = tx.getBoundingClientRect().bottom - p.top + 10;
         U1 = leg.getBoundingClientRect().top - p.top - 4;
