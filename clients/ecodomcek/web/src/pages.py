@@ -257,11 +257,11 @@ def build(B):
     # carries something real: the first step IS the call, the others a
     # visualisation that shows literally that step — the cutaway is the
     # layout, the exploded house is the assembly order, the interior is
-    # the finish. All labelled "AI vizualizácia" (EU AI Act art. 50).
+    # the finish. AI is said once, in the footer (client, 2026-09-27); alts keep it.
     STEP_ART = {
-        "02": ("rez.jpg", "Rez domom, dispozícia – AI vizualizácia", "Rez domom s dispozíciou oboch podlaží – AI vizualizácia"),
-        "03": ("explod.jpg", "Základ, prízemie, poschodie, strecha – AI vizualizácia", "Dom rozložený na základ, podlažia a strechu – AI vizualizácia"),
-        "04": ("beat5.jpg", "Hotový interiér – AI vizualizácia", "Dokončená kuchyňa s jedálňou – AI vizualizácia"),
+        "02": ("rez.jpg", "Rez domom, dispozícia", "Rez domom s dispozíciou oboch podlaží – AI vizualizácia"),
+        "03": ("explod.jpg", "Základ, prízemie, poschodie, strecha", "Dom rozložený na základ, podlažia a strechu – AI vizualizácia"),
+        "04": ("beat5.jpg", "Hotový interiér", "Dokončená kuchyňa s jedálňou – AI vizualizácia"),
     }
 
     def build_log():
@@ -408,7 +408,7 @@ def build(B):
     <div class="ptext">
       <h1><span class="rl"><span>Vitajte vo svete,</span></span> <span class="rl"><span>kde <em>vonia</em> drevo.</span></span></h1>
       <p class="sub fade">Montované drevodomy z Lúčiny pri Prešove. Od základov až po kolaudáciu.</p>
-      <div class="ctas fade d2">{btn("Pozrieť realizácie", "realizacie.html")}{btn("Otvoriť stenu", "stena.html", ghost=True, arrow=False)}</div>
+      <div class="ctas fade d2">{btn("Pozrieť realizácie", "realizacie.html")}</div>
     </div>
     <div class="house" data-house>{house}
       <video class="film" muted playsinline preload="auto" aria-hidden="true" tabindex="-1"
@@ -417,7 +417,6 @@ def build(B):
       {open_labels()}
     </div>
     <ol class="olegend" aria-label="Podlažia domu">{"".join(f"<li><b>{i + 1:02d}</b><span>{n}</span>" + (f"<i>{note}</i>" if note else "") + "</li>" for i, (_, _, n, note) in enumerate(OPEN))}</ol>
-    <span class="vz mono">AI vizualizácia – rodinný dom Lúčina 2024</span>
   </div>
 </section>'''
 
@@ -470,7 +469,6 @@ def build(B):
   </div>
   <a class="wt-art" href="stena.html" aria-label="Otvoriť stenu">
     <img src="assets/beat4.jpg" alt="Rez stenou – AI vizualizácia" loading="lazy">
-    <span class="vz mono">AI vizualizácia</span>
   </a>
 </div>''') + section(3, "Ulica", "paper", f'''<div class="wrap streethead" data-reveal>
   <h2 class="big fade">{lines("Kariéra staviteľa|sa začala písať|v roku 2007.")}</h2>
@@ -695,12 +693,12 @@ def build(B):
   <figure data-par>
     <div class="frame clipimg" style="aspect-ratio:21/9">
       <img src="assets/hero.jpg" alt="AI vizualizácia domu" loading="lazy"></div>
-    {cap("Rodinný dom Lúčina · AI vizualizácia", "Rhombus smrekovec · Fundermax")}
+    {cap("Rodinný dom Lúčina", "Rhombus smrekovec · Fundermax")}
   </figure>
   <div class="trio fade d2">
-    {figure("beat3.jpg", "Obývačka — AI vizualizácia", "4/3", ("Obývačka · AI vizualizácia",))}
-    {figure("beat5.jpg", "Kuchyňa — AI vizualizácia", "4/3", ("Kuchyňa · AI vizualizácia",))}
-    {figure("beat6.jpg", "Terasa — AI vizualizácia", "4/3", ("Terasa · AI vizualizácia",))}
+    {figure("beat3.jpg", "Obývačka — AI vizualizácia", "4/3", ("Obývačka",))}
+    {figure("beat5.jpg", "Kuchyňa — AI vizualizácia", "4/3", ("Kuchyňa",))}
+    {figure("beat6.jpg", "Terasa — AI vizualizácia", "4/3", ("Terasa",))}
   </div>
   <div class="more fade d3">{btn("Ako je taký dom postavený", "technologia.html")}</div>
 </div>''')
@@ -861,12 +859,12 @@ def build(B):
     <figure class="sl fade">
       <div class="frame clipimg"><img src="assets/beat6.jpg" alt="Terasa v lete – AI vizualizácia" loading="lazy"></div>
       <h2>V lete chladí,</h2>
-      {cap("Terasa – AI vizualizácia")}
+      {cap("Terasa")}
     </figure>
     <figure class="sz fade d2">
       <div class="frame clipimg"><img src="assets/beat3.jpg" alt="Obývačka v zime – AI vizualizácia" loading="lazy"></div>
       <h2>v zime je teplučký.</h2>
-      {cap("Obývačka – AI vizualizácia")}
+      {cap("Obývačka")}
     </figure>
     <blockquote class="tpay fade d3">„Investícia do tohto typu technológie sa reálne vypláca tak
       v komforte bývania, zo zdravotného hľadiska, ako aj finančne.“
@@ -894,13 +892,6 @@ def build(B):
   <div class="mledger fade d2" data-peek>{mrows}</div>
 </div>''')
 
-    tech += section(4, "Stena", "moss", f'''<div class="wrap tmotto" data-reveal>
-  <h2 class="fade">{lines("Chcete ju vidieť|vrstvu po vrstve?")}</h2>
-  <div class="tmr fade d2">
-    <p>Sedem vrstiev difúzne otvorenej steny si môžete roztiahnuť sami — každá má meno.</p>
-    <div>{btn("Otvoriť stenu", "stena.html")}{btn("Realizácie", "realizacie.html", ghost=True, arrow=False)}</div>
-  </div>
-</div>''')
     tech += contact_band("technologia.html")
     page("technologia.html", "Technológia — prečo drevostavbe veriť — EcoDomček",
          "Difúzne otvorená drevostavba: prečo stena dýcha, prečo v lete chladí a v zime hreje, "
@@ -941,7 +932,7 @@ def build(B):
         ("200 rokov", "Aj keď je to u nás ešte stále pomerne nová technológia, a my, konzervatívni "
                       "Slováci jej veľmi nedôverujeme, v USA a Kanade je osvedčená už viac ako "
                       "200 rokov a preverená náročnejšími klimatickými podmienkami, ako u nás.",
-         "beat4.jpg", "Rez stenou – AI vizualizácia", ""),
+         "beat4.jpg", "Rez stenou", ""),
     ]
     paras, stack = "", ""
     for j, (y, txt, img, capt, note) in enumerate(essay):
@@ -1012,7 +1003,7 @@ def build(B):
         <div class="meter"><b></b></div>
         <span class="mono">dnu</span>
       </div>
-      <span class="vz mono">AI vizualizácia · orientačná skladba, hrúbky a U-hodnotu potvrdí EcoDomček</span>
+      <span class="vz mono">Orientačná skladba – hrúbky a U-hodnotu potvrdí EcoDomček.</span>
     </div>
   </div>
 </section>'''

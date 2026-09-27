@@ -1064,3 +1064,20 @@ Z právneho prehľadu klient vybral body a – c.
 - **a) Označenie AI.** Každá vizualizácia má popis „AI vizualizácia“: popisky, `alt` texty, štítky, og obrázok aj detail Lúčiny („vytvorili vizualizácie pomocou AI“). Pätička hovorí, že vizualizácie domu sú vytvorené pomocou AI a nie sú to fotografie realizácie. Dôvod: EÚ AI Act, článok 50 (od 2. 8. 2026), realistický obrázok vytvorený AI musí byť ako taký označený. Rez stenou v materiáloch (`section.py`) a výkresy sú kód, nie AI, preto označenie nemajú.
 - **b) Referencie.** Pri oboch citátoch na úvode aj na O nás je veta, odkiaľ referencie sú, a že spôsob overenia doplní EcoDomček pred spustením (`C.REVIEWS_NOTE`). Dôvod: zákon 108/2024 o ochrane spotrebiteľa požaduje uviesť, či a ako sa overuje, že recenzie sú od skutočných zákazníkov. Nič sme si nevymysleli, nevieme, ako to overujú.
 - **c) Licencia písiem.** `src/fonts/fonts-OFL.txt` obsahuje copyright riadky Hanken Grotesk, Newsreader a Fraunces a plný text SIL OFL 1.1. Build ho kopíruje do `assets/` k písmam a `site.css` sa naň odkazuje. Žiadne písmo nemá Reserved Font Name, takže podmnožina písma (subset) bez premenovania je v poriadku.
+
+## Fáza 29 — posledné úpravy pred odovzdaním (2026-09-27)
+
+Klient: „keď sa otvára stena, prekrýva sa text; zbytočné odkazy na stenu; horná lišta prekrýva
+text; skontroluj rozloženie na každej obrazovke; stačí napísať AI vizualizácia len dole“.
+
+- **Stena.**
+  - Popisy vrstiev sa posúvajú pod vlastnou doskou.
+  - Kde by sa mená zrazili (úzka obrazovka alebo stena ešte v otváraní), pod doskami ostanú len čísla a meno s vetou nesie jeden popis pod stenou.
+  - Scéna začína pod lištou a doskám dá len toľko výšky, koľko ostáva, takže nadpis nikdy nezájde pod lištu.
+  - Na nízkej obrazovke (výška do 600 px, napríklad telefón na šírku) stena stojí v stránke a otvára sa rukou.
+- **Lišta.** `site.js` meria jej skutočnú výšku (`--hh`, lišta sa zväčšuje s `--hz`). Všetky prilepené prvky (Technológia, kronika, O nás, register služieb, kontakt) a kotvy (`scroll-padding-top`) držia odstup od nej.
+- **Dom na úvode.** Keď sa na stránke skočí do otvárania počas úvodného filmu (obnovenie stránky, kotva, cesta späť), dom sa nastaví do bodu posunu hneď, ako film začne. Predtým ostali mená podlaží visieť nad službami. Po zmene veľkosti okna sa otvorený dom znova zarovná s menami.
+- **Odkazy na stenu.** Preč je druhé tlačidlo na úvode a záverečná výzva na Technológii. Ostáva menu, pätička a sekcia „Eko nie je iba prázdna fráza“.
+- **AI označenie** je len v pätičke (`C.DISCLAIMER`, na každej stránke). Popisky pod obrázkami ho už nenesú, alt texty áno.
+- **Ultraširoké obrazovky (21:9 a viac).** Stránka drží proporcie obrazovky 16:9 s rovnakou výškou: obsah nejde do krajných okrajov a lišta je s ním zarovnaná.
+- **Overenie.** Kontrola bežala na 15 veľkostiach od 360×740 po 3440×1440 vrátane 844×390, 10 stránok, 7 polôh posunu. Sledovala pretečenie do strán, text cez text a prilepený text pod lištou. Ostali len riadky vlastných nadpisov s tesným riadkovaním a prvky, ktoré normálne odchádzajú hore.

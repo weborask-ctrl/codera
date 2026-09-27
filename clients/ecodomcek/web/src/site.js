@@ -33,6 +33,10 @@
   function hz() {
     var z = Math.min(innerWidth / 1440, innerHeight / 900);
     document.documentElement.style.setProperty('--hz', Math.max(1, Math.min(2.2, z)).toFixed(3));
+    // the bar's real height (it zooms with --hz): sticky things and the
+    // wall stage keep clear of it
+    var hd = document.querySelector('header');
+    if (hd) document.documentElement.style.setProperty('--hh', Math.round(hd.getBoundingClientRect().height) + 'px');
   }
   hz(); addEventListener('resize', hz);
   var curtain = document.getElementById('curtain');
@@ -211,7 +215,7 @@
       ft.to(inks, { opacity: 0, duration: .4 }, .95);
       ft.to(order.map(function (k) { return L[k]; }), { yPercent: 0, duration: .45, ease: 'power2.inOut' }, .7);
       var done = false;
-      var scrubbing = false, landing = null, pin = null;
+      var scrubbing = false, landing = null, pin = null, applyPin = null;
       function built() {
         if (done) return; done = true; poster.classList.add('built');
         if (intro && !intro.done) {                           // mid-intro the camera is already close:
@@ -248,6 +252,10 @@
         tweens.push({ kill: function () { clearTimeout(guard); } });
         act.classList.add('filming');                         // its poster is the same frame
         poster.classList.add('filmed');
+        // a page that is already scrolled into the opening (a reload, a
+        // jump, the way back) gets its house set to that point now —
+        // otherwise the levels' names stand where the house is not
+        if (applyPin && pin && pin.progress > .002) applyPin(pin.progress);
         var pr = film.play();
         if (pr && pr.catch) pr.catch(function () { clearTimeout(guard); seat(); });
       }, null, 1.25);
@@ -446,27 +454,30 @@
         landAim();
         if (done && !scrubbing && (!landing || !landing.isActive()) && (!intro || intro.settled))
           gsap.set(film, { x: LAND.x, y: LAND.y, scale: LAND.s });
+        // opened and resized: the house follows the new opening, as its names do
+        else if (scrubbing && pin) apply(pin.progress);
       }
       relayout();
       pin = track(ScrollTrigger.create({
         trigger: poster, start: 'top top', end: '+=110%', pin: true, anticipatePin: 1,
         onRefresh: relayout,
-        onUpdate: function (self) {
-          if (!act.classList.contains('filming')) return;
-          var p = self.progress;
-          if (p > .002 && !scrubbing) {                         // the visitor takes the camera
-            scrubbing = true; film.pause(); if (landing) landing.kill(); builtRef();
-          }
-          if (!scrubbing) return;
-          var q = ease(Math.min(1, Math.max(0, (p - .04) / .72)));
-          seek(END - q * (END - OPEN_T));
-          // landed → opened (see landAim): the levels keep their size
-          gsap.set(film, { scale: LAND.s + (OPEN.s - LAND.s) * q, x: LAND.x + (OPEN.x - LAND.x) * q,
-            y: LAND.y + (OPEN.y - LAND.y) * q });
-          var open = p > .8;
-          act.classList.toggle('open', open); poster.classList.toggle('opened', open);
-        }
+        onUpdate: function (self) { apply(self.progress); }
       }));
+      applyPin = apply;
+      function apply(p) {
+        if (!act.classList.contains('filming')) return;
+        if (p > .002 && !scrubbing) {                         // the visitor takes the camera
+          scrubbing = true; film.pause(); if (landing) landing.kill(); builtRef();
+        }
+        if (!scrubbing) return;
+        var q = ease(Math.min(1, Math.max(0, (p - .04) / .72)));
+        seek(END - q * (END - OPEN_T));
+        // landed → opened (see landAim): the levels keep their size
+        gsap.set(film, { scale: LAND.s + (OPEN.s - LAND.s) * q, x: LAND.x + (OPEN.x - LAND.x) * q,
+          y: LAND.y + (OPEN.y - LAND.y) * q });
+        var open = p > .8;
+        act.classList.toggle('open', open); poster.classList.toggle('opened', open);
+      }
       return;
     }
     var drift = { roof: -14, upper: -8, ground: -3, base: 2 };
@@ -505,10 +516,22 @@
     function render() {
       cur += (target - cur) * .16;
       if (Math.abs(target - cur) < .0005) cur = target;
+      // a name needs ~120 px to its neighbour; closer (a narrow screen, or
+      // the wall still opening) each slab keeps only its number and the
+      // one caption below names the newest layer
+      var tight = false, prev = null;
+      slabs.forEach(function (s, i) {
+        var at = s._closed + (open[i] - s._closed) * cur;
+        // a label is as wide as its slab: the next slab must clear it
+        if (prev !== null && at - prev < Math.max(120, slabs[i - 1].offsetWidth * .96)) tight = true;
+        prev = at;
+      });
+      wrap.classList.toggle('nums', tight);
       slabs.forEach(function (s, i) {
         var x = s._closed + (open[i] - s._closed) * cur - open[i];
         s.style.transform = 'translate3d(' + x + 'px,0,0)';
         s.style.zIndex = n - i;
+        if (tags[i]) tags[i].style.translate = x.toFixed(1) + 'px 0';   // the label rides under its own slab
       });
       var last = -1;
       tags.forEach(function (t, i) {
@@ -516,7 +539,14 @@
         t.classList.toggle('on', on); if (on) last = i;
       });
       tags.forEach(function (t, i) { t.classList.toggle('last', i === last); });
-      if (desc) desc.textContent = last >= 0 ? tags[last].querySelector('p').textContent : '';
+      if (desc) {
+        if (last < 0) desc.textContent = '';
+        else {
+          desc.innerHTML = '<b></b> ';
+          desc.firstChild.textContent = tags[last].querySelector('span').textContent + '.';
+          desc.appendChild(document.createTextNode(tags[last].querySelector('p').textContent));
+        }
+      }
       if (meter) meter.style.left = (cur * 100) + '%';
       raf = (cur !== target) ? requestAnimationFrame(render) : 0;
     }
@@ -548,8 +578,9 @@
       if (e.key === 'ArrowRight') { dragOff += .1; set(scrollS + dragOff); wrap.classList.add('touched'); }
       if (e.key === 'ArrowLeft') { dragOff -= .1; set(scrollS + dragOff); wrap.classList.add('touched'); }
     });
-    // scroll (desktop: the stage is sticky inside a 280svh track)
-    if (wide() && !reduce) {
+    // scroll (desktop: the stage is sticky inside a 280svh track; a short
+    // landscape screen has no track, the hand opens it there)
+    if (wide() && innerHeight > 600 && !reduce) {
       track(ScrollTrigger.create({
         trigger: wrap, start: 'top top', end: 'bottom bottom', scrub: true,
         onUpdate: function (self) {
