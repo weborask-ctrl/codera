@@ -1036,3 +1036,23 @@ ako text, s tabuľkovými číslicami (`--label`), aby čísla v stĺpcoch ostal
 Mono je zo stavby odstránený (`fonts.mjs`, `src/fonts/`) a nepoužívaný `src/shell.html`
 s odkazom na Google Fonts je zmazaný. Stránka ostáva v dvoch hlasoch: grotesk pre štruktúru,
 pätkové písmo pre ich vety (**refokus**).
+
+## Fáza 27 — menej šablóny (2026-09-27)
+
+Z auditu „čo pôsobí na prvý pohľad ako z AI" klient vybral body 2, 3, 4 a 5.
+
+2. **Menej obrích čísel a úvodzoviek.**
+   - Kroky 01 – 04 sú malý štítok nad nadpisom namiesto obrej zelenej číslice.
+   - Obrie zelené úvodzovky pri citátoch sú preč.
+   - Nadpisy v „…“ ostali len tam, kde je to naozaj ich hlas: „Všetko máme, všetko spravíme.“, „Máme radi výzvy.“ a „Práca s drevom mi išla od ruky.“. Ostatné sú obyčajné nadpisy.
+   - Veľké čísla ostali dve: „200+“ a roky v kronike realizácií (**pangram**: jedno číslo vlastní stránku).
+3. **Bez pilulkových tvarov.**
+   - Tlačidlá majú rovnú hranu s oblúkom 2 px.
+   - Hlavička je jeden tichý pruh s vlasovou čiarou namiesto troch plávajúcich kapsúl; na machových a tmavých pásoch je tmavá.
+   - Menu je text, aktívna stránka je podčiarknutá.
+   - Filtre realizácií sú slová s počtom, zvolený filter je podčiarknutý (**basement**: hustý textový register).
+4. **Služby na úvode.**
+   - Päť vysokých kariet s otočenými názvami nahradil jeden register všetkých dvanástich služieb vedľa jednej skutočnej fotky (**basement**, **cowboy**).
+   - Prechod myšou alebo zameranie klávesnicou ukáže stavbu, ktorá službu dokazuje: Lúčina, terasa Chrastné, rhombus detail, Budatín.
+   - Služba bez nafotenej stavby fotku nemení. Vizualizácia interiéru tu už nie je.
+5. **Vety, ktoré vysvetľovali web**, sú preč: „Číslo pri službe je počet…“, „Každý riadok vedie na stavbu…“, „zoradených tak, ako pribúdali… okrem garáže“, poznámka pod kronikou, „má na stavebnom liste miesto“ a „Potiahnite stenu a pozrite sa…“.

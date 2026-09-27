@@ -76,27 +76,26 @@
     initStory();
     initStreet();
     initMarks();
-    initPanels();
+    initReg();
     ScrollTrigger.refresh();
   }
 
-  // ── the service panels: one open at a time ───────────────────────────
-  // Pointer: hover or focus opens. Touch on a wide screen: the first tap
-  // opens a closed panel, the second follows its link. Phones scroll a row
-  // of open cards, so every tap is a link there.
-  function initPanels() {
-    var ps = [].slice.call(main.querySelectorAll('[data-panel]'));
-    if (!ps.length) return;
-    function open(p) { ps.forEach(function (q) { q.classList.toggle('open', q === p); }); }
-    var wide = matchMedia('(min-width:821px)');
-    ps.forEach(function (p) {
-      p.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse' && wide.matches) open(p); });
-      // keyboard focus only: a tap focuses the link first, and opening on that
-      // focus made the tap's own click follow the link
-      p.addEventListener('focus', function () { if (wide.matches && p.matches(':focus-visible')) open(p); });
-      p.addEventListener('click', function (e) {
-        if (wide.matches && !p.classList.contains('open')) { e.preventDefault(); e.stopPropagation(); open(p); }
-      }, true);
+  // ── the service register: point at a service, see the job that proves it
+  // Mouse hover or keyboard focus swaps the picture; a service with no
+  // photographed job leaves it as it is. Touch just follows the link.
+  function initReg() {
+    var reg = main.querySelector('[data-reg]');
+    if (!reg) return;
+    var pics = [].slice.call(reg.querySelectorAll('.regimg img'));
+    var capt = reg.querySelector('.regfig figcaption span');
+    function show(k) {
+      pics.forEach(function (im) { im.classList.toggle('on', im.dataset.k === k); });
+      var on = pics.filter(function (im) { return im.dataset.k === k; })[0];
+      if (on && capt) capt.textContent = 'Foto: ' + on.dataset.cap;
+    }
+    reg.querySelectorAll('.reglist a[data-k]').forEach(function (a) {
+      a.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') show(a.dataset.k); });
+      a.addEventListener('focus', function () { if (a.matches(':focus-visible')) show(a.dataset.k); });
     });
   }
 
