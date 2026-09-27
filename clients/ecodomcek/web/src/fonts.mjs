@@ -49,10 +49,10 @@ for (const [a, b] of RANGES) {
   }
 }
 
-/* site.css renders 300 / 400 / 500 sans, 200 and 300 serif, 400 / 500 mono.
-   Newsreader keeps its optical-size axis — the serif is only ever used
-   large and light, which is what opsz is for. Plex Mono is static in
-   google/fonts, so its two weights are two files. */
+/* site.css renders 300 / 400 / 500 sans (labels too — the monospace went,
+   2026-09-27: it read as a typewriter), 200 and 300 serif. Newsreader keeps
+   its optical-size axis — the serif is only ever used large and light,
+   which is what opsz is for. */
 const FACES = [
   { out: "hanken.woff2", src: "hankengrotesk/HankenGrotesk[wght].ttf", axes: { wght: { min: 300, max: 500 } } },
   { out: "newsreader.woff2", src: "newsreader/Newsreader[opsz,wght].ttf", axes: { wght: { min: 200, max: 300 } } },
@@ -63,8 +63,6 @@ const FACES = [
     axes: { opsz: 144, SOFT: 100, WONK: 1, wght: { min: 300, max: 400 } } },
   { out: "fraunces-italic.woff2", src: "fraunces/Fraunces-Italic[SOFT,WONK,opsz,wght].ttf",
     axes: { opsz: 144, SOFT: 100, WONK: 1, wght: { min: 300, max: 400 } } },
-  { out: "plex-mono.woff2", src: "ibmplexmono/IBMPlexMono-Regular.ttf", axes: {} },
-  { out: "plex-mono-500.woff2", src: "ibmplexmono/IBMPlexMono-Medium.ttf", axes: {} },
 ]
 
 async function source(rel) {

@@ -634,7 +634,7 @@
 
   // ── technológia: the wall breathes ───────────────────────────────────
   // Stena dýcha — the wall in section, drawn the way a builder reads a
-  // drawing (igloo.md: mono annotation as the drawing layer over one
+  // drawing (igloo.md: small-type annotation as the drawing layer over one
   // atmosphere, light as the protagonist; lusion.md: one live exhibit in
   // calm paper chrome, input maps to an answer at once; activetheory.md:
   // particles as soft light with a memory, not dots). Standard drafting
@@ -934,7 +934,7 @@
     fig.addEventListener('mouseleave', function () { pick(-1); });
     function onResize() { if (layout() && !raf) render(); }
     addEventListener('resize', onResize);
-    // the flags are measured in the mono face: measure again once it is in
+    // the flags are measured in the label face: measure again once it is in
     if (document.fonts) document.fonts.ready.then(function () { if (fig.isConnected) onResize(); });
     // the router kills page tweens on every swap; the loop and the
     // listener must die with this page

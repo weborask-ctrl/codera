@@ -46,7 +46,7 @@ Publikované: https://claude.ai/code/artifact/ec635947-fb5c-4b60-91e2-41bc54e1c3
 ## Písma
 
 Tri rezy, všetky samohostované a orezané (`src/fonts.mjs`, 175 KB v 4 súboroch):
-Hanken Grotesk 300–500, Newsreader 200–300 s opsz osou, IBM Plex Mono 400 a 500.
+Hanken Grotesk 300–500 (aj popisky a čísla, s tabuľkovými číslicami), Newsreader 200–300 s opsz osou. IBM Plex Mono je preč – na modernom webe pôsobilo ako písací stroj (klient, 2026-09-27).
 Orez drží Basic Latin, Latin-1, **Latin Extended-A** (č ď ľ ĺ ň ŕ š ť ž), všeobecnú
 interpunkciu (slovenské „úvodzovky", pomlčky), euro a šípky.
 
