@@ -1098,3 +1098,31 @@ Pri návrate zo stránky webu (menu, tlačidlo späť, odkaz z podstránky) tera
 - posúvanie dom otvára ako predtým.
 
 Úvodná animácia ostáva len pri prvom príchode a pri obnovení stránky. Overené cez menu aj späť pri 1512, 1440 a 390 px: mierka domu je od prvého viditeľného snímku 1,81, na mobile 1,56.
+
+## Fáza 30 — rozloženie bez dier (2026-09-27)
+
+Klient: „veľa veľkých medzier, rozloženie nezapĺňa poriadne stránku.“
+
+**Meranie pred zmenou:**
+- na počítači bolo medzi sekciami až 300 px papiera;
+- úvod na mobile mal 6 prázdnych pásov, spolu 15 % stránky;
+- O nás 17 %, Kontakt 24 %.
+
+**Po zmene:**
+- 0 prázdnych pásov ≥ 220 px (počítač) a ≥ 150 px (mobil) na 9 stránkach;
+- úvod na počítači má 6,9 obrazovky namiesto 9, O nás 4,0 namiesto 4,9, Kontakt 2,2 namiesto 2,5.
+
+Zmeny:
+1. **Rytmus sekcií.** Odsadenie sekcií je o tretinu menšie (max. 100 px, na mobile 56 px). Dve svetlé sekcie po sebe oddeľuje vlasová čiara namiesto dvojitej medzery, hlavička stránky sedí rovno pod lištou.
+2. **Prvá obrazovka.** Pod tlačidlom sú tri fakty z ich webu: 2007 (prvý vlastný drevodom), 8 realizácií od Žiliny po Košice, Zdarma poradíme.
+3. **Ulica.** Veta je pod nadpisom a nadpis ide v dvoch riadkoch cez šírku. Garáž bez fotky ukazuje svoje údaje na karte namiesto prázdneho rámu.
+4. **Postup.** Štyri kroky stoja vedľa seba (obrázok, číslo, nadpis, veta), na tablete po dvoch, na mobile ako karty na posúvanie. Namiesto dvoch obrazoviek zaberajú jednu.
+5. **O nás.** Odseky príbehu už nemajú medzi sebou dieru na celú obrazovku.
+6. **Kontakt.** Hlavička je vyššie, tabuľka údajov má väčšie písmo.
+7. **Technológia.** Leto a zima sú vedľa seba v rovnakej výške, citát konateľa je pod nimi cez šírku a väčším písmom.
+8. **Detail realizácie.** Zmenšenou medzerou pod doskou.
+9. **Služby.** Dve služby bez fotky stoja vedľa seba (`.spair`), takže pri riadku bez dôkazu nezostáva prázdna pravá polovica.
+
+Pri kontrole sa našla staršia chyba: skok nižšie na stránke počas úvodu nechal otvorený dom 1370 px dole nad službami. `landAim` totiž meral lištu a obrazovku voči posunutej stránke. Teraz meria tak, ako ich vidí prišpendlený poster.
+
+Referencie: **basement**, **onyx** (hustý register, každá bunka nesie obsah).
