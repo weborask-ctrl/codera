@@ -1126,3 +1126,8 @@ Zmeny:
 Pri kontrole sa našla staršia chyba: skok nižšie na stránke počas úvodu nechal otvorený dom 1370 px dole nad službami. `landAim` totiž meral lištu a obrazovku voči posunutej stránke. Teraz meria tak, ako ich vidí prišpendlený poster.
 
 Referencie: **basement**, **onyx** (hustý register, každá bunka nesie obsah).
+
+**30b — visiaci náhľad fotky (klient, 2026-09-27).** Na stránke O nás visel v strede malý
+obrázok, náhľad z registra realizácií alebo materiálov. Náhľad ide za myšou, a keď sa na riadok
+kliklo, stránka sa vymenila pod kurzorom, takže udalosť opustenia riadku (`mouseleave`) nikdy
+neprišla. Router ho teraz schová pri každom odchode zo stránky.
