@@ -18,6 +18,7 @@
   // the intro plays on every fresh arrival at the home page — a typed link,
   // a new tab, a reload — but not when coming back from a page of this site
   // (in-page route, back button, or a link from a subpage)
+  var filmBlobs = {};                                        // film url → object URL, kept across page swaps
   var introSeen = (function () {
     var nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
     var type = nav ? nav.type : 'navigate';
@@ -206,18 +207,20 @@
       // low priority: on a slow line the film must not outbid its own
       // first frame and layers (the hero's largest paint)
       if (/^data:/.test(url) || !window.fetch || !window.URL) film.src = url;
+      else if (filmBlobs[url]) film.src = filmBlobs[url];     // back on the home page: the film is already here
       else fetch(url, { priority: 'low' }).then(function (r) { return r.blob(); })
-        .then(function (b) { film.src = URL.createObjectURL(b); })
+        .then(function (b) { film.src = filmBlobs[url] = URL.createObjectURL(b); })
         .catch(function () { film.src = url; });
+      // coming back from a subpage (client, 2026-09-27: „the house is small
+      // again and only then grows"): no drawing, no film, no push-in — the
+      // house stands landed at its full size the moment the page is there
+      var returning = introSeen, instant = false;
       var ft = gsap.timeline({ paused: true });
-      ft.to(paths, { strokeDashoffset: 0, duration: .55, ease: 'power2.inOut', stagger: { amount: .5 } }, 0);
-      mats.forEach(function (m, i) { ft.to(m, { opacity: 1, duration: .4, ease: 'power1.inOut' }, .7 + i * .08); });
-      ft.to(inks, { opacity: 0, duration: .4 }, .95);
-      ft.to(order.map(function (k) { return L[k]; }), { yPercent: 0, duration: .45, ease: 'power2.inOut' }, .7);
       var done = false;
       var scrubbing = false, landing = null, pin = null, applyPin = null;
       function built() {
         if (done) return; done = true; poster.classList.add('built');
+        if (instant) { landAim(); gsap.set(film, { x: LAND.x, y: LAND.y, scale: LAND.s }); return; }
         if (intro && !intro.done) {                           // mid-intro the camera is already close:
           if (act.classList.contains('filming') && !scrubbing) landIn();   // land at once, unseen
           tweens.push(gsap.delayedCall(.6, function () { finishIntro(false); }));   // a beat on the finished house
@@ -242,23 +245,55 @@
         });
         tweens.push(st);
       }
-      ft.call(function () {
-        film.playbackRate = 1.5;
-        film.addEventListener('ended', built, { once: true });
-        // only a film that never STARTED hands back to the layers — an ended film is paused too
-        var started = false;
-        film.addEventListener('playing', function () { started = true; }, { once: true });
-        var guard = setTimeout(function () { if (!started) { film.pause(); seat(); } }, 6000);
+      if (returning) ft.call(function () {
+        gsap.set(paths, { strokeDashoffset: 0 }); gsap.set(mats, { opacity: 1 }); gsap.set(inks, { opacity: 0 });
+        order.forEach(function (k) { gsap.set(L[k], { yPercent: 0 }); });
+        gsap.set(act, { opacity: 0 });
+        var shown = false;
+        function show() {
+          if (shown) return; shown = true;
+          instant = true;
+          act.classList.add('filming'); poster.classList.add('filmed');
+          built();
+          if (applyPin && pin && pin.progress > .002) applyPin(pin.progress);
+          tweens.push(gsap.to(act, { opacity: 1, duration: .35, ease: 'power1.out' }));
+        }
+        function toEnd() {
+          film.addEventListener('seeked', show, { once: true });
+          film.currentTime = Math.max(0, (film.duration || END) - .02);
+        }
+        if (film.readyState >= 1) toEnd(); else film.addEventListener('loadedmetadata', toEnd, { once: true });
+        // a film that never arrives: the layers seat at once instead
+        var guard = setTimeout(function () {
+          if (shown) return; shown = true;
+          order.forEach(function (k) { gsap.set(L[k], { yPercent: +L[k].dataset.y1 }); });
+          gsap.set(act, { opacity: 1 }); done = true; poster.classList.add('built');
+        }, 2500);
         tweens.push({ kill: function () { clearTimeout(guard); } });
-        act.classList.add('filming');                         // its poster is the same frame
-        poster.classList.add('filmed');
-        // a page that is already scrolled into the opening (a reload, a
-        // jump, the way back) gets its house set to that point now —
-        // otherwise the levels' names stand where the house is not
-        if (applyPin && pin && pin.progress > .002) applyPin(pin.progress);
-        var pr = film.play();
-        if (pr && pr.catch) pr.catch(function () { clearTimeout(guard); seat(); });
-      }, null, 1.25);
+      }, null, 0);
+      else {
+        ft.to(paths, { strokeDashoffset: 0, duration: .55, ease: 'power2.inOut', stagger: { amount: .5 } }, 0);
+        mats.forEach(function (m, i) { ft.to(m, { opacity: 1, duration: .4, ease: 'power1.inOut' }, .7 + i * .08); });
+        ft.to(inks, { opacity: 0, duration: .4 }, .95);
+        ft.to(order.map(function (k) { return L[k]; }), { yPercent: 0, duration: .45, ease: 'power2.inOut' }, .7);
+        ft.call(function () {
+          film.playbackRate = 1.5;
+          film.addEventListener('ended', built, { once: true });
+          // only a film that never STARTED hands back to the layers — an ended film is paused too
+          var started = false;
+          film.addEventListener('playing', function () { started = true; }, { once: true });
+          var guard = setTimeout(function () { if (!started) { film.pause(); seat(); } }, 6000);
+          tweens.push({ kill: function () { clearTimeout(guard); } });
+          act.classList.add('filming');                         // its poster is the same frame
+          poster.classList.add('filmed');
+          // a page that is already scrolled into the opening (a reload, a
+          // jump, the way back) gets its house set to that point now —
+          // otherwise the levels' names stand where the house is not
+          if (applyPin && pin && pin.progress > .002) applyPin(pin.progress);
+          var pr = film.play();
+          if (pr && pr.catch) pr.catch(function () { clearTimeout(guard); seat(); });
+        }, null, 1.25);
+      }
       tweens.push(ft);
       tl = ft; houseTl = ft;
     }

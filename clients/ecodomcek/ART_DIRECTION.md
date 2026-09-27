@@ -1089,3 +1089,12 @@ otvoreného domu siahala k lište, ktorá bola priesvitná. Zmeny:
 - otvorený dom drží od lišty odstup aspoň 24 px alebo 3 % výšky obrazovky.
 
 Merané v otvorenom stave pri ukázanej lište: 27 px pri 1280×720, 48 px pri 1920×1080, 75 px pri 1440×900, 98 px pri 1512×982, 110 px pri 1728×1117.
+
+**29c — návrat na úvod (klient, 2026-09-27).** Pri prechádzaní medzi podstránkami bol dom po
+návrate na úvod malý a až potom sa zväčšil, lebo sa zakaždým prehral celý film aj s priblížením.
+Pri návrate zo stránky webu (menu, tlačidlo späť, odkaz z podstránky) teraz:
+- dom sa ukáže rovno pristátý v plnej veľkosti: film je pretočený na koniec a dom sa za 0,35 s objaví;
+- film sa počas návštevy stiahne len raz (`filmBlobs`);
+- posúvanie dom otvára ako predtým.
+
+Úvodná animácia ostáva len pri prvom príchode a pri obnovení stránky. Overené cez menu aj späť pri 1512, 1440 a 390 px: mierka domu je od prvého viditeľného snímku 1,81, na mobile 1,56.
