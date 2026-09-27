@@ -306,8 +306,8 @@ def share_card() -> None:
     d.text((x, 238), "vonia", font=big, fill=moss)
     d.text((x + d.textlength("vonia ", font=big), 238), "drevo.", font=big, fill=ink)
     d.text((64, 356), "Montované drevodomy z Lúčiny pri Prešove.", font=face("hanken.woff2", 26, 400), fill=ink2)
-    mono = face("plex-mono.woff2", 17, 400)
-    d.text((64, 64), "ECODOMČEK", font=face("plex-mono-500.woff2", 19, 500), fill=ink)
+    mono = face("hanken.woff2", 18, 400)                   # the label voice: the text grotesque, small
+    d.text((64, 64), "ECODOMČEK", font=face("hanken.woff2", 20, 500), fill=ink)
     d.text((64, H - 70), "0908 704 281  ·  ecodomcek.sk", font=mono, fill=ink2)
     d.text((W - 36 - d.textlength("vizualizácia", font=mono), H - 34), "vizualizácia", font=mono, fill=ink2)
     card.save(ASSETS / "og.jpg", quality=86, optimize=True, progressive=True)

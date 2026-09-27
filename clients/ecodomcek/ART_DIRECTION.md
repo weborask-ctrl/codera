@@ -1026,3 +1026,13 @@ stmavnú. Vlajky s popismi ostali (**igloo**: anotácia nad objektom). Obraz je 
 lebo generovanie obrázkov tu nebolo k dispozícii (Higgsfield 0,4 kreditu, `FAL_KEY` nie je
 nastavený). Ak sa neskôr vyrobí fotorealistický render s rovnakými šírkami, nahradí
 `sec-*.webp` bez zmeny kódu. Kým sa obraz načíta, stojí na jeho mieste výkres z fázy 25.
+
+## Fáza 26 — bez písacieho stroja (2026-09-27)
+
+Klient: písmo „na niektorých miestach vyzerá ako z písacieho stroja a kazí dizajn modernej
+stránky". Bolo to IBM Plex Mono, 52 použití: popisy, čísla, štítky, vlajky na stene, opona pri
+prechode, štítok Koncept, og obrázok. Všetko teraz nesie Hanken Grotesk, teda ten istý grotesk
+ako text, s tabuľkovými číslicami (`--label`), aby čísla v stĺpcoch ostali zarovnané. Plex
+Mono je zo stavby odstránený (`fonts.mjs`, `src/fonts/`) a nepoužívaný `src/shell.html`
+s odkazom na Google Fonts je zmazaný. Stránka ostáva v dvoch hlasoch: grotesk pre štruktúru,
+pätkové písmo pre ich vety (**refokus**).
