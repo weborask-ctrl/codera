@@ -285,7 +285,6 @@ def build(B):
         was a single quote with its right half empty."""
         big, small = C.TESTIMONIALS[1], C.TESTIMONIALS[0]
         return f'''<div class="qhome">
-  <span class="qmark" aria-hidden="true">„</span>
   <figure class="qbig fade"><blockquote>„{esc(big["quote"])}“</blockquote>
     <figcaption><b>{esc(big["author"])}</b><span>{esc(big["note"])}</span></figcaption></figure>
   <figure class="qsmall fade d2"><blockquote>„{esc(small["quote"])}“</blockquote>
@@ -421,59 +420,51 @@ def build(B):
   </div>
 </section>'''
 
-    # services, 2026-09-25 rework (client: "not nice, must catch the eye at
-    # first sight"; the word list only came alive under a mouse). Five
-    # panels carry the services we can SHOW — cowboy.md: the big imagery
-    # sells; refokus.md: colour lives inside the work — one open at a time
-    # (hover / focus / tap). Real photos where a job proves the service;
-    # interiors are a visualisation and say so. The other seven stay a
-    # dense ruled list (basement.md: real rows under a vast moment).
-    PANELS = [  # service index, image, object-position, caption
-        (0, "foto-2024-lucina.jpg", "50% 45%", "Foto: moderný dizajnový dom, Lúčina 2024"),
-        (3, "foto-2019-terasa-chrastne.jpg", "40% 50%", "Foto: luxusná terasa, 2019"),
-        (5, "foto-2024-lucina.jpg", "22% 30%", "Foto: rhombus profil, Lúčina 2024"),
-        (8, "foto-2015-budatin.jpg", "50% 40%", "Foto: Budatín pri Žiline, 2015"),
-        (9, "beat5.jpg", "55% 50%", "Vizualizácia: interiér"),
+    # services, 2026-09-27 (client: the five tall cards with turned names
+    # read as a template). One register of all twelve beside one real
+    # photograph (basement.md: dense rows of real content; cowboy.md: one
+    # big image sells; refokus.md: the shape changes, not the effect).
+    # Pointing at a service shows the job that proves it; a service with no
+    # photographed job leaves the picture as it is. No visualisation here.
+    REG_SHOTS = [  # (image, object-position, zoom, caption) — the register's pictures
+        ("foto-2024-lucina.jpg", "50% 45%", 1, "Moderný dizajnový dom, Lúčina 2024"),
+        ("foto-2019-terasa-chrastne.jpg", "40% 50%", 1, "Luxusná terasa, Chrastné 2019"),
+        ("foto-2024-lucina.jpg", "22% 30%", 1.9, "Rhombus profil, Lúčina 2024"),
+        ("foto-2015-budatin.jpg", "50% 40%", 1, "Budatín pri Žiline, 2015"),
     ]
+    REG_SHOT_OF = {0: 0, 3: 1, 5: 2, 8: 3}                   # service index → the shot that proves it
 
     def svc_count(i):
         return sum(1 for p in C.PROJECTS if i in p["services"])
 
-    def panels():
-        out = ""
-        for k, (i, img, pos, capt) in enumerate(PANELS):
-            u, n, t = C.SERVICES[i]
+    def register():
+        pics = "".join(
+            f'<img src="assets/{f}" alt="" loading="lazy" decoding="async" data-k="{k}" data-cap="{esc(c)}"'
+            f' style="object-position:{pos};--z:{z}"{" class=on" if k == 0 else ""}>'
+            for k, (f, pos, z, c) in enumerate(REG_SHOTS))
+        rows = ""
+        for i, (u, n, t) in enumerate(C.SERVICES):
             c = svc_count(i)
-            cnt = (f'<span class="pcount">{c} {"realizácia" if c == 1 else ("realizácie" if c < 5 else "realizácií")}</span>'
-                   if c else "")
-            zoom = ' style="--z:1.9"' if i == 5 else ""
-            out += (f'<a class="panel{" open" if k == 0 else ""}" href="sluzby.html#s{i}" data-panel{zoom}>'
-                    f'<img src="assets/{img}" alt="" loading="lazy" decoding="async" style="object-position:{pos}">'
-                    f'<span class="pshade" aria-hidden="true"></span>'
-                    f'<span class="pbody"><i class="phook">{esc(u)}</i><b class="pname">{esc(n)}</b>'
-                    f'<span class="pmore"><span class="ptext2">{esc(t)}</span>{cnt}</span></span>'
-                    f'<span class="pcap mono">{esc(capt)}</span></a>')
-        return f'<div class="panels fade d2">{out}</div>'
-
-    def svc_rest():
-        shown = {i for i, *_ in PANELS}
-        rows = "".join(f'<a href="sluzby.html#s{i}"><i>{esc(u)}</i><b>{esc(n)}</b><span aria-hidden="true">→</span></a>'
-                       for i, (u, n, t) in enumerate(C.SERVICES) if i not in shown)
-        return f'<div class="svcrest fade d3"><span class="mono">A ďalej</span>{rows}</div>'
+            cnt = f'{c} {"realizácia" if c == 1 else ("realizácie" if c < 5 else "realizácií")}' if c else ""
+            k = f' data-k="{REG_SHOT_OF[i]}"' if i in REG_SHOT_OF else ""
+            rows += (f'<li><a href="sluzby.html#s{i}"{k}><i>{esc(u)}</i><b>{esc(n)}</b>'
+                     f'<span class="rc">{cnt}</span><span class="ra" aria-hidden="true">→</span></a></li>')
+        return f'''<div class="reg fade d2" data-reg>
+  <figure class="regfig"><div class="regimg">{pics}</div>
+    <figcaption class="cap"><span>Foto: {esc(REG_SHOTS[0][3])}</span></figcaption></figure>
+  <ol class="reglist">{rows}</ol>
+</div>'''
 
     home = hero + section(1, "Čo staviame", "paper", f'''<div class="wrap" data-reveal>
   <div class="svchead">
     <h2 class="fade voice">{lines("„Všetko máme,|všetko spravíme.“")}</h2>
-    <p class="fade d2">Dvanásť vecí, ktoré robíme. Číslo pri službe je počet našich
-      realizácií, kde ju uvidíte.</p>
   </div>
-  {panels()}
-  {svc_rest()}
+  {register()}
 </div>''') + section(2, "Stena", "moss", f'''<div class="wrap wallteaser" data-reveal>
   <div class="wt-text">
-    <h2 class="fade voice">{lines("„Eko nie je iba|prázdna fráza.“")}</h2>
+    <h2 class="fade">{lines("Eko nie je iba|prázdna fráza.")}</h2>
     <p class="lead fade d2">„…my, konzervatívni Slováci jej veľmi nedôverujeme…“ Preto drevostavbu
-      neschovávame. Potiahnite stenu a pozrite sa, čo je v nej — sedem vrstiev, každá s menom.</p>
+      neschovávame – sedem vrstiev, každá s menom.</p>
     <div class="fade d3">{btn("Roztiahnuť stenu", "stena.html")}</div>
   </div>
   <a class="wt-art" href="stena.html" aria-label="Otvoriť stenu">
@@ -481,15 +472,15 @@ def build(B):
     <span class="vz mono">Vizualizácia</span>
   </a>
 </div>''') + section(3, "Ulica", "paper", f'''<div class="wrap streethead" data-reveal>
-  <h2 class="big fade voice">{lines("„Kariéra staviteľa|sa začala písať|v roku 2007.“")}</h2>
-  <p class="lead fade d2">Osem stavieb od roku 2008, zoradených tak, ako pribúdali. Každá je skutočná
-    fotografia — okrem garáže, ktorú zatiaľ nemáme nafotenú.</p>
+  <h2 class="big fade">{lines("Kariéra staviteľa|sa začala písať|v roku 2007.")}</h2>
+  <p class="lead fade d2">Osem stavieb od roku 2008 – od nášho prvého domčeka po dvojpodlažný dom
+    pri Košiciach.</p>
 </div>
 <div class="street" data-street><div class="strack">{street()}</div></div>
 <div class="wrap"><div class="more">{btn("Všetkých osem realizácií", "realizacie.html")}</div></div>''') + section(4, "Vyjadrenie", "sand", f'''<div class="wrap" data-reveal>
   {quotes_home()}
 </div>''') + section(5, "Ako to ide", "paper", f'''<div class="wrap" data-reveal>
-  <div class="loghead"><h2 class="big fade voice">{lines("„Poradíme,|prekonzultujeme.|Zdarma ;)“")}</h2>
+  <div class="loghead"><h2 class="big fade">{lines("Poradíme,|prekonzultujeme.|Zdarma ;)")}</h2>
     <p class="fade d2">Štyri kroky od základov až po kolaudáciu. Poradenstvo je
       zadarmo — stačí zavolať.</p></div>
   {build_log()}
@@ -555,7 +546,7 @@ def build(B):
         f'<button data-f="{esc(t)}">{esc(t)} <sup>{n}</sup></button>' for t, n in cnt.most_common())
     real = f'''<section class="band realmast" data-sec="Realizácie">
   <div class="wrap rmgrid" data-reveal>
-    <h1 class="voice">{lines("Osem stavieb.|„Makli sme ostošesť.“")}</h1>
+    <h1>{lines("Osem stavieb.|Makli sme ostošesť.")}</h1>
     <div class="rmr">
       <p class="lead fade d2">Od svojpomocného domčeka v Lúčine po dvojpodlažný dom pri Košiciach.
         Každá stavba je difúzne otvorená a z ekologických materiálov — to sa nemení, aj keď fasáda áno.</p>
@@ -564,8 +555,6 @@ def build(B):
   </div>
 </section>'''
     real += section(1, "Kronika", "paper", f'''<div class="wrap chronicle">{groups}
-  <p class="fine chron-note">Fotografie sú zo skutočných realizácií EcoDomčeka, v rozlíšení, v akom
-    ich máme. Garážo-sklado-terasu (2019) zatiaľ bez fotografie.</p>
 </div>''')
     placed = sum(len(pl[3]) for pl in PLACES)
     far = max(PLACES, key=lambda pl: km(next(q for q in PLACES if q[0] == BASE)[1:3], pl[1:3]))
@@ -573,8 +562,8 @@ def build(B):
     real += section(2, "Kde stoja", "paper", f'''<div class="wrap geo" data-reveal>
   <div class="geotext">
     <h2 class="fade">{lines("Od Žiliny|po Košice.")}</h2>
-    <p class="fade d2">Vychádzame z Lúčiny pri Prešove. {placed} z {len(C.PROJECTS)} realizácií má na
-      stavebnom liste miesto — najďalej {esc(far[0])}, {far_km} km vzdušnou čiarou.</p>
+    <p class="fade d2">Vychádzame z Lúčiny pri Prešove. Najďalej: {esc(far[0])}, {far_km} km
+      vzdušnou čiarou.</p>
     <dl class="gfacts fade d3"><div><dt>{len(PLACES)}</dt><dd>miest</dd></div>
       <div><dt>{placed}</dt><dd>stavieb na mape</dd></div><div><dt>{far_km}</dt><dd>km najďalej</dd></div></dl>
     <p class="fine fade d3">Poloha orientačne — stred obce. Obrys: Natural Earth.</p>
@@ -870,12 +859,12 @@ def build(B):
   <div class="seas">
     <figure class="sl fade">
       <div class="frame clipimg"><img src="assets/beat6.jpg" alt="Terasa v lete – vizualizácia" loading="lazy"></div>
-      <h2 class="voice">„V lete chladí,</h2>
+      <h2>V lete chladí,</h2>
       {cap("Terasa – vizualizácia")}
     </figure>
     <figure class="sz fade d2">
       <div class="frame clipimg"><img src="assets/beat3.jpg" alt="Obývačka v zime – vizualizácia" loading="lazy"></div>
-      <h2 class="voice">v zime je teplučký.“</h2>
+      <h2>v zime je teplučký.</h2>
       {cap("Obývačka – vizualizácia")}
     </figure>
     <blockquote class="tpay fade d3">„Investícia do tohto typu technológie sa reálne vypláca tak
@@ -900,8 +889,6 @@ def build(B):
     tech += section(3, "Materiály", "paper", f'''<div class="wrap tmat" data-reveal>
   <div class="tmh">
     <h2>{lines("Z čoho sme|naozaj stavali.")}</h2>
-    <p class="lead fade d2">Materiály z našich realizácií, tak ako sú v ich popise. Každý riadok
-      vedie na stavbu, kde bol použitý.</p>
   </div>
   <div class="mledger fade d2" data-peek>{mrows}</div>
 </div>''')
@@ -1054,7 +1041,7 @@ def build(B):
   <div class="wrap masthead" data-reveal>
     <div class="mhead">
       <div>
-        <h1 class="voice">{lines("„Roboty sa|nebojíme.“")}</h1>
+        <h1>{lines("Roboty sa|nebojíme.")}</h1>
         <p class="lead fade d2">Zavolajte kedykoľvek — alebo napíšte, čo staviate.
           Keď už nič iné, minimálne poradíme. Zadarmo.</p>
         <a class="tel-big fade d3" href="tel:{C.PHONE_RAW}" style="margin-top:34px">{C.PHONE}</a>
