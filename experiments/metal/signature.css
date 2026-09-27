@@ -178,3 +178,6 @@ h1 em,h2 em,h3 em{font:inherit;letter-spacing:inherit}
 
 /* One resting edge makes each desktop preview completely cover its predecessor. */
 @media(min-width:1001px){.project,.project:nth-child(even),.project-5{top:24px}}
+
+/* The active film owns its letterbox area; retain the poster for static/recovery. */
+.film.is-ready .poster{visibility:hidden}

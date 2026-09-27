@@ -1,6 +1,6 @@
 # Codera bible — current website and reusable method
 
-Last reconciled with the Silver website code: **2026-09-26**. The previous baseline below is the 2026-09-24 site; the approved 2026-09-26 motion release is documented separately. This is the entry point for any AI or designer working on Codera. It records implementation, Marcus's decisions and principles for new client projects. Codera's own font, curves and video are not a universal client template.
+Last reconciled with the Silver website code: **2026-09-27**. Marcus authorized merging and testing the original-video streaming implementation on this date. Current source is `experiments/metal/main.mjs` plus the native MediaSource modules. The earlier Blob and realtime-sculpture sections below are historical. PR/deployment checks determine release availability; controlled tests do not certify every device. This is the entry point for any AI or designer working on Codera; Codera's font and palette are not universal client templates.
 
 ## Read this first
 
@@ -16,6 +16,7 @@ Last reconciled with the Silver website code: **2026-09-26**. The previous basel
 | **Standing rule** | Marcus's direction for Codera work and final client-site quality. |
 | **Current Codera implementation** | In the live Silver design; preserve when editing this site unless Marcus changes it. |
 | **Candidate** | A choice used on Codera that has not been mandated for every future project. |
+| **Local candidate** | Implemented for local evaluation; not deployed or accepted merely because checks pass. |
 | **Historical** | Earlier direction or study; useful background, not a current command. |
 
 ## What Codera is building
@@ -52,6 +53,8 @@ Precise CSS lives in `experiments/metal/signature.css`; inspect the **last effec
 
 ## Motion site: what the existing engine actually does
 
+This section describes the deployed Silver architecture before the separate 2026-09-27 local streaming candidate. Its whole-Blob delivery and GSAP driver are implementation history, not instructions to undo a measured local improvement.
+
 **Source and delivery.** The provided source is a continuous **1920×1080, 24 fps** HEVC 10-bit 4:4:4 MOV. The web version is **1920×1080, 60 fps H.264**, made with offline frame interpolation, about 50.4 MB, prepared completely as one local Blob before motion can activate. It is not native 4K and extra sharpening cannot recover detail absent from the source. The opening poster is a separate sharp image. The film and fonts load from Codera's own domain. See `docs/CODERA_SILVER_FINISH.md` for the media comparison.
 
 **Scroll architecture.** The `journey` section occupies about **700 svh** when motion is enabled and contains a sticky, one-viewport stage. Normal browser scroll remains in control. GSAP ScrollTrigger maps scroll progress to target film time. Current control points in the source timeline: `[0, 2.6 s]`, `[0.38, 5.7 s]`, `[0.67, 9.5 s]`, `[1, 13.5 s]`; the trimmed delivery file has a `2.583333 s` source-time offset. `scrub: 0.55` smooths progress. These values describe today's film, not reusable constants for every motion site.
@@ -62,17 +65,35 @@ Precise CSS lives in `experiments/metal/signature.css`; inspect the **last effec
 
 **Motion-site design rule.** Plan a connected camera journey with clear start, progression, change of view and settled ending; define what text belongs to each visual hold before producing the clip. Video, typography, content and scroll path form one story. Do not claim a hard cut was “seamless” merely because an overlay hides it. Render screenshots at full useful resolution, keep scroll responsive on an 8 GB machine, and test real seeks rather than trusting the nominal 60 fps file rate. For a new film, measure source detail and decode cost before choosing export settings.
 
-## Stable complete-video motion — current correction, 2026-09-26
+## Previous production motion — rejected experience, 2026-09-26
 
-Marcus rejected PR #120 for severe stuttering. The 0.4-second opening buffer could not support arbitrary scrolling while the rest of the film downloaded. Its own cold-sweep test had a 4.4-second hold; reporting fast entry and warm frame rates did not establish a working motion experience. That progressive strategy is not an approved baseline.
+Marcus rejected PR #120 for severe stuttering and later rejected PR #121 for poor quality, long loading and continued stuttering. Neither release is an approved experience. The later worker/AV1 candidate also received a stuttering report and is now historical; see `docs/CODERA_MOTION_LAB_2026-09-26.md`. The paragraphs below describe deployed behavior, not an accepted target or standing requirement for future implementations. The 0.4-second opening buffer could not support arbitrary scrolling while the rest of the film downloaded. Its own cold-sweep test had a 4.4-second hold; reporting fast entry and warm frame rates did not establish a working motion experience. That progressive strategy is not an approved baseline.
 
-Activate animation only from a complete local Blob. Use the approved 50,378,423-byte CRF 15/GOP 3 1080p60 file without re-encoding. Prefer its full-file Cache Storage entry; when all 221 old fragment entries exist, assemble those in source order into a complete Blob and reuse them. Never animate a partial cache. Active seeking has no media network dependency and retains one outstanding decode, decoded-frame captions, reverse fades and native scroll.
+The deployed implementation activates animation only from a complete local Blob of the 50,378,423-byte CRF 15/GOP 3 1080p60 detail reference. It prefers its full-file Cache Storage entry; when all 221 old fragment entries exist, it assembles those in source order into a complete Blob. It does not animate a partial cache. Active seeking has no media network dependency and retains one outstanding decode, decoded-frame captions, reverse fades and native scroll.
 
 The entry cover offers static entry after 1.5 seconds and automatically releases after four foreground seconds. Thus an uncached visitor can get the sharp compact static hero while the full video prepares in the background. When ready, the existing motion button can start it. Static escape and manual pause must never be overridden by late readiness; do not suddenly extend the page. Touch/reduced-motion/no-JS remain static by default.
 
 A complete prior-fragment cache tested with media network blocked activated in 0.756 seconds; its eight-second forward/reverse sweep presented 470 frames, median/p95 intervals 16.7/16.9 ms and longest interval 83.5 ms. Cold complete preparation still takes about 43 seconds at 10 Mbit/s; visitors are not forced to wait for it. These are local measurements, not universal promises.
 
-Fast first entry with immediate, sharp, smooth full motion remains unresolved. This release is a stability correction. Keep future delivery experiments local until representative continuous cold scrolling passes; multi-second holds are release failures, even if startup and warm tests pass. Full explanation: `docs/CODERA_MOTION_STABILITY_2026-09-26.md`. Runtime: main.mjs and entry.js; no progressive module import. Tests: metal-stable-entry-check.mjs, metal-cache-recovery-check.mjs and metal-check.mjs.
+Fast first entry with immediate, sharp, smooth full motion remains unresolved. PR #121 was intended as a stability correction but was also rejected by Marcus. Keep future delivery experiments local until representative continuous cold scrolling passes; multi-second holds are release failures, even if startup and warm tests pass. Full explanation: `docs/CODERA_MOTION_STABILITY_2026-09-26.md`. Runtime: main.mjs and entry.js; no progressive module import. Tests: metal-stable-entry-check.mjs, metal-cache-recovery-check.mjs and metal-check.mjs.
+
+## Rejected realtime study — 2026-09-27
+
+`experiments/silver-realtime` on port 4341 is a **rejected** authored WebGL2 replacement. Marcus did not want a substitute for his supplied video; creating it consumed effort outside the intended task. Do not merge it, continue its development, or treat its different artwork as a successful optimization. Work exclusively with the supplied film. Historical measurements remain in `docs/CODERA_REALTIME_STUDY_2026-09-27.md` for traceability, not as acceptance evidence. The earlier AV1 experiment on port 4340 remains unaccepted; that port now serves the original-video candidate below.
+
+The completed headless check recorded 2.09 s cold scene readiness and 2.55 s visible entry at simulated 10 Mbit/s, with 807 KB of completed transfers by readiness. Functional forward/reverse, pause, idle-stop and static recovery checks passed. Physical foreground smoothness and real background-tab return remain unverified; the separate headed runs did not establish a passing desktop result. These numbers describe a simplified new sculpture, not the original movie delivered at equivalent artwork quality. Preserve that distinction in future comparisons.
+
+## Original-video streaming release — 2026-09-27
+
+**Merge authorized by Marcus on 2026-09-27.** The production build copies `experiments/metal/main.mjs`, `page-controls.mjs`, `native-player.mjs`, `native-stream.mjs` and `native-stream-worker.mjs` through `scripts/silver-assets.mjs` into `/silver/`. It preserves approved copy, fonts, curves, previews, pricing and the supplied film. Native HTML video uses one fetch into fragmented MP4 MediaSource and worker transport via MediaSourceHandle where supported, with main-thread MediaSource fallback. No experimental query switches or local audit endpoints are published.
+
+The 50,405,743-byte remux contains the **same encoded samples** as the 50,378,423-byte detail reference: 1920×1080, 60 fps, 660 frames. `public/motion/metal/journey-stream-f60088d67cff.integrity.json` verifies matching payload hashes. There is no re-encoding or detail reduction relative to that web export; it is not native 4K.
+
+Readiness requires a presented frame and two seconds of buffered source footage. Native scrolling remains responsive; seeks are coalesced and buffer-aware, with 0.16-second damping and no fixed native film-speed cap once buffered. When an unfinished download is close to the camera position, forward film motion slows according to buffered headroom; this adds camera lag rather than blocking page scroll. Copy/fade follow the presented picture. Offstage/hidden work pauses, a footer-to-top return resets its target, and late readiness respects static escape and page position. The four-second cover can release into the static hero.
+
+On i5-6500 / HD 530 / 8 GB, the final cold 50 Mbit/s headless Edge run reached readiness in 2.606 seconds, with 7.8 ms native seek p95, 19.4 ms frame interval p95 and 167.4 ms longest interval after entry. At 20 Mbit/s the initial 918.5 ms network-related picture pause was removed in a repeat with buffer-aware pacing; raw scroll-to-film position lag reached 0.550 source seconds during a normal sweep. Aggressive 50 Mbit/s wheel bursts reached 1.522 source seconds of raw story-position lag. An intermediate fixed speed cap had caused a 7.7005-second gap and was removed. Decoder lag against the filtered target must never be reported as full wheel-to-picture responsiveness. This is a continuity/lag tradeoff, not faster networking. The unchanged full file needs at least 40.3 seconds to transfer at 10 Mbit/s. Real foreground, pacing, slow-network and cross-browser acceptance remain necessary; no universal guarantee follows.
+
+Read [Original-video streaming evaluation](../docs/CODERA_ORIGINAL_VIDEO_STREAM_2026-09-27.md) for integrity, reproduction, functional checks and negative results. The published movie uses `/motion/metal/journey-stream-f60088d67cff.mp4`, an immutable content-versioned asset. Do not restore the old full-Blob entry barrier, claim universal smoothness or superiority over Oryzo, or silently reduce compression fidelity. Release verification uses `scripts/silver-stream-check.mjs`; historical Blob tests do not describe the current controller.
 
 ## Standing rules for any final Codera-built site
 
@@ -95,4 +116,4 @@ Before changing a rule, find its explicit user decision and the actual implement
 
 ### Motion quality release rule — 2026-09-26
 
-Never silently reduce compression fidelity to shorten loading. Resolution alone is insufficient: compare identical decoded frames, viewport/DPR, compression detail and forward/reverse presentation timings. Marcus explicitly accepted a larger initial download for the approved detail level. Restored 50 MB delivery measured 16.7 ms median / 16.9 ms p95 frame intervals and 2.5 ms p95 decode in local Edge; this is not a universal device guarantee. Current motion requires the entire prepared Blob; the short entry cover can release into the static hero. See docs/CODERA_MOTION_STABILITY_2026-09-26.md. Detailed evidence: docs/CODERA_MOTION_DETAIL_2026-09-26.md.
+Never silently reduce compression fidelity to shorten loading. Resolution alone is insufficient: compare identical decoded frames, viewport/DPR, compression detail and forward/reverse presentation timings. Marcus explicitly accepted a larger initial download for the approved detail level. Restored 50 MB delivery measured 16.7 ms median / 16.9 ms p95 frame intervals and 2.5 ms p95 decode in local Edge; this is not a universal device guarantee. The rejected deployed implementation requires the entire prepared Blob; the cover can release into a static hero. The 2026-09-27 local candidate changes delivery while preserving encoded samples and needs its own cold-scroll acceptance. Historical evidence: docs/CODERA_MOTION_STABILITY_2026-09-26.md and docs/CODERA_MOTION_DETAIL_2026-09-26.md.

@@ -1,0 +1,767 @@
+{
+  "createdAt": "2026-09-27T17:47:12.146Z",
+  "scope": "Local only; supplied original film; not production deployment",
+  "method": "Cache-disabled headless Edge. Native requestVideoFrameCallback. lag is against the filtered camera target. rawScrollLag is the film-time difference from the raw scrollbar target, NOT milliseconds of input latency. Native default now uses tau0.16 and forward headroom/0.75 pacing only until fully buffered; no fixed1.35 speed cap.",
+  "codeHashes": {
+    "stream-player.mjs": "59a1f713c82cd96d560bb40e84f747329163a2a2cd34c11e41a0ed91ee702eb7",
+    "native-player.mjs": "2cc936f40468335d7f6855c36a21e63607253ee19b70e5b8d6a2c9632fe5d70b",
+    "native-stream.mjs": "65f6930e55e89d104f7b2fc66dd63fc8d5d75363b3d9c06bb7064c118334daba",
+    "native-stream-worker.mjs": "85a70e33246ad236c075deb3dcd175406894ea0bb8ef0262283804d1fc47a77d",
+    "stream-check.mjs": "aa6736456810395c2cc5fbcccb5c041a41a90f09b722de809e009b204ab13990"
+  },
+  "integrity": {
+    "originalFileSha256": "534dbd425c030f1dda75ac60937f363e29e9af1ed0e1a0f11c6aed483c38d1f0",
+    "encodedSampleSha256": "f60088d67cffaea794ac679739be8947b201737c39a7cbd6101b3de2b16501bb",
+    "remuxSampleSha256": "f60088d67cffaea794ac679739be8947b201737c39a7cbd6101b3de2b16501bb",
+    "identicalEncodedSamples": true,
+    "width": 1920,
+    "height": 1080,
+    "fps": 60,
+    "frames": 660,
+    "fragments": 220,
+    "encodedBytes": 50373431,
+    "containerBytes": 50405743,
+    "remuxFileSha256": "9ae694d90bce8facb440cf4c6da9c8c587e463caddbb3ef4218c6cca32470a29"
+  },
+  "benchmarks": [
+    {
+      "stage": "final",
+      "file": "stream-mseworker-original-cold50-sw-low-single-paced-headless.json",
+      "sha256": "9da34f27d8669dfd0549d2415e6175629e8adb771547213102ff0bb31f42d701",
+      "gpu": {
+        "devices": [
+          {
+            "vendorId": 32902,
+            "deviceId": 6418,
+            "subSysId": 2152927292,
+            "revision": 6,
+            "vendorString": "",
+            "deviceString": "Intel(R) HD Graphics 530",
+            "driverVendor": "Intel",
+            "driverVersion": "31.0.101.2111"
+          },
+          {
+            "vendorId": 5140,
+            "deviceId": 140,
+            "subSysId": 0,
+            "revision": 0,
+            "vendorString": "",
+            "deviceString": "Microsoft Basic Render Driver",
+            "driverVendor": "",
+            "driverVersion": "10.0.22621.4249"
+          }
+        ],
+        "featureStatus": {
+          "2d_canvas": "enabled",
+          "direct_rendering_display_compositor": "disabled_off_ok",
+          "gpu_compositing": "enabled",
+          "multiple_raster_threads": "enabled_on",
+          "opengl": "enabled_on",
+          "rasterization": "enabled",
+          "raw_draw": "disabled_off_ok",
+          "skia_graphite": "disabled_off",
+          "trees_in_viz": "disabled_off",
+          "video_decode": "enabled",
+          "video_encode": "enabled",
+          "webgl": "enabled",
+          "webgpu": "enabled",
+          "webnn": "disabled_off"
+        }
+      },
+      "cold": true,
+      "headed": false,
+      "normal": false,
+      "delivery": "native-mse-worker-single-fetch",
+      "summary": {
+        "readyMs": 2605.800000000745,
+        "entryMs": 2674,
+        "decode": {
+          "n": 613,
+          "p50": 4.200000002980232,
+          "p95": 7.799999997019768,
+          "max": 116.40000000223517
+        },
+        "draw": {
+          "n": 613,
+          "p50": 16.799999997019768,
+          "p95": 19.399999998509884,
+          "max": 1846.5999999977648
+        },
+        "raf": {
+          "n": 697,
+          "p50": 16.700000000000728,
+          "p95": 16.899999999999636,
+          "max": 83.59999999999991
+        },
+        "lag": {
+          "n": 698,
+          "p50": 0.006256437638596957,
+          "p95": 0.037601203129588257,
+          "max": 0.11419058610710708
+        },
+        "rawScrollLag": {
+          "n": 698,
+          "p50": 0.3715246329284758,
+          "p95": 1.2870029858532277,
+          "max": 1.52166257913351
+        },
+        "bufferPacedFrames": 94,
+        "stats": {
+          "seeks": 613,
+          "seeksCompleted": 613,
+          "frames": 613,
+          "native": true
+        }
+      },
+      "intervalsAfterEntry100ms": {
+        "count": 611,
+        "p95": 19.399999998509884,
+        "max": 167.39999999850988
+      },
+      "stream": {
+        "type": "progress",
+        "loaded": 50405743,
+        "total": 50405743,
+        "appendedBytes": 50401515,
+        "fragments": 220,
+        "queuedBytes": 0,
+        "peakQueuedBytes": 422088,
+        "byteAccounting": "exact-fetch",
+        "transport": "mse-single-fetch",
+        "buffered": [
+          [
+            0,
+            10.999999
+          ]
+        ],
+        "complete": true
+      },
+      "errors": []
+    },
+    {
+      "stage": "final",
+      "file": "stream-mseworker-original-cold20-sw-low-single-normal-headless.json",
+      "sha256": "190b821f843739b135e4180c65e3ab7b7eeb1ab11620d6d6582fb0600c9ee89a",
+      "gpu": {
+        "devices": [
+          {
+            "vendorId": 32902,
+            "deviceId": 6418,
+            "subSysId": 2152927292,
+            "revision": 6,
+            "vendorString": "",
+            "deviceString": "Intel(R) HD Graphics 530",
+            "driverVendor": "Intel",
+            "driverVersion": "31.0.101.2111"
+          },
+          {
+            "vendorId": 5140,
+            "deviceId": 140,
+            "subSysId": 0,
+            "revision": 0,
+            "vendorString": "",
+            "deviceString": "Microsoft Basic Render Driver",
+            "driverVendor": "",
+            "driverVersion": "10.0.22621.4249"
+          }
+        ],
+        "featureStatus": {
+          "2d_canvas": "enabled",
+          "direct_rendering_display_compositor": "disabled_off_ok",
+          "gpu_compositing": "enabled",
+          "multiple_raster_threads": "enabled_on",
+          "opengl": "enabled_on",
+          "rasterization": "enabled",
+          "raw_draw": "disabled_off_ok",
+          "skia_graphite": "disabled_off",
+          "trees_in_viz": "disabled_off",
+          "video_decode": "enabled",
+          "video_encode": "enabled",
+          "webgl": "enabled",
+          "webgpu": "enabled",
+          "webnn": "disabled_off"
+        }
+      },
+      "cold": true,
+      "headed": false,
+      "normal": true,
+      "delivery": "native-mse-worker-single-fetch",
+      "summary": {
+        "readyMs": 5157.89999999851,
+        "entryMs": 5309.10000000149,
+        "decode": {
+          "n": 1293,
+          "p50": 3.300000000745058,
+          "p95": 5.899999998509884,
+          "max": 42.599999997764826
+        },
+        "draw": {
+          "n": 1291,
+          "p50": 18.599999997764826,
+          "p95": 34,
+          "max": 4432.199999999255
+        },
+        "raf": {
+          "n": 2049,
+          "p50": 16.700000000000728,
+          "p95": 16.900000000001455,
+          "max": 18.799999999999272
+        },
+        "lag": {
+          "n": 2050,
+          "p50": 0.004118955509131439,
+          "p95": 0.00796446838326581,
+          "max": 0.02397255521600883
+        },
+        "rawScrollLag": {
+          "n": 2050,
+          "p50": 0.1125870792540784,
+          "p95": 0.250971584304585,
+          "max": 0.5500003333333332
+        },
+        "bufferPacedFrames": 160,
+        "stats": {
+          "seeks": 1293,
+          "seeksCompleted": 1293,
+          "frames": 1291,
+          "native": true
+        }
+      },
+      "intervalsAfterEntry100ms": {
+        "count": 1289,
+        "p95": 33.899999998509884,
+        "max": 167.69999999925494
+      },
+      "stream": {
+        "type": "progress",
+        "loaded": 50405743,
+        "total": 50405743,
+        "appendedBytes": 50401515,
+        "fragments": 220,
+        "queuedBytes": 0,
+        "peakQueuedBytes": 361302,
+        "byteAccounting": "exact-fetch",
+        "transport": "mse-single-fetch",
+        "buffered": [
+          [
+            0,
+            10.999999
+          ]
+        ],
+        "complete": true
+      },
+      "errors": []
+    },
+    {
+      "stage": "before buffer pacing",
+      "file": "stream-mseworker-original-cold50-before-buffer-pacing.json",
+      "sha256": "9a6bd4d5de52f257d437ba37f0d9f6dad54691d2320de3b6c1fdeb2d1ef789b8",
+      "gpu": {
+        "devices": [
+          {
+            "vendorId": 32902,
+            "deviceId": 6418,
+            "subSysId": 2152927292,
+            "revision": 6,
+            "vendorString": "",
+            "deviceString": "Intel(R) HD Graphics 530",
+            "driverVendor": "Intel",
+            "driverVersion": "31.0.101.2111"
+          },
+          {
+            "vendorId": 5140,
+            "deviceId": 140,
+            "subSysId": 0,
+            "revision": 0,
+            "vendorString": "",
+            "deviceString": "Microsoft Basic Render Driver",
+            "driverVendor": "",
+            "driverVersion": "10.0.22621.4249"
+          }
+        ],
+        "featureStatus": {
+          "2d_canvas": "enabled",
+          "direct_rendering_display_compositor": "disabled_off_ok",
+          "gpu_compositing": "enabled",
+          "multiple_raster_threads": "enabled_on",
+          "opengl": "enabled_on",
+          "rasterization": "enabled",
+          "raw_draw": "disabled_off_ok",
+          "skia_graphite": "disabled_off",
+          "trees_in_viz": "disabled_off",
+          "video_decode": "enabled",
+          "video_encode": "enabled",
+          "webgl": "enabled",
+          "webgpu": "enabled",
+          "webnn": "disabled_off"
+        }
+      },
+      "cold": true,
+      "headed": false,
+      "normal": false,
+      "delivery": "native-mse-worker-single-fetch",
+      "summary": {
+        "readyMs": 3207.800000000745,
+        "entryMs": 3234,
+        "decode": {
+          "n": 683,
+          "p50": 4.400000002235174,
+          "p95": 8,
+          "max": 34.900000002235174
+        },
+        "draw": {
+          "n": 683,
+          "p50": 16.700000002980232,
+          "p95": 18,
+          "max": 1992.2000000029802
+        },
+        "raf": {
+          "n": 696,
+          "p50": 16.700000000000728,
+          "p95": 16.899999999999636,
+          "max": 33.5
+        },
+        "lag": {
+          "n": 697,
+          "p50": 0.00471514796838246,
+          "p95": 0.024811913410457187,
+          "max": 0.07127524674378893
+        },
+        "stats": {
+          "seeks": 683,
+          "seeksCompleted": 683,
+          "frames": 683,
+          "native": true
+        }
+      },
+      "intervalsAfterEntry100ms": {
+        "count": 680,
+        "p95": 18,
+        "max": 49.70000000298023
+      },
+      "stream": {
+        "type": "progress",
+        "loaded": 50405743,
+        "total": 50405743,
+        "appendedBytes": 50401515,
+        "fragments": 220,
+        "queuedBytes": 0,
+        "peakQueuedBytes": 372391,
+        "byteAccounting": "exact-fetch",
+        "transport": "mse-single-fetch",
+        "buffered": [
+          [
+            0,
+            10.999999
+          ]
+        ],
+        "complete": true
+      },
+      "errors": []
+    },
+    {
+      "stage": "before buffer pacing",
+      "file": "stream-mseworker-original-cold20-before-buffer-pacing.json",
+      "sha256": "eb4c611fa56bd5ce8245346d50f094e6af1e097941950a0e13e25f7f7a99c421",
+      "gpu": {
+        "devices": [
+          {
+            "vendorId": 32902,
+            "deviceId": 6418,
+            "subSysId": 2152927292,
+            "revision": 6,
+            "vendorString": "",
+            "deviceString": "Intel(R) HD Graphics 530",
+            "driverVendor": "Intel",
+            "driverVersion": "31.0.101.2111"
+          },
+          {
+            "vendorId": 5140,
+            "deviceId": 140,
+            "subSysId": 0,
+            "revision": 0,
+            "vendorString": "",
+            "deviceString": "Microsoft Basic Render Driver",
+            "driverVendor": "",
+            "driverVersion": "10.0.22621.4249"
+          }
+        ],
+        "featureStatus": {
+          "2d_canvas": "enabled",
+          "direct_rendering_display_compositor": "disabled_off_ok",
+          "gpu_compositing": "enabled",
+          "multiple_raster_threads": "enabled_on",
+          "opengl": "enabled_on",
+          "rasterization": "enabled",
+          "raw_draw": "disabled_off_ok",
+          "skia_graphite": "disabled_off",
+          "trees_in_viz": "disabled_off",
+          "video_decode": "enabled",
+          "video_encode": "enabled",
+          "webgl": "enabled",
+          "webgpu": "enabled",
+          "webnn": "disabled_off"
+        }
+      },
+      "cold": true,
+      "headed": false,
+      "normal": true,
+      "delivery": "native-mse-worker-single-fetch",
+      "summary": {
+        "readyMs": 5619.599999997765,
+        "entryMs": 5792,
+        "decode": {
+          "n": 1291,
+          "p50": 3.100000001490116,
+          "p95": 6.099999997764826,
+          "max": 41.30000000074506
+        },
+        "draw": {
+          "n": 1289,
+          "p50": 17.5,
+          "p95": 33.69999999925494,
+          "max": 4432.599999997765
+        },
+        "raf": {
+          "n": 2048,
+          "p50": 16.700000000000728,
+          "p95": 16.900000000001455,
+          "max": 20.200000000000728
+        },
+        "lag": {
+          "n": 2049,
+          "p50": 0.004201156523752303,
+          "p95": 0.008177647363975638,
+          "max": 0.3309244161444873
+        },
+        "stats": {
+          "seeks": 1291,
+          "seeksCompleted": 1291,
+          "frames": 1289,
+          "native": true
+        }
+      },
+      "intervalsAfterEntry100ms": {
+        "count": 1287,
+        "p95": 33.69999999925494,
+        "max": 918.5
+      },
+      "stream": {
+        "type": "progress",
+        "loaded": 50405743,
+        "total": 50405743,
+        "appendedBytes": 50401515,
+        "fragments": 220,
+        "queuedBytes": 0,
+        "peakQueuedBytes": 353130,
+        "byteAccounting": "exact-fetch",
+        "transport": "mse-single-fetch",
+        "buffered": [
+          [
+            0,
+            10.999999
+          ]
+        ],
+        "complete": true
+      },
+      "errors": []
+    },
+    {
+      "stage": "buffer pacing with rejected low camera speed cap",
+      "file": "stream-mseworker-original-cold50-low-speed-cap.json",
+      "sha256": "44c153453aa5d6039e3bccefd1b2d2a0daf75d7501e0a3751019705a5c2dadfc",
+      "gpu": {
+        "devices": [
+          {
+            "vendorId": 32902,
+            "deviceId": 6418,
+            "subSysId": 2152927292,
+            "revision": 6,
+            "vendorString": "",
+            "deviceString": "Intel(R) HD Graphics 530",
+            "driverVendor": "Intel",
+            "driverVersion": "31.0.101.2111"
+          },
+          {
+            "vendorId": 5140,
+            "deviceId": 140,
+            "subSysId": 0,
+            "revision": 0,
+            "vendorString": "",
+            "deviceString": "Microsoft Basic Render Driver",
+            "driverVendor": "",
+            "driverVersion": "10.0.22621.4249"
+          }
+        ],
+        "featureStatus": {
+          "2d_canvas": "enabled",
+          "direct_rendering_display_compositor": "disabled_off_ok",
+          "gpu_compositing": "enabled",
+          "multiple_raster_threads": "enabled_on",
+          "opengl": "enabled_on",
+          "rasterization": "enabled",
+          "raw_draw": "disabled_off_ok",
+          "skia_graphite": "disabled_off",
+          "trees_in_viz": "disabled_off",
+          "video_decode": "enabled",
+          "video_encode": "enabled",
+          "webgl": "enabled",
+          "webgpu": "enabled",
+          "webnn": "disabled_off"
+        }
+      },
+      "cold": true,
+      "headed": false,
+      "normal": false,
+      "delivery": "native-mse-worker-single-fetch",
+      "summary": {
+        "readyMs": 2613.199999999255,
+        "entryMs": 2739.900000002235,
+        "decode": {
+          "n": 694,
+          "p50": 4.399999998509884,
+          "p95": 7.800000000745058,
+          "max": 51.399999998509884
+        },
+        "draw": {
+          "n": 694,
+          "p50": 16.700000002980232,
+          "p95": 17.800000000745058,
+          "max": 1944.800000000745
+        },
+        "raf": {
+          "n": 704,
+          "p50": 16.700000000000728,
+          "p95": 16.80000000000109,
+          "max": 83.69999999999982
+        },
+        "lag": {
+          "n": 705,
+          "p50": 0.006283849058609903,
+          "p95": 0.028472939149498444,
+          "max": 0.04886281760807076
+        },
+        "rawScrollLag": {
+          "n": 705,
+          "p50": 1.621087866489832,
+          "p95": 7.000466533799534,
+          "max": 7.700466533799535
+        },
+        "bufferPacedFrames": 144,
+        "stats": {
+          "seeks": 694,
+          "seeksCompleted": 694,
+          "frames": 694,
+          "native": true
+        }
+      },
+      "intervalsAfterEntry100ms": {
+        "count": 691,
+        "p95": 17.800000000745058,
+        "max": 80.30000000074506
+      },
+      "stream": {
+        "type": "progress",
+        "loaded": 50405743,
+        "total": 50405743,
+        "appendedBytes": 50401515,
+        "fragments": 220,
+        "queuedBytes": 0,
+        "peakQueuedBytes": 392473,
+        "byteAccounting": "exact-fetch",
+        "transport": "mse-single-fetch",
+        "buffered": [
+          [
+            0,
+            10.999999
+          ]
+        ],
+        "complete": true
+      },
+      "errors": []
+    },
+    {
+      "stage": "main-thread MSE comparison",
+      "file": "stream-mse-original-cold50-sw-low-single-paced-headless.json",
+      "sha256": "3fa930a1bea072aecb23c73926e15eaa7a2f3701d56b4fa1dfd66fcff08a0db1",
+      "gpu": {
+        "devices": [
+          {
+            "vendorId": 32902,
+            "deviceId": 6418,
+            "subSysId": 2152927292,
+            "revision": 6,
+            "vendorString": "",
+            "deviceString": "Intel(R) HD Graphics 530",
+            "driverVendor": "Intel",
+            "driverVersion": "31.0.101.2111"
+          },
+          {
+            "vendorId": 5140,
+            "deviceId": 140,
+            "subSysId": 0,
+            "revision": 0,
+            "vendorString": "",
+            "deviceString": "Microsoft Basic Render Driver",
+            "driverVendor": "",
+            "driverVersion": "10.0.22621.4249"
+          }
+        ],
+        "featureStatus": {
+          "2d_canvas": "enabled",
+          "direct_rendering_display_compositor": "disabled_off_ok",
+          "gpu_compositing": "enabled",
+          "multiple_raster_threads": "enabled_on",
+          "opengl": "enabled_on",
+          "rasterization": "enabled",
+          "raw_draw": "disabled_off_ok",
+          "skia_graphite": "disabled_off",
+          "trees_in_viz": "disabled_off",
+          "video_decode": "enabled",
+          "video_encode": "enabled",
+          "webgl": "enabled",
+          "webgpu": "enabled",
+          "webnn": "disabled_off"
+        }
+      },
+      "cold": true,
+      "headed": false,
+      "normal": false,
+      "delivery": "native-mse-single-fetch",
+      "summary": {
+        "readyMs": 2793.300000000745,
+        "entryMs": 2903.89999999851,
+        "decode": {
+          "n": 700,
+          "p50": 4.099999997764826,
+          "p95": 9.399999998509884,
+          "max": 337.30000000074506
+        },
+        "draw": {
+          "n": 699,
+          "p50": 16.700000002980232,
+          "p95": 19,
+          "max": 1896.1000000014901
+        },
+        "raf": {
+          "n": 716,
+          "p50": 16.700000000000728,
+          "p95": 16.80000000000109,
+          "max": 284.60000000000036
+        },
+        "lag": {
+          "n": 717,
+          "p50": 0.006933933114724233,
+          "p95": 0.029624299509381835,
+          "max": 0.171834299509384
+        },
+        "stats": {
+          "seeks": 700,
+          "seeksCompleted": 700,
+          "frames": 700,
+          "native": true
+        }
+      },
+      "intervalsAfterEntry100ms": {
+        "count": 697,
+        "p95": 18.799999997019768,
+        "max": 351.5
+      },
+      "stream": {
+        "loaded": 50405743,
+        "total": 50405743,
+        "appendedBytes": 50401515,
+        "fragments": 220,
+        "queuedBytes": 0,
+        "peakQueuedBytes": 1551133,
+        "byteAccounting": "exact-fetch",
+        "transport": "mse-single-fetch",
+        "buffered": [
+          [
+            0,
+            10.999999
+          ]
+        ],
+        "complete": true
+      },
+      "errors": []
+    }
+  ],
+  "functional": {
+    "url": "http://127.0.0.1:4340/",
+    "summary": {
+      "passed": 12,
+      "failed": 0,
+      "skipped": 1
+    },
+    "checks": [
+      {
+        "name": "Approved styles, fonts and page content remain the source baseline",
+        "status": "pass"
+      },
+      {
+        "name": "Motion becomes ready, keeps 1080p and responds to scroll",
+        "status": "pass"
+      },
+      {
+        "name": "Pause freezes picture and resume responds at the new scroll position",
+        "status": "pass"
+      },
+      {
+        "name": "Leaving the hero stops motion work; returning recovers",
+        "status": "pass"
+      },
+      {
+        "name": "A jump from the footer to the top restores the opening without a long rewind",
+        "status": "pass"
+      },
+      {
+        "name": "A real background tab pauses and returning recovers when supported",
+        "status": "skipped",
+        "reason": "This Edge execution kept both tabs visible; no artificial visibility events were dispatched."
+      },
+      {
+        "name": "Both original price summaries open and close the two packages together",
+        "status": "pass"
+      },
+      {
+        "name": "All five full previews load at sufficient source pixel density",
+        "status": "pass"
+      },
+      {
+        "name": "reduced-motion: readable static entry without automatic video requests",
+        "status": "pass"
+      },
+      {
+        "name": "touch: readable static entry without automatic video requests",
+        "status": "pass"
+      },
+      {
+        "name": "no-js: readable static entry without automatic video requests",
+        "status": "pass"
+      },
+      {
+        "name": "Skipping entry before late media readiness never auto-starts or expands the page",
+        "status": "pass"
+      },
+      {
+        "name": "No uncaught JavaScript errors",
+        "status": "pass"
+      }
+    ],
+    "limitations": [
+      "Behavioral checks and controller counters do not prove physical presentation or smoothness.",
+      "Touch emulation in desktop Edge is not a physical phone test.",
+      "Hidden-tab behavior is checked only if a real tab switch produces document.hidden=true; otherwise reported as skipped.",
+      "CSS/font/content identity is a source check, not pixel-identical screenshot approval."
+    ]
+  },
+  "limitations": [
+    "20 Mb/s run manually activated motion after the existing4-second static loader escape. Final ready5.158s is not an automatic override of the static visitor choice.",
+    "The former918.5ms network frame hold was not reproduced after buffer-aware pacing; the camera slows while waiting for incoming bytes, so story position can trail scroll.",
+    "Neither percentiles nor headless callbacks prove zero stalls on all physical devices. Final50burst had83.6ms max page RAF and116.4ms max seek.",
+    "IAB sometimes showed occlusion throttling; no physical foreground performance certification is claimed.",
+    "Raw frame maxima include preparation and intentional rests; even postentry maxima include final single-frame settling.",
+    "Full original50MB transfer needs40.3s at10Mbps before overhead. Arbitrary immediate traversal beyond downloaded data cannot be guaranteed without waiting or changing the delivered encoding."
+  ]
+}
