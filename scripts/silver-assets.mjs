@@ -12,8 +12,8 @@ for(const name of ['geist.woff2','montserrat.woff2','Montserrat-OFL.txt'])await 
 for(const name of ['gsap.min.js','ScrollTrigger.min.js'])await copyFile(`node_modules/gsap/dist/${name}`,`public/silver/vendor/${name}`);
 console.log('Silver browser assets ready.');
 
-// Publish exactly the reviewed, lossless-container-remuxed film.
-const motionPath='public/motion/metal/journey-stream-f60088d67cff';
+// Verify the reviewed size/quality compromise explicitly authorized on 2026-10-02.
+const motionPath='public/motion/metal/journey-balanced-4b593baa7f9b';
 const integrity=JSON.parse(await readFile(motionPath+'.integrity.json','utf8'));
 const movie=await readFile(motionPath+'.mp4');
-if(movie.length!==integrity.containerBytes || createHash('sha256').update(movie).digest('hex')!==integrity.remuxFileSha256)throw Error('The approved Silver stream does not match its integrity manifest');
+if(movie.length!==integrity.containerBytes || createHash('sha256').update(movie).digest('hex')!==integrity.fileSha256)throw Error('The approved Silver stream does not match its integrity manifest');

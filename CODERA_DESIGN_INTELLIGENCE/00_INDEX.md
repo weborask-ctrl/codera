@@ -14,11 +14,17 @@ outputs a one-page design brief. Then read the chosen family's record
 in `styles/` and the relevant system files (04–09). `10` is the audit
 companion; `03` is the industry prior.
 
-Motion stability correction (2026-09-26): progressive playback was rejected for
-severe stuttering. Animate only a completely prepared Blob; a short cover can
-release to a sharp static hero. Fast first entry with immediate full motion
-is still unresolved. See 13_CODERA_CURRENT_SYSTEM.md and
-../docs/CODERA_MOTION_STABILITY_2026-09-26.md.
+**Current motion work — 2026-10-02:** Marcus authorized a modest compression/size
+compromise for faster automatic motion and rejected a mandatory start button.
+The current locally validated implementation preserves the supplied Silver film at 1080p60 in
+an 11.2 MB H.264 stream, activates normal desktop/touch visits automatically,
+and respects reduced-motion/manual pause. Local acceptance passed 15/15 checks;
+remote CI, merge and deployment evidence are tracked in
+[PR #131](https://github.com/weborask-ctrl/codera/pull/131). PR #129 is the preceding release. Earlier full-Blob and
+byte-identical 50 MB rules are historical, superseded for this iteration.
+Read [the current bible](13_CODERA_CURRENT_SYSTEM.md) and
+[Automatic Silver motion](../docs/CODERA_AUTOMATIC_MOTION_2026-10-02.md)
+for media comparisons, reproduction, limits and subsequent release evidence.
 
 ## Files
 
@@ -75,4 +81,4 @@ guidance.
 7. Mobile is re-directed, not shrunk.
 8. Appropriateness beats attractiveness; extract logic, never copy.
 
-2026-09-27: [Original-film streaming release](../docs/CODERA_ORIGINAL_VIDEO_STREAM_2026-09-27.md) preserves the supplied artwork and encoded detail while changing delivery, decoding and scroll scheduling. Marcus authorized merge and testing.
+Historical release: [PR #129 original-film streaming](../docs/CODERA_ORIGINAL_VIDEO_STREAM_2026-09-27.md), merged 2026-09-27, preserved encoded samples. Current implementation: [Automatic Silver motion — 2026-10-02](../docs/CODERA_AUTOMATIC_MOTION_2026-10-02.md), with an explicitly authorized compression compromise, 15/15 local checks passed; release evidence is tracked in PR #131.

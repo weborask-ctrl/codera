@@ -1,0 +1,32 @@
+{
+  "fileSha256": "4b593baa7f9b62720c07736918ca8a6c4938b9d16f607a4cd9a5b096deb9f903",
+  "containerBytes": 11212401,
+  "width": 1920,
+  "height": 1080,
+  "fps": 60,
+  "frames": 660,
+  "durationSeconds": 11,
+  "codec": "avc1.64002a",
+  "fragments": 55,
+  "identicalEncodedSamples": false,
+  "originalArtworkPreserved": true,
+  "sourceMasterSha256": "c0c557f723674bbe9c15780cda5601902f81124e43779c579891e1769c57a2b5",
+  "referenceFileSha256": "534dbd425c030f1dda75ac60937f363e29e9af1ed0e1a0f11c6aed483c38d1f0",
+  "sourceOffsetSeconds": 2.583333,
+  "filter": "cas=strength=0.55",
+  "encoder": {
+    "name": "libx264",
+    "preset": "medium",
+    "crf": 22,
+    "gop": 12,
+    "bframes": 0,
+    "pixelFormat": "yuv420p",
+    "profile": "high",
+    "level": "4.2"
+  },
+  "comparison": {
+    "ssim": 0.984927,
+    "psnrDb": 44.663563
+  },
+  "bytesThroughFirstSecond": 987981
+}

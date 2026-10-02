@@ -1,0 +1,61 @@
+{
+  "masterSha256": "c0c557f723674bbe9c15780cda5601902f81124e43779c579891e1769c57a2b5",
+  "referenceSha256": "534dbd425c030f1dda75ac60937f363e29e9af1ed0e1a0f11c6aed483c38d1f0",
+  "sourceOffsetSeconds": 2.583333,
+  "sourceDurationSeconds": 11,
+  "source": "interpolated-master-1080.mp4",
+  "filter": "cas=strength=0.55",
+  "candidateMeasurements": [
+    {
+      "file": "silver-1080p60-crf20-g12.mp4",
+      "bytes": 15411888,
+      "sha256": "5d92c3df239c19784ea8a0d5a3ada080796d5f2b4a72694dfb053e85611054d4",
+      "codec": "avc1.64002a",
+      "width": 1920,
+      "height": 1080,
+      "frameRate": 60,
+      "frames": 660,
+      "durationSeconds": 11.0,
+      "fragments": 55,
+      "bytesThroughFirstSecond": 1421185,
+      "actualBufferedSecondsAtFirstSecond": 1.0,
+      "bytesThroughFirstTwoSeconds": 2668896,
+      "ssim": 0.986792,
+      "psnrDb": 45.547802
+    },
+    {
+      "file": "silver-1080p60-crf21-g24.mp4",
+      "bytes": 11877269,
+      "sha256": "35c7e4e6002c748b9e5e66232d331a95d68aed4f6d26a0e6e395a92f21a61071",
+      "codec": "avc1.64002a",
+      "width": 1920,
+      "height": 1080,
+      "frameRate": 60,
+      "frames": 660,
+      "durationSeconds": 11.0,
+      "fragments": 28,
+      "bytesThroughFirstSecond": 1163592,
+      "actualBufferedSecondsAtFirstSecond": 1.2000000000000002,
+      "bytesThroughFirstTwoSeconds": 1886033,
+      "ssim": 0.985528,
+      "psnrDb": 45.027168
+    },
+    {
+      "file": "silver-1080p60-crf22-g12.mp4",
+      "bytes": 11212401,
+      "sha256": "4b593baa7f9b62720c07736918ca8a6c4938b9d16f607a4cd9a5b096deb9f903",
+      "codec": "avc1.64002a",
+      "width": 1920,
+      "height": 1080,
+      "frameRate": 60,
+      "frames": 660,
+      "durationSeconds": 11.0,
+      "fragments": 55,
+      "bytesThroughFirstSecond": 987981,
+      "actualBufferedSecondsAtFirstSecond": 1.0,
+      "bytesThroughFirstTwoSeconds": 1872326,
+      "ssim": 0.984927,
+      "psnrDb": 44.663563
+    }
+  ]
+}
