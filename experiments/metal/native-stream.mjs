@@ -1,5 +1,5 @@
-// One-fetch transport for the exact supplied-film fMP4 remux. Encoded samples
-// are never transformed here. Only one complete fragment is appended at a time.
+// One-fetch transport for the reviewed supplied-film fMP4 asset. Encoded samples
+// are not transformed by this transport. One complete fragment is appended at a time.
 const MAX_BOX_BYTES = 16 * 1024 * 1024;
 
 function join(parts) {

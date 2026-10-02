@@ -1,6 +1,6 @@
 /* Codera: a generous curve with a precise terminal. Native scroll throughout. */
 :root{--curve:48px;--corner-shape:superellipse(1.35);--surface:#f7f5ef;--gold:#d8c3a2}
-.journey.has-journey{height:700svh!important}
+.motion-enabled .journey,.journey.has-journey{height:700svh!important}
 .tunnel-fade{position:absolute;inset:0;opacity:0;pointer-events:none;background:radial-gradient(ellipse at 56% 48%,#29221a 0%,#1b1915 48%,#151513 100%)}
 .work{border-radius:clamp(48px,8vw,130px) 0 0 0;padding-top:100px;padding-bottom:90px}
 .project-grid{gap:26px;max-width:1120px;margin-inline:auto;isolation:isolate}
@@ -181,3 +181,5 @@ h1 em,h2 em,h3 em{font:inherit;letter-spacing:inherit}
 
 /* The active film owns its letterbox area; retain the poster for static/recovery. */
 .film.is-ready .poster{visibility:hidden}
+
+.motion-toggle[hidden]{display:none}

@@ -3,7 +3,7 @@
 What is live, what was decided, and what must not be relearned. One file, kept
 short. Open work does **not** live here — it lives in GitHub Issues.
 
-Last reviewed: 2026-09-27 (original-film streaming release authorized) · Production: `https://www.codera.sk` ·
+Last reviewed: 2026-10-02 (automatic-motion optimization authorized; release verification below) · Production: `https://www.codera.sk` ·
 Open backlog: see Issues.
 
 ---
@@ -18,8 +18,16 @@ and `lib/site-config.ts`; `prebuild` prepares its assets through
 `scripts/silver-assets.mjs`. Existing Next.js demo routes remain available.
 The hero reads “Vaša firma. V lepšom svetle.” and scrubs one 1920×1080 film
 through 700 viewport heights of native scroll. A warm dissolve accompanies
-the gold passage. Touch/reduced-motion visits start with a sharp static
-poster and can explicitly enable motion. Native MediaSource streams the unchanged 1080p60 detail export through a worker, with main-thread fallback. Entry requires an actual frame plus two seconds buffered. A four-second static escape remains available. Forward camera pacing follows available data; native page scroll is not blocked. See `docs/CODERA_STREAM_RELEASE_2026-09-27.md` for release checks and limits.
+the gold passage. The October 2 automatic-motion change preserves that film in
+an 11.2 MB, 1080p60 export, with Marcus's explicit permission for a modest
+compression compromise. Normal desktop and touch visits activate automatically
+after an actual frame and 1.6 seconds of buffered footage. Reduced-motion,
+deliberate skip and manual pause remain respected. The entry cover releases
+after four seconds on a slow link; late media readiness starts motion without
+a click or a layout expansion. Buffer-aware camera pacing preserves native
+page scrolling. See `docs/CODERA_AUTOMATIC_MOTION_2026-10-02.md` for quality
+comparisons, measured limits and release verification. PR #129 remains the
+previous public release until this change is merged and deployed.
 
 Five compact stacked previews show complete screenshot compositions and
 open full-page 2880px previews. No decorative corner captions or micro-labels
@@ -36,7 +44,7 @@ not create new captured detail. See `experiments/metal/LOCAL_REFINEMENT.md` and
 the follow-up PR for measured results and release status.
 
 Validation: `npm run verify`, Playwright homepage/demo coverage, and
-`scripts/silver-stream-check.mjs` (native worker transport, forward/reverse
+`scripts/silver-auto-check.mjs` (real HTTP media pacing, native worker transport, forward/reverse
 seeks, touch/reduced motion and recovery). Remote Vercel preview was checked
 in Edge; this does not represent physical-device testing.
 

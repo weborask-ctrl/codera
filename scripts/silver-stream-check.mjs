@@ -1,4 +1,6 @@
-// Production smoke/behavior checks. Run separately from performance benchmarks.
+// HISTORICAL PR #129 probe: hard-coded 50 MB asset and manual late-entry contract.
+// Not the current npm silver:check; use silver-auto-check.mjs for automatic motion.
+// Retained for reproducing the old release, not certifying the compressed candidate.
 // SILVER_URL=https://www.codera.sk node scripts/silver-stream-check.mjs
 // Optional: --headed; BROWSER_CHANNEL=msedge (default on Windows).
 // Slow remote runs can explicitly raise SILVER_READY_TIMEOUT_MS (45000),
