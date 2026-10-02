@@ -26,8 +26,9 @@ deliberate skip and manual pause remain respected. The entry cover releases
 after four seconds on a slow link; late media readiness starts motion without
 a click or a layout expansion. Buffer-aware camera pacing preserves native
 page scrolling. See `docs/CODERA_AUTOMATIC_MOTION_2026-10-02.md` for quality
-comparisons, measured limits and release verification. PR #129 remains the
-previous public release until this change is merged and deployed.
+comparisons and measured limits. [PR #131](https://github.com/weborask-ctrl/codera/pull/131)
+tracks remote checks, merge and public deployment verification; PR #129 is the
+preceding release.
 
 Five compact stacked previews show complete screenshot compositions and
 open full-page 2880px previews. No decorative corner captions or micro-labels
