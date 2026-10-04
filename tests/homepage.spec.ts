@@ -11,7 +11,7 @@ test.describe("Silver production homepage", () => {
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "index, follow")
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", "https://www.codera.sk/")
     await expect(page.locator('.offer')).toHaveCount(2)
-    await expect(page.locator('.offer').first()).toContainText("599 €")
+    await expect(page.locator('.offer').first()).toContainText("699 €")
     await expect(page.locator('.offer').last()).toContainText("1 199 €")
     await expect(page.locator('main')).toHaveJSProperty('inert', false, { timeout: 6000 })
     expect(await page.locator('script[src]').evaluateAll(nodes => nodes.every(n => Boolean((n as HTMLScriptElement).nonce)))).toBe(true)
