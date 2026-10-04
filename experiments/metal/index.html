@@ -45,7 +45,12 @@
     <section class="services" id="sluzby" aria-labelledby="services-title">
       <div class="section-heading"><h2 id="services-title">Dobrý web.<br><em>Od základu.</em></h2><p>Od jednej stránky po priestorový zážitok. Nájdeme rozsah, ktorý dáva vašej firme zmysel.</p></div>
       <div class="offers">{{packages}}</div>
-      <div class="wordpress-line care-line"><h3>{{careName}}</h3><p class="care-price">{{carePrice}} <span>{{careInterval}}</span></p></div>
+      <article class="care-panel" aria-labelledby="care-title">
+        <div class="care-intro"><h3 id="care-title">{{careName}}</h3><p class="care-headline">{{careHeadline}}</p><p class="care-description">{{careDescription}}</p></div>
+        <div class="care-plan"><p class="care-price">{{carePrice}} <span>/ mesiac</span></p><p class="care-trial">{{careTrial}}</p><p class="care-start">{{careTrialStart}}</p></div>
+        <details class="care-details"><summary>Čo zahŕňa starostlivosť <span aria-hidden="true">+</span></summary><div class="care-inclusions"><ul>{{careScope}}</ul><p>{{careScopeNote}}</p></div></details>
+        <p class="care-hosting">{{careHosting}}</p>
+      </article>
       <div class="wordpress-line"><h3>Máte web?<br><em>Dajme mu nový smer.</em></h3><div><p>{{wordpress}}</p><a class="text-link" href="#dopyt">Poďme ho posunúť <span aria-hidden="true">↗</span></a></div></div>
     </section>
     <section class="studio paper" id="studio" aria-labelledby="studio-title">
