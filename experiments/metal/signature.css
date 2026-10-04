@@ -185,7 +185,7 @@ h1 em,h2 em,h3 em{font:inherit;letter-spacing:inherit}
 .motion-toggle[hidden]{display:none}
 
 /* Care continues the existing offer geometry and typography. */
-.care-panel{max-width:1440px;margin:24px auto 0;padding:clamp(28px,3.5vw,50px);display:grid;grid-template-columns:minmax(0,1.618fr) minmax(0,1fr);column-gap:clamp(28px,5vw,80px);background:#ebeae4;color:var(--ink);border-radius:48px 12px 48px 48px;corner-shape:var(--corner-shape)}
+.care-panel{max-width:1440px;margin:24px auto 0;padding:clamp(28px,3.5vw,50px);display:grid;grid-template-columns:minmax(0,1.618fr) minmax(0,1fr);column-gap:clamp(28px,5vw,80px);background:#dde3d8;color:var(--ink);border-radius:48px 12px 48px 48px;corner-shape:var(--corner-shape)}
 .care-panel h3{margin:0 0 24px;font-size:clamp(36px,3.1vw,48px);font-weight:700;letter-spacing:-.025em;line-height:1.15}
 .care-headline{max-width:24ch;margin:0 0 16px;font-size:clamp(25px,2.4vw,34px);line-height:1.25;letter-spacing:-.025em}
 .care-description{max-width:45ch;margin:0;font-size:20px;line-height:1.55;color:#51534b}
