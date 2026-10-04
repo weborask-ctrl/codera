@@ -34,7 +34,7 @@ Five compact stacked previews show complete screenshot compositions and
 open full-page 2880px previews. No decorative corner captions or micro-labels
 are allowed; normal section copy identifies these as studio concepts.
 Rounded sections expose the preceding section's colour. The footer wordmark
-uses SVG outlines. Offers start at €499 (Profesionálny web) and €699 (Motion
+uses SVG outlines. Offers start at €599 (Profesionálny web) and €1,199 (Motion
 web). Business facts remain in `lib/site-config.ts`.
 
 Approved follow-up: 1080p/60 delivery with offline interpolation and sharpening,
