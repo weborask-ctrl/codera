@@ -183,3 +183,8 @@ h1 em,h2 em,h3 em{font:inherit;letter-spacing:inherit}
 .film.is-ready .poster{visibility:hidden}
 
 .motion-toggle[hidden]{display:none}
+
+/* Monthly care keeps the approved two-package composition. */
+.care-line .care-price{margin:0;font-size:clamp(36px,4vw,56px);font-weight:500;line-height:1.2}
+.care-price span{font-size:22px;font-weight:400}
+@media(max-width:600px){.offer-price{font-size:clamp(52px,17vw,76px);white-space:nowrap}}
