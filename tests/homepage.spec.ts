@@ -53,6 +53,8 @@ test.describe("Silver production homepage", () => {
     await page.locator('#mobile-menu a[href="#praca"]').click()
     await expect(page.locator('#mobile-menu')).not.toBeVisible()
     expect(videos).toEqual([])
+    await expect(page.locator('#motion-toggle')).toBeHidden()
+    await expect(page.getByText('Spustiť animáciu', { exact: true })).toHaveCount(0)
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)
     expect(await page.locator('.project').first().evaluate(el=>getComputedStyle(el).position)).toBe('relative')
   })

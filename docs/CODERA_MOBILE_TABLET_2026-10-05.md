@@ -23,3 +23,13 @@ Reference: https://webkit.org/blog/14735/webkit-features-in-safari-17-1/ explain
 ### Integrated project cards — approved release, 2026-10-05
 
 Marcus requested a shared Codera-shaped card enclosing each preview and its actions on mobile/tablet only. Implemented warm-paper surface, 40/10/40/40 mobile corners (48/12/48/48 tablet), corresponding inset preview corners, two action rows on phone and one row on tablet. Applies below 1001px and coarse-pointer tablets up to 1366px. Desktop fine-pointer presentation remains unchanged. Validated widths 320,390,768,1024 touch and 1440 desktop, containment and preview dialog. Marcus reviewed the local presentation and subsequently authorized merge.
+
+## Portrait iteration — 2026-10-05 (approved for release)
+
+Marcus approved trying an automatic full-height portrait composition before proceeding to desktop quality. On `codex/portrait-hero`, portrait viewports up to 1000 CSS px now use the unchanged film as a full-stage cover background, with a centered crop, heading above and supporting copy/action below. Local shading preserves readability; no separate landscape strip. Short portrait screens retain smaller heading spacing. Other page sections and desktop film encoding remain unchanged.
+
+The motion control is visible only after motion has become active and prepared. It provides pause/resume, never Start/retry. Reduced-motion, skipped, unavailable and failed states stay readable without a Start button; system reduced-motion remains respected.
+
+Validation: verify (lint/type/build) passed; 12/12 automatic-entry functional checks passed. Edge passed six viewport sizes plus forced HTTP and legacy frame callback paths. Windows WebKit passed six sizes through native HTTP. Forward/reverse seeking, layout overflow and preview dialogs passed. Portrait screenshots inspected at entry and journey fractions .27, .60 and .90. These are emulated/device-engine checks, not physical iPhone certification.
+
+Desktop investigation: current and existing CRF20/GOP12 candidate are both 1920x1080. Matching 2.5 s decoded frames show only a subtle texture difference; candidate is 15,411,888 bytes versus 11,212,401 (+37.5%). Earlier measured startup payload rises from 1,536,534 to 2,199,149 bytes (+43%). No heavier default selected: this does not justify claiming a dramatic sharpness improvement. Original 1080p24 source remains the native detail limit; interpolated 60 fps does not add source resolution. The next desktop decision must compare perceived detail against cold-load and seek performance.

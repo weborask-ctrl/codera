@@ -37,7 +37,16 @@ function captions(time){
   tunnel.style.opacity=sine(ramp(.33,.407,p))*(1-sine(ramp(.425,.55,p)));
   bar.style.transform=`scaleX(${p})`;
 }
-function label(){const pending=wanted()&&!state.error&&(!state.active||state.preparing);toggle.hidden=pending;toggle.disabled=state.preparing;toggle.setAttribute('aria-pressed',String(state.active&&!state.paused));toggle.querySelector('.motion-label').textContent=state.error?'Skúsiť animáciu znova':state.active&&!state.paused?'Zastaviť pohyb':state.prepared?'Pokračovať v pohybe':'Spustiť animáciu';toggle.querySelector('.pause-icon').textContent=state.active&&!state.paused?'Ⅱ':'▷';}
+function label(){
+  // This is only a pause/resume control for an already active journey.
+  // Static, reduced-motion, skipped, loading and failed states have no Start CTA.
+  const playing=state.active&&!state.paused;
+  toggle.hidden=reduced.matches||!state.active||!state.prepared;
+  toggle.disabled=state.preparing;
+  toggle.setAttribute('aria-pressed',String(playing));
+  toggle.querySelector('.motion-label').textContent=playing?'Zastaviť pohyb':'Pokračovať v pohybe';
+  toggle.querySelector('.pause-icon').textContent=playing?'Ⅱ':'▷';
+}
 function measure(){bounds={top:journey.getBoundingClientRect().top+scrollY,distance:Math.max(1,journey.offsetHeight-stage.offsetHeight)};update();}
 function update(){
   target=clamp((scrollY-bounds.top)/bounds.distance);

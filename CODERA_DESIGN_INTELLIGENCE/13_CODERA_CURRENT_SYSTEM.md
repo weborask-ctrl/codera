@@ -146,3 +146,7 @@ Care panel colour approved by Marcus: sage grey `#DDE3D8`. Keep the existing dar
 ## Mobile/tablet approved release — 2026-10-05
 
 Marcus requires automatic scroll motion without a Start button. Release branch `codex/mobile-tablet` retains the 1080p supplied film and adds capability-selected progressive MP4 (stream-copy, identical decoded pixels) for browsers without MSE. Portrait hero composition, in-flow mobile/tablet previews, larger touch targets, tablet columns and preview controls are refined. A static 700 instance of the existing Montserrat fixes inconsistent heading weight. Desktop identity and commercial offer remain unchanged. See `docs/CODERA_MOBILE_TABLET_2026-10-05.md` for tests and limitations. Marcus authorized merge on 2026-10-05. Physical iPhone validation remains outstanding; release checks determine deployment status.
+
+### Portrait follow-up — approved for release
+
+`codex/portrait-hero` tests the original film as a full-height, centered portrait background (up to 1000 CSS px), with heading above and copy/action below. All static/loading/error states hide the motion toggle; active motion offers pause/resume only. Respect reduced-motion. Desktop encoding remains unchanged pending a meaningful quality/performance comparison. See the local-iteration section in `docs/CODERA_MOBILE_TABLET_2026-10-05.md`; Marcus authorized merge and deployment on 2026-10-05; confirm deployment from release checks.
