@@ -21,14 +21,15 @@ const output = resolve(process.env.SILVER_AUTO_REPORT || 'test-results/silver-au
 const mainResponse = await fetch(new URL('/silver/main.mjs', upstream));
 assert.ok(mainResponse.ok, 'The built Silver controller must be available');
 const main = await mainResponse.text();
-const mediaPath = process.env.SILVER_MEDIA_PATH || main.match(/\/motion\/metal\/journey-[^'"\s]+\.mp4/)?.[0];
+const profileSource=main.includes('media-profiles.mjs')?await (await fetch(new URL('/silver/media-profiles.mjs',upstream))).text():'';
+const mediaPath = process.env.SILVER_MEDIA_PATH || (main+profileSource).match(/\/motion\/metal\/journey-[^'"\s]+\.mp4/)?.[0];
 assert.ok(mediaPath, 'Could not discover the actual video URL in the built controller');
 const asset = await fetch(new URL(mediaPath, upstream), { method: 'HEAD' });
 assert.ok(asset.ok, 'The actual production video must be available');
 const assetBytes = Number(asset.headers.get('content-length'));
 assert.ok(assetBytes > 0);
 const report = {
-  createdAt: new Date().toISOString(), upstream: upstream.href, mediaPath, assetBytes, headed,
+  createdAt: new Date().toISOString(), upstream: upstream.href, mediaPath, assetBytes, headed, forcedBaseline:process.env.SILVER_FORCE_BASELINE==='1',
   checks: [], scenarios: [], errors: [], violations: [],
   limitations: [
     'Only media responses are byte-paced. Page, scripts, fonts and images are unthrottled.',
@@ -120,6 +121,7 @@ async function setup(label, options = {}, transport = {}) {
   const network = scenario(label, transport);
   const context = await browser.newContext({ viewport: { width: 1280, height: 720 }, ...options });
   const page = await context.newPage();
+  if(process.env.SILVER_FORCE_BASELINE==='1')await page.addInitScript(()=>{if(navigator.mediaCapabilities)navigator.mediaCapabilities.decodingInfo=async()=>({supported:false,smooth:false,powerEfficient:false});});
   page.on('pageerror', error => report.errors.push({ label, error: String(error) }));
   await page.addInitScript(() => {
     const audit = { frames: [], rows: [], geometry: [], violations: [], phase: null, entryMs: null, activeMs: null };

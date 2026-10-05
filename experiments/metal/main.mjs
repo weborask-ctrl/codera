@@ -1,4 +1,5 @@
 import './page-controls.mjs';
+import {BASELINE,selectMotionProfile} from './media-profiles.mjs';
 
 // The supplied Silver film, original framing, captions and fade are preserved.
 const root=document.documentElement;
@@ -13,6 +14,7 @@ const state={active:false,prepared:false,preparing:false,paused:false,reason:'in
 window.__coderaMotion=state;
 let choice=window.__coderaEntry?.skipped||window.__coderaEntry?.unavailable?false:null,worker,raf=0,lastTick=0,progress=0,target=0,visible=true,selected=-2,lastSent=-1;
 let deepLinkPending=Boolean(location.hash&&location.hash!=='#top'&&document.readyState!=='complete');
+let selectedProfile=BASELINE,profileChosen=false,baselineRetried=false;
 let bounds={top:0,distance:1};
 const clamp=x=>Math.max(0,Math.min(1,x)),ramp=(a,b,p)=>clamp((p-a)/(b-a));
 const bounded=(array,item)=>{array.push(item);if(array.length>1500)array.shift();};
@@ -58,7 +60,7 @@ function update(){
   wake();
 }
 function stop(){cancelAnimationFrame(raf);raf=0;lastTick=0;}
-function send(){const time=Math.max(0,map(progress,0,1)-offset),frame=Math.round(time*60);state.targetTime=time+offset;state.progress=progress;if(frame===lastSent)return;lastSent=frame;worker?.postMessage({type:'seek',time});}
+function send(){const time=Math.max(0,map(progress,0,1)-offset),frame=Math.round(time*selectedProfile.fps);state.targetTime=time+offset;state.progress=progress;if(frame===lastSent)return;lastSent=frame;worker?.postMessage({type:'seek',time});}
 function tick(now){
   raf=0;if(!state.active||state.paused||!visible||document.hidden)return;
   const dt=Math.min(.05,lastTick?(now-lastTick)/1000:1/60);lastTick=now;
@@ -73,7 +75,7 @@ function tick(now){
     const sourceTime=time-offset;
     const end=state.buffer?.buffered?.find(([a,b])=>a<=sourceTime+.001&&b>sourceTime)?.[1];
     if(Number.isFinite(end)){
-      const headroom=Math.max(0,end-sourceTime-1/60);
+      const headroom=Math.max(0,end-sourceTime-1/selectedProfile.fps);
       const limit=dt*headroom/.75;
       if(map(clamp(progress+step),0,1)-time>limit){step=clamp(map(time+limit,1,0))-progress;state.bufferPaced=true;}
     }
@@ -84,7 +86,11 @@ function tick(now){
 }
 function wake(){if(!raf&&state.active&&!state.paused&&visible&&!document.hidden)raf=requestAnimationFrame(tick);}
 function syncVisibility(){const suspended=document.hidden||!visible||(!state.preparing&&(state.paused||!state.active));worker?.postMessage({type:'pause',value:suspended,release:document.hidden||!visible});if(suspended)stop();else{lastSent=-1;wake();}}
-function fail(error){state.error=String(error);state.active=false;state.prepared=false;state.preparing=false;state.paused=true;state.reason='failed';stop();worker?.terminate();worker=null;film.classList.remove('is-ready');video.style.opacity='0';captions(2.6);compactAtTop();window.__coderaEntry?.failed();label();}
+function fail(error){
+  if(selectedProfile.id!==BASELINE.id&&!state.prepared&&!baselineRetried){
+    baselineRetried=true;state.variantFallback=String(error);worker?.terminate();worker=null;selectedProfile=BASELINE;state.preparing=false;void prepare();return;
+  }
+  state.error=String(error);state.active=false;state.prepared=false;state.preparing=false;state.paused=true;state.reason='failed';stop();worker?.terminate();worker=null;film.classList.remove('is-ready');video.style.opacity='0';captions(2.6);compactAtTop();window.__coderaEntry?.failed();label();}
 function activate(){
   if(!wanted()||!inStage()||document.hidden){state.reason=wanted()?'ready-to-start':'paused';state.paused=true;syncVisibility();label();return;}
   state.active=true;state.paused=false;state.reason='scroll-video';reserveJourney();measure();
@@ -97,6 +103,12 @@ async function prepare(){
   if(state.preparing)return;
   if(state.prepared){activate();return;}
   state.preparing=true;state.paused=false;state.error='';state.reason='preparing';reserveJourney();measure();label();
+  if(!profileChosen){
+    selectedProfile=await selectMotionProfile({desktop:matchMedia('(min-width:1100px) and (hover:hover) and (pointer:fine)').matches,mseSupported:type=>typeof MediaSource!=='undefined'&&MediaSource.isTypeSupported(type),decodingInfo:navigator.mediaCapabilities?.decodingInfo?.bind(navigator.mediaCapabilities)});
+    profileChosen=true;
+  }
+  if(!wanted()){state.preparing=false;label();return;}
+  state.mediaProfile=selectedProfile.id;state.resolution=selectedProfile.width+'×'+selectedProfile.height;state.source=selectedProfile.id==='hevc-detail'?'original-film 1080p60 HEVC detail':'reviewed 1080p60 balanced AVC';
   const {NativePlayer}=await import('./native-player.mjs');worker=new NativePlayer(video);
   worker.onmessage=({data})=>{
     if(data.stats)state.stats={...state.stats,...data.stats};
@@ -104,7 +116,7 @@ async function prepare(){
     if(data.type==='ready'){state.preparing=false;state.prepared=true;state.readyMs=performance.now();state.delivery=data.delivery;film.classList.toggle('native-http',data.delivery==='native-http');activate();window.__coderaEntry?.ready();}
     if(data.type==='progress'){state.downloadedBytes=data.loaded;}
     if(data.type==='frame'){
-      const frame=data.frame??data.frameIndex;state.displayedTime=frame/60+offset;
+      const frame=data.frame??data.frameIndex;state.displayedTime=frame/selectedProfile.fps+offset;
       bounded(state.frames,{now:performance.now(),frame,target:state.targetTime,drawMs:data.drawMs,paintWaitMs:data.paintWaitMs});
       if(state.active&&!state.paused)captions(state.displayedTime);
     }
@@ -112,7 +124,7 @@ async function prepare(){
     if(data.type==='error')fail(data.error);
   };
   worker.onerror=event=>fail(event.message||'Prehrávač sa nespustil.');
-  worker.postMessage({type:'init',media:'/media/journey-balanced-4b593baa7f9b.mp4',fallbackMedia:'/media/journey-balanced-progressive.mp4',transport:'mse',transportWorker:true,initialBufferSeconds,codec:'avc1.64002a',durationSeconds:11});
+  worker.postMessage({type:'init',...selectedProfile,transport:'mse',transportWorker:true,initialBufferSeconds});
   syncVisibility();
   } catch(error){fail(error);}
 }
