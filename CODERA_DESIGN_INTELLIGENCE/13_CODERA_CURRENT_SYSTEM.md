@@ -142,3 +142,7 @@ Never silently reduce compression fidelity to shorten loading. **Marcus explicit
 Approved implementation on `codex/care-panel`: a full-width light panel below the two pricing offers, existing heading/body fonts and superellipse corner family, large price, visible trial and hosting condition, independent native details for scope. Marcus approved merging this panel and the professional price change to 699 EUR. Deployment must be confirmed from the release checks. Preserve the two package accordions and all motion artwork/runtime.
 
 Care panel colour approved by Marcus: sage grey `#DDE3D8`. Keep the existing dark text, geometry and other offer colours.
+
+## Mobile/tablet approved release — 2026-10-05
+
+Marcus requires automatic scroll motion without a Start button. Release branch `codex/mobile-tablet` retains the 1080p supplied film and adds capability-selected progressive MP4 (stream-copy, identical decoded pixels) for browsers without MSE. Portrait hero composition, in-flow mobile/tablet previews, larger touch targets, tablet columns and preview controls are refined. A static 700 instance of the existing Montserrat fixes inconsistent heading weight. Desktop identity and commercial offer remain unchanged. See `docs/CODERA_MOBILE_TABLET_2026-10-05.md` for tests and limitations. Marcus authorized merge on 2026-10-05. Physical iPhone validation remains outstanding; release checks determine deployment status.

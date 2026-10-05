@@ -82,3 +82,5 @@ guidance.
 8. Appropriateness beats attractiveness; extract logic, never copy.
 
 Historical release: [PR #129 original-film streaming](../docs/CODERA_ORIGINAL_VIDEO_STREAM_2026-09-27.md), merged 2026-09-27, preserved encoded samples. Current implementation: [Automatic Silver motion — 2026-10-02](../docs/CODERA_AUTOMATIC_MOTION_2026-10-02.md), with an explicitly authorized compression compromise, 15/15 local checks passed; release evidence is tracked in PR #131.
+
+- [Mobile/tablet refinement and automatic video compatibility](../docs/CODERA_MOBILE_TABLET_2026-10-05.md) — approved 2026-10-05; validation limits included.
