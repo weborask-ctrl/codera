@@ -4,7 +4,7 @@ import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 // Build from the same reviewed source as the lightweight local prototype.
 await mkdir('public/silver/fonts',{recursive:true});
 await mkdir('public/silver/vendor',{recursive:true});
-for(const name of ['style.css','refinement.css','signature.css','main.mjs','page-controls.mjs','native-player.mjs','native-stream.mjs','native-stream-worker.mjs','entry.js','entry.css']){
+for(const name of ['style.css','refinement.css','signature.css','main.mjs','media-profiles.mjs','page-controls.mjs','native-player.mjs','native-stream.mjs','native-stream-worker.mjs','entry.js','entry.css']){
   const source=await readFile(`experiments/metal/${name}`,'utf8');
   await writeFile(`public/silver/${name}`,source.replaceAll('/fonts/','/silver/fonts/').replaceAll('/media/','/motion/metal/'));
 }
@@ -17,3 +17,6 @@ const motionPath='public/motion/metal/journey-balanced-4b593baa7f9b';
 const integrity=JSON.parse(await readFile(motionPath+'.integrity.json','utf8'));
 const movie=await readFile(motionPath+'.mp4');
 if(movie.length!==integrity.containerBytes || createHash('sha256').update(movie).digest('hex')!==integrity.fileSha256)throw Error('The approved Silver stream does not match its integrity manifest');
+
+const detail=await readFile('public/motion/metal/journey-detail-418d38ed04f5.mp4');
+if(detail.length!==7630378||createHash('sha256').update(detail).digest('hex')!=='418d38ed04f5448e120f3cb0f0664c3071f08f25df251d64443d1613c79c6584')throw Error('Detail film integrity mismatch');

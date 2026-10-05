@@ -92,6 +92,9 @@ export class NativePlayer {
 
   async _initialize(data) {
     if (this._initialized) throw new Error('Native player is already initialized');
+    this._expectedWidth=data.width??1920;this._expectedHeight=data.height??1080;
+    this._fps=data.fps??60;this._frameCount=data.frames??660;
+    if(![this._expectedWidth,this._expectedHeight,this._frameCount].every(n=>Number.isInteger(n)&&n>0)||!Number.isFinite(this._fps)||this._fps<=0)throw new Error('Invalid film manifest');
     this._initialized = true;
     this._hasFrameCallback = typeof this.video.requestVideoFrameCallback === 'function' &&
       typeof this.video.cancelVideoFrameCallback === 'function';
@@ -228,7 +231,7 @@ export class NativePlayer {
 
   _metadata() {
     if (this._closed || this._failed) return;
-    if (this.video.videoWidth !== 1920 || this.video.videoHeight !== 1080) {
+    if (this.video.videoWidth !== this._expectedWidth || this.video.videoHeight !== this._expectedHeight) {
       this._fail(new Error(`Unexpected supplied film dimensions: ${this.video.videoWidth}×${this.video.videoHeight}`)); return;
     }
     if (!Number.isFinite(this.video.duration) || this.video.duration <= 0) {
@@ -323,7 +326,7 @@ export class NativePlayer {
 
   _tryReady() {
     if (this._ready || this._closed || this._failed || this._paused || document.hidden || this._shown < 0 ||
-        this.video.videoWidth !== 1920 || this.video.videoHeight !== 1080) return;
+        this.video.videoWidth !== this._expectedWidth || this.video.videoHeight !== this._expectedHeight) return;
     if (this._transport === 'mse') {
       const needed = Math.min(this._initialBufferSeconds, this.video.duration);
       if (!Number.isFinite(needed) || !this._buffered().some(([start, end]) => start <= .01 && end >= needed - .001)) return;
@@ -335,7 +338,7 @@ export class NativePlayer {
       transportWorker:this._transportWorker,
       allGroupsReady:this._completeBlob || this._streamState.complete === true, fullyBuffered:this._fullyBuffered(),
       initialBufferSeconds:this._initialBufferSeconds,
-      width:1920, height:1080, fps:this._fps,
+      width:this._expectedWidth, height:this._expectedHeight, fps:this._fps,
       byteAccounting:this._transport === 'http' ? 'browser-managed' : 'exact-fetch',
       reason:this._transport === 'mse' ? 'actual-frame-and-initial-buffer' : 'first-actual-frame', stats:{ ...this.stats } });
   }
