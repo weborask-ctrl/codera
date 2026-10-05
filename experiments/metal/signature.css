@@ -226,9 +226,14 @@ h1 em,h2 em,h3 em{font:inherit;letter-spacing:inherit}
  .preview-scroll{min-height:0;-webkit-overflow-scrolling:touch}
 }
 @media(max-width:1000px) and (orientation:portrait){
- .film-camera{top:50%;bottom:auto;height:clamp(220px,70vw,520px);transform:translateY(-50%)}
+ .film-camera{inset:0;height:100%;transform:none}
  .film img,.film video{object-fit:cover;object-position:50% 50%}
- .film-camera::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,#151513,transparent 12%,transparent 88%,#151513)}
+ .film-camera::after{display:none}
+ .film-shade{background:linear-gradient(180deg,#10100fc9 0%,#10100f85 23%,#10100f15 48%,#10100f45 64%,#10100fe8 100%)}
+ .hero-beat,.beat-detail,.beat-arrival{align-items:flex-start;justify-content:flex-start;text-align:left}
+ .beat-detail>p,.beat-arrival>p{margin-top:auto;margin-bottom:0;max-width:32ch}
+ .beat-arrival>.text-link{margin-top:14px}
+ .beat-arrival::before{display:none}
  .hero-beat{padding-top:clamp(112px,14svh,155px);padding-bottom:100px}
  .beat-detail{padding-top:clamp(112px,14svh,155px)}
  .beat-arrival{padding-top:clamp(112px,14svh,155px)}
@@ -279,7 +284,7 @@ h1 em,h2 em,h3 em{font:inherit;letter-spacing:inherit}
 @media(max-width:700px) and (max-height:700px) and (orientation:portrait){
  .hero-beat,.beat-detail,.beat-arrival{padding-top:92px;padding-bottom:80px}
  .hero-beat h1,.hero-beat h2{font-size:clamp(30px,9.7vw,40px)}
- .film-camera{top:47%;height:36svh}
+ .film-camera{inset:0;height:100%;transform:none}
  .hero-bottom p,.hero-beat>p{font-size:16px;line-height:1.4}
  .hero-bottom .text-link{margin-top:10px;min-height:44px}
 }

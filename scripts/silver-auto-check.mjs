@@ -343,14 +343,14 @@ try {
       assert.equal(await test.page.locator('.journey').evaluate(element => element.classList.contains('has-journey')), false);
       assert.equal(test.network.requests.length, 0); return { requests: test.network.requests.length };
     });
-    await check('Media failure leaves readable content and explicit retry recovers', async () => {
+    await check('Media failure leaves readable content without a Start control', async () => {
       const test = await setup('error-retry', {}, { failNext: true });
       await go(test); await test.page.waitForFunction(() => window.__coderaMotion?.error);
       await test.page.waitForFunction(() => !document.querySelector('main').inert);
       const failed = await read(test.page);
       assert.equal(failed.active, false); assert.equal(await test.page.locator('.hero-beat h1').isVisible(), true);
-      await test.page.locator('#motion-toggle').click(); const recovered = await readyAuto(test.page);
-      assert.equal(test.network.requests.length, 2); return { failed, recovered };
+      assert.equal(await test.page.locator('#motion-toggle').isVisible(), false);
+      assert.equal(test.network.requests.length, 1); return { failed, noStartControl:true };
     });
     await check('Main-thread MediaSource capability fallback also starts automatically', async () => {
       const test = await setup('main-thread-fallback');
