@@ -38,7 +38,7 @@ function captions(time){
   bar.style.transform=`scaleX(${p})`;
 }
 function label(){const pending=wanted()&&!state.error&&(!state.active||state.preparing);toggle.hidden=pending;toggle.disabled=state.preparing;toggle.setAttribute('aria-pressed',String(state.active&&!state.paused));toggle.querySelector('.motion-label').textContent=state.error?'Skúsiť animáciu znova':state.active&&!state.paused?'Zastaviť pohyb':state.prepared?'Pokračovať v pohybe':'Spustiť animáciu';toggle.querySelector('.pause-icon').textContent=state.active&&!state.paused?'Ⅱ':'▷';}
-function measure(){bounds={top:journey.getBoundingClientRect().top+scrollY,distance:Math.max(1,journey.offsetHeight-innerHeight)};update();}
+function measure(){bounds={top:journey.getBoundingClientRect().top+scrollY,distance:Math.max(1,journey.offsetHeight-stage.offsetHeight)};update();}
 function update(){
   target=clamp((scrollY-bounds.top)/bounds.distance);
   if(!deepLinkPending&&wanted()&&!state.error&&!state.active&&inStage()&&!document.hidden){
@@ -92,7 +92,7 @@ async function prepare(){
   worker.onmessage=({data})=>{
     if(data.stats)state.stats={...state.stats,...data.stats};
     if(data.type==='status'){state.buffer={...data};if(state.preparing&&data.buffered){const end=data.buffered.find(([start])=>start<=.01)?.[1]||0;window.__coderaEntry?.progress(Math.min(98,end/initialBufferSeconds*98));}}
-    if(data.type==='ready'){state.preparing=false;state.prepared=true;state.readyMs=performance.now();state.delivery=data.delivery;activate();window.__coderaEntry?.ready();}
+    if(data.type==='ready'){state.preparing=false;state.prepared=true;state.readyMs=performance.now();state.delivery=data.delivery;film.classList.toggle('native-http',data.delivery==='native-http');activate();window.__coderaEntry?.ready();}
     if(data.type==='progress'){state.downloadedBytes=data.loaded;}
     if(data.type==='frame'){
       const frame=data.frame??data.frameIndex;state.displayedTime=frame/60+offset;
@@ -103,7 +103,7 @@ async function prepare(){
     if(data.type==='error')fail(data.error);
   };
   worker.onerror=event=>fail(event.message||'Prehrávač sa nespustil.');
-  worker.postMessage({type:'init',media:'/media/journey-balanced-4b593baa7f9b.mp4',transport:'mse',transportWorker:true,initialBufferSeconds,codec:'avc1.64002a',durationSeconds:11});
+  worker.postMessage({type:'init',media:'/media/journey-balanced-4b593baa7f9b.mp4',fallbackMedia:'/media/journey-balanced-progressive.mp4',transport:'mse',transportWorker:true,initialBufferSeconds,codec:'avc1.64002a',durationSeconds:11});
   syncVisibility();
   } catch(error){fail(error);}
 }

@@ -154,3 +154,27 @@ test('explicit entry skip is respected when the video arrives later', async ({ p
     release()
   }
 })
+
+for (const legacyFrames of [false, true]) {
+  test(`automatic native MP4 without MediaSource, legacy frames: ${legacyFrames}`, async ({ page, browserName }) => {
+    test.skip(browserName !== 'chromium', 'Exercise capability fallbacks with an AVC decoder available in CI.')
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.addInitScript(legacy => {
+      Object.defineProperty(window, 'MediaSource', { value: undefined, configurable: true })
+      if (legacy) {
+        Object.defineProperty(HTMLVideoElement.prototype, 'requestVideoFrameCallback', { value: undefined, configurable: true })
+        Object.defineProperty(HTMLVideoElement.prototype, 'cancelVideoFrameCallback', { value: undefined, configurable: true })
+      }
+    }, legacyFrames)
+    await page.goto('/')
+    const read = () => page.evaluate(() => (window as unknown as { __coderaMotion: { active: boolean; delivery: string; displayedTime: number; error: string } }).__coderaMotion)
+    await expect.poll(async () => (await read()).active, { timeout: 20000 }).toBe(true)
+    expect((await read()).delivery).toBe('native-http')
+    await expect(page.locator('#motion-toggle')).toContainText('Zastaviť pohyb')
+    await page.locator('.journey').evaluate(e => scrollTo(0, (e.clientHeight - document.querySelector('.stage')!.clientHeight) * 0.3))
+    await expect.poll(async () => (await read()).displayedTime, { timeout: 15000 }).toBeGreaterThan(4)
+    await page.evaluate(() => scrollTo(0, 0))
+    await expect.poll(async () => (await read()).displayedTime, { timeout: 15000 }).toBeLessThan(3)
+    expect((await read()).error).toBe('')
+  })
+}
