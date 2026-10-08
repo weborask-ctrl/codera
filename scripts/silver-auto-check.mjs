@@ -14,6 +14,10 @@ const upstream = new URL(process.env.SILVER_URL || 'http://127.0.0.1:4342/');
 assert.ok(['127.0.0.1', 'localhost', '[::1]'].includes(upstream.hostname), 'Use a local production build for controlled pacing');
 const proxyPort = Number(process.env.SILVER_PROXY_PORT || 4343);
 const headed = process.argv.includes('--headed');
+const cpuRate = Number(process.env.SILVER_CPU_RATE || 1);
+const deviceScaleFactor = Number(process.env.SILVER_DPR || 1);
+assert.ok(Number.isFinite(cpuRate) && cpuRate >= 1);
+assert.ok(Number.isFinite(deviceScaleFactor) && deviceScaleFactor > 0);
 const functional = !process.argv.includes('--performance-only');
 const filter = process.env.SILVER_CHECK_FILTER ? new RegExp(process.env.SILVER_CHECK_FILTER, 'i') : null;
 const performanceChecks = !process.argv.includes('--functional-only');
@@ -29,7 +33,7 @@ assert.ok(asset.ok, 'The actual production video must be available');
 const assetBytes = Number(asset.headers.get('content-length'));
 assert.ok(assetBytes > 0);
 const report = {
-  createdAt: new Date().toISOString(), upstream: upstream.href, mediaPath, assetBytes, headed, forcedBaseline:process.env.SILVER_FORCE_BASELINE==='1',
+  createdAt: new Date().toISOString(), upstream: upstream.href, mediaPath, assetBytes, headed, cpuRate, deviceScaleFactor, forcedBaseline:process.env.SILVER_FORCE_BASELINE==='1',
   checks: [], scenarios: [], errors: [], violations: [],
   limitations: [
     'Only media responses are byte-paced. Page, scripts, fonts and images are unthrottled.',
@@ -119,8 +123,12 @@ let openTest;
 
 async function setup(label, options = {}, transport = {}) {
   const network = scenario(label, transport);
-  const context = await browser.newContext({ viewport: { width: 1280, height: 720 }, ...options });
+  const context = await browser.newContext({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor, ...options });
   const page = await context.newPage();
+  if (cpuRate > 1) {
+    const cdp = await context.newCDPSession(page);
+    await cdp.send('Emulation.setCPUThrottlingRate', { rate: cpuRate });
+  }
   if(process.env.SILVER_FORCE_BASELINE==='1')await page.addInitScript(()=>{if(navigator.mediaCapabilities)navigator.mediaCapabilities.decodingInfo=async()=>({supported:false,smooth:false,powerEfficient:false});});
   page.on('pageerror', error => report.errors.push({ label, error: String(error) }));
   await page.addInitScript(() => {
@@ -248,12 +256,20 @@ async function sweep(page, label) {
   const data = await page.evaluate(() => ({ frames: window.__silverAuto.frames, rows: window.__silverAuto.rows }));
   return ['forward', 'reverse'].map(direction => sweepMetrics(data, label + '-' + direction));
 }
-function assertSweep(result) {
+function assertSweep(result, { warm = false } = {}) {
   for (const part of result) {
     assert.ok(part.actualFrames > 100, 'Too few actual presentations: ' + JSON.stringify(part));
     assert.equal(part.hiddenRows, 0, 'Hidden-tab results are not foreground performance');
     assert.ok(part.longestDemandedHoldMs < 500, 'Visible demanded video hold: ' + part.longestDemandedHoldMs + ' ms in ' + part.phase);
     assert.ok(part.rawScrollLagSourceSeconds.max < 1.5, 'Raw scroll-to-film lag: ' + part.rawScrollLagSourceSeconds.max + ' source seconds in ' + part.phase);
+    if (warm) {
+      // No network excuse on the second pass: gate real presented-frame cadence.
+      assert.ok(part.actualFrames >= 400, 'Fully buffered motion lost too many presentations: ' + part.actualFrames);
+      assert.ok(part.frameIntervalsMs.median < 25, 'Fully buffered median frame interval: ' + part.frameIntervalsMs.median);
+      assert.ok(part.frameIntervalsMs.p95 < 50, 'Fully buffered p95 frame interval: ' + part.frameIntervalsMs.p95);
+      assert.ok(part.longestDemandedHoldMs < 150, 'Fully buffered visible hold: ' + part.longestDemandedHoldMs);
+      assert.ok(part.filteredTargetLagSourceSeconds.p95 < .15, 'Fully buffered decode lag: ' + part.filteredTargetLagSourceSeconds.p95);
+    }
   }
 }
 
@@ -278,7 +294,7 @@ try {
       }
       if (mbps === 10) {
         await test.page.waitForFunction(() => window.__coderaMotion.buffer?.fullyBuffered && window.__coderaMotion.buffer?.stream?.complete, null, { timeout: 30000 });
-        measurement.warmSweep = await sweep(test.page, 'fully-buffered'); assertSweep(measurement.warmSweep);
+        measurement.warmSweep = await sweep(test.page, 'fully-buffered'); assertSweep(measurement.warmSweep, { warm: true });
         assert.equal(test.network.requests.length, 1, 'No repeated or range fetches during scroll');
         assert.equal(test.network.requests[0].sentBytes, assetBytes); assert.equal(test.network.requests[0].range, null);
       }
