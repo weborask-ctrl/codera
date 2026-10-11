@@ -28,7 +28,7 @@
     "fonts": "node scripts/build-fonts.mjs",
     "silver:assets": "node scripts/silver-assets.mjs",
     "prebuild": "npm run silver:assets",
-    "silver:check": "node scripts/silver-stream-check.mjs",
+    "silver:check": "node scripts/silver-auto-check.mjs",
     "silver:layout": "node scripts/metal-signature-check.mjs"
   },
   "dependencies": {

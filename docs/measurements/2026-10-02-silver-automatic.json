@@ -1,0 +1,377 @@
+{
+  "schemaVersion": 1,
+  "status": "local acceptance passed; remote CI, merge and deployment pending",
+  "recordedAt": "2026-10-02T16:02:26.244Z",
+  "mediaPath": "/motion/metal/journey-balanced-4b593baa7f9b.mp4",
+  "mediaBytes": 11212401,
+  "mediaSha256": "4b593baa7f9b62720c07736918ca8a6c4938b9d16f607a4cd9a5b096deb9f903",
+  "startupBufferSeconds": 1.6,
+  "mediaBytesThroughStartupBuffer": 1536534,
+  "harness": "scripts/silver-auto-check.mjs",
+  "environment": {
+    "origin": "local optimized production build",
+    "browser": "headless Edge",
+    "headed": false,
+    "videoPacingChunkBytes": 16384,
+    "sweepForwardSeconds": 14,
+    "sweepReverseSeconds": 14
+  },
+  "summary": {
+    "passed": 15,
+    "failed": 0,
+    "uncaughtPageErrors": 0,
+    "cspViolations": 0
+  },
+  "checks": [
+    {
+      "name": "Cold automatic entry with real 5 Mbit/s media pacing",
+      "status": "pass"
+    },
+    {
+      "name": "Cold automatic entry with real 10 Mbit/s media pacing",
+      "status": "pass"
+    },
+    {
+      "name": "Cold automatic entry with real 2 Mbit/s media pacing",
+      "status": "pass"
+    },
+    {
+      "name": "Automatic desktop entry and explicit pause/resume preserve actual frames",
+      "status": "pass"
+    },
+    {
+      "name": "Four-second automatic cover escape later starts motion without a height jump",
+      "status": "pass"
+    },
+    {
+      "name": "Explicit entry skip remains static after delayed media arrives",
+      "status": "pass"
+    },
+    {
+      "name": "Late media does not start offstage and automatically activates on return",
+      "status": "pass"
+    },
+    {
+      "name": "Ordinary coarse-touch entry automatically activates without a Start click",
+      "status": "pass"
+    },
+    {
+      "name": "reduced-motion keeps a readable static page without a video request",
+      "status": "pass"
+    },
+    {
+      "name": "no-js keeps a readable static page without a video request",
+      "status": "pass"
+    },
+    {
+      "name": "Media failure leaves readable content and explicit retry recovers",
+      "status": "pass"
+    },
+    {
+      "name": "Main-thread MediaSource capability fallback also starts automatically",
+      "status": "pass"
+    },
+    {
+      "name": "Missing controller releases the cover into compact readable content",
+      "status": "pass"
+    },
+    {
+      "name": "Deep links avoid hidden video download and activate on returning to hero",
+      "status": "pass"
+    },
+    {
+      "name": "No uncaught page errors or CSP violations",
+      "status": "pass"
+    }
+  ],
+  "coldScenarios": [
+    {
+      "name": "Cold automatic entry with real 5 Mbit/s media pacing",
+      "status": "pass",
+      "mediaMbps": 5,
+      "mediaLatencyMs": 60,
+      "readyMs": 2784.5,
+      "pageEntryMs": 2825.3,
+      "automaticActiveMs": 2791.9,
+      "startupBufferSeconds": 1.6,
+      "appendedMediaBytesAtReadiness": 1536534,
+      "width": 1920,
+      "height": 1080,
+      "initialJourneyHeightPx": 5040,
+      "readyJourneyHeightPx": 5040,
+      "geometryHeightChanges": 0,
+      "limits": {
+        "readyMs": 5500,
+        "entryMs": 5000
+      },
+      "coldSweep": [
+        {
+          "phase": "cold-5-forward",
+          "actualFrames": 561,
+          "frameIntervalsMs": {
+            "count": 560,
+            "median": 16.8,
+            "p95": 33.5,
+            "max": 50.3
+          },
+          "rafIntervalsMs": {
+            "count": 836,
+            "median": 16.7,
+            "p95": 16.9,
+            "max": 17.7
+          },
+          "rawScrollLagSourceSeconds": {
+            "count": 837,
+            "median": 0.140198,
+            "p95": 1.261897,
+            "max": 1.40954
+          },
+          "filteredTargetLagSourceSeconds": {
+            "count": 837,
+            "median": 0.004206,
+            "p95": 0.008227,
+            "max": 0.023056
+          },
+          "longestDemandedHoldMs": 33.6,
+          "bufferPacedRows": 323,
+          "hiddenRows": 0
+        },
+        {
+          "phase": "cold-5-reverse",
+          "actualFrames": 625,
+          "frameIntervalsMs": {
+            "count": 624,
+            "median": 16.8,
+            "p95": 33.5,
+            "max": 66.9
+          },
+          "rafIntervalsMs": {
+            "count": 837,
+            "median": 16.7,
+            "p95": 16.9,
+            "max": 17.1
+          },
+          "rawScrollLagSourceSeconds": {
+            "count": 838,
+            "median": 0.126262,
+            "p95": 0.351347,
+            "max": 1.420932
+          },
+          "filteredTargetLagSourceSeconds": {
+            "count": 838,
+            "median": 0.004217,
+            "p95": 0.008004,
+            "max": 0.026797
+          },
+          "longestDemandedHoldMs": 50.1,
+          "bufferPacedRows": 52,
+          "hiddenRows": 0
+        }
+      ],
+      "warmSweep": []
+    },
+    {
+      "name": "Cold automatic entry with real 10 Mbit/s media pacing",
+      "status": "pass",
+      "mediaMbps": 10,
+      "mediaLatencyMs": 60,
+      "readyMs": 1537.5,
+      "pageEntryMs": 1586.9,
+      "automaticActiveMs": 1553.3,
+      "startupBufferSeconds": 1.6,
+      "appendedMediaBytesAtReadiness": 1536534,
+      "width": 1920,
+      "height": 1080,
+      "initialJourneyHeightPx": 5040,
+      "readyJourneyHeightPx": 5040,
+      "geometryHeightChanges": 0,
+      "limits": {
+        "readyMs": 5500,
+        "entryMs": 5000
+      },
+      "coldSweep": [
+        {
+          "phase": "cold-10-forward",
+          "actualFrames": 638,
+          "frameIntervalsMs": {
+            "count": 637,
+            "median": 16.8,
+            "p95": 33.5,
+            "max": 50.1
+          },
+          "rafIntervalsMs": {
+            "count": 837,
+            "median": 16.7,
+            "p95": 16.9,
+            "max": 17.2
+          },
+          "rawScrollLagSourceSeconds": {
+            "count": 838,
+            "median": 0.126319,
+            "p95": 0.145243,
+            "max": 0.155396
+          },
+          "filteredTargetLagSourceSeconds": {
+            "count": 838,
+            "median": 0.004203,
+            "p95": 0.008,
+            "max": 0.015838
+          },
+          "longestDemandedHoldMs": 33.5,
+          "bufferPacedRows": 0,
+          "hiddenRows": 0
+        },
+        {
+          "phase": "cold-10-reverse",
+          "actualFrames": 633,
+          "frameIntervalsMs": {
+            "count": 632,
+            "median": 16.8,
+            "p95": 33.5,
+            "max": 150.5
+          },
+          "rafIntervalsMs": {
+            "count": 837,
+            "median": 16.7,
+            "p95": 16.9,
+            "max": 17.1
+          },
+          "rawScrollLagSourceSeconds": {
+            "count": 838,
+            "median": 0.125084,
+            "p95": 0.144508,
+            "max": 0.148212
+          },
+          "filteredTargetLagSourceSeconds": {
+            "count": 838,
+            "median": 0.004178,
+            "p95": 0.007903,
+            "max": 0.008331
+          },
+          "longestDemandedHoldMs": 17.1,
+          "bufferPacedRows": 0,
+          "hiddenRows": 0
+        }
+      ],
+      "warmSweep": [
+        {
+          "phase": "fully-buffered-forward",
+          "actualFrames": 630,
+          "frameIntervalsMs": {
+            "count": 629,
+            "median": 16.8,
+            "p95": 33.5,
+            "max": 66.9
+          },
+          "rafIntervalsMs": {
+            "count": 838,
+            "median": 16.7,
+            "p95": 16.9,
+            "max": 17
+          },
+          "rawScrollLagSourceSeconds": {
+            "count": 839,
+            "median": 0.126319,
+            "p95": 0.145882,
+            "max": 0.172446
+          },
+          "filteredTargetLagSourceSeconds": {
+            "count": 839,
+            "median": 0.004299,
+            "p95": 0.008107,
+            "max": 0.034048
+          },
+          "longestDemandedHoldMs": 33.7,
+          "bufferPacedRows": 0,
+          "hiddenRows": 0
+        },
+        {
+          "phase": "fully-buffered-reverse",
+          "actualFrames": 635,
+          "frameIntervalsMs": {
+            "count": 634,
+            "median": 16.8,
+            "p95": 33.5,
+            "max": 66.8
+          },
+          "rafIntervalsMs": {
+            "count": 837,
+            "median": 16.7,
+            "p95": 16.9,
+            "max": 17.1
+          },
+          "rawScrollLagSourceSeconds": {
+            "count": 838,
+            "median": 0.124972,
+            "p95": 0.144604,
+            "max": 0.148435
+          },
+          "filteredTargetLagSourceSeconds": {
+            "count": 838,
+            "median": 0.004175,
+            "p95": 0.007896,
+            "max": 0.008329
+          },
+          "longestDemandedHoldMs": 17.1,
+          "bufferPacedRows": 0,
+          "hiddenRows": 0
+        }
+      ]
+    },
+    {
+      "name": "Cold automatic entry with real 2 Mbit/s media pacing",
+      "status": "pass",
+      "mediaMbps": 2,
+      "mediaLatencyMs": 60,
+      "readyMs": 6427.2,
+      "pageEntryMs": 4064.9,
+      "automaticActiveMs": 6439.9,
+      "startupBufferSeconds": 1.6,
+      "appendedMediaBytesAtReadiness": 1536534,
+      "width": 1920,
+      "height": 1080,
+      "initialJourneyHeightPx": 5040,
+      "readyJourneyHeightPx": 5040,
+      "geometryHeightChanges": 0,
+      "limits": {
+        "readyMs": 11000,
+        "entryMs": 5000
+      },
+      "coldSweep": [],
+      "warmSweep": []
+    }
+  ],
+  "negativeBaseline": {
+    "source": "test-results/silver-auto/initial-1s-buffer.json",
+    "startupBufferSeconds": 1,
+    "passed": 12,
+    "failed": 2,
+    "cold5MbpsRawLagMaxSourceSeconds": 1.956903,
+    "failures": [
+      {
+        "name": "Cold automatic entry with real 5 Mbit/s media pacing",
+        "error": "AssertionError [ERR_ASSERTION]: Raw scroll-to-film lag: 1.9569026902356903 source seconds in cold-5-forward"
+      },
+      {
+        "name": "Deep links avoid hidden video download and activate on returning to hero",
+        "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n1 !== 0\n"
+      }
+    ],
+    "resolution": "Startup buffer raised to 1.6 seconds; the separate deep-link preparation regression was also corrected before the final passing run."
+  },
+  "sourceReports": [
+    "test-results/silver-auto/final-1.6-buffer.json",
+    "test-results/silver-auto/initial-1s-buffer.json"
+  ],
+  "limitations": [
+    "Only media responses are byte-paced. Page, scripts, fonts and images are unthrottled.",
+    "Every cold run uses a fresh browser context and no-store media. Worker fetches pass through the actual paced HTTP response; no Playwright fulfillment or page-only CDP throttling.",
+    "Frame counts are unique real requestVideoFrameCallback presentations, not filtered controller targets.",
+    "Raw scroll-to-film lag is in source-video seconds, not wall-clock input latency.",
+    "Headless timing and emulated touch do not certify physical presentation or every device.",
+    "The 2 Mbit/s scenario checks startup and stable geometry only; it does not certify a continuous cold-scroll sweep at 2 Mbit/s.",
+    "Cold 5 Mbit/s pacing traded camera responsiveness for continuity: raw source-position lag reached 1.420932 source seconds.",
+    "Cold 10 Mbit/s reverse frame interval reached 150.5 ms; these measurements do not establish a constant 60 fps presentation.",
+    "Ignored full reports remain local artifacts; this compact record preserves reviewed outcomes and metric summaries."
+  ]
+}

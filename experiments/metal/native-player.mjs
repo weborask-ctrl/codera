@@ -92,20 +92,24 @@ export class NativePlayer {
 
   async _initialize(data) {
     if (this._initialized) throw new Error('Native player is already initialized');
+    this._expectedWidth=data.width??1920;this._expectedHeight=data.height??1080;
+    this._fps=data.fps??60;this._frameCount=data.frames??660;
+    if(![this._expectedWidth,this._expectedHeight,this._frameCount].every(n=>Number.isInteger(n)&&n>0)||!Number.isFinite(this._fps)||this._fps<=0)throw new Error('Invalid film manifest');
     this._initialized = true;
-    if (typeof this.video.requestVideoFrameCallback !== 'function' ||
-        typeof this.video.cancelVideoFrameCallback !== 'function') {
-      throw new Error('This native comparison requires requestVideoFrameCallback');
-    }
+    this._hasFrameCallback = typeof this.video.requestVideoFrameCallback === 'function' &&
+      typeof this.video.cancelVideoFrameCallback === 'function';
+    this._fallbackFrame = 0;
     if (!data.media) throw new Error('Pass the supplied video URL');
     this._completeBlob = data.completeBlob === true;
-    this._transport = data.transport === 'mse' ? 'mse' : this._completeBlob ? 'blob' : 'http';
+    const mime = 'video/mp4; codecs="' + (data.codec || 'avc1.64002a') + '"';
+    const supportsMSE = typeof MediaSource !== 'undefined' && MediaSource.isTypeSupported(mime);
+    this._transport = data.transport === 'mse' && supportsMSE ? 'mse' : this._completeBlob ? 'blob' : 'http';
     if (this._transport === 'mse' && this._completeBlob) throw new Error('Choose MSE or completeBlob, not both');
     this._initialBufferSeconds = this._transport === 'mse'
       ? Math.max(0, Math.min(5, Number.isFinite(data.initialBufferSeconds) ? data.initialBufferSeconds : 2)) : 0;
     this._listen('loadedmetadata', () => this._metadata());
     this._listen('loadeddata', () => { this._armFrame(); this._queue(); this._tryReady(); this._status(true); });
-    this._listen('canplay', () => this._queue());
+    this._listen('canplay', () => { this._armFrame(); this._queue(); this._tryReady(); });
     this._listen('seeking', () => { this._outstanding = true; this._status(); });
     this._listen('seeked', () => {
       this._outstanding = false;
@@ -128,7 +132,7 @@ export class NativePlayer {
     this.video.playsInline = true;
     this.video.preload = 'auto';
     this._deadline('preparation');
-    let source = data.media;
+    let source = this._transport === 'http' ? (data.fallbackMedia || data.media) : data.media;
     if (this._transport === 'mse') {
       const options = { media:data.media, codec:data.codec || 'avc1.64002a',
         durationSeconds:data.duration ?? data.durationSeconds ?? 11,
@@ -227,7 +231,7 @@ export class NativePlayer {
 
   _metadata() {
     if (this._closed || this._failed) return;
-    if (this.video.videoWidth !== 1920 || this.video.videoHeight !== 1080) {
+    if (this.video.videoWidth !== this._expectedWidth || this.video.videoHeight !== this._expectedHeight) {
       this._fail(new Error(`Unexpected supplied film dimensions: ${this.video.videoWidth}×${this.video.videoHeight}`)); return;
     }
     if (!Number.isFinite(this.video.duration) || this.video.duration <= 0) {
@@ -282,6 +286,18 @@ export class NativePlayer {
   _armFrame() {
     if (this._rvfc || this._closed || this._failed || this._paused || document.hidden || !this._initialized) return;
     if (this._ready && !this._waitingPresentation && !this._outstanding && this._target === this._shown) return;
+    if (!this._hasFrameCallback) {
+      if (this._fallbackFrame) return;
+      // Older browsers expose decode completion through seeked/loadeddata.
+      // Report this separately: it is not compositor presentation timing.
+      this._fallbackFrame = requestAnimationFrame(now => {
+        this._fallbackFrame = 0;
+        if (this.video.readyState >= 2 && !this.video.seeking) {
+          this._frame(now, { mediaTime:this.video.currentTime });
+        }
+      });
+      return;
+    }
     this._rvfc = this.video.requestVideoFrameCallback((now, metadata) => this._frame(now, metadata));
   }
 
@@ -295,7 +311,7 @@ export class NativePlayer {
         mediaTime:metadata.mediaTime, presentationTime:metadata.presentationTime,
         expectedDisplayTime:metadata.expectedDisplayTime, presentedFrames:metadata.presentedFrames,
         processingDuration:metadata.processingDuration, callbackTime:now,
-        scheduler:'native-video', measurement:'requestVideoFrameCallback' });
+        scheduler:'native-video', measurement:this._hasFrameCallback ? 'requestVideoFrameCallback' : 'decoded-frame-event' });
     }
     if (frame === this._requested || (this._requested < 0 && frame === this._target)) {
       this._waitingPresentation = false;
@@ -310,7 +326,7 @@ export class NativePlayer {
 
   _tryReady() {
     if (this._ready || this._closed || this._failed || this._paused || document.hidden || this._shown < 0 ||
-        this.video.videoWidth !== 1920 || this.video.videoHeight !== 1080) return;
+        this.video.videoWidth !== this._expectedWidth || this.video.videoHeight !== this._expectedHeight) return;
     if (this._transport === 'mse') {
       const needed = Math.min(this._initialBufferSeconds, this.video.duration);
       if (!Number.isFinite(needed) || !this._buffered().some(([start, end]) => start <= .01 && end >= needed - .001)) return;
@@ -322,7 +338,7 @@ export class NativePlayer {
       transportWorker:this._transportWorker,
       allGroupsReady:this._completeBlob || this._streamState.complete === true, fullyBuffered:this._fullyBuffered(),
       initialBufferSeconds:this._initialBufferSeconds,
-      width:1920, height:1080, fps:this._fps,
+      width:this._expectedWidth, height:this._expectedHeight, fps:this._fps,
       byteAccounting:this._transport === 'http' ? 'browser-managed' : 'exact-fetch',
       reason:this._transport === 'mse' ? 'actual-frame-and-initial-buffer' : 'first-actual-frame', stats:{ ...this.stats } });
   }
@@ -369,6 +385,7 @@ export class NativePlayer {
 
   _suspend() {
     cancelAnimationFrame(this._raf); this._raf = 0;
+    cancelAnimationFrame(this._fallbackFrame); this._fallbackFrame = 0;
     if (this._rvfc) this.video.cancelVideoFrameCallback(this._rvfc);
     this._rvfc = 0;
     clearTimeout(this._timeout); this._timeout = 0;

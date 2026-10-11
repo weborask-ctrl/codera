@@ -73,3 +73,7 @@ Approved implementation and merge of direction C / precise curves on 2026-09-24.
 2026-09-24 follow-up: simpler unified heading styles and Montserrat are the current implemented candidate after Marcus requested proceeding with merge. Permanent adoption awaits his visual evaluation. See docs/CODERA_UNIFIED_TYPE.md.
 
 Headings-only correction: Montserrat applies only to h1/h2/h3. Preserve original Geist, sizes and spacing for body copy, bubble content, prices, 72 hodín, buttons, navigation and forms. A requested heading change is never authorization to restyle all text.
+
+## Automatic Silver entry and measured compression — 2026-10-02
+
+Marcus explicitly permits a modest reduction in encoding quality/file size to achieve faster automatic motion entry. Preserve the supplied film and camera journey, keep sharp detail without visible blockiness, and compare identical decoded frames before choosing an export. The earlier no-recompression requirement is superseded for this measured iteration. Ordinary visits must not require “Spustiť animáciu”; reduced-motion and deliberate user pause/skip remain respected. This is a request to optimize the existing film, never to replace its artwork.

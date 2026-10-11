@@ -22,7 +22,7 @@ export const siteConfig = {
   locale: "sk_SK",
   title: "Codera — tvorba firemných webstránok a redizajn webu",
   description:
-    "Navrhujeme a vyvíjame firemné webstránky, ktoré pôsobia dôveryhodne, načítajú sa rýchlo a vedú návštevníka k dopytu. Weby od 499 €, prvý návrh do 72 hodín.",
+    "Navrhujeme a vyvíjame firemné webstránky, ktoré pôsobia dôveryhodne, načítajú sa rýchlo a vedú návštevníka k dopytu. Weby od 699 €, prvý návrh do 72 hodín.",
   /** The studio mailbox on its own domain (Websupport), set 2026-09-07. */
   email: "kontakt@codera.sk",
   phone: "+421 949 753 556",
@@ -46,13 +46,13 @@ export const commercial = {
    * budget bands. Before this was routed, the number was hard-coded in eight
    * places and a price change meant eight edits and a chance to miss one.
    */
-  priceFrom: "499 €",
+  priceFrom: "699 €",
   /** The same figure as a number, for structured data and the count-up. */
-  priceFromValue: 499,
-  priceFromLabel: "Webové projekty od 499 €",
+  priceFromValue: 699,
+  priceFromLabel: "Webové projekty od 699 €",
   /** The full sentence used wherever the price appears in running copy. */
   priceFromSentence:
-    "Webové projekty od 499 € — presnú cenu dohodneme po konzultácii.",
+    "Webové projekty od 699 € — presnú cenu dohodneme po konzultácii.",
   firstProposalHours: 72,
   responseHours: 24,
   typicalDeliveryDays: 14,
@@ -82,7 +82,7 @@ export const packages = [
     id: "profesionalny",
     name: "Profesionálny web",
     audience: "Pre firmu, ktorá chce jasne predstaviť svoje služby a získať dôveru zákazníkov.",
-    priceFrom: "499 €", priceFromValue: 499,
+    priceFrom: "699 €", priceFromValue: 699,
     scope: [
       "Vlastný vizuálny smer a prehľadná štruktúra obsahu",
       "Responzívne spracovanie pre mobil, tablet aj počítač",
@@ -96,7 +96,7 @@ export const packages = [
     id: "motion",
     name: "Motion web",
     audience: "Pre značku, ktorá chce spojiť profesionálny web s výrazným vizuálnym zážitkom.",
-    priceFrom: "699 €", priceFromValue: 699,
+    priceFrom: "1 199 €", priceFromValue: 1199,
     scope: [
       "Všetko z profesionálneho webu",
       "Vizuálny príbeh s pohybom naviazaným na scroll",
@@ -107,6 +107,25 @@ export const packages = [
     notIncluded: "e-shop, komplexné 3D aplikácie a platené externé služby",
   },
 ] as const
+
+/** Care scope and first-month offer agreed with Marcus, 2026-10-04. */
+export const coderaCare = {
+  name: "Codera Care",
+  price: "69 €",
+  priceValue: 69,
+  interval: "mesačne",
+  headline: "O váš web sa staráme aj po spustení.",
+  description: "Hosting, technická starostlivosť a drobné úpravy obsahu. Aby váš web zostal aktuálny.",
+  trial: "Prvý mesiac zdarma.",
+  trialStart: "Od ostrého spustenia webu.",
+  hosting: "Hosting u nás je súčasťou Codera Care. Bez služby si zabezpečíte vlastný hosting.",
+  scope: [
+    "Hosting vášho webu u nás.",
+    "Technická starostlivosť a drobné technické úpravy podľa potreby.",
+    "Aktualizácia fotiek, textov, cenníka, kontaktov či otváracích hodín v existujúcom obsahu.",
+  ],
+  scopeNote: "Nové sekcie, funkcie a redizajn naceníme samostatne.",
+} as const
 
 /**
  * WordPress work (Ondrej, 2026-09-07): edits and care for sites that already

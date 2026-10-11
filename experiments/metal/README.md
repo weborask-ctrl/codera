@@ -2,7 +2,7 @@
 
 ## Production candidate — 2026-09-24
 
-The production root is served by app/route.ts using the same template and motion source. New headline: Vaša firma. V lepšom svetle. Native camera travel is 600svh (700svh section). Visual-only uncropped project stacks replace framed cards and corner labels. Curves reveal the previous section color. The new offers are 499/699 EUR; the footer is a vector outline of the existing Geist wordmark. Build assets via npm run silver:assets (automatic before build). The old standalone entries below are historical.
+The production root is served by app/route.ts using the same template and motion source. New headline: Vaša firma. V lepšom svetle. Native camera travel is 600svh (700svh section). Visual-only uncropped project stacks replace framed cards and corner labels. Curves reveal the previous section color. The new offers are 599/1199 EUR; the footer is a vector outline of the existing Geist wordmark. Build assets via npm run silver:assets (automatic before build). The old standalone entries below are historical.
 
 Validation: npm run verify; six production-homepage tests and five unchanged interactive-demo tests in Edge; 36 production motion regressions; six-size stack/overflow captures. No physical-device validation. An invalid range on the local Next static server returned 500; valid byte ranges and actual video seeking pass. The standalone range-handler test is not applied to the Next static server. Verify deployed CDN range behavior at release.
 

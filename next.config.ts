@@ -22,6 +22,7 @@ const nextConfig: NextConfig = {
     return [
       { source: "/:path*", headers: securityHeaders },
       { source: "/motion/metal/journey-stream-f60088d67cff.mp4", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
+      { source: "/motion/metal/journey-balanced-4b593baa7f9b.mp4", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
       /* dev-only routes stay in the build for the capture tooling but must
          never be indexed (audit 2026-09-14 §10) */
       {

@@ -11,9 +11,9 @@ test.describe("Silver production homepage", () => {
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "index, follow")
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", "https://www.codera.sk/")
     await expect(page.locator('.offer')).toHaveCount(2)
-    await expect(page.locator('.offer').first()).toContainText("499 €")
-    await expect(page.locator('.offer').last()).toContainText("699 €")
-    await expect(page.locator('#motion-toggle')).toBeVisible()
+    await expect(page.locator('.offer').first()).toContainText("699 €")
+    await expect(page.locator('.offer').last()).toContainText("1 199 €")
+    await expect(page.locator('main')).toHaveJSProperty('inert', false, { timeout: 6000 })
     expect(await page.locator('script[src]').evaluateAll(nodes => nodes.every(n => Boolean((n as HTMLScriptElement).nonce)))).toBe(true)
     expect(await page.locator('script[type="application/ld+json"]').allTextContents()).toHaveLength(2)
     expect(errors).toEqual([])
@@ -53,6 +53,8 @@ test.describe("Silver production homepage", () => {
     await page.locator('#mobile-menu a[href="#praca"]').click()
     await expect(page.locator('#mobile-menu')).not.toBeVisible()
     expect(videos).toEqual([])
+    await expect(page.locator('#motion-toggle')).toBeHidden()
+    await expect(page.getByText('Spustiť animáciu', { exact: true })).toHaveCount(0)
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)
     expect(await page.locator('.project').first().evaluate(el=>getComputedStyle(el).position)).toBe('relative')
   })
@@ -72,7 +74,7 @@ test.describe("Silver production homepage", () => {
     await expect(home).toBeVisible()
     await home.click()
     await expect(page.locator('h1')).toContainText('Vaša firma.')
-    await expect(page.locator('#motion-toggle')).toBeVisible()
+    await expect(page.locator('main')).toHaveJSProperty('inert', false, { timeout: 6000 })
   })
 })
 
@@ -94,7 +96,9 @@ test('original film streams through native MediaSource and reverses under CSP', 
   expect(motion.delivery).toMatch(/^native-mse-(worker-)?single-fetch$/)
   expect([motion.width, motion.height]).toEqual([1920, 1080])
   await expect(page.locator('main')).toHaveJSProperty('inert', false, { timeout: 6000 })
-  if (!motion.active || motion.paused) await page.locator('#motion-toggle').click()
+  expect(motion.active).toBe(true)
+  expect(motion.paused).toBe(false)
+  await expect(page.locator('#motion-toggle')).toBeVisible()
   await page.locator('.journey').evaluate(element => scrollTo(0, element.getBoundingClientRect().top + scrollY + (element.clientHeight - innerHeight) * 0.7))
   await expect.poll(async () => (await read()).displayedTime, { timeout: 20000 }).toBeGreaterThan(9.5)
   await page.locator('.journey').evaluate(element => scrollTo(0, element.getBoundingClientRect().top + scrollY + (element.clientHeight - innerHeight) * 0.1))
@@ -103,3 +107,76 @@ test('original film streams through native MediaSource and reverses under CSP', 
   expect(motion.frames.length).toBeGreaterThan(2)
   expect(motion.error).toBe('')
 })
+
+test('automatic cover escape retains reserved geometry and starts late video without a click', async ({ page, browserName }) => {
+  test.skip(browserName !== 'chromium', 'Real AVC/MSE automatic entry is covered in Chromium.')
+  let release!: () => void
+  const gate = new Promise<void>(resolve => { release = resolve })
+  await page.context().route('**/motion/metal/*.mp4', async route => {
+    await gate
+    await route.continue().catch(() => {})
+  })
+  try {
+    await page.goto('/', { waitUntil: 'domcontentloaded' })
+    const initial = await page.locator('.journey').evaluate(element => ({ height: element.clientHeight, viewport: innerHeight }))
+    expect(initial.height).toBeGreaterThanOrEqual(initial.viewport * 6.9)
+    await expect(page.locator('main')).toHaveJSProperty('inert', false, { timeout: 6000 })
+    expect(await page.locator('.journey').evaluate(element => element.clientHeight)).toBe(initial.height)
+    expect(await page.evaluate(() => (window as unknown as { __coderaMotion?: { prepared: boolean } }).__coderaMotion?.prepared)).toBe(false)
+    release()
+    await page.waitForFunction(() => (window as unknown as { __coderaMotion?: { active: boolean; paused: boolean } }).__coderaMotion?.active, null, { timeout: 20000 })
+    expect(await page.locator('.journey').evaluate(element => element.clientHeight)).toBe(initial.height)
+    await expect(page.locator('#motion-toggle')).toBeVisible()
+    await expect(page.locator('#motion-toggle')).toHaveAttribute('aria-pressed', 'true')
+  } finally {
+    release()
+  }
+})
+
+test('explicit entry skip is respected when the video arrives later', async ({ page, browserName }) => {
+  test.skip(browserName !== 'chromium', 'Real AVC/MSE automatic entry is covered in Chromium.')
+  let release!: () => void
+  const gate = new Promise<void>(resolve => { release = resolve })
+  await page.context().route('**/motion/metal/*.mp4', async route => {
+    await gate
+    await route.continue().catch(() => {})
+  })
+  try {
+    await page.goto('/', { waitUntil: 'domcontentloaded' })
+    await page.locator('#entry-loader button').click({ timeout: 3500 })
+    await expect(page.locator('main')).toHaveJSProperty('inert', false)
+    const compactHeight = await page.locator('.journey').evaluate(element => element.clientHeight)
+    release()
+    await page.waitForFunction(() => (window as unknown as { __coderaMotion?: { prepared: boolean } }).__coderaMotion?.prepared, null, { timeout: 20000 })
+    const state = await page.evaluate(() => (window as unknown as { __coderaMotion: { active: boolean; paused: boolean } }).__coderaMotion)
+    expect(state.active).toBe(false)
+    expect(state.paused).toBe(true)
+    expect(await page.locator('.journey').evaluate(element => element.clientHeight)).toBe(compactHeight)
+  } finally {
+    release()
+  }
+})
+
+for (const legacyFrames of [false, true]) {
+  test(`automatic native MP4 without MediaSource, legacy frames: ${legacyFrames}`, async ({ page, browserName }) => {
+    test.skip(browserName !== 'chromium', 'Exercise capability fallbacks with an AVC decoder available in CI.')
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.addInitScript(legacy => {
+      Object.defineProperty(window, 'MediaSource', { value: undefined, configurable: true })
+      if (legacy) {
+        Object.defineProperty(HTMLVideoElement.prototype, 'requestVideoFrameCallback', { value: undefined, configurable: true })
+        Object.defineProperty(HTMLVideoElement.prototype, 'cancelVideoFrameCallback', { value: undefined, configurable: true })
+      }
+    }, legacyFrames)
+    await page.goto('/')
+    const read = () => page.evaluate(() => (window as unknown as { __coderaMotion: { active: boolean; delivery: string; displayedTime: number; error: string } }).__coderaMotion)
+    await expect.poll(async () => (await read()).active, { timeout: 20000 }).toBe(true)
+    expect((await read()).delivery).toBe('native-http')
+    await expect(page.locator('#motion-toggle')).toContainText('Zastaviť pohyb')
+    await page.locator('.journey').evaluate(e => scrollTo(0, (e.clientHeight - document.querySelector('.stage')!.clientHeight) * 0.3))
+    await expect.poll(async () => (await read()).displayedTime, { timeout: 15000 }).toBeGreaterThan(4)
+    await page.evaluate(() => scrollTo(0, 0))
+    await expect.poll(async () => (await read()).displayedTime, { timeout: 15000 }).toBeLessThan(3)
+    expect((await read()).error).toBe('')
+  })
+}
