@@ -324,7 +324,7 @@
     // the landed house: as large as the room beside the words allows (to the
     // right of the headline, above the caption; on phones the full width),
     // centred in it. A film transform { s, x, y } in px, from the layout.
-    var LAND = { s: 1.3, x: 0, y: 0 }, OPEN = { s: .86, x: 0, y: 0 };
+    var LAND = { s: 1.3, x: 0, y: 0 }, OPEN = { s: .86, x: 0, y: 0 }; var FLOOR = null;
     function landAim() {
       var p = poster.getBoundingClientRect();
       var saved = act.style.transform; act.style.transform = 'none';   // the frame as laid out
@@ -351,7 +351,15 @@
       }
       // client, 2026-09-25: 40 % larger than the old fixed ×1.3 landing —
       // as far as the room allows (a phone is 1.56 at most: its width)
-      var s = Math.max(1.3, Math.min(1.3 * 1.4, (R0 - L0) / cw, (B0 - T0) / ch));
+      // phones: under the facts, never over them — a short screen (360×640)
+      // landed the house on their last line (AI-bible pass, 2026-10-11);
+      // there it may be smaller than 1.3 rather than cover words
+      var tx0 = poster.querySelector('.ptext');
+      if (!wide() && tx0) {
+        T0 = tx0.getBoundingClientRect().bottom - p.top + 10;
+        B0 = Math.max(T0 + 120, innerHeight - 10);
+      }
+      var s = Math.max(wide() ? 1.3 : .8, Math.min(1.3 * 1.4, (R0 - L0) / cw, (B0 - T0) / ch));
       var cy = Math.min(Math.max(fy, T0 + ch * s / 2), B0 - ch * s / 2);
       LAND = { s: s, x: cx - fx - s * (cx0 - fx), y: cy - fy - s * (cy0 - fy) };
       // opened (client, 2026-09-25): the levels as large as the closed house,
@@ -371,11 +379,13 @@
         U1 = innerHeight - 16;
       } else if (leg && tx) {
         U0 = tx.getBoundingClientRect().bottom - p.top + 10;
-        U1 = leg.getBoundingClientRect().top - p.top - 4;
+        // a short phone pushes the names under the screen: the house still ends on it
+        U1 = Math.min(leg.getBoundingClientRect().top - p.top - 4, innerHeight - 10);
       }
       var so = Math.max(.6, Math.min(s, (U1 - U0) / ch1));
       var oy = Math.min(Math.max(fy, U0 + ch1 * so / 2), U1 - ch1 * so / 2);
       OPEN = { s: so, x: cx - fx - so * (cx0 - fx), y: oy - fy - so * (cy1 - fy) };
+      FLOOR = { t: F.t, h: F.h, fy: fy, fx: fx, cx: cx, cx0: cx0, U0: U0 };   // apply(): the roof stays under the words
       act.style.setProperty('--os', so);                      // the numbers ride on the levels
       var ols = act.querySelector('.olabels');
       if (ols) gsap.set(ols, { x: OPEN.x, y: OPEN.y });
@@ -512,8 +522,26 @@
         var q = ease(Math.min(1, Math.max(0, (p - .04) / .72)));
         seek(END - q * (END - OPEN_T));
         // landed → opened (see landAim): the levels keep their size
-        gsap.set(film, { scale: LAND.s + (OPEN.s - LAND.s) * q, x: LAND.x + (OPEN.x - LAND.x) * q,
-          y: LAND.y + (OPEN.y - LAND.y) * q });
+        var sq = LAND.s + (OPEN.s - LAND.s) * q, yq = LAND.y + (OPEN.y - LAND.y) * q;
+        // stacked on a phone, the levels part upward faster than the film
+        // glides down: mid-way the roof rose over the last line of the facts
+        // (AI-bible pass, 2026-10-11) — its top is held under the words
+        var xq = LAND.x + (OPEN.x - LAND.x) * q;
+        if (!wide() && FLOOR) {
+          var rt = FLOOR.t + FLOOR.h * top(want), ft = FLOOR.t + FLOOR.h * BOX.b;   // roof, foot in the frame
+          var roof = FLOOR.fy + yq + sq * (rt - FLOOR.fy);
+          var u0 = FLOOR.U0 + 8;                              // a seek lags its wish by a frame or two
+          if (roof < u0) {
+            // … and on a short phone the whole house still fits above the screen's foot
+            var room = innerHeight - 10 - u0;
+            if (sq * (ft - rt) > room) {
+              sq = room / (ft - rt);
+              xq = FLOOR.cx - FLOOR.fx - sq * (FLOOR.cx0 - FLOOR.fx);
+            }
+            yq = u0 - FLOOR.fy - sq * (rt - FLOOR.fy);
+          }
+        }
+        gsap.set(film, { scale: sq, x: xq, y: yq });
         var open = p > .8;
         act.classList.toggle('open', open); poster.classList.toggle('opened', open);
       }
