@@ -1145,3 +1145,29 @@ ani generické frázy. Opravené boli tri miesta na telefóne:
   s prázdnom medzi nimi. Oddeľovač pod plánom už nie je.
 
 Ostatné „diery“ z auditu sú zámerné prišpendlené scény (film domu, stena) a posuvné pásy na mobile.
+
+**31b — zvyšok checklistu z AI biblie (2026-10-11).**
+
+- **Výkon.** Pri načítaní 0,5–1,4 MB na stránku a LCP do 0,4 s lokálne. Telefón dostane 720p video,
+  v konzole nie sú chyby. Netreba nič meniť.
+- **AI obrázky, jeden po druhom.** Vrstvy domu (`renders/lyr-*.webp`) mali zvyšky z orezania.
+  Základová doska niesla bledý tieň so zubatým okrajom, poschodia mali biely lem na spodných hranách.
+  Doska dostala čistú masku podľa svojho tvaru a mäkký tieň, ktorý zanikne pred okrajom súboru.
+  Poschodiam sa odstránil svetlý lem a voľné škvrny starého tieňa. Opravené súbory sú v `renders/`,
+  jednorazový skript sa nekomitol.
+- **Text prekrytý animáciou (telefón).** Pri rozkladaní domu vystúpila strecha nad posledný riadok
+  čísel, lebo poschodia sa rozostupujú rýchlejšie, ako video klesá. Na krátkom telefóne (360×640)
+  ležal na číslach aj zložený dom v pokoji. Teraz je na telefóne vrch domu vždy pod textom. Ak sa
+  dom nezmestí, zmenší sa (najmenej 0,8) a otvorený dom končí na obrazovke. Zmerané podľa pixelov
+  videa na 360×640, 375×667, 390×844, 430×932, 768×1024 a 820×1180: žiadne prekrytie.
+- **Prechody medzi podstránkami.** Desktop aj telefón, 10 prechodov a 2× Späť: každá stránka
+  začína hore, bez visiaceho náhľadu a bez chýb.
+- **Test so zakrytým logom a porovnanie s referenciami.** Bez loga web jasne patrí drevostavbárovi.
+  Porovnanie s igloo, basement, refokus, lusion a exoape: tmavá scéna Stena dýcha s anotáciami
+  (igloo, lusion) obstojí. Hárok Stena na svetlom papieri je pokojnejší a menej atmosférický ako igloo.
+  Je to zámerne nástroj, nie scéna, a zostáva tak. Register realizácií je redšie ako basement,
+  zodpovedá to temperamentu klienta.
+- **Ostáva, zatiaľ neopravené.** Vo videu domu (Kling) sa v čase 1,5–2,2 s pri schodisku na okamih
+  objaví priesvitná postava a obklad sa počas skladania zmení zo strieškových dosiek na zvislé lamely.
+  Prvé snímky nesú aj starý biely lem, lebo štartovací snímok vznikol zo starých vrstiev. Oprava
+  znamená nové video (jedna platená generácia), o tom rozhodne Ondrej.
