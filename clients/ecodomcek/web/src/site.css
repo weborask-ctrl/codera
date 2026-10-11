@@ -2046,3 +2046,8 @@ body[data-band="dusk"] header{background:#12100e}
 @media (max-width:820px){ .tpay{grid-column:1/-1} }
 /* phone: the three steps and the form were glued together */
 @media (max-width:820px){ .kside{margin-bottom:34px} }
+/* 2026-10-11 · Stena joins Technológia: the slabs follow the masthead */
+.texlead .lead{margin:0}
+.texlead .lead + .lead{margin-top:.8em}
+/* phone: the stage no longer opens a page — no room kept for the bar */
+@media (max-width:820px){ .tmast + .wallpage .wallstage{padding-top:clamp(40px,6vh,64px)} }

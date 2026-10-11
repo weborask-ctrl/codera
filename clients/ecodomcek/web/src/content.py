@@ -35,7 +35,6 @@ NAV = [
     ("Úvod", "index.html"),
     ("Realizácie <sup>8</sup>", "realizacie.html"),
     ("Služby <sup>12</sup>", "sluzby.html"),
-    ("Stena", "stena.html"),
     ("Technológia", "technologia.html"),
     ("O nás", "o-nas.html"),
     ("Kontakt", "kontakt.html"),

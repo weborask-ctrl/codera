@@ -471,9 +471,9 @@ def build(B):
     <h2 class="fade">{lines("Eko nie je iba|prázdna fráza.")}</h2>
     <p class="lead fade d2">„…my, konzervatívni Slováci jej veľmi nedôverujeme…“ Preto drevostavbu
       neschovávame – sedem vrstiev, každá s menom.</p>
-    <div class="fade d3">{btn("Roztiahnuť stenu", "stena.html")}</div>
+    <div class="fade d3">{btn("Roztiahnuť stenu", "technologia.html#stena")}</div>
   </div>
-  <a class="wt-art" href="stena.html" aria-label="Otvoriť stenu">
+  <a class="wt-art" href="technologia.html#stena" aria-label="Otvoriť stenu">
     <img src="assets/beat4.jpg" alt="Rez stenou – AI vizualizácia" loading="lazy">
   </a>
 </div>''') + section(3, "Ulica", "paper", f'''<div class="wrap streethead" data-reveal>
@@ -803,7 +803,7 @@ def build(B):
     # 5 — TECHNOLÓGIA — „prečo tomu veriť"
     #
     # Two pages already show HOW the house is made (the assembling house on
-    # the home page, the seven-layer wall on stena.html). This page answers
+    # the home page, the seven-layer wall right below). This page answers
     # the question the client himself names — „my, konzervatívni Slováci jej
     # veľmi nedôverujeme" — and shows neither of them again.
     #
@@ -821,7 +821,7 @@ def build(B):
     # ═══════════════════════════════════════════════════════════════════
     # the section bands outside → inside, the order WALL_TEXT uses. Widths
     # are schematic (the client confirms real thicknesses); names and
-    # sentences are WALL_TEXT, shared with stena.html.
+    # sentences are WALL_TEXT, shared with the slabs above.
     # src/section.py paints the material image with these same widths
     VBANDS = [("ob", 1.15), ("med", .85), ("dvd", 1.3), ("nos", 4.1), ("pb", .3),
               ("pre", 1.35), ("sdk", .55)]
@@ -837,6 +837,40 @@ def build(B):
         key += f'<li><button type="button" aria-pressed="false"><i>{i + 1:02d}</i>{esc(n)}</button></li>'
     bands_json = ",".join(f"{w / total:.4f}" for _, w in VBANDS)
 
+    # 2026-10-11, client: Stena and Technológia are one page. The seven
+    # slabs you pull apart come right after the question (what the wall is
+    # made of), the vapour stage after them (why it lasts) — one wall, told
+    # twice, never on two pages. stena.html stays as a redirect.
+    # The slabs: lusion.md (input maps to motion instantly), igloo.md (labels
+    # over a photoreal object in a light world), 08 §5 one hero object.
+    WL = json.loads((REND / "wall-layers.json").read_text())
+    slabs = ""; tags = ""
+    for i, wkey in enumerate(WL["order"]):
+        l = WL["layers"][wkey]
+        n, t = C.WALL_TEXT[i]
+        slabs += (f'<div class="slab" data-i="{i}" style="left:{l["x"] * 100:.2f}%;top:{l["y"] * 100:.2f}%;'
+                  f'width:{l["w"] * 100:.2f}%;aspect-ratio:{l["w"] * WL["W"]:.0f}/{l["h"] * WL["H"]:.0f}">'
+                  f'<img src="assets/wall-{i + 1}-{wkey}.webp" alt="{esc(n)}" draggable="false" loading="eager"></div>')
+        tags += (f'<div class="tag" data-i="{i}" style="left:{l["x"] * 100:.2f}%;width:{l["w"] * 100:.2f}%">'
+                 f'<b>{i + 1:02d}</b><span>{esc(n)}</span><p>{esc(t)}</p></div>')
+    wall = f'''<section class="band wallpage" id="stena" data-sec="Stena">
+  <div class="walltrack" data-wall>
+    <div class="wallstage" data-reveal>
+      <h2 class="wl"><span class="rl"><span>Potiahnite stenu.</span></span></h2>
+      <div class="slabs" style="aspect-ratio:{WL["W"]}/{WL["H"]}">{slabs}</div>
+      <div class="tags">{tags}</div>
+      <p class="tagdesc"></p>
+      <div class="handle mono" aria-hidden="true"><i></i><span class="h-wide">Ťahajte doprava — alebo scrollujte</span><span class="h-drag">Ťahajte doprava</span><span class="h-rm">Ťahajte doľava — stena sa zloží</span></div>
+      <div class="wallbar">
+        <span class="mono">zvonku</span>
+        <div class="meter"><b></b></div>
+        <span class="mono">dnu</span>
+      </div>
+      <span class="vz mono">Orientačná skladba – hrúbky a U-hodnotu potvrdí EcoDomček.</span>
+    </div>
+  </div>
+</section>'''
+
     tech = f'''<section class="band moss tmast" data-sec="Technológia" data-band="moss">
   <div class="wrap tmgrid" data-reveal>
     <div class="tml">
@@ -850,11 +884,16 @@ def build(B):
   </div>
 </section>'''
 
+    tech += wall
     tech += section(1, "Stena dýcha", "paper", f'''<div class="wrap tex" data-reveal>
   <div class="texhead">
     <h2>{lines("Stena dýcha.")}</h2>
-    <p class="lead fade d2">Difúzne otvorená stavba znamená, že stena vie prepustiť vodnú paru von.
-      Vlhkosť v nej neostáva stáť — a to je hlavný dôvod, prečo drevostavba vydrží.</p>
+    <div class="texlead fade d2">
+      <p class="lead">Difúzne otvorená stavba znamená, že stena vie prepustiť vodnú paru von.
+        Vlhkosť v nej neostáva stáť — a to je hlavný dôvod, prečo drevostavba vydrží.</p>
+      <p class="lead">Zatepľujeme prírodnými izoláciami na báze drevného vlákna alebo minerálnou
+        vatou — podľa toho, čo stavba potrebuje.</p>
+    </div>
   </div>
   <figure class="stage fade d2" data-vapour data-bands="{bands_json}"
     data-src="assets/sec-l.webp" data-thumb="assets/sec-s.webp">
@@ -909,9 +948,9 @@ def build(B):
 </div>''')
 
     tech += contact_band("technologia.html")
-    page("technologia.html", "Technológia — prečo drevostavbe veriť — EcoDomček",
-         "Difúzne otvorená drevostavba: prečo stena dýcha, prečo v lete chladí a v zime hreje, "
-         "a z čoho sme na našich stavbách naozaj stavali.",
+    page("technologia.html", "Technológia a stena — prečo drevostavbe veriť — EcoDomček",
+         "Difúzne otvorená drevostavba: sedem vrstiev steny, ktoré môžete roztiahnuť, prečo stena "
+         "dýcha, prečo v lete chladí a v zime hreje, a z čoho sme na našich stavbách naozaj stavali.",
          tech, "technologia", band="moss", first="Technológia")
 
     # ═══════════════════════════════════════════════════════════════════
@@ -991,56 +1030,7 @@ def build(B):
          "Roman Chovanec si v roku 2007 svojpomocne postavil drevodom. Z nadšenia vznikla v roku "
          "2017 firma EcoDomček, s.r.o. z Lúčiny pri Prešove.", about, "o-nas", first="O nás")
 
-    # ═══════════════════════════════════════════════════════════════════
-    # 8 — STENA — the 5D wall: seven slabs you pull apart
-    # (lusion.md: input maps to motion instantly; igloo.md: labels over a
-    # photoreal object in a light world; 08 §5 one hero object, held shots)
-    # ═══════════════════════════════════════════════════════════════════
-    WL = json.loads((REND / "wall-layers.json").read_text())
-    slabs = ""; tags = ""
-    for i, key in enumerate(WL["order"]):
-        l = WL["layers"][key]
-        n, t = C.WALL_TEXT[i]
-        slabs += (f'<div class="slab" data-i="{i}" style="left:{l["x"] * 100:.2f}%;top:{l["y"] * 100:.2f}%;'
-                  f'width:{l["w"] * 100:.2f}%;aspect-ratio:{l["w"] * WL["W"]:.0f}/{l["h"] * WL["H"]:.0f}">'
-                  f'<img src="assets/wall-{i + 1}-{key}.webp" alt="{esc(n)}" draggable="false" loading="eager"></div>')
-        tags += (f'<div class="tag" data-i="{i}" style="left:{l["x"] * 100:.2f}%;width:{l["w"] * 100:.2f}%">'
-                 f'<b>{i + 1:02d}</b><span>{esc(n)}</span><p>{esc(t)}</p></div>')
-    wall = f'''<section class="band wallpage" id="wall" data-sec="Stena">
-  <div class="walltrack" data-wall>
-    <div class="wallstage" data-reveal>
-      <h1 class="wl"><span class="rl"><span>Potiahnite stenu.</span></span></h1>
-      <div class="slabs" style="aspect-ratio:{WL["W"]}/{WL["H"]}">{slabs}</div>
-      <div class="tags">{tags}</div>
-      <p class="tagdesc"></p>
-      <div class="handle mono" aria-hidden="true"><i></i><span class="h-wide">Ťahajte doprava — alebo scrollujte</span><span class="h-drag">Ťahajte doprava</span><span class="h-rm">Ťahajte doľava — stena sa zloží</span></div>
-      <div class="wallbar">
-        <span class="mono">zvonku</span>
-        <div class="meter"><b></b></div>
-        <span class="mono">dnu</span>
-      </div>
-      <span class="vz mono">Orientačná skladba – hrúbky a U-hodnotu potvrdí EcoDomček.</span>
-    </div>
-  </div>
-</section>'''
-    wall += section(1, "Prečo difúzne otvorená", "moss", f'''<div class="wrap wallwhy" data-reveal>
-  <h2 class="big fade">{lines("Prečo difúzne|otvorená?")}</h2>
-  <div class="wallcols fade d2">
-    <p class="lead">Stena, ktorá vie prepustiť vodnú paru von. Vlhkosť v nej neostáva stáť —
-      a to je hlavný dôvod, prečo drevostavba vydrží. Aj keď je to u nás ešte stále pomerne nová
-      technológia, v USA a Kanade je osvedčená už viac ako 200 rokov a preverená náročnejšími
-      klimatickými podmienkami, ako u nás.</p>
-    <p class="lead">Zatepľujeme prírodnými izoláciami na báze drevného vlákna alebo minerálnou
-      vatou — podľa toho, čo stavba potrebuje. Konštrukcia vzniká ako montovaná drevostavba — od
-      základov až po kolaudáciu.</p>
-  </div>
-  <div class="fade d3">{btn("Celá technológia", "technologia.html")}{btn("Zavolajte " + C.PHONE, "tel:" + C.PHONE_RAW, ghost=True, arrow=False)}</div>
-</div>''')
-    wall += contact_band("stena.html")
-    page("stena.html", "Stena — sedem vrstiev, ktoré môžete roztiahnuť — EcoDomček",
-         "Interaktívna skladba difúzne otvorenej steny: obklad, vetraná medzera, drevovláknitá "
-         "doska, nosná konštrukcia s izoláciou, parobrzda, inštalačná predstena, sadrokartón.",
-         wall, "stena", first="Stena")
+
 
     # ═══════════════════════════════════════════════════════════════════
     # 7 — KONTAKT
@@ -1126,3 +1116,15 @@ def build(B):
 </div>''')
     page("404.html", "Stránka nenájdená — EcoDomček", "Táto adresa na webe EcoDomčeka neexistuje.",
          lost, "lost", first="404")
+
+    # stena.html was its own page until 2026-10-11; the wall now lives on
+    # technologia.html. Old links and bookmarks land on it, not on a 404
+    # (no script: the concept's CSP runs only same-origin files).
+    (B["DIST"] / "stena.html").write_text(
+        '<!doctype html><html lang="sk"><head><meta charset="utf-8">'
+        '<meta name="robots" content="noindex">'
+        f'<link rel="canonical" href="{C.SITE}technologia.html">'
+        '<meta http-equiv="refresh" content="0; url=technologia.html#stena">'
+        '<title>Stena — EcoDomček</title></head><body>'
+        '<p><a href="technologia.html#stena">Stena je teraz na stránke Technológia.</a></p>'
+        '</body></html>', encoding="utf-8")
