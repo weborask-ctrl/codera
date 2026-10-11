@@ -1131,3 +1131,17 @@ Referencie: **basement**, **onyx** (hustý register, každá bunka nesie obsah).
 obrázok, náhľad z registra realizácií alebo materiálov. Náhľad ide za myšou, a keď sa na riadok
 kliklo, stránka sa vymenila pod kurzorom, takže udalosť opustenia riadku (`mouseleave`) nikdy
 neprišla. Router ho teraz schová pri každom odchode zo stránky.
+
+**31 — kontrola podľa AI biblie (2026-10-11).** Web prešiel checklistom z dokumentu „AI biblia“.
+Automatický audit pokryl 9 stránok na šírkach 360, 768, 1024, 1440, 1920 a 2560 a s redukovaným
+pohybom: pretečenie do strán, orezaný text, diery väčšie ako 45 % obrazovky. Potom sa podozrivé
+miesta pozreli na screenshotoch. V poriadku sú tieto body: AI poznámka v pätičke na každej
+stránke, alt texty, Koncept + noindex (`publish.py`), licencia písiem, žiadne vymyslené fakty
+ani generické frázy. Opravené boli tri miesta na telefóne:
+
+- Technológia: citát o návratnosti stál v polovičnom stĺpci vedľa prázdna. Teraz ide cez celú šírku.
+- Kontakt: tri kroky boli nalepené na formulár. Pribudla medzera 34 px.
+- Detail realizácie: oddeľovač sekcie a vrchná čiara tabuľky tvorili dve čiary 40 px nad sebou,
+  s prázdnom medzi nimi. Oddeľovač pod plánom už nie je.
+
+Ostatné „diery“ z auditu sú zámerné prišpendlené scény (film domu, stena) a posuvné pásy na mobile.

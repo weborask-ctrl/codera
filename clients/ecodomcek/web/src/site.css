@@ -2037,3 +2037,12 @@ body[data-band="dusk"] header{background:#12100e}
 @media (max-width:820px){ .blog .lcall{margin-bottom:29px} }
 .streethead .lead{margin-top:0}
 .streethead{margin-bottom:0}
+/* 2026-10-11 · AI-bible checklist pass ("no holes", one line per edge) */
+/* the hairline table under the plate draws its own top rule: no band
+   separator 40 px above it as a second, empty line */
+.sheet + .band::before{display:none}
+/* phone: the payback quote runs the width under both seasons, not in a
+   half column beside nothing */
+@media (max-width:820px){ .tpay{grid-column:1/-1} }
+/* phone: the three steps and the form were glued together */
+@media (max-width:820px){ .kside{margin-bottom:34px} }
