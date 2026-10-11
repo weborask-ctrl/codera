@@ -1171,3 +1171,20 @@ Ostatné „diery“ z auditu sú zámerné prišpendlené scény (film domu, st
   objaví priesvitná postava a obklad sa počas skladania zmení zo strieškových dosiek na zvislé lamely.
   Prvé snímky nesú aj starý biely lem, lebo štartovací snímok vznikol zo starých vrstiev. Oprava
   znamená nové video (jedna platená generácia), o tom rozhodne Ondrej.
+
+**32 — Stena a Technológia sú jedna stránka (klient, 2026-10-11).** Obe stránky rozprávali
+o tej istej stene. Teraz je to jeden príbeh na `technologia.html`:
+
+1. otázka „Drevostavbe sa nedá veriť?“ s číslom 200+,
+2. sedem vrstiev, ktoré si návštevník roztiahne („Potiahnite stenu.“, kotva `#stena`),
+3. tmavá scéna „Stena dýcha“ s parou,
+4. leto a zima,
+5. materiály.
+
+Pás „Prečo difúzne otvorená?“ zo stránky Stena odpadol. Opakoval citát o 200 rokoch a vetu
+o pare, ktoré už na stránke sú. Jediná nová veta (izolácia z drevného vlákna alebo minerálnej
+vaty) prešla pod „Stena dýcha“.
+
+V menu je o položku menej. Odkazy z úvodu vedú na `technologia.html#stena`. `stena.html` ostáva
+ako presmerovanie (meta refresh, noindex, canonical), aby staré odkazy neskončili na 404.
+Nie je v sitemap ani v jednosúborovom balíku.

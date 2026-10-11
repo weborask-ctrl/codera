@@ -7,7 +7,7 @@ const { chromium } = require('playwright');
   await page.goto('file://' + process.cwd() + '/dist/ecodomcek.html', { waitUntil: 'load' });
   await page.waitForTimeout(4800); console.log('home', JSON.stringify(await state()));
   await page.screenshot({ path: 'shots/bundle-home.png' });
-  await page.click('header nav a[href="stena.html"]'); await page.waitForTimeout(2200); console.log('stena', JSON.stringify(await state()));
+  await page.click('header nav a[href="technologia.html"]'); await page.waitForTimeout(2200); console.log('technologia', JSON.stringify(await state()));
   await page.screenshot({ path: 'shots/bundle-stena.png' });
   await page.click('header nav a[href="realizacie.html"]'); await page.waitForTimeout(2000); console.log('realizacie', JSON.stringify(await state()));
   await page.click('.job'); await page.waitForTimeout(2000); console.log('detail', JSON.stringify(await state()), await page.evaluate(() => document.querySelector('h1').textContent.trim().slice(0,30)));
