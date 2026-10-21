@@ -183,7 +183,7 @@ Text doslovne:
 >
 > Spoznajte nás:
 
-Potom 4 dlaždice-odkazy (obsah po kliknutí ❌): „…s čím pracujeme…" (dom
+Potom 4 dlaždice-odkazy (obsah pod dlaždicami získaný 2026-10-21 z about-company.html, je v `content.py`: INSULATION, BORAX, CONDUCT, VALUES): „…s čím pracujeme…" (dom
 v šále — teplo/izolácia) · „…s čím pracujeme…" (kopy soli — bórax) ·
 „…správame sa tak…" (smajlíky) · „…naše hodnoty…" (helma).
 

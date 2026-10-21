@@ -891,8 +891,6 @@ def build(B):
     <div class="texlead fade d2">
       <p class="lead">Difúzne otvorená stavba znamená, že stena vie prepustiť vodnú paru von.
         Vlhkosť v nej neostáva stáť — a to je hlavný dôvod, prečo drevostavba vydrží.</p>
-      <p class="lead">Zatepľujeme prírodnými izoláciami na báze drevného vlákna alebo minerálnou
-        vatou — podľa toho, čo stavba potrebuje.</p>
     </div>
   </div>
   <figure class="stage fade d2" data-vapour data-bands="{bands_json}"
@@ -944,7 +942,15 @@ def build(B):
   <div class="tmh">
     <h2>{lines("Z čoho sme|naozaj stavali.")}</h2>
   </div>
-  <div class="mledger fade d2" data-peek>{mrows}</div>
+  <div class="mright">
+    <div class="mwith fade d2">
+      <div><span class="mono">Zateplenie</span><p>{esc(C.INSULATION_LEAD)}</p>
+        <ul>{"".join(f"<li>{esc(x)}</li>" for x in C.INSULATION)}</ul></div>
+      <div><span class="mono">Ochrana dreva</span><p>{esc(C.BORAX_LEAD)}</p>
+        <ul>{"".join(f"<li>{esc(x)}</li>" for x in C.BORAX)}</ul></div>
+    </div>
+    <div class="mledger fade d2" data-peek>{mrows}</div>
+  </div>
 </div>''')
 
     tech += contact_band("technologia.html")
@@ -1019,7 +1025,24 @@ def build(B):
     fráza. Že správať sa a žiť EKOlogicky je správne a rozmýšľať EKOnomicky výhodné.</p></div>
   {root}
 </div>''')
-    about += section(3, "Zákaznícke vyjadrenia", "paper", f'''<div class="wrap" data-reveal>
+    # „Spoznajte nás" — what the client's own site hid under four hover
+    # tiles (captured 2026-10-21). basement.md: a hairline ledger dense with
+    # real content; the two lists keep the client's own labels (100 % VY,
+    # 100 % MY, the five values) and nothing else.
+    crow = "".join(f'<li><i class="mono">{esc(k) if k else f"{j + 1:02d}"}</i><p>{esc(t)}</p></li>'
+                   for j, (k, t) in enumerate(C.CONDUCT))
+    vrow = "".join(f'<li><b>{esc(k)}</b><p>{esc(t)}</p></li>' for k, t in C.VALUES)
+    about += section(3, "Ako pracujeme", "paper", f'''<div class="wrap ethos" data-reveal>
+  <div class="eblock">
+    <h2 class="fade">{lines("Správame sa tak,")}</h2>
+    <ol class="elist fade d2">{crow}</ol>
+  </div>
+  <div class="eblock">
+    <h2 class="fade">{lines("Naše hodnoty.")}</h2>
+    <ul class="elist vals fade d2">{vrow}</ul>
+  </div>
+</div>''')
+    about += section(4, "Zákaznícke vyjadrenia", "paper", f'''<div class="wrap" data-reveal>
   <h2 style="margin:18px 0 40px;max-width:16ch">{lines("Ľudia, ktorým sme|už stavali.")}</h2>
   {testimonials(full=True)}
   <p class="fine fade d3" style="margin-top:26px">{esc(C.REVIEWS_NOTE)} Ďalšie zverejníme, keď k nim
