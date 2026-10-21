@@ -219,3 +219,40 @@ WALL_TEXT = [
     ("Sadrokartón, maľba",
      "Sadrokartón je tá najbežnejšia finálna vrstva pri suchej výstavbe."),
 ]
+
+# ── „Spoznajte nás" — the four hover tiles on the client's about-company.html
+# (captured 2026-10-21; CONTENT_INVENTORY.md had them as „obsah po kliknutí ❌").
+# VERBATIM, only the client's own grammar evened out in the list items.
+INSULATION_LEAD = "V zásade zateplíme čímkoľvek, ale radi pracujeme s prírodnými materiálmi, napr.:"
+INSULATION = [
+    "izoláciami na báze drevených vlákien",
+    "konope",
+    "ovčou vlnou",
+    "minerálnymi vlnami bez zdraviu škodlivých spojív (formaldehydov)",
+    "podobne veľkoplošnými doskami",
+]
+BORAX_LEAD = ("Proti škodcom impregnujeme drevo boritou soľou — prírodný produkt, ktorý sa "
+              "získava z prírodných soľných jazier.")
+BORAX = ["je účinná", "trvácna", "lacnejšia ako bežne dostupné toxické nátery"]
+CONDUCT = [   # „Správame sa tak, …"
+    ("", "aby sme neškodili sebe ani druhým a mohli sa aj po rokoch pozrieť zákazníkovi do očí "
+         "a on nás odporučil svojim známym. Investorovi nerobíme to, čo by sa nepáčilo nám, ak by "
+         "to robili nejakí robotníci."),
+    ("", "S investorom sa snažíme nadviazať vzťah založený na vzájomnej dôvere, nie len strohý "
+         "obchodný kontrakt."),
+    ("100 % VY", "Neberieme viac stavieb naraz — aby sme potom neodbiehali a nestíhali ani na "
+                 "jednej. Svoj čas venujeme na 100 % vám."),
+    ("100 % MY", "Každú stavbu robíme osobne — fyzicky, manažérsky i logisticky. Nenajímam si "
+                 "partie neznámych ľudí, ktorým nemôžem dôverovať."),
+]
+VALUES = [    # „Naše hodnoty"
+    ("Individuálny prístup", "Zákazník nie je len „jeden z mnohých“, z ktorého budem mať biznis. "
+                             "Je to človek (ako každý z nás), ktorý má svoje sny, a my sa mu ich "
+                             "snažíme pomôcť naplniť."),
+    ("Sme dobrá partia", "Nie sme len „spolupracovníci“, ale priatelia, ktorí sa vedia podržať."),
+    ("Slušnosť", "Prístup celej partie je založený na hodnotách, ktoré vyznávame — jednáme férovo, "
+                 "na pracovisku nenájdete žiaden alkohol. Podľa toho si vyberáme aj svojich kolegov."),
+    ("Ústretovosť", "Vyhovieme požiadavkám na zmeny v priebehu stavby (aj napriek osobnej časovej "
+                    "či finančnej strate)."),
+    ("Poriadok na stavenisku", "Počas stavby aj po nej."),
+]

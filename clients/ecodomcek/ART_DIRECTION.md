@@ -1188,3 +1188,18 @@ vaty) prešla pod „Stena dýcha“.
 V menu je o položku menej. Odkazy z úvodu vedú na `technologia.html#stena`. `stena.html` ostáva
 ako presmerovanie (meta refresh, noindex, canonical), aby staré odkazy neskončili na 404.
 Nie je v sitemap ani v jednosúborovom balíku.
+
+**33 — „Spoznajte nás“: skryté texty klienta (2026-10-21).** Na pôvodnom webe (O nás) sú štyri
+dlaždice. Ich text sa ukáže až po nabehnutí myšou, preto ho súpis obsahu nezachytil a redizajn
+ho nemal. Teraz je v `content.py`, doslovne, opravená je len gramatika položiek zoznamu.
+
+- **O nás**, nová časť „Ako pracujeme“: dva zoznamy s tenkými linkami vedľa seba (basement:
+  každá bunka nesie skutočný obsah).
+  - „Správame sa tak,“: 01, 02, 100 % VY, 100 % MY.
+  - „Naše hodnoty.“: individuálny prístup, dobrá partia, slušnosť (bez alkoholu na pracovisku),
+    ústretovosť, poriadok na stavenisku.
+  - Na desktope ľavý, kratší zoznam pri scrollovaní stojí, aby pod ním nezostala prázdna plocha.
+- **Technológia → Materiály**: nad register materiálov pribudlo „Zateplenie“ (drevené vlákna,
+  konope, ovčia vlna, minerálna vlna bez formaldehydov, veľkoplošné dosky) a „Ochrana dreva“
+  (impregnácia boritou soľou: účinná, trvácna, lacnejšia ako toxické nátery). Naša parafráza
+  o izolácii pod „Stena dýcha“ odpadla, lebo vlastné slová klienta sú teraz na stránke.
