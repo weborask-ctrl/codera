@@ -15,6 +15,8 @@ import { siteConfig } from "@/lib/site-config"
  */
 const routes: { path: string; changeFrequency: "monthly" | "weekly" }[] = [
   { path: "", changeFrequency: "monthly" },
+  { path: "/ochrana-osobnych-udajov", changeFrequency: "monthly" },
+  { path: "/obchodne-podmienky", changeFrequency: "monthly" },
   /* The Žiara-era case studies (/praca/*) were retired 2026-09-14 — they
      described a direction the homepage no longer shows and nothing linked
      to them; they redirect to the demos, which are noindex by design. */

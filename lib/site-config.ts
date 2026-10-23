@@ -175,14 +175,48 @@ export const faq = [
  * Legal identification.
  *
  * Codera currently has no trade licence or registered company, so there is
- * nothing truthful to publish. Do not add IČO, DIČ, sídlo or "s.r.o." here
- * until the entity actually exists — an invented registry number on a live
- * site is a legal problem, not a cosmetic gap.
+ * nothing truthful to publish. Do not invent IČO, DIČ, sídlo or "s.r.o." here:
+ * an invented registry number on a live site is a legal problem, not a
+ * cosmetic gap. Fill `operator` with the founders' real trade-licence data
+ * and set `hasRegisteredEntity` to true; until then the footer shows no
+ * identification and the legal pages show visible "doplní sa" placeholders.
  */
 export const legal = {
-  hasRegisteredEntity: false,
+  hasRegisteredEntity: false as boolean,
+  operator: {
+    /** Trade name exactly as in the trade register, e.g. "Meno Priezvisko – Codera". */
+    name: "",
+    /** Miesto podnikania. */
+    address: "",
+    ico: "",
+    /** e.g. "Okresný úrad Bratislava, č. živnostenského registra 110-123456". */
+    registry: "",
+    /** null until known; drives the "nie sme platitelia DPH" line. */
+    vatPayer: null as boolean | null,
+  },
+  /** The date the published privacy policy and terms take effect (D. M. RRRR). */
+  effectiveFrom: "",
   /** Shown in the footer instead of registry data. */
   note: "Codera je štúdio dvoch ľudí. Fakturačné údaje doplníme pri prvej objednávke.",
+} as const
+
+/**
+ * Commercial terms agreed with Webora on 2026-10-23 for the published
+ * Obchodné podmienky. Revision counts and the hourly rate are Claude's
+ * proposal from the 2026-10-21 audit, accepted with the rest.
+ */
+export const terms = {
+  depositPercent: 30,
+  finalPercent: 70,
+  invoiceDueDays: 14,
+  /** Days of silence after which a delivered design or build counts as approved. */
+  tacitApprovalDays: 14,
+  designRevisionRounds: 2,
+  buildRevisionRounds: 1,
+  hourlyRate: "45 €",
+  warrantyDays: 30,
+  /** Days within which a cancelled Care client receives the site's files. */
+  handoverDays: 14,
 } as const
 
 /**
