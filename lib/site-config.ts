@@ -174,30 +174,28 @@ export const faq = [
 /**
  * Legal identification.
  *
- * Codera currently has no trade licence or registered company, so there is
- * nothing truthful to publish. Do not invent IČO, DIČ, sídlo or "s.r.o." here:
- * an invented registry number on a live site is a legal problem, not a
- * cosmetic gap. Fill `operator` with the founders' real trade-licence data
- * and set `hasRegisteredEntity` to true; until then the footer shows no
- * identification and the legal pages show visible "doplní sa" placeholders.
+ * Marcus Marinica's trade licence, supplied by Webora on 2026-10-23 (IČO and
+ * VAT status) and checked against the Register of Legal Entities
+ * (api.statistics.sk/rpo, source: Živnostenský register, established
+ * 2026-10-08). Codera is a brand under this licence, not a company: never
+ * write "s.r.o." or a different name. Change these only from the register.
  */
 export const legal = {
-  hasRegisteredEntity: false as boolean,
+  hasRegisteredEntity: true as boolean,
   operator: {
-    /** Trade name exactly as in the trade register, e.g. "Meno Priezvisko – Codera". */
-    name: "",
+    /** Trade name exactly as in the trade register. */
+    name: "Marcus Marinica",
     /** Miesto podnikania. */
-    address: "",
-    ico: "",
-    /** e.g. "Okresný úrad Bratislava, č. živnostenského registra 110-123456". */
-    registry: "",
-    /** null until known; drives the "nie sme platitelia DPH" line. */
-    vatPayer: null as boolean | null,
+    address: "Na brehu 43, 080 05 Prešov",
+    ico: "57942153",
+    registry: "Zapísaný v Živnostenskom registri Okresného úradu Prešov, č. 750-73389",
+    /** Drives the "nie sme platitelia DPH" line. */
+    vatPayer: false as boolean | null,
   },
   /** The date the published privacy policy and terms take effect (D. M. RRRR). */
-  effectiveFrom: "",
-  /** Shown in the footer instead of registry data. */
-  note: "Codera je štúdio dvoch ľudí. Fakturačné údaje doplníme pri prvej objednávke.",
+  effectiveFrom: "23. 10. 2026",
+  /** Shown in the footer of the older Next.js pages (404, demos). */
+  note: "Codera · Marcus Marinica · IČO 57942153 · Na brehu 43, 080 05 Prešov. Nie sme platitelia DPH.",
 } as const
 
 /**

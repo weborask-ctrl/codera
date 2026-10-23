@@ -51,9 +51,7 @@ export function SiteFooter() {
         </div>
 
         <div className="flex flex-col gap-3 border-t border-hairline py-7">
-          {/* TODO(codera): once a trade licence or company exists, add the
-              registration details here. Until then there is nothing truthful
-              to publish, so nothing is claimed. */}
+          {/* registration details come from `legal.note` in site-config */}
           <p className="max-w-[54rem] text-caption text-muted-foreground">
             {legal.note} Projekty Konštrukt, Vitalis a Forma sú ukážkové
             koncepty vytvorené štúdiom Codera — nejde o realizácie pre klientov
