@@ -174,15 +174,47 @@ export const faq = [
 /**
  * Legal identification.
  *
- * Codera currently has no trade licence or registered company, so there is
- * nothing truthful to publish. Do not add IČO, DIČ, sídlo or "s.r.o." here
- * until the entity actually exists — an invented registry number on a live
- * site is a legal problem, not a cosmetic gap.
+ * Marcus Marinica's trade licence, supplied by Webora on 2026-10-23 (IČO and
+ * VAT status) and checked against the Register of Legal Entities
+ * (api.statistics.sk/rpo, source: Živnostenský register, established
+ * 2026-10-08). Codera is a brand under this licence, not a company: never
+ * write "s.r.o." or a different name. Change these only from the register.
  */
 export const legal = {
-  hasRegisteredEntity: false,
-  /** Shown in the footer instead of registry data. */
-  note: "Codera je štúdio dvoch ľudí. Fakturačné údaje doplníme pri prvej objednávke.",
+  hasRegisteredEntity: true as boolean,
+  operator: {
+    /** Trade name exactly as in the trade register. */
+    name: "Marcus Marinica",
+    /** Miesto podnikania. */
+    address: "Na brehu 43, 080 05 Prešov",
+    ico: "57942153",
+    registry: "Zapísaný v Živnostenskom registri Okresného úradu Prešov, č. 750-73389",
+    /** Drives the "nie sme platitelia DPH" line. */
+    vatPayer: false as boolean | null,
+  },
+  /** The date the published privacy policy and terms take effect (D. M. RRRR). */
+  effectiveFrom: "23. 10. 2026",
+  /** Shown in the footer of the older Next.js pages (404, demos). */
+  note: "Codera · Marcus Marinica · IČO 57942153 · Na brehu 43, 080 05 Prešov. Nie sme platitelia DPH.",
+} as const
+
+/**
+ * Commercial terms agreed with Webora on 2026-10-23 for the published
+ * Obchodné podmienky. Revision counts and the hourly rate are Claude's
+ * proposal from the 2026-10-21 audit, accepted with the rest.
+ */
+export const terms = {
+  depositPercent: 30,
+  finalPercent: 70,
+  invoiceDueDays: 14,
+  /** Days of silence after which a delivered design or build counts as approved. */
+  tacitApprovalDays: 14,
+  designRevisionRounds: 2,
+  buildRevisionRounds: 1,
+  hourlyRate: "45 €",
+  warrantyDays: 30,
+  /** Days within which a cancelled Care client receives the site's files. */
+  handoverDays: 14,
 } as const
 
 /**

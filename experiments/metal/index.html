@@ -65,12 +65,12 @@
           <div class="field-pair"><label>Vaše meno<input name="name" autocomplete="name" required minlength="2" placeholder="Ako vás oslovíme?"></label><label>E-mail<input name="email" type="email" autocomplete="email" required placeholder="vas@email.sk"></label></div>
           <label>Čo máte na mysli?<textarea name="message" rows="3" required minlength="10" placeholder="Povedzte nám niečo o vašom projekte."></textarea></label>
           <label class="visually-hidden" aria-hidden="true">Nevypĺňajte<input name="website" tabindex="-1" autocomplete="off"></label>
-          <div class="form-end"><p>Odpovieme vám na e-mail,<br> ktorý uvediete.</p><button class="button" type="submit" disabled>Odoslať dopyt <span aria-hidden="true">↗</span></button></div>
+          <div class="form-end"><p>Údaje použijeme len na odpoveď.<br> <a href="/ochrana-osobnych-udajov">Ochrana osobných údajov</a></p><button class="button" type="submit" disabled>Odoslať dopyt <span aria-hidden="true">↗</span></button></div>
           <p id="form-status" class="form-status" role="status"></p>
           <noscript><p>Napíšte nám priamo na <a href="mailto:{{email}}">{{email}}</a>.</p></noscript>
         </form>
       </div>
-      <footer class="footer"><a class="footer-wordmark" href="#top" aria-label="Codera — späť hore"><img src="/assets/brand/codera-wordmark-display.svg" alt="Codera" width="1200" height="220"><span aria-hidden="true">↗</span></a><div class="footer-bottom"><span>© {{year}} Codera</span><span>Dizajn &amp; vývoj. Slovensko.</span><a href="#top">Späť hore ↑</a></div></footer>
+      <footer class="footer"><a class="footer-wordmark" href="#top" aria-label="Codera — späť hore"><img src="/assets/brand/codera-wordmark-display.svg" alt="Codera" width="1200" height="220"><span aria-hidden="true">↗</span></a><div class="footer-bottom"><span>© {{year}} Codera</span><span>Dizajn &amp; vývoj. Slovensko.</span><a href="#top">Späť hore ↑</a></div><div class="footer-legal">{{legalLine}}<a href="/ochrana-osobnych-udajov">Ochrana osobných údajov</a><a href="/obchodne-podmienky">Obchodné podmienky</a></div></footer>
     </section>
   </main>
   <dialog class="project-dialog" aria-labelledby="preview-title"><div class="preview-toolbar"><h2 id="preview-title">Celý web</h2><a id="preview-live" href="#praca" class="text-link" target="_blank" rel="noopener noreferrer">Živá ukážka <span aria-hidden="true">↗</span></a><button id="preview-zoom" class="preview-close" type="button" aria-pressed="false">Zväčšiť</button><button class="preview-close close-dialog" type="button" aria-label="Zavrieť náhľad">Zavrieť <span aria-hidden="true">×</span></button></div><div class="preview-scroll"><img id="preview-image" alt=""></div></dialog>
