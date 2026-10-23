@@ -42,13 +42,26 @@ document.querySelector('#preview-zoom').addEventListener('click',event=>{
 });
 previewImage.addEventListener('click',()=>document.querySelector('#preview-zoom').click());
 preview.addEventListener('close',()=>{previewImage.removeAttribute('src');resetZoom();previewTrigger?.focus({preventScroll:true});});
-document.querySelector('#dopyt').addEventListener('submit',event=>{
+document.querySelector('#dopyt').addEventListener('submit',async event=>{
   event.preventDefault();const form=event.currentTarget;
   if(!form.reportValidity())return;
   const data=new FormData(form);
-  const body=`Meno: ${data.get('name')}\nE-mail: ${data.get('email')}\n\n${data.get('message')}`;
-  const mailto=`mailto:${form.dataset.email}?subject=${encodeURIComponent('Nový projekt — Codera')}&body=${encodeURIComponent(body)}`;
   const status=document.querySelector('#form-status');
-  status.textContent='Dopyt je pripravený na odoslanie vo vašom e-mailovom programe. Ak sa neotvoril, napíšte nám priamo na uvedený e-mail.';
-  window.location.href=mailto;
+  const button=form.querySelector('button[type="submit"]');
+  // Without a configured mail service the server says so and the visitor's own
+  // mail client takes over; the page never claims a message left when it did not.
+  const viaMailClient=()=>{
+    const body=`Meno: ${data.get('name')}\nE-mail: ${data.get('email')}\n\n${data.get('message')}`;
+    status.textContent='Dopyt je pripravený na odoslanie vo vašom e-mailovom programe. Ak sa neotvoril, napíšte nám priamo na uvedený e-mail.';
+    window.location.href=`mailto:${form.dataset.email}?subject=${encodeURIComponent('Nový projekt — Codera')}&body=${encodeURIComponent(body)}`;
+  };
+  button.disabled=true;status.textContent='Odosielame…';
+  try{
+    const response=await fetch('/api/dopyt',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.fromEntries(data))});
+    const result=await response.json();
+    if(result.ok){form.reset();status.textContent='Ďakujeme, správa odišla. Ozveme sa do 24 hodín.';}
+    else if(result.configured===false)viaMailClient();
+    else status.textContent=`${result.error} Môžete nám napísať aj priamo na ${form.dataset.email}.`;
+  }catch{viaMailClient();}
+  finally{button.disabled=false;}
 });

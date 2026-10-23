@@ -19,7 +19,7 @@
 <body>
   <a class="skip-link" href="#hlavny-obsah">Preskočiť na hlavný obsah</a>
   <header class="header" id="header">
-    <a class="brand" href="#top" aria-label="Codera — úvod"><img src="/assets/brand/codera-mark-mono.svg" width="34" height="34" alt=""><span>codera<span class="brand-dot">®</span></span></a>
+    <a class="brand" href="#top" aria-label="Codera — úvod"><img src="/assets/brand/codera-mark-mono.svg" width="34" height="34" alt=""><span>codera</span></a>
     <nav class="navigation" aria-label="Hlavná navigácia"><a href="#praca">Práca</a><a href="#sluzby">Služby</a><a href="#studio">Štúdio</a></nav>
     <a class="button header-cta" href="#dopyt">Začať projekt <span aria-hidden="true">↗</span></a>
     <button class="menu-button" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Otvoriť menu"><span></span><span></span></button>
@@ -56,14 +56,16 @@
     <section class="studio paper" id="studio" aria-labelledby="studio-title">
       <div class="studio-intro"><h2 id="studio-title">Od prvého ahoj.<br><em>Po hotový web.</em></h2><p>Sme {{people}}. S nami riešite nápad, dizajn aj vývoj. Priamo, od začiatku až po spustenie.</p></div>
       <div class="studio-body"><div class="proposal"><p class="proposal-time"><span class="proposal-value">{{proposalHours}}</span><span class="proposal-unit">hodín</span></p><h3>A váš nápad má<br><em>prvú podobu.</em></h3><p>Prvý návrh pripravíme do {{proposalHours}} hodín.</p></div><div class="process"><div><h3>Najprv vás spoznáme.</h3><p>Porozprávame sa o vašej firme, zákazníkoch a tom, čo má web priniesť.</p></div><div><h3>Nájdeme váš smer.</h3><p>Ukážeme vám návrh. Obsah, vzhľad aj rozsah doladíme spoločne.</p></div><div><h3>Dotiahneme detaily.</h3><p>Web vytvoríme, otestujeme a pripravíme na spustenie aj ďalšie používanie.</p></div></div></div>
+      <div class="faq"><h3 id="faq-title">Časté otázky</h3><div class="faq-list">{{faq}}</div></div>
     </section>
     <section class="contact" id="kontakt" aria-labelledby="contact-title">
       <div class="contact-top"><h2 id="contact-title">Teraz váš<br><em>ďalší krok.</em></h2><p>Máte nápad? Poďme mu dať podobu.<br>Konzultácia je bezplatná a nezáväzná.</p></div>
-      <div class="contact-grid"><div class="contact-info"><a class="email" href="mailto:{{email}}">{{email}} <span aria-hidden="true">↗</span></a><a class="phone" href="tel:{{phoneHref}}">{{phone}}</a><p>Ozveme sa do {{responseHours}} hodín.<br>Konzultácia je bezplatná a nezáväzná.</p><p class="contact-people">{{people}}</p></div>
+      <div class="contact-grid"><div class="contact-info"><a class="email" href="mailto:{{email}}">{{email}} <span aria-hidden="true">↗</span></a><a class="phone" href="tel:{{phoneHref}}">{{phone}}</a><p>Ozveme sa do {{responseHours}} hodín.</p><p class="contact-people">{{people}}</p></div>
         <form id="dopyt" class="enquiry" data-email="{{email}}">
           <div class="field-pair"><label>Vaše meno<input name="name" autocomplete="name" required minlength="2" placeholder="Ako vás oslovíme?"></label><label>E-mail<input name="email" type="email" autocomplete="email" required placeholder="vas@email.sk"></label></div>
           <label>Čo máte na mysli?<textarea name="message" rows="3" required minlength="10" placeholder="Povedzte nám niečo o vašom projekte."></textarea></label>
-          <div class="form-end"><p>Formulár pripraví správu vo vašom<br>e-mailovom programe.</p><button class="button" type="submit" disabled>Pripraviť dopyt <span aria-hidden="true">↗</span></button></div>
+          <label class="visually-hidden" aria-hidden="true">Nevypĺňajte<input name="website" tabindex="-1" autocomplete="off"></label>
+          <div class="form-end"><p>Odpovieme vám na e-mail,<br> ktorý uvediete.</p><button class="button" type="submit" disabled>Odoslať dopyt <span aria-hidden="true">↗</span></button></div>
           <p id="form-status" class="form-status" role="status"></p>
           <noscript><p>Napíšte nám priamo na <a href="mailto:{{email}}">{{email}}</a>.</p></noscript>
         </form>

@@ -1,4 +1,4 @@
-import { commercial, packages, people, siteConfig } from './site-config'
+import { commercial, faq, packages, people, siteConfig } from './site-config'
 export const structuredData = {
   "@context": "https://schema.org",
   "@type": "ProfessionalService",
@@ -41,32 +41,13 @@ export const structuredData = {
   },
 }
 
-/** Answers the questions buyers actually type into Google before enquiring. */
+/** The visible FAQ on the page, as structured data — one source, so the two never disagree. */
 export const faqData = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
-  mainEntity: [
-    {
-      question: "Koľko stojí firemná webstránka?",
-      answer: `Weby staviame od ${commercial.priceFrom}. Konečná cena závisí od rozsahu, počtu stránok a integrácií — dohodneme ju po bezplatnej konzultácii.`,
-    },
-    {
-      question: "Ako dlho trvá vytvorenie webu?",
-      answer: `Prvý návrh vidíte do ${commercial.firstProposalHours} hodín. Bežná firemná stránka býva hotová spravidla do ${commercial.typicalDeliveryDays} dní ${commercial.deliveryQualifier}. Pri rozsiahlejších projektoch termín dohodneme vopred.`,
-    },
-    {
-      question: "Čo potrebujete odo mňa na začiatku?",
-      answer:
-        "Základné informácie o firme, prístup k súčasnému webu a materiálom a predstavu o cieľoch. Zvyšok vyriešime počas konzultácie.",
-    },
-    {
-      question: "Za ako dlho sa ozvete?",
-      answer: `Na dopyt odpovedáme do ${commercial.responseHours} hodín. Konzultácia je bezplatná a nezáväzná.`,
-    },
-  ].map((item) => ({
+  mainEntity: faq.map((item) => ({
     "@type": "Question",
     name: item.question,
     acceptedAnswer: { "@type": "Answer", text: item.answer },
   })),
 }
-

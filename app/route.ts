@@ -12,6 +12,7 @@ export async function GET(request: Request) {
   const nonce = escapeHtml(request.headers.get("x-nonce") ?? "")
   let html = render(await template)
     .replace('<meta name="robots" content="noindex, nofollow">', '<meta name="robots" content="index, follow">')
+    .replace(/<title>[^<]*<\/title>/, `<title>${escapeHtml(siteConfig.title)}</title>`)
     .replace(/<meta name="description"[^>]+>/, `<meta name="description" content="${escapeHtml(siteConfig.description)}">`)
     .replaceAll('href="/fonts/', 'href="/silver/fonts/')
     .replaceAll('src="/assets/', 'src="/')
@@ -26,7 +27,9 @@ export async function GET(request: Request) {
     <meta property="og:title" content="${escapeHtml(siteConfig.title)}">
     <meta property="og:description" content="${escapeHtml(siteConfig.description)}">
     <meta property="og:url" content="${siteConfig.url}/">
-    <meta property="og:image" content="${siteConfig.url}/motion/metal/poster-sharp.webp">
+    <meta property="og:image" content="${siteConfig.url}/og-codera.jpg">
+    <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Codera — tvorba firemných webstránok">
     <meta name="twitter:card" content="summary_large_image">
     <script nonce="${nonce}" type="application/ld+json">${JSON.stringify(structuredData).replaceAll('<', '\\u003c')}</script>
     <script nonce="${nonce}" type="application/ld+json">${JSON.stringify(faqData).replaceAll('<', '\\u003c')}</script>`

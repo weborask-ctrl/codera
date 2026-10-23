@@ -146,6 +146,32 @@ export const wordpressService = {
 } as const
 
 /**
+ * The questions buyers actually type into Google before enquiring. Rendered
+ * as a visible section on the page and as FAQPage structured data from this
+ * one list: Google ignores (and may penalise) FAQ markup that the page does
+ * not show (audit 2026-10-21).
+ */
+export const faq = [
+  {
+    question: "Koľko stojí firemná webstránka?",
+    answer: `Weby staviame od ${commercial.priceFrom}. Konečná cena závisí od rozsahu, počtu stránok a integrácií — dohodneme ju po bezplatnej konzultácii.`,
+  },
+  {
+    question: "Ako dlho trvá vytvorenie webu?",
+    answer: `Prvý návrh vidíte do ${commercial.firstProposalHours} hodín. Bežná firemná stránka býva hotová spravidla do ${commercial.typicalDeliveryDays} dní ${commercial.deliveryQualifier}. Pri rozsiahlejších projektoch termín dohodneme vopred.`,
+  },
+  {
+    question: "Čo potrebujete odo mňa na začiatku?",
+    answer:
+      "Základné informácie o firme, prístup k súčasnému webu a materiálom a predstavu o cieľoch. Zvyšok vyriešime počas konzultácie.",
+  },
+  {
+    question: "Za ako dlho sa ozvete?",
+    answer: `Na dopyt odpovedáme do ${commercial.responseHours} hodín. Konzultácia je bezplatná a nezáväzná.`,
+  },
+] as const
+
+/**
  * Legal identification.
  *
  * Codera currently has no trade licence or registered company, so there is
